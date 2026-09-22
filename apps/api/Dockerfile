@@ -5,6 +5,8 @@ ENV PYTHONUNBUFFERED=1 \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
+    RUFF_CACHE_DIR=/tmp/ruff-cache \
+    MYPY_CACHE_DIR=/tmp/mypy-cache \
     PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /app

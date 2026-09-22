@@ -6,8 +6,8 @@ criar conta.
 
 ## Estado atual
 
-Fase 1A concluída: modelo de dados completo (assistência, usuários, clientes, aparelhos,
-ordens de serviço), máquina de estados validada e painel administrativo funcional.
+Fase 1B concluída: API REST com isolamento por assistência, autenticação por token guardado
+em cookie inacessível ao JavaScript, e telas em React para abrir ordens e movimentar o status.
 
 ## Stack
 
@@ -38,7 +38,7 @@ Serviços disponíveis:
 
 | Endereço | O que é |
 |---|---|
-| http://localhost:3000 | Aplicação web |
+| http://localhost:3000 | Aplicação web (entre com `joana` / `bancada123`) |
 | http://localhost:8000/api/health/ | Verificação de saúde da API |
 | http://localhost:8000/admin/ | Administração do Django |
 | localhost:5433 | PostgreSQL |
