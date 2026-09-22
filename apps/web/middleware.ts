@@ -1,19 +1,23 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLICAS = ["/login"];
+const SEM_LOGIN = ["/os"];
+const SO_PARA_DESLOGADO = ["/login"];
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get("bancada_token")?.value;
   const caminho = request.nextUrl.pathname;
-  const ehPublica = PUBLICAS.some((rota) => caminho.startsWith(rota));
+  const token = request.cookies.get("bancada_token")?.value;
 
-  if (!token && !ehPublica) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  if (SEM_LOGIN.some((rota) => caminho.startsWith(rota))) {
+    return NextResponse.next();
   }
 
-  if (token && ehPublica) {
-    return NextResponse.redirect(new URL("/ordens", request.url));
+  if (SO_PARA_DESLOGADO.some((rota) => caminho.startsWith(rota))) {
+    return token ? NextResponse.redirect(new URL("/ordens", request.url)) : NextResponse.next();
+  }
+
+  if (!token) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();

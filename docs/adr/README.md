@@ -13,3 +13,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0005](0005-fastapi-adiado-para-a-camada-de-ia.md) | FastAPI adiado para a camada de IA |
 | [0006](0006-asaas-para-cobranca-recorrente.md) | Asaas para cobrança recorrente |
 | [0007](0007-token-em-cookie-httponly.md) | Autenticação por token em cookie httpOnly |
+| [0008](0008-pagina-publica-de-acompanhamento.md) | Página pública de acompanhamento |

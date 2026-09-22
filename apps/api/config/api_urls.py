@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
 from bancada.ordens.views import OrdemServicoViewSet
+from bancada.ordens.views_publicas import AcompanhamentoPublicoView
 from bancada.tenants.views import EuView, LoginView, LogoutView, LojasView
 
 router = DefaultRouter()
@@ -15,5 +16,10 @@ urlpatterns = [
     path("auth/logout/", LogoutView.as_view(), name="logout"),
     path("auth/eu/", EuView.as_view(), name="eu"),
     path("lojas/", LojasView.as_view(), name="lojas"),
+    path(
+        "publico/os/<str:token>/",
+        AcompanhamentoPublicoView.as_view(),
+        name="acompanhamento-publico",
+    ),
     path("", include(router.urls)),
 ]

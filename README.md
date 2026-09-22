@@ -6,8 +6,8 @@ criar conta.
 
 ## Estado atual
 
-Fase 1B concluída: API REST com isolamento por assistência, autenticação por token guardado
-em cookie inacessível ao JavaScript, e telas em React para abrir ordens e movimentar o status.
+Fase 1C concluída: o produto fecha o ciclo. A assistência abre a ordem, movimenta o status e
+envia o link; o cliente acompanha o reparo sem criar conta.
 
 ## Stack
 
@@ -41,6 +41,7 @@ Serviços disponíveis:
 | http://localhost:3000 | Aplicação web (entre com `joana` / `bancada123`) |
 | http://localhost:8000/api/health/ | Verificação de saúde da API |
 | http://localhost:8000/admin/ | Administração do Django |
+| http://localhost:3000/os/`token` | Acompanhamento público (o token aparece no detalhe da OS) |
 | localhost:5433 | PostgreSQL |
 | localhost:6380 | Redis |
 

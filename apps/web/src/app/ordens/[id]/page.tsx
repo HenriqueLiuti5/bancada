@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CompartilharLink } from "@/componentes/CompartilharLink";
 import { Selo } from "@/componentes/Selo";
 import { chamarApi } from "@/lib/api";
 import type { Ordem } from "@/lib/tipos";
@@ -18,6 +19,8 @@ function formatarMomento(iso: string): string {
 export default async function DetalheDaOrdem({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const ordem = await chamarApi<Ordem>(`/api/ordens/${id}/`);
+  const base = process.env.APP_PUBLIC_URL ?? "http://localhost:3000";
+  const linkDoCliente = `${base}/os/${ordem.token_publico}`;
 
   return (
     <div className="space-y-8">
@@ -70,6 +73,12 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
           </dl>
         </div>
       </section>
+
+      <CompartilharLink
+        url={linkDoCliente}
+        aparelho={ordem.aparelho_descricao}
+        cliente={ordem.cliente_nome.split(" ")[0]}
+      />
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Mudar status</h2>

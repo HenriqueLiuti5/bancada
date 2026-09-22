@@ -57,6 +57,7 @@ services:
     build: ./apps/web
     environment:
       API_INTERNAL_URL: http://api:8000
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost:3000}
       WATCHPACK_POLLING: "true"
     volumes:
       - ./apps/web:/app

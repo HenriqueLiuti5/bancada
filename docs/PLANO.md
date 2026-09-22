@@ -64,7 +64,8 @@ o operador.
 | 0 | Ambiente de desenvolvimento, CI, decisões registradas | concluída |
 | 1A | Modelo de dados, máquina de estados e painel administrativo | concluída |
 | 1B | API e telas em React: login, lista de OS, abertura e mudança de status | concluída |
-| 1C | Página pública de acompanhamento e fotos do aparelho | |
+| 1C | Página pública de acompanhamento | concluída |
+| 1D | Fotos do aparelho e trava no banco (RLS) | |
 | 2 | Celery, notificação por e-mail, PDF da OS, cache, auditoria | |
 | 3 | Painel, busca, filtros, papéis e permissões | |
 | 4 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
