@@ -6,8 +6,8 @@ criar conta.
 
 ## Estado atual
 
-Fase 0 concluída: ambiente de desenvolvimento completo subindo com um comando, integração
-contínua configurada e decisões de arquitetura registradas.
+Fase 1A concluída: modelo de dados completo (assistência, usuários, clientes, aparelhos,
+ordens de serviço), máquina de estados validada e painel administrativo funcional.
 
 ## Stack
 
@@ -28,7 +28,11 @@ Pré-requisitos: Docker com o plugin Compose.
 ```bash
 cp .env.example .env
 make up
+make semear
 ```
+
+O comando `semear` cria uma assistência de exemplo com clientes, aparelhos e duas ordens de
+serviço, além dos usuários `admin` e `joana` (senha `bancada123`, apenas para uso local).
 
 Serviços disponíveis:
 
@@ -54,6 +58,7 @@ make logs        # acompanha os logs
 make test        # roda os testes do backend
 make lint        # roda ruff e mypy
 make migrate     # aplica migrações
+make semear      # popula o banco com dados de demonstração
 make superuser   # cria um administrador
 make clean       # derruba tudo e apaga o banco local
 ```

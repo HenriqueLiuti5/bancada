@@ -24,6 +24,9 @@ migrate: ## Aplica as migracoes do banco
 makemigrations: ## Gera novas migracoes a partir dos models
 	docker compose exec api python manage.py makemigrations
 
+semear: ## Popula o banco com dados de demonstracao
+	docker compose exec api python manage.py semear
+
 superuser: ## Cria um usuario administrador
 	docker compose exec api python manage.py createsuperuser
 
@@ -42,4 +45,4 @@ fmt: ## Formata o codigo do backend
 clean: ## Derruba tudo e apaga os volumes (APAGA O BANCO LOCAL)
 	docker compose down -v
 
-.PHONY: help up down logs ps shell migrate makemigrations superuser test lint fmt clean
+.PHONY: help up down logs ps shell migrate makemigrations semear superuser test lint fmt clean

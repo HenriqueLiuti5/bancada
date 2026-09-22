@@ -62,7 +62,9 @@ o operador.
 | Fase | Entrega | Estado |
 |---|---|---|
 | 0 | Ambiente de desenvolvimento, CI, decisões registradas | concluída |
-| 1 | Cadastro da assistência, CRUD de cliente, aparelho e OS, máquina de estados, fotos, página pública | |
+| 1A | Modelo de dados, máquina de estados e painel administrativo | concluída |
+| 1B | API e telas em React: login, lista de OS, abertura e mudança de status | |
+| 1C | Página pública de acompanhamento e fotos do aparelho | |
 | 2 | Celery, notificação por e-mail, PDF da OS, cache, auditoria | |
 | 3 | Painel, busca, filtros, papéis e permissões | |
 | 4 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |

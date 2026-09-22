@@ -23,6 +23,9 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "bancada.core",
+    "bancada.tenants",
+    "bancada.clientes",
+    "bancada.ordens",
 ]
 
 MIDDLEWARE = [
@@ -126,3 +129,7 @@ LOGGING = {
     },
     "root": {"handlers": ["console"], "level": "INFO"},
 }
+
+AUTH_USER_MODEL = "tenants.Usuario"
+
+BANCADA_ENCRYPTION_KEY = os.environ.get("BANCADA_ENCRYPTION_KEY", "")
