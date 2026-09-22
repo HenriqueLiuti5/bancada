@@ -3,6 +3,16 @@
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
+setup: ## Prepara o .env local com uma chave de criptografia nova
+	@if [ -f .env ]; then \
+		echo ".env ja existe; nada foi alterado."; \
+	else \
+		cp .env.example .env; \
+		CHAVE=$$(python3 -c "import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())" 2>/dev/null || openssl rand -base64 32 | tr '+/' '-_'); \
+		sed -i.bak "s|^BANCADA_ENCRYPTION_KEY=.*|BANCADA_ENCRYPTION_KEY=$$CHAVE|" .env && rm -f .env.bak; \
+		echo ".env criado com uma chave de criptografia propria desta maquina."; \
+	fi
+
 up: ## Sobe todos os servicos
 	docker compose up -d --build
 
@@ -45,4 +55,4 @@ fmt: ## Formata o codigo do backend
 clean: ## Derruba tudo e apaga os volumes (APAGA O BANCO LOCAL)
 	docker compose down -v
 
-.PHONY: help up down logs ps shell migrate makemigrations semear superuser test lint fmt clean
+.PHONY: help setup up down logs ps shell migrate makemigrations semear superuser test lint fmt clean

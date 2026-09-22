@@ -23,16 +23,30 @@ envia o link; o cliente acompanha o reparo sem criar conta.
 
 ## Como rodar
 
-Pré-requisitos: Docker com o plugin Compose.
+Pré-requisitos: Docker com o plugin Compose, Git e `make`.
 
 ```bash
-cp .env.example .env
+git clone https://github.com/HenriqueLiuti5/bancada.git
+cd bancada
+make setup
 make up
 make semear
 ```
 
-O comando `semear` cria uma assistência de exemplo com clientes, aparelhos e duas ordens de
-serviço, além dos usuários `admin` e `joana` (senha `bancada123`, apenas para uso local).
+O `make setup` cria o `.env` a partir do exemplo e gera uma chave de criptografia própria da
+máquina. Essa chave protege a senha de desbloqueio dos aparelhos, então **cada ambiente tem a
+sua** e ela nunca é versionada. Dados gravados com uma chave não podem ser lidos com outra.
+
+O `make semear` cria uma assistência de exemplo com clientes, aparelhos e duas ordens de serviço,
+além dos usuários `admin` e `joana` (senha `bancada123`, apenas para uso local).
+
+Se `docker compose` não for reconhecido mas `docker-compose` existir, o plugin não está
+registrado. Isso resolve, sem precisar de administrador:
+
+```bash
+mkdir -p ~/.docker/cli-plugins
+ln -sf "$(command -v docker-compose)" ~/.docker/cli-plugins/docker-compose
+```
 
 Serviços disponíveis:
 
@@ -53,6 +67,7 @@ locais nas portas padrão. Dentro da rede do Docker os serviços continuam nas p
 
 ```bash
 make help        # lista todos os comandos
+make setup       # cria o .env com uma chave de criptografia nova
 make up          # sobe os serviços
 make down        # derruba os serviços
 make logs        # acompanha os logs
