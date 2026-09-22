@@ -120,6 +120,23 @@ TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
 
+AWS_STORAGE_BUCKET_NAME = os.environ.get("S3_BUCKET", "bancada")
+AWS_S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT_URL", "http://minio:9000")
+AWS_ACCESS_KEY_ID = os.environ.get("S3_ACCESS_KEY", "bancada")
+AWS_SECRET_ACCESS_KEY = os.environ.get("S3_SECRET_KEY", "bancada123")
+AWS_S3_REGION_NAME = os.environ.get("S3_REGION", "us-east-1")
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = True
+AWS_QUERYSTRING_EXPIRE = int(os.environ.get("S3_URL_EXPIRE", "300"))
+AWS_S3_ADDRESSING_STYLE = "path"
+S3_PUBLIC_ENDPOINT = os.environ.get("S3_PUBLIC_ENDPOINT", "http://localhost:9000")
+
+STORAGES = {
+    "default": {"BACKEND": "bancada.core.armazenamento.ArmazenamentoDeFotos"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"

@@ -1,7 +1,11 @@
+from pathlib import Path
+from typing import Any
+
 from rest_framework import serializers
 
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.ordens.estados import TRANSICOES, StatusOS
+from bancada.ordens.fotos import EXTENSOES_ACEITAS, TAMANHO_MAXIMO_EM_BYTES, FotoOrdem
 from bancada.ordens.models import EventoOS, ItemOrcamento, OrdemServico
 from bancada.tenants.models import Loja
 
@@ -37,6 +41,34 @@ class EventoOSSerializer(serializers.ModelSerializer):
         return StatusOS(obj.para_status).label
 
 
+class FotoSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+    momento_label = serializers.CharField(source="get_momento_display", read_only=True)
+
+    class Meta:
+        model = FotoOrdem
+        fields = ["id", "url", "momento", "momento_label", "legenda", "criado_em"]
+
+    def get_url(self, obj: FotoOrdem) -> str:
+        return obj.arquivo.url
+
+
+class EnvioDeFotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FotoOrdem
+        fields = ["arquivo", "momento", "legenda"]
+
+    def validate_arquivo(self, arquivo: Any) -> Any:
+        if arquivo.size > TAMANHO_MAXIMO_EM_BYTES:
+            limite = TAMANHO_MAXIMO_EM_BYTES // (1024 * 1024)
+            raise serializers.ValidationError(f"A foto passa de {limite} MB.")
+        extensao = Path(arquivo.name).suffix.lower()
+        if extensao not in EXTENSOES_ACEITAS:
+            aceitas = ", ".join(sorted(EXTENSOES_ACEITAS))
+            raise serializers.ValidationError(f"Formato não aceito. Use: {aceitas}.")
+        return arquivo
+
+
 class OrdemServicoListSerializer(serializers.ModelSerializer):
     cliente_nome = serializers.CharField(source="cliente.nome", read_only=True)
     aparelho_descricao = serializers.CharField(source="aparelho.__str__", read_only=True)
@@ -62,6 +94,7 @@ class OrdemServicoListSerializer(serializers.ModelSerializer):
 class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     itens = ItemOrcamentoSerializer(many=True, read_only=True)
     eventos = EventoOSSerializer(many=True, read_only=True)
+    fotos = FotoSerializer(many=True, read_only=True)
     transicoes_possiveis = serializers.SerializerMethodField()
     total_orcamento = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     imei_mascarado = serializers.CharField(source="aparelho.imei_mascarado", read_only=True)
@@ -77,6 +110,7 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
             "imei_mascarado",
             "itens",
             "eventos",
+            "fotos",
             "transicoes_possiveis",
             "total_orcamento",
         ]

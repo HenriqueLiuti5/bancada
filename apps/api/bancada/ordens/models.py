@@ -7,6 +7,7 @@ from django.db import models, transaction
 
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.models import Carimbado, PertenceAoTenant
+from bancada.ordens.fotos import FotoOrdem, MomentoDaFoto
 from bancada.ordens.estados import (
     ESTADOS_FINAIS,
     TRANSICOES,
@@ -15,6 +16,15 @@ from bancada.ordens.estados import (
     pode_ir_de,
 )
 from bancada.tenants.models import Loja, Tenant, Usuario
+
+__all__ = [
+    "EventoOS",
+    "FotoOrdem",
+    "ItemOrcamento",
+    "MomentoDaFoto",
+    "OrdemServico",
+    "TipoItem",
+]
 
 
 def gerar_token_publico() -> str:

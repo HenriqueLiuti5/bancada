@@ -1,6 +1,7 @@
 from django.db.models import QuerySet
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
@@ -10,6 +11,8 @@ from bancada.ordens.estados import TransicaoInvalida
 from bancada.ordens.models import OrdemServico
 from bancada.ordens.serializers import (
     AberturaOrdemSerializer,
+    EnvioDeFotoSerializer,
+    FotoSerializer,
     OrdemServicoDetailSerializer,
     OrdemServicoListSerializer,
     TransicaoSerializer,
@@ -28,7 +31,7 @@ class OrdemServicoViewSet(ViewSetDoTenant):
     def get_queryset(self) -> QuerySet[OrdemServico]:
         consulta = super().get_queryset()
         if self.action != "list":
-            consulta = consulta.prefetch_related("itens", "eventos__usuario")
+            consulta = consulta.prefetch_related("itens", "eventos__usuario", "fotos")
         situacao = self.request.query_params.get("status")
         if situacao:
             consulta = consulta.filter(status=situacao)
@@ -53,6 +56,31 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         )
         saida = OrdemServicoDetailSerializer(ordem, context=self.get_serializer_context())
         return Response(saida.data, status=status.HTTP_201_CREATED)
+
+    @action(
+        detail=True,
+        methods=["post"],
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def fotos(self, request: Request, pk: str | None = None) -> Response:
+        ordem = self.get_object()
+        entrada = EnvioDeFotoSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        foto = entrada.save(ordem=ordem)
+        return Response(
+            FotoSerializer(foto, context=self.get_serializer_context()).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @action(detail=True, methods=["delete"], url_path="fotos/(?P<foto_id>[0-9]+)")
+    def remover_foto(
+        self, request: Request, pk: str | None = None, foto_id: str | None = None
+    ) -> Response:
+        ordem = self.get_object()
+        apagadas, _ = ordem.fotos.filter(pk=foto_id).delete()
+        if not apagadas:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=["post"])
     def transicionar(self, request: Request, pk: str | None = None) -> Response:
