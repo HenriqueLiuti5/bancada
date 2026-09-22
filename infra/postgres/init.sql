@@ -1,0 +1,5 @@
+CREATE ROLE bancada_app WITH LOGIN PASSWORD 'bancada' CREATEDB;
+
+ALTER SCHEMA public OWNER TO bancada_app;
+
+GRANT ALL PRIVILEGES ON DATABASE bancada TO bancada_app;

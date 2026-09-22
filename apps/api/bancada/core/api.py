@@ -6,6 +6,7 @@ from rest_framework.request import Request
 from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
 
+from bancada.core.rls import aplicar_tenant
 from bancada.tenants.models import Tenant, Usuario
 
 
@@ -25,6 +26,11 @@ class PertenceAUmaAssistencia(permissions.BasePermission):
 
 class ViewSetDoTenant(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, PertenceAUmaAssistencia]
+
+    def initial(self, request: Request, *args: Any, **kwargs: Any) -> None:
+        super().initial(request, *args, **kwargs)
+        tenant = tenant_do_pedido(request)
+        aplicar_tenant(tenant.pk if tenant else -1)
 
     def get_queryset(self) -> QuerySet[Any]:
         return super().get_queryset().filter(tenant=tenant_do_pedido(self.request))

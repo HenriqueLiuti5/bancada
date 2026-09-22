@@ -63,10 +63,12 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "bancada"),
-        "USER": os.environ.get("POSTGRES_USER", "bancada"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "bancada"),
+        "USER": os.environ.get("POSTGRES_APP_USER") or os.environ.get("POSTGRES_USER", "bancada"),
+        "PASSWORD": os.environ.get("POSTGRES_APP_PASSWORD")
+        or os.environ.get("POSTGRES_PASSWORD", "bancada"),
         "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        "ATOMIC_REQUESTS": True,
     }
 }
 

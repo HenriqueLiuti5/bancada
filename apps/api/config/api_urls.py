@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -18,7 +19,7 @@ urlpatterns = [
     path("lojas/", LojasView.as_view(), name="lojas"),
     path(
         "publico/os/<str:token>/",
-        AcompanhamentoPublicoView.as_view(),
+        transaction.non_atomic_requests(AcompanhamentoPublicoView.as_view()),
         name="acompanhamento-publico",
     ),
     path("", include(router.urls)),

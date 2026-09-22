@@ -42,6 +42,8 @@ jobs:
       POSTGRES_PASSWORD: bancada
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
+      POSTGRES_APP_USER: bancada_app
+      POSTGRES_APP_PASSWORD: bancada
       REDIS_URL: redis://localhost:6379/0
       DJANGO_SECRET_KEY: chave-de-teste
       DJANGO_DEBUG: "0"
@@ -49,6 +51,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+
+      - name: Criar o papel da aplicacao no banco
+        env:
+          PGPASSWORD: bancada
+        run: psql -h localhost -U bancada -d bancada -f ../../infra/postgres/init.sql
 
       - uses: astral-sh/setup-uv@v10.2.0
         with:
