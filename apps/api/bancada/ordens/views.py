@@ -1,15 +1,19 @@
 from django.db.models import QuerySet
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 
 from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
 from bancada.ordens.estados import TransicaoInvalida
-from bancada.ordens.models import OrdemServico
+from bancada.ordens.fotos import FotoInvalida
+from bancada.ordens.models import FotoOS, OrdemServico
 from bancada.ordens.serializers import (
     AberturaOrdemSerializer,
+    EnvioDeFotoSerializer,
+    FotoOSSerializer,
     OrdemServicoDetailSerializer,
     OrdemServicoListSerializer,
     TransicaoSerializer,
@@ -28,7 +32,7 @@ class OrdemServicoViewSet(ViewSetDoTenant):
     def get_queryset(self) -> QuerySet[OrdemServico]:
         consulta = super().get_queryset()
         if self.action != "list":
-            consulta = consulta.prefetch_related("itens", "eventos__usuario")
+            consulta = consulta.prefetch_related("itens", "eventos__usuario", "fotos")
         situacao = self.request.query_params.get("status")
         if situacao:
             consulta = consulta.filter(status=situacao)
@@ -54,6 +58,31 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         saida = OrdemServicoDetailSerializer(ordem, context=self.get_serializer_context())
         return Response(saida.data, status=status.HTTP_201_CREATED)
 
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="fotos",
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def enviar_foto(self, request: Request, pk: str | None = None) -> Response:
+        entrada = EnvioDeFotoSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+
+        ordem = self.get_object()
+        usuario = request.user if isinstance(request.user, Usuario) else None
+        try:
+            foto = FotoOS.registrar(
+                ordem=ordem,
+                enviado=entrada.validated_data["arquivo"],
+                momento=entrada.validated_data["momento"],
+                legenda=entrada.validated_data["legenda"],
+                enviada_por=usuario,
+            )
+        except FotoInvalida as erro:
+            return Response({"arquivo": [str(erro)]}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(FotoOSSerializer(foto).data, status=status.HTTP_201_CREATED)
+
     @action(detail=True, methods=["post"])
     def transicionar(self, request: Request, pk: str | None = None) -> Response:
         entrada = TransicaoSerializer(data=request.data)
@@ -73,3 +102,9 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         ordem = self.get_queryset().get(pk=ordem.pk)
         saida = OrdemServicoDetailSerializer(ordem, context=self.get_serializer_context())
         return Response(saida.data)
+
+
+class FotoViewSet(ViewSetDoTenant):
+    serializer_class = FotoOSSerializer
+    queryset = FotoOS.objects.select_related("ordem")
+    http_method_names = ["patch", "delete"]

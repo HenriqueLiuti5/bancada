@@ -65,7 +65,7 @@ o operador.
 | 1A | Modelo de dados, máquina de estados e painel administrativo | concluída |
 | 1B | API e telas em React: login, lista de OS, abertura e mudança de status | concluída |
 | 1C | Página pública de acompanhamento | concluída |
-| 1D | Fotos do aparelho e trava no banco (RLS) | |
+| 1D | Fotos do aparelho e trava no banco (RLS) | concluída |
 | 2 | Celery, notificação por e-mail, PDF da OS, cache, auditoria | |
 | 3 | Painel, busca, filtros, papéis e permissões | |
 | 4 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |

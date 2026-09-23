@@ -101,6 +101,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_THROTTLE_RATES": {
         "acompanhamento_publico": os.environ.get("THROTTLE_PUBLICO", "60/min"),
+        "arquivo_de_foto": os.environ.get("THROTTLE_FOTOS", "240/min"),
     },
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 25,

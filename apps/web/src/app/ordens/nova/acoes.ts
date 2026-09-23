@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { ErroDaApi, chamarApi } from "@/lib/api";
+import { chamarApi, mensagemDaApi } from "@/lib/api";
 import type { Ordem } from "@/lib/tipos";
 
 export type EstadoAbertura = { erro?: string };
@@ -26,13 +26,7 @@ export async function abrirOrdem(
       corpo: { loja, cliente, aparelho, problema_relatado },
     });
   } catch (erro) {
-    if (erro instanceof ErroDaApi) {
-      const corpo = erro.corpo as Record<string, string[] | string> | null;
-      const primeira = corpo ? Object.values(corpo)[0] : null;
-      const mensagem = Array.isArray(primeira) ? primeira[0] : primeira;
-      return { erro: mensagem ?? "Não foi possível abrir a ordem." };
-    }
-    return { erro: "Não foi possível falar com o servidor." };
+    return { erro: mensagemDaApi(erro, "Não foi possível abrir a ordem.") };
   }
 
   redirect(`/ordens/${criada.id}`);

@@ -1,8 +1,10 @@
 import secrets
 from decimal import Decimal
 from typing import Any
+from uuid import uuid4
 
 from django.conf import settings
+from django.core.files import File
 from django.db import models, transaction
 
 from bancada.clientes.models import Aparelho, Cliente
@@ -14,6 +16,7 @@ from bancada.ordens.estados import (
     TransicaoInvalida,
     pode_ir_de,
 )
+from bancada.ordens.fotos import MomentoDaFoto, normalizar
 from bancada.tenants.models import Loja, Tenant, Usuario
 
 
@@ -201,3 +204,61 @@ class EventoOS(models.Model):
     def __str__(self) -> str:
         origem = self.de_status or "início"
         return f"OS #{self.ordem.numero}: {origem} → {self.para_status}"
+
+
+def caminho_da_foto(instancia: "FotoOS", nome_enviado: str) -> str:
+    return f"fotos/{instancia.tenant_id}/{instancia.ordem_id}/{uuid4().hex}.jpg"
+
+
+class FotoOS(PertenceAoTenant):
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="fotos")
+    momento = models.CharField(
+        max_length=10,
+        choices=MomentoDaFoto.choices,
+        default=MomentoDaFoto.ENTRADA,
+    )
+    arquivo = models.ImageField(upload_to=caminho_da_foto)
+    legenda = models.CharField(max_length=140, blank=True)
+    largura = models.PositiveIntegerField()
+    altura = models.PositiveIntegerField()
+    visivel_ao_cliente = models.BooleanField(default=True)
+    enviada_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="fotos_enviadas",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "foto da ordem"
+        verbose_name_plural = "fotos da ordem"
+        ordering = ["criado_em"]
+        indexes = [models.Index(fields=["ordem", "momento"])]
+
+    def __str__(self) -> str:
+        return f"Foto {self.get_momento_display().lower()} da OS #{self.ordem.numero}"
+
+    @classmethod
+    @transaction.atomic
+    def registrar(
+        cls,
+        *,
+        ordem: OrdemServico,
+        enviado: File,
+        momento: str = MomentoDaFoto.ENTRADA,
+        legenda: str = "",
+        enviada_por: Usuario | None = None,
+    ) -> "FotoOS":
+        normalizada = normalizar(enviado)
+        foto = cls(
+            tenant=ordem.tenant,
+            ordem=ordem,
+            momento=momento,
+            legenda=legenda,
+            largura=normalizada.largura,
+            altura=normalizada.altura,
+            enviada_por=enviada_por,
+        )
+        foto.arquivo.save(f"{uuid4().hex}.jpg", normalizada.conteudo, save=True)
+        return foto

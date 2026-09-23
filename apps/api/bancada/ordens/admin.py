@@ -3,9 +3,12 @@ from typing import Any
 from django.contrib import admin
 from django.db.models import QuerySet
 from django.http import HttpRequest
+from django.urls import reverse
+from django.utils.html import format_html
 
 from bancada.ordens.forms import OrdemServicoForm
-from bancada.ordens.models import EventoOS, ItemOrcamento, OrdemServico
+from bancada.ordens.fotos import assinar
+from bancada.ordens.models import EventoOS, FotoOS, ItemOrcamento, OrdemServico
 from bancada.tenants.models import Usuario
 
 
@@ -29,6 +32,23 @@ class EventoOSInline(admin.TabularInline):
         return False
 
 
+class FotoOSInline(admin.TabularInline):
+    model = FotoOS
+    extra = 0
+    fields = ["previa", "momento", "legenda", "visivel_ao_cliente", "enviada_por", "criado_em"]
+    readonly_fields = ["previa", "momento", "legenda", "enviada_por", "criado_em"]
+
+    def has_add_permission(self, request: HttpRequest, obj: Any = None) -> bool:
+        return False
+
+    @admin.display(description="prévia")
+    def previa(self, obj: FotoOS) -> str:
+        endereco = reverse("arquivo-da-foto", args=[assinar(obj.pk)])
+        return format_html(
+            '<img src="{}" alt="" style="max-height: 120px; border-radius: 6px" />', endereco
+        )
+
+
 @admin.register(OrdemServico)
 class OrdemServicoAdmin(admin.ModelAdmin):
     form = OrdemServicoForm
@@ -36,7 +56,7 @@ class OrdemServicoAdmin(admin.ModelAdmin):
     list_filter = ["tenant", "status", "loja"]
     search_fields = ["numero", "cliente__nome", "aparelho__marca", "aparelho__modelo"]
     readonly_fields = ["numero", "token_publico", "entregue_em", "criado_em", "atualizado_em"]
-    inlines = [ItemOrcamentoInline, EventoOSInline]
+    inlines = [ItemOrcamentoInline, FotoOSInline, EventoOSInline]
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[OrdemServico]:
         return super().get_queryset(request).select_related("cliente", "aparelho", "tenant")

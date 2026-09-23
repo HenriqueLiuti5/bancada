@@ -50,6 +50,18 @@ export type ItemOrcamento = {
   aprovado: boolean;
 };
 
+export type Foto = {
+  id: number;
+  momento: string;
+  momento_label: string;
+  legenda: string;
+  largura: number;
+  altura: number;
+  visivel_ao_cliente: boolean;
+  assinatura: string;
+  criado_em: string;
+};
+
 export type Transicao = { valor: string; rotulo: string };
 
 export type OrdemResumo = {
@@ -74,6 +86,7 @@ export type Ordem = OrdemResumo & {
   imei_mascarado: string;
   itens: ItemOrcamento[];
   eventos: Evento[];
+  fotos: Foto[];
   transicoes_possiveis: Transicao[];
   total_orcamento: string;
 };

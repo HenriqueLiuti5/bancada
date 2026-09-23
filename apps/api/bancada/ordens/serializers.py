@@ -2,7 +2,8 @@ from rest_framework import serializers
 
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.ordens.estados import TRANSICOES, StatusOS
-from bancada.ordens.models import EventoOS, ItemOrcamento, OrdemServico
+from bancada.ordens.fotos import MomentoDaFoto, assinar
+from bancada.ordens.models import EventoOS, FotoOS, ItemOrcamento, OrdemServico
 from bancada.tenants.models import Loja
 
 
@@ -10,6 +11,35 @@ class ItemOrcamentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemOrcamento
         fields = ["id", "tipo", "descricao", "valor", "aprovado"]
+
+
+class FotoOSSerializer(serializers.ModelSerializer):
+    momento_label = serializers.CharField(source="get_momento_display", read_only=True)
+    assinatura = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FotoOS
+        fields = [
+            "id",
+            "momento",
+            "momento_label",
+            "legenda",
+            "largura",
+            "altura",
+            "visivel_ao_cliente",
+            "assinatura",
+            "criado_em",
+        ]
+        read_only_fields = ["momento", "legenda", "largura", "altura", "criado_em"]
+
+    def get_assinatura(self, obj: FotoOS) -> str:
+        return assinar(obj.pk)
+
+
+class EnvioDeFotoSerializer(serializers.Serializer):
+    arquivo = serializers.FileField()
+    momento = serializers.ChoiceField(choices=MomentoDaFoto.choices, default=MomentoDaFoto.ENTRADA)
+    legenda = serializers.CharField(required=False, allow_blank=True, default="", max_length=140)
 
 
 class EventoOSSerializer(serializers.ModelSerializer):
@@ -62,6 +92,7 @@ class OrdemServicoListSerializer(serializers.ModelSerializer):
 class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     itens = ItemOrcamentoSerializer(many=True, read_only=True)
     eventos = EventoOSSerializer(many=True, read_only=True)
+    fotos = FotoOSSerializer(many=True, read_only=True)
     transicoes_possiveis = serializers.SerializerMethodField()
     total_orcamento = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     imei_mascarado = serializers.CharField(source="aparelho.imei_mascarado", read_only=True)
@@ -77,6 +108,7 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
             "imei_mascarado",
             "itens",
             "eventos",
+            "fotos",
             "transicoes_possiveis",
             "total_orcamento",
         ]

@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ErroDaApi, chamarApi } from "@/lib/api";
+import { chamarApi, enviarArquivo, mensagemDaApi } from "@/lib/api";
 
 export type EstadoTransicao = { erro?: string };
+export type EstadoDaFoto = { erro?: string; enviada?: boolean };
 
 export async function transicionar(
   _anterior: EstadoTransicao,
@@ -19,14 +20,58 @@ export async function transicionar(
       corpo: { status, nota },
     });
   } catch (erro) {
-    if (erro instanceof ErroDaApi) {
-      const corpo = erro.corpo as { detail?: string } | null;
-      return { erro: corpo?.detail ?? "Não foi possível mudar o status." };
-    }
-    return { erro: "Não foi possível falar com o servidor." };
+    return { erro: mensagemDaApi(erro, "Não foi possível mudar o status.") };
   }
 
   revalidatePath(`/ordens/${id}`);
   revalidatePath("/ordens");
   return {};
+}
+
+export async function enviarFoto(
+  _anterior: EstadoDaFoto,
+  dados: FormData,
+): Promise<EstadoDaFoto> {
+  const id = String(dados.get("id"));
+  const arquivo = dados.get("arquivo");
+
+  if (!(arquivo instanceof File) || arquivo.size === 0) {
+    return { erro: "Escolha uma foto do aparelho." };
+  }
+
+  const envio = new FormData();
+  envio.set("arquivo", arquivo);
+  envio.set("momento", String(dados.get("momento") ?? "entrada"));
+  envio.set("legenda", String(dados.get("legenda") ?? ""));
+
+  try {
+    await enviarArquivo(`/api/ordens/${id}/fotos/`, envio);
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível enviar a foto.") };
+  }
+
+  revalidatePath(`/ordens/${id}`);
+  return { enviada: true };
+}
+
+export async function apagarFoto(dados: FormData): Promise<void> {
+  const id = String(dados.get("id"));
+  const foto = String(dados.get("foto"));
+
+  await chamarApi(`/api/fotos/${foto}/`, { metodo: "DELETE" });
+
+  revalidatePath(`/ordens/${id}`);
+}
+
+export async function alternarVisibilidade(dados: FormData): Promise<void> {
+  const id = String(dados.get("id"));
+  const foto = String(dados.get("foto"));
+  const visivel = dados.get("visivel") === "sim";
+
+  await chamarApi(`/api/fotos/${foto}/`, {
+    metodo: "PATCH",
+    corpo: { visivel_ao_cliente: !visivel },
+  });
+
+  revalidatePath(`/ordens/${id}`);
 }

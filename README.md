@@ -6,8 +6,12 @@ criar conta.
 
 ## Estado atual
 
-Fase 1C concluída: o produto fecha o ciclo. A assistência abre a ordem, movimenta o status e
-envia o link; o cliente acompanha o reparo sem criar conta.
+Fase 1D concluída: o produto fecha o ciclo. A assistência abre a ordem, fotografa o aparelho,
+movimenta o status e envia o link; o cliente acompanha o reparo e vê as fotos sem criar conta.
+
+As fotos ficam em armazenamento privado: não existe endereço fixo para elas. Cada página gera um
+link assinado que vale 15 minutos, e toda imagem enviada é reduzida e regravada, o que descarta os
+metadados da câmera — inclusive a localização de onde a foto foi tirada.
 
 ## Stack
 
@@ -37,8 +41,11 @@ O `make setup` cria o `.env` a partir do exemplo e gera uma chave de criptografi
 máquina. Essa chave protege a senha de desbloqueio dos aparelhos, então **cada ambiente tem a
 sua** e ela nunca é versionada. Dados gravados com uma chave não podem ser lidos com outra.
 
-O `make semear` cria uma assistência de exemplo com clientes, aparelhos e duas ordens de serviço,
-além dos usuários `admin` e `joana` (senha `bancada123`, apenas para uso local).
+O `make semear` cria uma assistência de exemplo com clientes, aparelhos, duas ordens de serviço e
+uma foto de demonstração em cada uma, além dos usuários `admin` e `joana` (senha `bancada123`,
+apenas para uso local). Rodar de novo não duplica nada.
+
+As fotos enviadas ficam em `apps/api/media/`, que não vai para o controle de versão.
 
 Se `docker compose` não for reconhecido mas `docker-compose` existir, o plugin não está
 registrado. Isso resolve, sem precisar de administrador:

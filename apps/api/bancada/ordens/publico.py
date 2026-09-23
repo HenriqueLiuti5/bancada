@@ -5,7 +5,8 @@ from django.core.cache import cache
 from django.utils import timezone
 
 from bancada.ordens.estados import ESTADOS_FINAIS, StatusOS
-from bancada.ordens.models import OrdemServico
+from bancada.ordens.fotos import assinar
+from bancada.ordens.models import FotoOS, OrdemServico
 
 DIAS_ATE_O_LINK_EXPIRAR = 90
 SEGUNDOS_DE_CACHE = 60
@@ -52,6 +53,17 @@ def link_expirou(dados: dict[str, Any]) -> bool:
     return timezone.now() - momento > timedelta(days=DIAS_ATE_O_LINK_EXPIRAR)
 
 
+def para_o_cliente(foto: FotoOS) -> dict[str, Any]:
+    return {
+        "assinatura": assinar(foto.pk),
+        "momento": foto.momento,
+        "momento_rotulo": foto.get_momento_display(),
+        "legenda": foto.legenda,
+        "largura": foto.largura,
+        "altura": foto.altura,
+    }
+
+
 def montar(ordem: OrdemServico) -> dict[str, Any]:
     linha_do_tempo = [
         {
@@ -78,6 +90,7 @@ def montar(ordem: OrdemServico) -> dict[str, Any]:
         "prometida_para": ordem.prometida_para.isoformat() if ordem.prometida_para else None,
         "entregue_em": ordem.entregue_em.isoformat() if ordem.entregue_em else None,
         "linha_do_tempo": linha_do_tempo,
+        "fotos": [para_o_cliente(foto) for foto in ordem.fotos.all() if foto.visivel_ao_cliente],
     }
 
     if ordem.status in STATUS_QUE_REVELAM_ORCAMENTO:
@@ -99,7 +112,7 @@ def buscar(token: str) -> dict[str, Any] | None:
 
     ordem = (
         OrdemServico.objects.select_related("cliente", "aparelho", "tenant", "loja")
-        .prefetch_related("eventos", "itens")
+        .prefetch_related("eventos", "itens", "fotos")
         .filter(token_publico=token)
         .first()
     )

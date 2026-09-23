@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { buscarAcompanhamento, type EtapaPublica } from "@/lib/publico";
+import Image from "next/image";
+import { enderecoDaFoto } from "@/lib/fotos";
+import { buscarAcompanhamento, type EtapaPublica, type FotoPublica } from "@/lib/publico";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +44,25 @@ function Aviso({ titulo, texto }: { titulo: string; texto: string }) {
       <h1 className="text-2xl font-semibold tracking-tight">{titulo}</h1>
       <p className="text-sm text-neutral-500 dark:text-neutral-400">{texto}</p>
     </main>
+  );
+}
+
+function Foto({ foto }: { foto: FotoPublica }) {
+  return (
+    <figure className="space-y-1">
+      <Image
+        src={enderecoDaFoto(foto.assinatura)}
+        alt={foto.legenda || `Foto do aparelho ${foto.momento_rotulo.toLowerCase()}`}
+        width={foto.largura}
+        height={foto.altura}
+        unoptimized
+        className="w-full rounded-lg border border-neutral-200 dark:border-neutral-800"
+      />
+      <figcaption className="text-xs text-neutral-500 dark:text-neutral-400">
+        {foto.momento_rotulo}
+        {foto.legenda && ` · ${foto.legenda}`}
+      </figcaption>
+    </figure>
   );
 }
 
@@ -144,6 +165,17 @@ export default async function Acompanhamento({ params }: Props) {
               <span>Total</span>
               <span>R$ {dados.orcamento.total}</span>
             </div>
+          </div>
+        </section>
+      )}
+
+      {dados.fotos.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-medium">Fotos do aparelho</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {dados.fotos.map((foto) => (
+              <Foto key={foto.assinatura} foto={foto} />
+            ))}
           </div>
         </section>
       )}

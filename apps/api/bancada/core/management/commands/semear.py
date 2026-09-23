@@ -1,14 +1,27 @@
+import io
 from typing import Any
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
+from PIL import Image, ImageDraw, ImageFont
 
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.ordens.estados import StatusOS
-from bancada.ordens.models import ItemOrcamento, OrdemServico, TipoItem
+from bancada.ordens.fotos import MomentoDaFoto
+from bancada.ordens.models import FotoOS, ItemOrcamento, OrdemServico, TipoItem
 from bancada.tenants.models import Loja, Papel, Tenant, Usuario
 
 SENHA_DEMO = "bancada123"
+
+
+def imagem_de_demonstracao(texto: str, fundo: tuple[int, int, int]) -> ContentFile:
+    imagem = Image.new("RGB", (1200, 900), fundo)
+    desenho = ImageDraw.Draw(imagem)
+    desenho.text((70, 70), texto, fill=(245, 245, 245), font=ImageFont.load_default(size=52))
+    destino = io.BytesIO()
+    imagem.save(destino, format="JPEG", quality=90)
+    return ContentFile(destino.getvalue(), name="demonstracao.jpg")
 
 
 class Command(BaseCommand):
@@ -69,6 +82,7 @@ class Command(BaseCommand):
 
         if OrdemServico.objects.filter(tenant=tenant).exists():
             self.stdout.write(self.style.WARNING("Já existem ordens; nada foi criado."))
+            self._garantir_fotos(tenant, tecnico)
             self._resumo(tenant)
             return
 
@@ -114,10 +128,25 @@ class Command(BaseCommand):
             aprovado=True,
         )
 
+        self._garantir_fotos(tenant, tecnico)
+
         self.stdout.write(self.style.SUCCESS("Dados de demonstração criados."))
         self.stdout.write(f"  OS #{recebida.numero}: {recebida.status}")
         self.stdout.write(f"  OS #{em_reparo.numero}: {em_reparo.status}")
         self._resumo(tenant)
+
+    def _garantir_fotos(self, tenant: Tenant, tecnico: Usuario) -> None:
+        for ordem in OrdemServico.objects.filter(tenant=tenant).select_related("aparelho"):
+            if ordem.fotos.exists():
+                continue
+            FotoOS.registrar(
+                ordem=ordem,
+                enviado=imagem_de_demonstracao(f"{ordem.aparelho} na entrada", (31, 41, 55)),
+                momento=MomentoDaFoto.ENTRADA,
+                legenda="Aparelho como foi recebido",
+                enviada_por=tecnico,
+            )
+            self.stdout.write(f"  foto de demonstração criada na OS #{ordem.numero}")
 
     def _resumo(self, tenant: Tenant) -> None:
         self.stdout.write("")

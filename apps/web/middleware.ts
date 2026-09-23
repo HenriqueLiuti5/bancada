@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const SEM_LOGIN = ["/os"];
+const SEM_LOGIN = ["/os", "/fotos"];
 const SO_PARA_DESLOGADO = ["/login"];
 
 export function middleware(request: NextRequest) {

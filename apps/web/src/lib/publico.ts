@@ -2,6 +2,15 @@ const BASE = process.env.API_INTERNAL_URL ?? "http://localhost:8000";
 
 export type EtapaPublica = { status: string; rotulo: string; em: string };
 
+export type FotoPublica = {
+  assinatura: string;
+  momento: string;
+  momento_rotulo: string;
+  legenda: string;
+  largura: number;
+  altura: number;
+};
+
 export type AcompanhamentoPublico = {
   numero: number;
   status: string;
@@ -15,6 +24,7 @@ export type AcompanhamentoPublico = {
   prometida_para: string | null;
   entregue_em: string | null;
   linha_do_tempo: EtapaPublica[];
+  fotos: FotoPublica[];
   orcamento?: { total: string; itens: { descricao: string; valor: string }[] };
 };
 

@@ -4,6 +4,7 @@ import { Selo } from "@/componentes/Selo";
 import { chamarApi } from "@/lib/api";
 import type { Ordem } from "@/lib/tipos";
 import { AcoesDeStatus } from "./acoesDeStatus";
+import { FotosDaOrdem } from "./fotosDaOrdem";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +85,8 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         <h2 className="text-sm font-medium">Mudar status</h2>
         <AcoesDeStatus id={ordem.id} transicoes={ordem.transicoes_possiveis} />
       </section>
+
+      <FotosDaOrdem id={ordem.id} fotos={ordem.fotos} />
 
       {ordem.itens.length > 0 && (
         <section className="space-y-3">
