@@ -1,0 +1,107 @@
+{% extends "ordens/documentos/base.html" %}
+{% load formatos %}
+
+{% block titulo %}Recibo de entrega{% endblock %}
+{% block cabecalho %}Recibo de entrega{% endblock %}
+{% block data %}Aberta em {{ ordem.criado_em|date:"d/m/Y" }}{% if ordem.entregue_em %}<br />Entregue em {{ ordem.entregue_em|date:"d/m/Y H:i" }}{% endif %}{% endblock %}
+
+{% block conteudo %}
+  <section class="colunas">
+    <div>
+      <h2>Cliente</h2>
+      <dl>
+        <div><dt>Nome</dt><dd>{{ cliente.nome }}</dd></div>
+        <div><dt>Telefone</dt><dd>{{ cliente.telefone|telefone }}</dd></div>
+      </dl>
+    </div>
+    <div>
+      <h2>Aparelho</h2>
+      <dl>
+        <div><dt>Marca e modelo</dt><dd>{{ aparelho.marca }} {{ aparelho.modelo }}</dd></div>
+        {% if aparelho.imei %}<div><dt>IMEI</dt><dd>{{ aparelho.imei }}</dd></div>{% endif %}
+        <div><dt>Situação</dt><dd>{{ ordem.get_status_display }}</dd></div>
+        {% if ordem.garantia_ate %}
+          <div><dt>Garantia até</dt><dd>{{ ordem.garantia_ate|date:"d/m/Y" }}</dd></div>
+        {% endif %}
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <h2>Problema relatado</h2>
+    <div class="caixa relato">{{ ordem.problema_relatado }}</div>
+  </section>
+
+  {% if ordem.laudo or ordem.diagnostico %}
+    <section>
+      <h2>Serviço executado</h2>
+      <div class="caixa relato">{{ ordem.laudo|default:ordem.diagnostico }}</div>
+    </section>
+  {% endif %}
+
+  {% if itens %}
+    <section>
+      <h2>Peças e serviços</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Tipo</th>
+            <th class="valor">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in itens %}
+            <tr>
+              <td>{{ item.descricao }}</td>
+              <td>{{ item.get_tipo_display }}</td>
+              <td class="valor">R$ {{ item.valor|floatformat:2 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">Total</td>
+            <td class="valor">R$ {{ total|floatformat:2 }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+  {% endif %}
+
+  <section>
+    <h2>Histórico</h2>
+    <table class="historico">
+      <tbody>
+        {% for etapa in linha_do_tempo %}
+          <tr>
+            <td>{{ etapa.em|date:"d/m/Y H:i" }}</td>
+            <td>{{ etapa.rotulo }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Garantia</h2>
+    <p class="declaracoes">
+      A garantia cobre exclusivamente o serviço executado e as peças substituídas descritas neste
+      recibo. Não estão cobertos danos posteriores por queda, contato com líquidos, oxidação ou
+      abertura do aparelho por terceiros. Guarde este recibo: ele é o comprovante da garantia.
+    </p>
+  </section>
+
+  <section class="acompanhamento">
+    <img src="{{ qrcode }}" alt="" />
+    <div class="texto">
+      O histórico completo deste reparo continua disponível por 90 dias após a entrega.
+      <div class="link">{{ link }}</div>
+    </div>
+  </section>
+
+  <section class="assinaturas">
+    <div>Recebi o aparelho — {{ cliente.nome }}</div>
+    <div>Entregue por — {{ assistencia.nome }}</div>
+  </section>
+{% endblock %}

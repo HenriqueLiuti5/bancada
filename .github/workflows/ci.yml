@@ -52,6 +52,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Instalar as bibliotecas de sistema do gerador de PDF
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 fonts-dejavu-core
+
       - name: Criar o papel da aplicacao no banco
         env:
           PGPASSWORD: bancada

@@ -3,13 +3,14 @@ from smtplib import SMTPException
 
 from celery import shared_task
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils import timezone
 
 from bancada.avisos.models import AvisoDeStatus
-from bancada.avisos.regras import modelo_para
-from bancada.ordens.models import EventoOS
+from bancada.avisos.regras import ModeloDeAviso, modelo_para
+from bancada.ordens import documentos
+from bancada.ordens.models import EventoOS, OrdemServico
 
 registrador = logging.getLogger(__name__)
 
@@ -18,6 +19,24 @@ STATUS_NAO_AVISA = "status nao avisa"
 CLIENTE_SEM_EMAIL = "cliente sem email"
 JA_ENVIADO = "ja enviado"
 ENVIADO = "enviado"
+
+
+def montar_mensagem(
+    ordem: OrdemServico, modelo: ModeloDeAviso, assunto: str, corpo: str, destino: str
+) -> EmailMessage:
+    mensagem = EmailMessage(
+        subject=assunto,
+        body=corpo,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[destino],
+    )
+    if modelo.anexa_recibo:
+        mensagem.attach(
+            documentos.nome_do_arquivo(ordem, "recibo"),
+            documentos.recibo_em_pdf(ordem),
+            "application/pdf",
+        )
+    return mensagem
 
 
 def _evento(evento_id: int) -> EventoOS | None:
@@ -81,7 +100,7 @@ def avisar_cliente(evento_id: int) -> str:
 
     aviso.tentativas += 1
     try:
-        send_mail(aviso.assunto, corpo, settings.DEFAULT_FROM_EMAIL, [destino])
+        montar_mensagem(ordem, modelo, aviso.assunto, corpo, destino).send()
     except Exception as erro:
         aviso.erro = str(erro)[:500]
         aviso.save(update_fields=["tentativas", "erro", "atualizado_em"])

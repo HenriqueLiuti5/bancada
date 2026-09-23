@@ -8,6 +8,11 @@ import { FotosDaOrdem } from "./fotosDaOrdem";
 
 export const dynamic = "force-dynamic";
 
+const STATUS_COM_RECIBO = ["pronto", "entregue", "devolvido_sem_reparo"];
+
+const BOTAO_DE_DOCUMENTO =
+  "rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium hover:border-neutral-900 dark:border-neutral-700 dark:hover:border-neutral-300";
+
 function formatarMomento(iso: string): string {
   return new Date(iso).toLocaleString("pt-BR", {
     day: "2-digit",
@@ -80,6 +85,30 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         aparelho={ordem.aparelho_descricao}
         cliente={ordem.cliente_nome.split(" ")[0]}
       />
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium">Documentos</h2>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={`/ordens/${ordem.id}/documentos/comprovante`}
+            target="_blank"
+            rel="noopener"
+            className={BOTAO_DE_DOCUMENTO}
+          >
+            Comprovante de entrada
+          </a>
+          {STATUS_COM_RECIBO.includes(ordem.status) && (
+            <a
+              href={`/ordens/${ordem.id}/documentos/recibo`}
+              target="_blank"
+              rel="noopener"
+              className={BOTAO_DE_DOCUMENTO}
+            >
+              Recibo de entrega
+            </a>
+          )}
+        </div>
+      </section>
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Mudar status</h2>

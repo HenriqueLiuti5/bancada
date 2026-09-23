@@ -6,11 +6,13 @@ criar conta.
 
 ## Estado atual
 
-Fase 2A concluída. A assistência abre a ordem, fotografa o aparelho e movimenta o status; o
-cliente recebe o link por e-mail e acompanha o reparo sem criar conta.
+Fase 2B concluída. A assistência abre a ordem, fotografa o aparelho, imprime o comprovante que o
+cliente assina no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o
+reparo sem criar conta e, na entrega, recebe o recibo da garantia em PDF.
 
 O aviso ao cliente sai numa tarefa do Celery, disparada quando a ordem entra num status que
-interessa a ele: recebido, orçamento enviado, aguardando peça e pronto para retirada. No ambiente
+interessa a ele: recebido, orçamento enviado, aguardando peça, pronto para retirada e entregue —
+este último com o recibo em anexo. No ambiente
 local o e-mail é impresso no log do worker (`make logs`), sem precisar de conta em lugar nenhum.
 Para enviar de verdade, preencha as variáveis `EMAIL_*` do `.env` e troque
 `DJANGO_EMAIL_BACKEND` por `django.core.mail.backends.smtp.EmailBackend`.
@@ -18,6 +20,10 @@ Para enviar de verdade, preencha as variáveis `EMAIL_*` do `.env` e troque
 As fotos ficam em armazenamento privado: não existe endereço fixo para elas. Cada página gera um
 link assinado que vale 15 minutos, e toda imagem enviada é reduzida e regravada, o que descarta os
 metadados da câmera — inclusive a localização de onde a foto foi tirada.
+
+Os documentos em PDF são gerados na hora, a partir de templates HTML, e levam um QR Code que abre
+a página de acompanhamento. O comprovante de entrada traz as fotos do aparelho; o recibo de
+entrega vai anexado ao e-mail que o cliente recebe quando retira o aparelho.
 
 ## Stack
 

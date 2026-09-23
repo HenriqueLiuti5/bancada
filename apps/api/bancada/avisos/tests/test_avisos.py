@@ -1,7 +1,9 @@
 import json
+from typing import Any
 
 import pytest
 from django.core import mail
+from django.core.mail.backends.base import BaseEmailBackend
 from rest_framework.test import APIClient
 
 from bancada.avisos import tasks
@@ -35,6 +37,11 @@ def ordem_de_quem_tem_email(
         aparelho=aparelho,
         problema_relatado="Não carrega",
     )
+
+
+class BackendQueFalha(BaseEmailBackend):
+    def send_messages(self, email_messages: Any) -> int:
+        raise OSError("servidor de e-mail fora do ar")
 
 
 def avisar(ordem: OrdemServico, status: str) -> str:
@@ -101,12 +108,9 @@ def test_o_aviso_nao_carrega_dado_sensivel(ordem_de_quem_tem_email: OrdemServico
 
 @pytest.mark.django_db
 def test_falha_de_envio_fica_registrada_e_o_aviso_continua_pendente(
-    ordem_de_quem_tem_email: OrdemServico, settings: object, monkeypatch: pytest.MonkeyPatch
+    ordem_de_quem_tem_email: OrdemServico, settings: Any
 ) -> None:
-    def recusar(*args: object, **kwargs: object) -> int:
-        raise OSError("servidor de e-mail fora do ar")
-
-    monkeypatch.setattr(tasks, "send_mail", recusar)
+    settings.EMAIL_BACKEND = "bancada.avisos.tests.test_avisos.BackendQueFalha"
 
     with pytest.raises(OSError):
         avisar(ordem_de_quem_tem_email, StatusOS.RECEBIDO)
@@ -159,3 +163,26 @@ def test_evento_apagado_nao_derruba_a_tarefa(ordem_de_quem_tem_email: OrdemServi
     EventoOS.objects.filter(pk=evento_id).delete()
 
     assert tasks.avisar_cliente.run(evento_id) == tasks.EVENTO_SUMIU
+
+
+@pytest.mark.django_db
+def test_entrega_manda_o_recibo_em_anexo(ordem_de_quem_tem_email: OrdemServico) -> None:
+    for status in [
+        StatusOS.EM_DIAGNOSTICO,
+        StatusOS.ORCAMENTO_ENVIADO,
+        StatusOS.APROVADO,
+        StatusOS.EM_REPARO,
+        StatusOS.PRONTO,
+        StatusOS.ENTREGUE,
+    ]:
+        ordem_de_quem_tem_email.transicionar(status)
+    mail.outbox.clear()
+
+    assert avisar(ordem_de_quem_tem_email, StatusOS.ENTREGUE) == tasks.ENVIADO
+
+    enviado = mail.outbox[0]
+    nome, conteudo, tipo = enviado.attachments[0]
+
+    assert nome == f"OS-{ordem_de_quem_tem_email.numero}-recibo.pdf"
+    assert tipo == "application/pdf"
+    assert conteudo[:4] == b"%PDF"

@@ -1,4 +1,7 @@
+from collections.abc import Callable
+
 from django.db.models import QuerySet
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -7,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 
 from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
+from bancada.ordens import documentos
 from bancada.ordens.estados import TransicaoInvalida
 from bancada.ordens.fotos import FotoInvalida
 from bancada.ordens.models import FotoOS, OrdemServico
@@ -59,6 +63,23 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         )
         saida = OrdemServicoDetailSerializer(ordem, context=self.get_serializer_context())
         return Response(saida.data, status=status.HTTP_201_CREATED)
+
+    def _documento_em_pdf(
+        self, gerar: Callable[[OrdemServico], bytes], documento: str
+    ) -> HttpResponse:
+        ordem = self.get_object()
+        resposta = HttpResponse(gerar(ordem), content_type="application/pdf")
+        nome = documentos.nome_do_arquivo(ordem, documento)
+        resposta["Content-Disposition"] = f'inline; filename="{nome}"'
+        return resposta
+
+    @action(detail=True, methods=["get"])
+    def comprovante(self, request: Request, pk: str | None = None) -> HttpResponse:
+        return self._documento_em_pdf(documentos.comprovante_em_pdf, "comprovante")
+
+    @action(detail=True, methods=["get"])
+    def recibo(self, request: Request, pk: str | None = None) -> HttpResponse:
+        return self._documento_em_pdf(documentos.recibo_em_pdf, "recibo")
 
     @action(
         detail=True,

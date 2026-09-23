@@ -1,0 +1,235 @@
+{% load formatos %}<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <title>{% block titulo %}Documento{% endblock %} — OS {{ ordem.numero }}</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 16mm 14mm;
+        @bottom-center {
+          content: "Página " counter(page) " de " counter(pages);
+          font-size: 8pt;
+          color: #777;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "DejaVu Sans", sans-serif;
+        font-size: 9.5pt;
+        line-height: 1.45;
+        color: #1a1a1a;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 15pt;
+        margin: 0;
+      }
+
+      h2 {
+        font-size: 9pt;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #666;
+        margin: 0 0 4px;
+        font-weight: 600;
+      }
+
+      .cabecalho {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 2px solid #1a1a1a;
+        padding-bottom: 8px;
+      }
+
+      .cabecalho .assistencia {
+        font-size: 12pt;
+        font-weight: 700;
+      }
+
+      .cabecalho .miudos {
+        color: #555;
+        font-size: 8.5pt;
+      }
+
+      .cabecalho .direita {
+        text-align: right;
+      }
+
+      .numero {
+        font-size: 18pt;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      section {
+        margin-top: 14px;
+      }
+
+      .colunas {
+        display: flex;
+        gap: 18px;
+      }
+
+      .colunas > div {
+        flex: 1;
+      }
+
+      dl {
+        margin: 0;
+      }
+
+      dl div {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        border-bottom: 1px dotted #ddd;
+        padding: 2px 0;
+      }
+
+      dt {
+        color: #666;
+      }
+
+      dd {
+        margin: 0;
+        text-align: right;
+        font-weight: 600;
+      }
+
+      .caixa {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px 10px;
+      }
+
+      .relato {
+        white-space: pre-wrap;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        text-align: left;
+        font-size: 8pt;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #666;
+        border-bottom: 1px solid #ccc;
+        padding: 4px 0;
+      }
+
+      td {
+        padding: 4px 0;
+        border-bottom: 1px dotted #ddd;
+      }
+
+      td.valor,
+      th.valor {
+        text-align: right;
+      }
+
+      table.historico td {
+        padding: 1.5px 0;
+        color: #444;
+      }
+
+      tfoot td {
+        border-bottom: none;
+        border-top: 1px solid #1a1a1a;
+        font-weight: 700;
+        padding-top: 6px;
+      }
+
+      .fotos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .fotos img {
+        width: 42mm;
+        height: 32mm;
+        object-fit: cover;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+      }
+
+      .acompanhamento {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        background: #f6f6f6;
+        border-radius: 4px;
+        padding: 10px;
+      }
+
+      .acompanhamento img {
+        width: 26mm;
+        height: 26mm;
+        flex: none;
+      }
+
+      .acompanhamento .texto {
+        flex: 1;
+      }
+
+      .acompanhamento .link {
+        font-family: "DejaVu Sans Mono", monospace;
+        font-size: 8pt;
+        word-break: break-all;
+      }
+
+      .declaracoes {
+        font-size: 8.5pt;
+        color: #444;
+      }
+
+      .declaracoes li {
+        margin-bottom: 3px;
+      }
+
+      .assinaturas {
+        display: flex;
+        gap: 24px;
+        margin-top: 26px;
+      }
+
+      .assinaturas div {
+        flex: 1;
+        border-top: 1px solid #1a1a1a;
+        padding-top: 4px;
+        font-size: 8.5pt;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="cabecalho">
+      <div>
+        <div class="assistencia">{{ assistencia.nome }}</div>
+        <div class="miudos">
+          {{ loja.nome }}{% if loja.endereco %} · {{ loja.endereco }}{% endif %}
+          {% if loja.telefone %}<br />Telefone: {{ loja.telefone|telefone }}{% endif %}
+          {% if assistencia.documento %}<br />CNPJ {{ assistencia.documento }}{% endif %}
+        </div>
+      </div>
+      <div class="direita">
+        <h1>{% block cabecalho %}Documento{% endblock %}</h1>
+        <div class="numero">OS {{ ordem.numero }}</div>
+        <div class="miudos">{% block data %}{% endblock %}</div>
+      </div>
+    </header>
+
+    {% block conteudo %}{% endblock %}
+  </body>
+</html>

@@ -6,6 +6,7 @@ from bancada.ordens.estados import StatusOS
 class ModeloDeAviso(NamedTuple):
     assunto: str
     chamada: str
+    anexa_recibo: bool = False
 
 
 AVISOS: dict[str, ModeloDeAviso] = {
@@ -27,6 +28,12 @@ AVISOS: dict[str, ModeloDeAviso] = {
     StatusOS.PRONTO: ModeloDeAviso(
         "Seu {aparelho} está pronto para retirada",
         "Terminamos o reparo e o aparelho já pode ser retirado. Leve um documento com foto.",
+    ),
+    StatusOS.ENTREGUE: ModeloDeAviso(
+        "Recibo do reparo do seu {aparelho}",
+        "Seu aparelho foi entregue. O recibo em anexo descreve o serviço executado e é o "
+        "comprovante da garantia, então vale a pena guardá-lo.",
+        anexa_recibo=True,
     ),
 }
 

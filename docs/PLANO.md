@@ -67,7 +67,7 @@ o operador.
 | 1C | Página pública de acompanhamento | concluída |
 | 1D | Fotos do aparelho e trava no banco (RLS) | concluída |
 | 2A | Aviso ao cliente por e-mail, em tarefa assíncrona | concluída |
-| 2B | PDF da ordem de serviço | |
+| 2B | PDF da ordem de serviço | concluída |
 | 2C | Auditoria de acesso a dado sensível e purga automática da senha | |
 | 3 | Painel, busca, filtros, papéis e permissões | |
 | 4 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |

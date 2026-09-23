@@ -9,6 +9,14 @@ ENV PYTHONUNBUFFERED=1 \
     MYPY_CACHE_DIR=/tmp/mypy-cache \
     PATH="/opt/venv/bin:$PATH"
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libpango-1.0-0 \
+        libpangoft2-1.0-0 \
+        libharfbuzz-subset0 \
+        fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./

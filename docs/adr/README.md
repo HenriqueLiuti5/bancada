@@ -17,3 +17,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0009](0009-isolamento-no-banco-com-rls.md) | Isolamento no banco com Row Level Security |
 | [0010](0010-fotos-privadas-com-url-assinada.md) | Fotos em armazenamento privado com URL assinada |
 | [0011](0011-avisos-ao-cliente-em-tarefa-assincrona.md) | Avisos ao cliente em tarefa assíncrona |
+| [0012](0012-documentos-em-pdf-com-weasyprint.md) | Documentos em PDF com WeasyPrint |

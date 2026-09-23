@@ -1,0 +1,79 @@
+{% extends "ordens/documentos/base.html" %}
+{% load formatos %}
+
+{% block titulo %}Comprovante de entrada{% endblock %}
+{% block cabecalho %}Comprovante de entrada{% endblock %}
+{% block data %}Aberta em {{ ordem.criado_em|date:"d/m/Y H:i" }}{% endblock %}
+
+{% block conteudo %}
+  <section class="colunas">
+    <div>
+      <h2>Cliente</h2>
+      <dl>
+        <div><dt>Nome</dt><dd>{{ cliente.nome }}</dd></div>
+        <div><dt>Telefone</dt><dd>{{ cliente.telefone|telefone }}</dd></div>
+        {% if cliente.email %}<div><dt>E-mail</dt><dd>{{ cliente.email }}</dd></div>{% endif %}
+        {% if cliente.documento %}
+          <div><dt>Documento</dt><dd>{{ cliente.documento }}</dd></div>
+        {% endif %}
+      </dl>
+    </div>
+    <div>
+      <h2>Aparelho</h2>
+      <dl>
+        <div><dt>Marca e modelo</dt><dd>{{ aparelho.marca }} {{ aparelho.modelo }}</dd></div>
+        {% if aparelho.cor %}<div><dt>Cor</dt><dd>{{ aparelho.cor }}</dd></div>{% endif %}
+        {% if aparelho.imei %}<div><dt>IMEI</dt><dd>{{ aparelho.imei }}</dd></div>{% endif %}
+        {% if ordem.prometida_para %}
+          <div><dt>Previsão</dt><dd>{{ ordem.prometida_para|date:"d/m/Y" }}</dd></div>
+        {% endif %}
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <h2>Problema relatado pelo cliente</h2>
+    <div class="caixa relato">{{ ordem.problema_relatado }}</div>
+  </section>
+
+  {% if fotos %}
+    <section>
+      <h2>Estado do aparelho na entrada</h2>
+      <div class="fotos">
+        {% for foto in fotos %}<img src="{{ foto }}" alt="" />{% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <section>
+    <h2>Acompanhe o reparo</h2>
+    <div class="acompanhamento">
+      <img src="{{ qrcode }}" alt="" />
+      <div class="texto">
+        Aponte a câmera do celular para o código ao lado, ou digite o endereço abaixo.
+        Não é preciso criar conta.
+        <div class="link">{{ link }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Declarações</h2>
+    <ul class="declaracoes">
+      <li>Autorizo a abertura do aparelho para diagnóstico do problema relatado acima.</li>
+      <li>
+        Fui informado de que o orçamento será enviado antes de qualquer reparo e de que nenhum
+        serviço será executado sem a minha aprovação.
+      </li>
+      <li>
+        Declaro que as informações sobre o aparelho e o defeito conferem, e que as fotos acima
+        representam o estado em que ele foi entregue.
+      </li>
+    </ul>
+  </section>
+
+  <section class="assinaturas">
+    <div>Assinatura do cliente — {{ cliente.nome }}</div>
+    <div>Assinatura do atendente — {{ assistencia.nome }}</div>
+  </section>
+{% endblock %}

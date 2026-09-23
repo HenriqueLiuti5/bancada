@@ -152,6 +152,10 @@ LOGGING = {
         "console": {"class": "logging.StreamHandler", "formatter": "simple"},
     },
     "root": {"handlers": ["console"], "level": "INFO"},
+    "loggers": {
+        "weasyprint": {"level": "WARNING"},
+        "fontTools": {"level": "WARNING"},
+    },
 }
 
 AUTH_USER_MODEL = "tenants.Usuario"
