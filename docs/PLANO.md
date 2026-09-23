@@ -68,7 +68,7 @@ o operador.
 | 1D | Fotos do aparelho e trava no banco (RLS) | concluída |
 | 2A | Aviso ao cliente por e-mail, em tarefa assíncrona | concluída |
 | 2B | PDF da ordem de serviço | concluída |
-| 2C | Auditoria de acesso a dado sensível e purga automática da senha | |
+| 2C | Auditoria da senha, purga automática e tarefas periódicas | concluída |
 | 3 | Painel, busca, filtros, papéis e permissões | |
 | 4 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 5 | Cobrança recorrente, planos, limites de uso | |
@@ -77,3 +77,8 @@ o operador.
 
 A Fase 1 termina quando uma assistência real conseguir abrir uma ordem de serviço e enviar o
 link ao cliente. Nada que não sirva a essa frase entra antes.
+
+O cache que a Fase 2 previa foi entregue antes, na Fase 1C: a leitura da página pública passa por
+cache no Redis, no formato cache-aside, com invalidação por sinal. Nada mais no sistema tem hoje
+volume de leitura que justifique cache, e cache sem necessidade só acrescenta caminhos para o
+dado ficar velho.

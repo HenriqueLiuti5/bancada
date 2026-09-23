@@ -5,6 +5,7 @@ import { chamarApi, enviarArquivo, mensagemDaApi } from "@/lib/api";
 
 export type EstadoTransicao = { erro?: string };
 export type EstadoDaFoto = { erro?: string; enviada?: boolean };
+export type EstadoDaSenha = { senha?: string; erro?: string; revelada?: boolean };
 
 export async function transicionar(
   _anterior: EstadoTransicao,
@@ -74,4 +75,20 @@ export async function alternarVisibilidade(dados: FormData): Promise<void> {
   });
 
   revalidatePath(`/ordens/${id}`);
+}
+
+export async function verSenhaDoAparelho(
+  _anterior: EstadoDaSenha,
+  dados: FormData,
+): Promise<EstadoDaSenha> {
+  const aparelho = String(dados.get("aparelho"));
+
+  try {
+    const resposta = await chamarApi<{ senha_desbloqueio: string }>(
+      `/api/aparelhos/${aparelho}/senha/`,
+    );
+    return { senha: resposta.senha_desbloqueio, revelada: true };
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível ver a senha de desbloqueio.") };
+  }
 }

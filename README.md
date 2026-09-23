@@ -6,16 +6,25 @@ criar conta.
 
 ## Estado atual
 
-Fase 2B concluída. A assistência abre a ordem, fotografa o aparelho, imprime o comprovante que o
+Fase 2 concluída. A assistência abre a ordem, fotografa o aparelho, imprime o comprovante que o
 cliente assina no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o
 reparo sem criar conta e, na entrega, recebe o recibo da garantia em PDF.
 
+A senha de desbloqueio do aparelho é o dado mais sensível do sistema, e tem tratamento próprio:
+fica criptografada, só técnicos conseguem vê-la, toda consulta fica registrada em auditoria — as
+negadas também — e ela é apagada automaticamente sete dias depois da entrega, quando o aparelho
+não tem mais nenhuma ordem aberta.
+
 O aviso ao cliente sai numa tarefa do Celery, disparada quando a ordem entra num status que
 interessa a ele: recebido, orçamento enviado, aguardando peça, pronto para retirada e entregue —
-este último com o recibo em anexo. No ambiente
-local o e-mail é impresso no log do worker (`make logs`), sem precisar de conta em lugar nenhum.
-Para enviar de verdade, preencha as variáveis `EMAIL_*` do `.env` e troque
-`DJANGO_EMAIL_BACKEND` por `django.core.mail.backends.smtp.EmailBackend`.
+este último com o recibo em anexo. No ambiente local o e-mail é impresso no log do worker
+(`make logs`), sem precisar de conta em lugar nenhum. Para enviar de verdade, preencha as
+variáveis `EMAIL_*` do `.env` e troque `DJANGO_EMAIL_BACKEND` por
+`django.core.mail.backends.smtp.EmailBackend`.
+
+Um agendador (Celery Beat) cuida do que precisa acontecer sozinho: a purga das senhas às 3h30 e,
+a cada quinze minutos, uma varredura que reenvia avisos que se perderam — por exemplo, se o Redis
+estiver fora do ar no momento exato da mudança de status.
 
 As fotos ficam em armazenamento privado: não existe endereço fixo para elas. Cada página gera um
 link assinado que vale 15 minutos, e toda imagem enviada é reduzida e regravada, o que descarta os
@@ -32,7 +41,7 @@ entrega vai anexado ao e-mail que o cliente recebe quando retira o aparelho.
 | Backend | Django 5 + Django REST Framework |
 | Banco | PostgreSQL 17 com pgvector |
 | Cache e fila | Redis |
-| Tarefas assíncronas | Celery |
+| Tarefas assíncronas | Celery e Celery Beat |
 | Frontend | Next.js 16 (App Router) + React 19 + TypeScript + Tailwind 4 |
 | Ambiente | Docker Compose |
 | CI | GitHub Actions |

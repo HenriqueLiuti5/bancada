@@ -54,6 +54,18 @@ services:
       redis:
         condition: service_healthy
 
+  beat:
+    build: ./apps/api
+    env_file: .env
+    command: celery -A config beat --loglevel=info --schedule=/tmp/celerybeat-schedule
+    volumes:
+      - ./apps/api:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   web:
     build: ./apps/web
     environment:

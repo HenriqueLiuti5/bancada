@@ -18,3 +18,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0010](0010-fotos-privadas-com-url-assinada.md) | Fotos em armazenamento privado com URL assinada |
 | [0011](0011-avisos-ao-cliente-em-tarefa-assincrona.md) | Avisos ao cliente em tarefa assíncrona |
 | [0012](0012-documentos-em-pdf-com-weasyprint.md) | Documentos em PDF com WeasyPrint |
+| [0013](0013-auditoria-purga-e-tarefas-periodicas.md) | Auditoria da senha, purga automática e tarefas periódicas |

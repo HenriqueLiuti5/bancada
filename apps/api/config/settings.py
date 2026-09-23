@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -28,6 +30,7 @@ INSTALLED_APPS = [
     "bancada.clientes",
     "bancada.ordens",
     "bancada.avisos",
+    "bancada.auditoria",
 ]
 
 MIDDLEWARE = [
@@ -87,6 +90,17 @@ CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TASK_TIME_LIMIT = 300
 CELERY_TASK_SOFT_TIME_LIMIT = 270
+CELERY_TIMEZONE = "America/Sao_Paulo"
+CELERY_BEAT_SCHEDULE = {
+    "recuperar-avisos-perdidos": {
+        "task": "avisos.recuperar_avisos_perdidos",
+        "schedule": crontab(minute="*/15"),
+    },
+    "purgar-senhas-de-desbloqueio": {
+        "task": "clientes.purgar_senhas_de_desbloqueio",
+        "schedule": crontab(hour=3, minute=30),
+    },
+}
 
 EMAIL_BACKEND = os.environ.get(
     "DJANGO_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"

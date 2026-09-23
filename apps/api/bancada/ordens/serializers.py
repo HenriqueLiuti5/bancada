@@ -108,6 +108,7 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     class Meta(OrdemServicoListSerializer.Meta):
         fields = [
             *OrdemServicoListSerializer.Meta.fields,
+            "aparelho",
             "diagnostico",
             "laudo",
             "prometida_para",

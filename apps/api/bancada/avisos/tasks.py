@@ -1,14 +1,16 @@
 import logging
+from datetime import timedelta
 from smtplib import SMTPException
 
 from celery import shared_task
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.db.models import F, Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 
 from bancada.avisos.models import AvisoDeStatus
-from bancada.avisos.regras import ModeloDeAviso, modelo_para
+from bancada.avisos.regras import AVISOS, ModeloDeAviso, modelo_para
 from bancada.ordens import documentos
 from bancada.ordens.models import EventoOS, OrdemServico
 
@@ -19,6 +21,9 @@ STATUS_NAO_AVISA = "status nao avisa"
 CLIENTE_SEM_EMAIL = "cliente sem email"
 JA_ENVIADO = "ja enviado"
 ENVIADO = "enviado"
+
+HORAS_PARA_RECUPERAR_UM_AVISO = 24
+TENTATIVAS_ANTES_DE_DESISTIR = 5
 
 
 def montar_mensagem(
@@ -111,3 +116,38 @@ def avisar_cliente(evento_id: int) -> str:
     aviso.erro = ""
     aviso.save(update_fields=["tentativas", "enviado_em", "erro", "atualizado_em"])
     return ENVIADO
+
+
+def eventos_sem_aviso() -> list[int]:
+    limite = timezone.now() - timedelta(hours=HORAS_PARA_RECUPERAR_UM_AVISO)
+
+    consulta = (
+        EventoOS.objects.filter(
+            para_status__in=list(AVISOS),
+            para_status=F("ordem__status"),
+            criado_em__gte=limite,
+        )
+        .exclude(ordem__cliente__email="")
+        .filter(
+            Q(aviso__isnull=True)
+            | Q(
+                aviso__enviado_em__isnull=True,
+                aviso__tentativas__lt=TENTATIVAS_ANTES_DE_DESISTIR,
+            )
+        )
+    )
+
+    return list(consulta.values_list("pk", flat=True))
+
+
+@shared_task(name="avisos.recuperar_avisos_perdidos")
+def recuperar_avisos_perdidos() -> int:
+    pendentes = eventos_sem_aviso()
+
+    for evento_id in pendentes:
+        avisar_cliente.delay(evento_id)
+
+    if pendentes:
+        registrador.info("Avisos recolocados na fila: %s", len(pendentes))
+
+    return len(pendentes)

@@ -23,6 +23,7 @@ out/
 
 postgres_data/
 media/
+celerybeat-schedule*
 staticfiles/
 
 .DS_Store

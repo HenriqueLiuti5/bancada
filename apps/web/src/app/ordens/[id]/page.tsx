@@ -5,6 +5,7 @@ import { chamarApi } from "@/lib/api";
 import type { Ordem } from "@/lib/tipos";
 import { AcoesDeStatus } from "./acoesDeStatus";
 import { FotosDaOrdem } from "./fotosDaOrdem";
+import { SenhaDoAparelho } from "./senhaDoAparelho";
 
 export const dynamic = "force-dynamic";
 
@@ -85,6 +86,11 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         aparelho={ordem.aparelho_descricao}
         cliente={ordem.cliente_nome.split(" ")[0]}
       />
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium">Senha de desbloqueio</h2>
+        <SenhaDoAparelho aparelho={ordem.aparelho} />
+      </section>
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Documentos</h2>

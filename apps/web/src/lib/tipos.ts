@@ -81,6 +81,7 @@ export type OrdemResumo = {
 };
 
 export type Ordem = OrdemResumo & {
+  aparelho: number;
   diagnostico: string;
   laudo: string;
   prometida_para: string | null;

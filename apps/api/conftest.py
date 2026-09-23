@@ -36,6 +36,16 @@ def tecnico(tenant: Tenant) -> Usuario:
 
 
 @pytest.fixture
+def atendente_do_tenant(tenant: Tenant) -> Usuario:
+    return Usuario.objects.create_user(
+        username="carla",
+        password="senha-de-teste",
+        tenant=tenant,
+        papel=Papel.ATENDENTE,
+    )
+
+
+@pytest.fixture
 def cliente(tenant: Tenant) -> Cliente:
     return Cliente.objects.create(tenant=tenant, nome="Maria Souza", telefone="11999990000")
 
