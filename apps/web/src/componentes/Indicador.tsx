@@ -1,3 +1,4 @@
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -8,38 +9,41 @@ type Props = {
   alerta?: boolean;
 };
 
-const CAIXA =
-  "block rounded-xl border border-neutral-200 px-5 py-4 dark:border-neutral-800";
-
 export function Indicador({ rotulo, valor, nota, href, alerta = false }: Props) {
   const conteudo = (
     <>
-      <p className="text-xs font-medium tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
-        {rotulo}
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[13px] text-texto-suave">{rotulo}</p>
+        {href && (
+          <ArrowUpRight
+            size={14}
+            strokeWidth={2}
+            className="text-texto-apagado opacity-0 transition-opacity group-hover:opacity-100"
+          />
+        )}
+      </div>
       <p
-        className={
-          alerta
-            ? "mt-1 text-3xl font-semibold text-rose-600 dark:text-rose-400"
-            : "mt-1 text-3xl font-semibold"
-        }
+        className={`mt-2 text-[28px] leading-none font-semibold tracking-tight ${alerta ? "text-perigo-forte" : ""}`}
       >
         {valor}
       </p>
-      {nota && (
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{nota}</p>
-      )}
+      {nota && <p className="mt-2 text-xs text-texto-apagado">{nota}</p>}
     </>
   );
 
-  if (!href) return <div className={CAIXA}>{conteudo}</div>;
+  if (!href) return <div className="bg-superficie p-5">{conteudo}</div>;
 
   return (
-    <Link
-      href={href}
-      className={`${CAIXA} transition-colors hover:border-neutral-900 dark:hover:border-neutral-300`}
-    >
+    <Link href={href} className="group block bg-superficie p-5 transition-colors hover:bg-realce">
       {conteudo}
     </Link>
+  );
+}
+
+export function GradeDeIndicadores({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-borda bg-borda shadow-sutil lg:grid-cols-4">
+      {children}
+    </div>
   );
 }

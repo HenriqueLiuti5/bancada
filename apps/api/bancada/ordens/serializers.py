@@ -43,7 +43,7 @@ class EnvioDeFotoSerializer(serializers.Serializer):
 
 
 class EventoOSSerializer(serializers.ModelSerializer):
-    usuario = serializers.CharField(source="usuario.username", read_only=True, default=None)
+    usuario = serializers.CharField(source="usuario.nome_de_exibicao", read_only=True, default=None)
     de_label = serializers.SerializerMethodField()
     para_label = serializers.SerializerMethodField()
     aviso = serializers.SerializerMethodField()
@@ -79,7 +79,9 @@ class OrdemServicoListSerializer(serializers.ModelSerializer):
     cliente_nome = serializers.CharField(source="cliente.nome", read_only=True)
     aparelho_descricao = serializers.CharField(source="aparelho.__str__", read_only=True)
     status_label = serializers.CharField(source="get_status_display", read_only=True)
-    tecnico_nome = serializers.CharField(source="tecnico.username", read_only=True, default=None)
+    tecnico_nome = serializers.CharField(
+        source="tecnico.nome_de_exibicao", read_only=True, default=None
+    )
 
     class Meta:
         model = OrdemServico

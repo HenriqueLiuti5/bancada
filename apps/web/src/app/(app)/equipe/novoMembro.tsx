@@ -1,12 +1,13 @@
 "use client";
 
+import { UserPlus } from "lucide-react";
 import { useActionState, useEffect, useRef } from "react";
+import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { Mensagem } from "@/componentes/ui/Mensagem";
+import { botao, campo, seletor } from "@/componentes/ui/estilos";
 import { criarUsuario, type EstadoDaEquipe } from "./acoes";
 
 const INICIAL: EstadoDaEquipe = {};
-
-const CAMPO =
-  "w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-300";
 
 export function NovoMembro() {
   const [estado, acao, enviando] = useActionState(criarUsuario, INICIAL);
@@ -17,34 +18,48 @@ export function NovoMembro() {
   }, [estado]);
 
   return (
-    <form ref={formulario} action={acao} className="grid gap-3 sm:grid-cols-2">
-      <input name="first_name" placeholder="Nome" className={CAMPO} />
-      <input name="username" placeholder="Usuário para entrar" required className={CAMPO} />
-      <input name="email" type="email" placeholder="E-mail (opcional)" className={CAMPO} />
-      <select name="papel" defaultValue="tecnico" className={CAMPO}>
-        <option value="tecnico">Técnico</option>
-        <option value="atendente">Atendente</option>
-        <option value="dono">Dono</option>
-      </select>
-      <input
-        name="senha"
-        type="password"
-        placeholder="Senha inicial"
-        required
-        autoComplete="new-password"
-        className={`${CAMPO} sm:col-span-2`}
-      />
-
-      <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
-        <button
-          type="submit"
-          disabled={enviando}
-          className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-neutral-900"
+    <form ref={formulario} action={acao} className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <CampoRotulado rotulo="Nome" htmlFor="first_name">
+          <input id="first_name" name="first_name" className={campo} />
+        </CampoRotulado>
+        <CampoRotulado rotulo="Usuário para entrar" htmlFor="username">
+          <input id="username" name="username" required autoComplete="off" className={campo} />
+        </CampoRotulado>
+        <CampoRotulado rotulo="E-mail" htmlFor="email" dica="Opcional.">
+          <input id="email" name="email" type="email" className={campo} />
+        </CampoRotulado>
+        <CampoRotulado rotulo="Papel" htmlFor="papel">
+          <select id="papel" name="papel" defaultValue="tecnico" className={seletor}>
+            <option value="tecnico">Técnico</option>
+            <option value="atendente">Atendente</option>
+            <option value="dono">Dono</option>
+          </select>
+        </CampoRotulado>
+        <CampoRotulado
+          rotulo="Senha inicial"
+          htmlFor="senha"
+          dica="Pelo menos 8 caracteres, sem ser só números nem algo óbvio."
+          className="sm:col-span-2"
         >
-          {enviando ? "Criando..." : "Adicionar à equipe"}
+          <input
+            id="senha"
+            name="senha"
+            type="password"
+            required
+            autoComplete="new-password"
+            className={campo}
+          />
+        </CampoRotulado>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 border-t border-borda pt-4">
+        <button type="submit" disabled={enviando} className={botao("primario")}>
+          <UserPlus size={15} strokeWidth={2} />
+          {enviando ? "Adicionando..." : "Adicionar à equipe"}
         </button>
-        {estado.ok && <p className="text-sm text-emerald-600 dark:text-emerald-400">{estado.ok}</p>}
-        {estado.erro && <p className="text-sm text-red-600 dark:text-red-400">{estado.erro}</p>}
+        {estado.ok && <Mensagem tipo="sucesso">{estado.ok}</Mensagem>}
+        {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
       </div>
     </form>
   );

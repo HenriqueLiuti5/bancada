@@ -66,5 +66,9 @@ class Usuario(AbstractUser):
         return self.get_username()
 
     @property
+    def nome_de_exibicao(self) -> str:
+        return self.first_name or self.get_username()
+
+    @property
     def e_tecnico(self) -> bool:
         return self.papel in {Papel.TECNICO, Papel.DONO}

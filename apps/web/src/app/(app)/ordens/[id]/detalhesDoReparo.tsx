@@ -1,25 +1,24 @@
 "use client";
 
 import { useActionState } from "react";
+import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { Mensagem } from "@/componentes/ui/Mensagem";
+import { areaDeTexto, botao, campo, seletor } from "@/componentes/ui/estilos";
 import type { Ordem, Usuario } from "@/lib/tipos";
 import { salvarDetalhes, type EstadoDosDetalhes } from "./acoes";
 
 const INICIAL: EstadoDosDetalhes = {};
 
-const CAMPO =
-  "w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-300";
-
 export function DetalhesDoReparo({ ordem, equipe }: { ordem: Ordem; equipe: Usuario[] }) {
   const [estado, acao, salvando] = useActionState(salvarDetalhes, INICIAL);
 
   return (
-    <form action={acao} className="space-y-3">
+    <form action={acao} className="space-y-4">
       <input type="hidden" name="id" value={ordem.id} />
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="space-y-1.5">
-          <span className="text-xs text-neutral-500 dark:text-neutral-400">Técnico responsável</span>
-          <select name="tecnico" defaultValue={ordem.tecnico ?? ""} className={CAMPO}>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <CampoRotulado rotulo="Técnico responsável" htmlFor="tecnico">
+          <select id="tecnico" name="tecnico" defaultValue={ordem.tecnico ?? ""} className={seletor}>
             <option value="">Ninguém ainda</option>
             {equipe.map((pessoa) => (
               <option key={pessoa.id} value={pessoa.id}>
@@ -27,45 +26,47 @@ export function DetalhesDoReparo({ ordem, equipe }: { ordem: Ordem; equipe: Usua
               </option>
             ))}
           </select>
-        </label>
+        </CampoRotulado>
 
-        <label className="space-y-1.5">
-          <span className="text-xs text-neutral-500 dark:text-neutral-400">Prazo prometido</span>
+        <CampoRotulado rotulo="Prazo prometido" htmlFor="prometida_para">
           <input
+            id="prometida_para"
             type="date"
             name="prometida_para"
             defaultValue={ordem.prometida_para ?? ""}
-            className={CAMPO}
+            className={campo}
           />
-        </label>
+        </CampoRotulado>
       </div>
 
-      <label className="block space-y-1.5">
-        <span className="text-xs text-neutral-500 dark:text-neutral-400">
-          Diagnóstico (uso interno, o cliente não vê)
-        </span>
-        <textarea name="diagnostico" rows={2} defaultValue={ordem.diagnostico} className={CAMPO} />
-      </label>
+      <CampoRotulado
+        rotulo="Diagnóstico"
+        htmlFor="diagnostico"
+        dica="Uso interno. O cliente não vê."
+      >
+        <textarea
+          id="diagnostico"
+          name="diagnostico"
+          rows={2}
+          defaultValue={ordem.diagnostico}
+          className={areaDeTexto}
+        />
+      </CampoRotulado>
 
-      <label className="block space-y-1.5">
-        <span className="text-xs text-neutral-500 dark:text-neutral-400">
-          Laudo (sai impresso no recibo de entrega)
-        </span>
-        <textarea name="laudo" rows={2} defaultValue={ordem.laudo} className={CAMPO} />
-      </label>
+      <CampoRotulado
+        rotulo="Laudo"
+        htmlFor="laudo"
+        dica="Sai impresso no recibo de entrega."
+      >
+        <textarea id="laudo" name="laudo" rows={2} defaultValue={ordem.laudo} className={areaDeTexto} />
+      </CampoRotulado>
 
-      <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={salvando}
-          className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-neutral-900"
-        >
+      <div className="flex flex-wrap items-center gap-3 border-t border-borda pt-4">
+        <button type="submit" disabled={salvando} className={botao("primario")}>
           {salvando ? "Salvando..." : "Salvar detalhes"}
         </button>
-        {estado.salvo && (
-          <p className="text-sm text-emerald-600 dark:text-emerald-400">Salvo.</p>
-        )}
-        {estado.erro && <p className="text-sm text-red-600 dark:text-red-400">{estado.erro}</p>}
+        {estado.salvo && <Mensagem tipo="sucesso">Detalhes salvos.</Mensagem>}
+        {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
       </div>
     </form>
   );

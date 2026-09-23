@@ -1,6 +1,9 @@
 "use client";
 
+import { Eye, ShieldCheck } from "lucide-react";
 import { useActionState } from "react";
+import { Mensagem } from "@/componentes/ui/Mensagem";
+import { botao, juntar } from "@/componentes/ui/estilos";
 import { verSenhaDoAparelho, type EstadoDaSenha } from "./acoes";
 
 const INICIAL: EstadoDaSenha = {};
@@ -10,11 +13,12 @@ export function SenhaDoAparelho({ aparelho }: { aparelho: number }) {
 
   if (estado.revelada) {
     return (
-      <div className="space-y-1">
-        <p className="font-mono text-lg">
-          {estado.senha || "Nenhuma senha cadastrada para este aparelho."}
+      <div className="space-y-2">
+        <p className="rounded-lg border border-borda bg-realce px-3 py-2 font-mono text-base tracking-wider">
+          {estado.senha || "Nenhuma senha cadastrada"}
         </p>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="flex items-start gap-1.5 text-xs text-texto-suave">
+          <ShieldCheck size={13} strokeWidth={2} className="mt-px shrink-0" />
           Esta consulta ficou registrada na auditoria, com seu usuário e o horário.
         </p>
       </div>
@@ -24,21 +28,12 @@ export function SenhaDoAparelho({ aparelho }: { aparelho: number }) {
   return (
     <form action={acao} className="space-y-2">
       <input type="hidden" name="aparelho" value={aparelho} />
-      <button
-        type="submit"
-        disabled={consultando}
-        className="rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium hover:border-neutral-900 disabled:opacity-50 dark:border-neutral-700 dark:hover:border-neutral-300"
-      >
-        {consultando ? "Consultando..." : "Ver senha de desbloqueio"}
+      <button type="submit" disabled={consultando} className={juntar(botao("secundario", "sm"), "w-full")}>
+        <Eye size={14} strokeWidth={2} />
+        {consultando ? "Consultando..." : "Revelar senha"}
       </button>
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">
-        Só técnicos podem ver, e cada consulta fica registrada.
-      </p>
-      {estado.erro && (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
-          {estado.erro}
-        </p>
-      )}
+      <p className="text-xs text-texto-apagado">Cada consulta fica registrada na auditoria.</p>
+      {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
     </form>
   );
 }

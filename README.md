@@ -52,6 +52,7 @@ entrega vai anexado ao e-mail que o cliente recebe quando retira o aparelho.
 | Cache e fila | Redis |
 | Tarefas assíncronas | Celery e Celery Beat |
 | Frontend | Next.js 16 (App Router) + React 19 + TypeScript + Tailwind 4 |
+| Interface | Tokens de cor próprios com modo claro e escuro, fonte Geist, ícones Lucide |
 | Ambiente | Docker Compose |
 | CI | GitHub Actions |
 
@@ -126,10 +127,11 @@ make clean       # derruba tudo e apaga o banco local
 ## Estrutura
 
 ```
-apps/api     Backend Django, Celery e testes
-apps/web     Frontend Next.js
-docs/        Plano do projeto e registros de decisão de arquitetura
-infra/       Infraestrutura de produção (a partir da Fase 6)
+apps/api                      Backend Django, Celery e testes
+apps/web                      Frontend Next.js
+apps/web/src/componentes/ui   Peças visuais reutilizáveis (botão, campo, cartão, selo...)
+docs/                         Plano do projeto e registros de decisão de arquitetura
+infra/                        Infraestrutura de produção (a partir da Fase 6)
 ```
 
 ## Documentação

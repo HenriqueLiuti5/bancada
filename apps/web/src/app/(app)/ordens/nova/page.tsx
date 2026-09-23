@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { chamarApi } from "@/lib/api";
 import type { Cliente, Loja, Pagina } from "@/lib/tipos";
 import { FormularioDeAbertura } from "./formulario";
@@ -12,20 +12,12 @@ export default async function NovaOrdem() {
   ]);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <Link
-          href="/ordens"
-          className="text-sm text-neutral-500 hover:underline dark:text-neutral-400"
-        >
-          ← Todas as ordens
-        </Link>
-      </div>
-
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Nova ordem de serviço</h1>
-      </header>
-
+    <div className="max-w-2xl">
+      <CabecalhoDaPagina
+        voltar={{ href: "/ordens", rotulo: "Ordens de serviço" }}
+        titulo="Nova ordem de serviço"
+        descricao="Registre o aparelho e o defeito. Se o cliente tiver e-mail, ele recebe o link de acompanhamento na hora."
+      />
       <FormularioDeAbertura lojas={lojas} clientes={clientes.results} />
     </div>
   );

@@ -1,10 +1,9 @@
 "use client";
 
+import { Search } from "lucide-react";
 import { useRef } from "react";
+import { botao, campo, juntar, seletor } from "@/componentes/ui/estilos";
 import type { Opcao, Usuario } from "@/lib/tipos";
-
-const CAMPO =
-  "rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-300";
 
 export type ValoresDosFiltros = {
   busca: string;
@@ -27,7 +26,6 @@ export function Filtros({
   ordenacoes: Opcao[];
 }) {
   const formulario = useRef<HTMLFormElement>(null);
-
   const aplicar = () => formulario.current?.requestSubmit();
 
   return (
@@ -35,14 +33,28 @@ export function Filtros({
       {valores.situacao && <input type="hidden" name="situacao" value={valores.situacao} />}
       {valores.atrasadas && <input type="hidden" name="atrasadas" value={valores.atrasadas} />}
 
-      <input
-        name="busca"
-        defaultValue={valores.busca}
-        placeholder="Cliente, aparelho, IMEI, telefone ou nº da OS"
-        className={`${CAMPO} min-w-0 flex-1 sm:min-w-72`}
-      />
+      <div className="relative min-w-0 flex-1 basis-full sm:basis-72">
+        <Search
+          size={15}
+          strokeWidth={2}
+          className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-texto-apagado"
+        />
+        <input
+          name="busca"
+          type="search"
+          defaultValue={valores.busca}
+          placeholder="Buscar por cliente, aparelho, IMEI, telefone ou nº da OS"
+          className={juntar(campo, "pl-9")}
+        />
+      </div>
 
-      <select name="status" defaultValue={valores.status} className={CAMPO} onChange={aplicar}>
+      <select
+        name="status"
+        aria-label="Status"
+        defaultValue={valores.status}
+        onChange={aplicar}
+        className={juntar(seletor, "w-auto")}
+      >
         <option value="">Todos os status</option>
         {status.map((opcao) => (
           <option key={opcao.valor} value={opcao.valor}>
@@ -51,7 +63,13 @@ export function Filtros({
         ))}
       </select>
 
-      <select name="tecnico" defaultValue={valores.tecnico} className={CAMPO} onChange={aplicar}>
+      <select
+        name="tecnico"
+        aria-label="Técnico"
+        defaultValue={valores.tecnico}
+        onChange={aplicar}
+        className={juntar(seletor, "w-auto")}
+      >
         <option value="">Qualquer técnico</option>
         <option value="sem">Sem técnico</option>
         {equipe.map((pessoa) => (
@@ -61,7 +79,13 @@ export function Filtros({
         ))}
       </select>
 
-      <select name="ordem" defaultValue={valores.ordem} className={CAMPO} onChange={aplicar}>
+      <select
+        name="ordem"
+        aria-label="Ordenação"
+        defaultValue={valores.ordem}
+        onChange={aplicar}
+        className={juntar(seletor, "w-auto")}
+      >
         {ordenacoes.map((opcao) => (
           <option key={opcao.valor} value={opcao.valor}>
             {opcao.rotulo}
@@ -69,10 +93,7 @@ export function Filtros({
         ))}
       </select>
 
-      <button
-        type="submit"
-        className="rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
-      >
+      <button type="submit" className={botao("secundario")}>
         Buscar
       </button>
     </form>

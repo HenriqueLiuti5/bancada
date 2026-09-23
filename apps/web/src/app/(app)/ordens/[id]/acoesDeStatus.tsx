@@ -1,24 +1,22 @@
 "use client";
 
+import { ArrowRight } from "lucide-react";
 import { useActionState } from "react";
-import { transicionar, type EstadoTransicao } from "./acoes";
+import { Mensagem } from "@/componentes/ui/Mensagem";
+import { PontoDeStatus } from "@/componentes/ui/Selo";
+import { botao, campo, juntar } from "@/componentes/ui/estilos";
 import type { Transicao } from "@/lib/tipos";
+import { transicionar, type EstadoTransicao } from "./acoes";
 
 const INICIAL: EstadoTransicao = {};
 
-export function AcoesDeStatus({
-  id,
-  transicoes,
-}: {
-  id: number;
-  transicoes: Transicao[];
-}) {
+export function AcoesDeStatus({ id, transicoes }: { id: number; transicoes: Transicao[] }) {
   const [estado, acao, enviando] = useActionState(transicionar, INICIAL);
 
   if (transicoes.length === 0) {
     return (
-      <p className="text-sm text-neutral-500 dark:text-neutral-400">
-        Esta ordem está encerrada.
+      <p className="text-[13px] text-texto-suave">
+        Esta ordem está encerrada. Nenhuma mudança de status é possível.
       </p>
     );
   }
@@ -29,11 +27,12 @@ export function AcoesDeStatus({
 
       <input
         name="nota"
+        aria-label="Observação"
         placeholder="Observação (opcional)"
-        className="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-300"
+        className={campo}
       />
 
-      <div className="flex flex-wrap gap-2">
+      <div className="space-y-2">
         {transicoes.map((transicao) => (
           <button
             key={transicao.valor}
@@ -41,18 +40,22 @@ export function AcoesDeStatus({
             name="status"
             value={transicao.valor}
             disabled={enviando}
-            className="rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-neutral-900"
+            className={juntar(botao("secundario"), "group w-full justify-between")}
           >
-            {transicao.rotulo}
+            <span className="flex items-center gap-2">
+              <PontoDeStatus status={transicao.valor} />
+              {transicao.rotulo}
+            </span>
+            <ArrowRight
+              size={14}
+              strokeWidth={2}
+              className="text-texto-apagado transition-transform group-hover:translate-x-0.5"
+            />
           </button>
         ))}
       </div>
 
-      {estado.erro && (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
-          {estado.erro}
-        </p>
-      )}
+      {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
     </form>
   );
 }
