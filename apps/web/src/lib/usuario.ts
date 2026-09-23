@@ -1,0 +1,17 @@
+import { cache } from "react";
+import { chamarApi } from "@/lib/api";
+import type { Usuario } from "@/lib/tipos";
+
+export const usuarioAtual = cache(() => chamarApi<Usuario>("/api/auth/eu/"));
+
+export function podeVerSenha(usuario: Usuario): boolean {
+  return usuario.papel === "dono" || usuario.papel === "tecnico";
+}
+
+export function podeApagar(usuario: Usuario): boolean {
+  return usuario.papel === "dono" || usuario.papel === "tecnico";
+}
+
+export function gerenciaEquipe(usuario: Usuario): boolean {
+  return usuario.papel === "dono";
+}

@@ -6,6 +6,7 @@ import { chamarApi, enviarArquivo, mensagemDaApi } from "@/lib/api";
 export type EstadoTransicao = { erro?: string };
 export type EstadoDaFoto = { erro?: string; enviada?: boolean };
 export type EstadoDaSenha = { senha?: string; erro?: string; revelada?: boolean };
+export type EstadoDosDetalhes = { erro?: string; salvo?: boolean };
 
 export async function transicionar(
   _anterior: EstadoTransicao,
@@ -91,4 +92,29 @@ export async function verSenhaDoAparelho(
   } catch (erro) {
     return { erro: mensagemDaApi(erro, "Não foi possível ver a senha de desbloqueio.") };
   }
+}
+
+export async function salvarDetalhes(
+  _anterior: EstadoDosDetalhes,
+  dados: FormData,
+): Promise<EstadoDosDetalhes> {
+  const id = String(dados.get("id"));
+  const tecnico = String(dados.get("tecnico") ?? "");
+  const prazo = String(dados.get("prometida_para") ?? "");
+
+  const corpo = {
+    tecnico: tecnico ? Number(tecnico) : null,
+    prometida_para: prazo || null,
+    diagnostico: String(dados.get("diagnostico") ?? ""),
+    laudo: String(dados.get("laudo") ?? ""),
+  };
+
+  try {
+    await chamarApi(`/api/ordens/${id}/`, { metodo: "PATCH", corpo });
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível salvar os detalhes.") };
+  }
+
+  revalidatePath(`/ordens/${id}`);
+  return { salvo: true };
 }

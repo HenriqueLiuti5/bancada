@@ -70,8 +70,8 @@ o operador.
 | 2B | PDF da ordem de serviço | concluída |
 | 2C | Auditoria da senha, purga automática e tarefas periódicas | concluída |
 | 3A | Busca, filtros e paginação na lista de ordens | concluída |
-| 3B | Painel com os números do dia | |
-| 3C | Papéis, permissões e gestão da equipe | |
+| 3B | Painel com os números do dia | concluída |
+| 3C | Papéis, permissões e gestão da equipe | concluída |
 | 4 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 5 | Cobrança recorrente, planos, limites de uso | |
 | 6 | Publicação, entrega contínua, monitoramento, backup | |

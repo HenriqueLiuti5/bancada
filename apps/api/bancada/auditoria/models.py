@@ -8,6 +8,9 @@ class Acao(models.TextChoices):
     SENHA_VISTA = "senha_vista", "Senha de desbloqueio consultada"
     SENHA_NEGADA = "senha_negada", "Consulta à senha negada"
     SENHA_PURGADA = "senha_purgada", "Senha de desbloqueio removida"
+    USUARIO_CRIADO = "usuario_criado", "Usuário criado"
+    USUARIO_ALTERADO = "usuario_alterado", "Usuário alterado"
+    SENHA_REDEFINIDA = "senha_redefinida", "Senha de acesso redefinida"
 
 
 class RegistroDeAuditoria(PertenceAoTenant):

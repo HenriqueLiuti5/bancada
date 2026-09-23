@@ -1,8 +1,9 @@
 from typing import Any
 
-from django.db.models import QuerySet
-from rest_framework import permissions, viewsets
+from django.db.models import ProtectedError, QuerySet
+from rest_framework import permissions, status, viewsets
 from rest_framework.request import Request
+from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
 
@@ -37,3 +38,12 @@ class ViewSetDoTenant(viewsets.ModelViewSet):
 
     def perform_create(self, serializer: BaseSerializer) -> None:
         serializer.save(tenant=tenant_do_pedido(self.request))
+
+    def destroy(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except ProtectedError:
+            return Response(
+                {"detail": "Não dá para apagar: há ordens de serviço ligadas a este registro."},
+                status=status.HTTP_409_CONFLICT,
+            )

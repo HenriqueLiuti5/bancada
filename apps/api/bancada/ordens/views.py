@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import Any
 
 from django.db.models import QuerySet
 from django.http import HttpResponse
@@ -14,8 +15,10 @@ from bancada.ordens import consultas, documentos
 from bancada.ordens.estados import StatusOS, TransicaoInvalida
 from bancada.ordens.fotos import FotoInvalida
 from bancada.ordens.models import FotoOS, OrdemServico
+from bancada.ordens.painel import numeros as numeros_do_painel
 from bancada.ordens.serializers import (
     AberturaOrdemSerializer,
+    EdicaoDaOrdemSerializer,
     EnvioDeFotoSerializer,
     FotoOSSerializer,
     OrdemServicoDetailSerializer,
@@ -23,15 +26,32 @@ from bancada.ordens.serializers import (
     TransicaoSerializer,
 )
 from bancada.tenants.models import Usuario
+from bancada.tenants.permissoes import ApagarSoDonoOuTecnico
 
 
 class OrdemServicoViewSet(ViewSetDoTenant):
     queryset = OrdemServico.objects.select_related("cliente", "aparelho", "tecnico", "loja")
+    http_method_names = ["get", "post", "patch", "head", "options"]
 
     def get_serializer_class(self) -> type[BaseSerializer]:
         if self.action == "list":
             return OrdemServicoListSerializer
+        if self.action == "partial_update":
+            return EdicaoDaOrdemSerializer
         return OrdemServicoDetailSerializer
+
+    def get_serializer_context(self) -> dict[str, Any]:
+        return {**super().get_serializer_context(), "tenant": tenant_do_pedido(self.request)}
+
+    def partial_update(self, request: Request, *args: object, **kwargs: object) -> Response:
+        ordem = self.get_object()
+        entrada = self.get_serializer(ordem, data=request.data, partial=True)
+        entrada.is_valid(raise_exception=True)
+        entrada.save()
+
+        atualizada = self.get_queryset().get(pk=ordem.pk)
+        saida = OrdemServicoDetailSerializer(atualizada, context=self.get_serializer_context())
+        return Response(saida.data)
 
     def get_queryset(self) -> QuerySet[OrdemServico]:
         consulta = super().get_queryset()
@@ -60,6 +80,11 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         )
         saida = OrdemServicoDetailSerializer(ordem, context=self.get_serializer_context())
         return Response(saida.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["get"])
+    def painel(self, request: Request) -> Response:
+        base = OrdemServico.objects.filter(tenant=tenant_do_pedido(request))
+        return Response(numeros_do_painel(base))
 
     @action(detail=False, methods=["get"])
     def catalogo(self, request: Request) -> Response:
@@ -141,4 +166,5 @@ class OrdemServicoViewSet(ViewSetDoTenant):
 class FotoViewSet(ViewSetDoTenant):
     serializer_class = FotoOSSerializer
     queryset = FotoOS.objects.select_related("ordem")
+    permission_classes = [*ViewSetDoTenant.permission_classes, ApagarSoDonoOuTecnico]
     http_method_names = ["patch", "delete"]

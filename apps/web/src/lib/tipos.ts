@@ -9,6 +9,17 @@ export type Usuario = {
   tenant: Tenant | null;
 };
 
+export type MembroDaEquipe = {
+  id: number;
+  username: string;
+  first_name: string;
+  email: string;
+  papel: string;
+  papel_rotulo: string;
+  is_active: boolean;
+  last_login: string | null;
+};
+
 export type Loja = { id: number; nome: string; telefone: string; endereco: string };
 
 export type Aparelho = {
@@ -86,6 +97,7 @@ export type OrdemResumo = {
 
 export type Ordem = OrdemResumo & {
   aparelho: number;
+  tecnico: number | null;
   diagnostico: string;
   laudo: string;
   prometida_para: string | null;
@@ -97,6 +109,22 @@ export type Ordem = OrdemResumo & {
   fotos: Foto[];
   transicoes_possiveis: Transicao[];
   total_orcamento: string;
+};
+
+export type LinhaDeStatus = { status: string; rotulo: string; total: number };
+
+export type Painel = {
+  abertas: number;
+  atrasadas: number;
+  aguardando_cliente: number;
+  aguardando_peca: number;
+  prontas: number;
+  abertas_hoje: number;
+  entregues_no_mes: number;
+  por_status: LinhaDeStatus[];
+  dias_medios_de_reparo: number | null;
+  valor_aprovado_em_aberto: string;
+  dias_da_media: number;
 };
 
 export type Pagina<T> = {

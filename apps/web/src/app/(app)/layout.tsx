@@ -1,20 +1,32 @@
 import Link from "next/link";
-import { chamarApi } from "@/lib/api";
-import type { Usuario } from "@/lib/tipos";
+import { gerenciaEquipe, usuarioAtual } from "@/lib/usuario";
 import { sair } from "../acoes";
 
 export default async function LayoutDoApp({ children }: { children: React.ReactNode }) {
-  const usuario = await chamarApi<Usuario>("/api/auth/eu/");
+  const usuario = await usuarioAtual();
 
   return (
     <div className="min-h-screen">
       <header className="border-b border-neutral-200 dark:border-neutral-800">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <div className="flex items-baseline gap-3">
-            <Link href="/ordens" className="text-lg font-semibold tracking-tight">
+          <div className="flex items-baseline gap-4">
+            <Link href="/painel" className="text-lg font-semibold tracking-tight">
               Bancada
             </Link>
-            <span className="truncate text-xs text-neutral-500 dark:text-neutral-400">
+            <nav className="flex items-baseline gap-3 text-sm">
+              <Link href="/painel" className="hover:underline">
+                Painel
+              </Link>
+              <Link href="/ordens" className="hover:underline">
+                Ordens
+              </Link>
+              {gerenciaEquipe(usuario) && (
+                <Link href="/equipe" className="hover:underline">
+                  Equipe
+                </Link>
+              )}
+            </nav>
+            <span className="hidden truncate text-xs text-neutral-500 sm:inline dark:text-neutral-400">
               {usuario.tenant?.nome}
             </span>
           </div>

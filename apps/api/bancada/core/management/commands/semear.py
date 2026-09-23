@@ -46,13 +46,9 @@ class Command(BaseCommand):
                 username="admin", email="admin@bancada.local", password=SENHA_DEMO
             )
 
-        tecnico, criado = Usuario.objects.get_or_create(
-            username="joana",
-            defaults={"tenant": tenant, "papel": Papel.TECNICO, "first_name": "Joana"},
-        )
-        if criado:
-            tecnico.set_password(SENHA_DEMO)
-            tecnico.save(update_fields=["password"])
+        tecnico = self._garantir_usuario(tenant, "joana", "Joana", Papel.TECNICO)
+        self._garantir_usuario(tenant, "marcos", "Marcos", Papel.DONO)
+        self._garantir_usuario(tenant, "carla", "Carla", Papel.ATENDENTE)
 
         maria, _ = Cliente.objects.get_or_create(
             tenant=tenant,
@@ -137,6 +133,16 @@ class Command(BaseCommand):
         self.stdout.write(f"  OS #{em_reparo.numero}: {em_reparo.status}")
         self._resumo(tenant)
 
+    def _garantir_usuario(self, tenant: Tenant, username: str, nome: str, papel: str) -> Usuario:
+        usuario, criado = Usuario.objects.get_or_create(
+            username=username,
+            defaults={"tenant": tenant, "papel": papel, "first_name": nome},
+        )
+        if criado:
+            usuario.set_password(SENHA_DEMO)
+            usuario.save(update_fields=["password"])
+        return usuario
+
     def _garantir_email_de_demonstracao(self, enderecos: dict[Cliente, str]) -> None:
         for cliente, endereco in enderecos.items():
             if cliente.email:
@@ -160,6 +166,8 @@ class Command(BaseCommand):
     def _resumo(self, tenant: Tenant) -> None:
         self.stdout.write("")
         self.stdout.write(f"  admin / {SENHA_DEMO}  (superusuário)")
+        self.stdout.write(f"  marcos / {SENHA_DEMO}  (dono de {tenant.nome})")
         self.stdout.write(f"  joana / {SENHA_DEMO}  (técnica de {tenant.nome})")
+        self.stdout.write(f"  carla / {SENHA_DEMO}  (atendente de {tenant.nome})")
         for ordem in OrdemServico.objects.filter(tenant=tenant):
             self.stdout.write(f"  token público da OS #{ordem.numero}: {ordem.token_publico}")

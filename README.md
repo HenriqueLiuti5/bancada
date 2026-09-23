@@ -6,13 +6,18 @@ criar conta.
 
 ## Estado atual
 
-Fase 3A concluída. A assistência abre a ordem, fotografa o aparelho, imprime o comprovante que o
+Fase 3 concluída. A assistência abre a ordem, fotografa o aparelho, imprime o comprovante que o
 cliente assina no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o
 reparo sem criar conta e, na entrega, recebe o recibo da garantia em PDF.
 
-A lista de ordens tem busca e filtros: um campo só procura por cliente, aparelho, IMEI, telefone
-ou número da OS, e os atalhos separam o que está aberto, atrasado ou encerrado. Os filtros vivem na
-URL, então a busca é compartilhável e o botão voltar funciona.
+O painel mostra como a loja está: o que está na bancada, o que passou do prazo, o que espera o
+cliente aprovar e quanto dinheiro aprovado ainda não entrou. Cada número leva à lista já filtrada.
+A lista tem busca por cliente, aparelho, IMEI, telefone ou número da OS, e os filtros vivem na URL.
+
+Cada pessoa entra com o próprio usuário e um papel — dono, técnico ou atendente. O dono gerencia a
+equipe; técnicos veem a senha de desbloqueio; atendentes abrem ordens e atendem, mas não veem a
+senha nem apagam nada. O status de uma ordem só muda pela máquina de estados, e o histórico não
+pode ser apagado pela API.
 
 A senha de desbloqueio do aparelho é o dado mais sensível do sistema, e tem tratamento próprio:
 fica criptografada, só técnicos conseguem vê-la, toda consulta fica registrada em auditoria — as
@@ -67,8 +72,15 @@ máquina. Essa chave protege a senha de desbloqueio dos aparelhos, então **cada
 sua** e ela nunca é versionada. Dados gravados com uma chave não podem ser lidos com outra.
 
 O `make semear` cria uma assistência de exemplo com clientes, aparelhos, duas ordens de serviço e
-uma foto de demonstração em cada uma, além dos usuários `admin` e `joana` (senha `bancada123`,
-apenas para uso local). Rodar de novo não duplica nada.
+uma foto de demonstração em cada uma. Rodar de novo não duplica nada. Os usuários de demonstração
+usam a senha `bancada123` e existem apenas para uso local:
+
+| Usuário | Papel |
+|---|---|
+| `marcos` | dono — vê tudo, inclusive a tela de equipe |
+| `joana` | técnica — vê a senha de desbloqueio e apaga fotos |
+| `carla` | atendente — abre ordens, não vê a senha nem apaga |
+| `admin` | superusuário do painel administrativo do Django |
 
 As fotos enviadas ficam em `apps/api/media/`, que não vai para o controle de versão.
 
@@ -84,7 +96,7 @@ Serviços disponíveis:
 
 | Endereço | O que é |
 |---|---|
-| http://localhost:3000 | Aplicação web (entre com `joana` / `bancada123`) |
+| http://localhost:3000 | Aplicação web (entre com `marcos` / `bancada123`) |
 | http://localhost:8000/api/health/ | Verificação de saúde da API |
 | http://localhost:8000/admin/ | Administração do Django |
 | http://localhost:3000/os/`token` | Acompanhamento público (o token aparece no detalhe da OS) |

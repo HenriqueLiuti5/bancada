@@ -20,3 +20,5 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0012](0012-documentos-em-pdf-com-weasyprint.md) | Documentos em PDF com WeasyPrint |
 | [0013](0013-auditoria-purga-e-tarefas-periodicas.md) | Auditoria da senha, purga automática e tarefas periódicas |
 | [0014](0014-busca-e-filtros-na-lista-de-ordens.md) | Busca e filtros na lista de ordens |
+| [0015](0015-painel-calculado-na-hora.md) | Painel calculado na hora |
+| [0016](0016-papeis-escrita-protegida-e-equipe.md) | Papéis, escrita protegida e gestão da equipe |

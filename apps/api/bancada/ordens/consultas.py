@@ -52,18 +52,24 @@ def por_texto(consulta: QuerySet[OrdemServico], texto: str) -> QuerySet[OrdemSer
     return consulta.filter(filtro)
 
 
+def abertas() -> Q:
+    return ~Q(status__in=ESTADOS_FINAIS)
+
+
+def atrasadas() -> Q:
+    return abertas() & Q(prometida_para__lt=timezone.localdate())
+
+
 def por_situacao(consulta: QuerySet[OrdemServico], situacao: str) -> QuerySet[OrdemServico]:
     if situacao == "abertas":
-        return consulta.exclude(status__in=ESTADOS_FINAIS)
+        return consulta.filter(abertas())
     if situacao == "encerradas":
         return consulta.filter(status__in=ESTADOS_FINAIS)
     return consulta
 
 
 def apenas_atrasadas(consulta: QuerySet[OrdemServico]) -> QuerySet[OrdemServico]:
-    return consulta.exclude(status__in=ESTADOS_FINAIS).filter(
-        prometida_para__lt=timezone.localdate()
-    )
+    return consulta.filter(atrasadas())
 
 
 def ordenar(consulta: QuerySet[OrdemServico], chave: str) -> QuerySet[OrdemServico]:

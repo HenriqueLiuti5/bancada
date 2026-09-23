@@ -9,11 +9,13 @@ from bancada.clientes.models import Aparelho, Cliente
 from bancada.clientes.serializers import AparelhoSerializer, ClienteSerializer
 from bancada.core.api import ViewSetDoTenant
 from bancada.tenants.models import Usuario
+from bancada.tenants.permissoes import ApagarSoDonoOuTecnico
 
 
 class ClienteViewSet(ViewSetDoTenant):
     serializer_class = ClienteSerializer
     queryset = Cliente.objects.prefetch_related("aparelhos")
+    permission_classes = [*ViewSetDoTenant.permission_classes, ApagarSoDonoOuTecnico]
 
     def get_queryset(self) -> QuerySet[Cliente]:
         consulta = super().get_queryset()
@@ -26,6 +28,7 @@ class ClienteViewSet(ViewSetDoTenant):
 class AparelhoViewSet(ViewSetDoTenant):
     serializer_class = AparelhoSerializer
     queryset = Aparelho.objects.select_related("cliente")
+    permission_classes = [*ViewSetDoTenant.permission_classes, ApagarSoDonoOuTecnico]
 
     def get_queryset(self) -> QuerySet[Aparelho]:
         consulta = super().get_queryset()

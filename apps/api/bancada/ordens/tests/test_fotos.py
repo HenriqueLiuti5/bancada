@@ -157,14 +157,14 @@ def test_intruso_nao_envia_foto_para_ordem_alheia(
 
 
 @pytest.mark.django_db
-def test_intruso_nao_apaga_nem_esconde_foto_alheia(
-    api_tecnico: APIClient, api_intruso: APIClient, ordem: OrdemServico
+def test_tecnico_de_outra_assistencia_nao_apaga_nem_esconde_foto_alheia(
+    api_tecnico: APIClient, api_tecnico_intruso: APIClient, ordem: OrdemServico
 ) -> None:
     foto_id = enviar(api_tecnico, ordem).json()["id"]
 
-    assert api_intruso.delete(f"/api/fotos/{foto_id}/").status_code == 404
+    assert api_tecnico_intruso.delete(f"/api/fotos/{foto_id}/").status_code == 404
     assert (
-        api_intruso.patch(
+        api_tecnico_intruso.patch(
             f"/api/fotos/{foto_id}/", {"visivel_ao_cliente": False}, format="json"
         ).status_code
         == 404

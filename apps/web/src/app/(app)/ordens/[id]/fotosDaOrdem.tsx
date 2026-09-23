@@ -14,7 +14,7 @@ const CAMPO =
 const BOTAO_DISCRETO =
   "rounded-md border border-neutral-300 px-2 py-1 text-xs text-neutral-600 hover:border-neutral-900 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-neutral-300";
 
-function Cartao({ id, foto }: { id: number; foto: Foto }) {
+function Cartao({ id, foto, podeApagar }: { id: number; foto: Foto; podeApagar: boolean }) {
   return (
     <figure className="space-y-2">
       <Image
@@ -49,20 +49,30 @@ function Cartao({ id, foto }: { id: number; foto: Foto }) {
             </button>
           </form>
 
-          <form action={apagarFoto}>
-            <input type="hidden" name="id" value={id} />
-            <input type="hidden" name="foto" value={foto.id} />
-            <button type="submit" className={BOTAO_DISCRETO}>
-              Apagar
-            </button>
-          </form>
+          {podeApagar && (
+            <form action={apagarFoto}>
+              <input type="hidden" name="id" value={id} />
+              <input type="hidden" name="foto" value={foto.id} />
+              <button type="submit" className={BOTAO_DISCRETO}>
+                Apagar
+              </button>
+            </form>
+          )}
         </div>
       </figcaption>
     </figure>
   );
 }
 
-export function FotosDaOrdem({ id, fotos }: { id: number; fotos: Foto[] }) {
+export function FotosDaOrdem({
+  id,
+  fotos,
+  podeApagar,
+}: {
+  id: number;
+  fotos: Foto[];
+  podeApagar: boolean;
+}) {
   const [estado, acao, enviando] = useActionState(enviarFoto, INICIAL);
   const formulario = useRef<HTMLFormElement>(null);
 
@@ -77,7 +87,7 @@ export function FotosDaOrdem({ id, fotos }: { id: number; fotos: Foto[] }) {
       {fotos.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-3">
           {fotos.map((foto) => (
-            <Cartao key={foto.id} id={id} foto={foto} />
+            <Cartao key={foto.id} id={id} foto={foto} podeApagar={podeApagar} />
           ))}
         </div>
       ) : (

@@ -109,6 +109,7 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
         fields = [
             *OrdemServicoListSerializer.Meta.fields,
             "aparelho",
+            "tecnico",
             "diagnostico",
             "laudo",
             "prometida_para",
@@ -127,6 +128,18 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
             {"valor": status, "rotulo": StatusOS(status).label}
             for status in sorted(TRANSICOES.get(obj.status, frozenset()))
         ]
+
+
+class EdicaoDaOrdemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrdemServico
+        fields = ["diagnostico", "laudo", "prometida_para", "garantia_ate", "tecnico"]
+
+    def validate_tecnico(self, valor: object) -> object:
+        tenant = self.context["tenant"]
+        if valor is not None and getattr(valor, "tenant_id", None) != tenant.id:
+            raise serializers.ValidationError("Esse usuário não é da sua assistência.")
+        return valor
 
 
 class AberturaOrdemSerializer(serializers.Serializer):

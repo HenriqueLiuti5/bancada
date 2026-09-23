@@ -2,8 +2,10 @@ import Link from "next/link";
 import { CompartilharLink } from "@/componentes/CompartilharLink";
 import { Selo } from "@/componentes/Selo";
 import { chamarApi } from "@/lib/api";
-import type { Ordem } from "@/lib/tipos";
+import type { Ordem, Usuario } from "@/lib/tipos";
+import { podeApagar, podeVerSenha, usuarioAtual } from "@/lib/usuario";
 import { AcoesDeStatus } from "./acoesDeStatus";
+import { DetalhesDoReparo } from "./detalhesDoReparo";
 import { FotosDaOrdem } from "./fotosDaOrdem";
 import { SenhaDoAparelho } from "./senhaDoAparelho";
 
@@ -25,7 +27,11 @@ function formatarMomento(iso: string): string {
 
 export default async function DetalheDaOrdem({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const ordem = await chamarApi<Ordem>(`/api/ordens/${id}/`);
+  const [ordem, equipe, usuario] = await Promise.all([
+    chamarApi<Ordem>(`/api/ordens/${id}/`),
+    chamarApi<Usuario[]>("/api/equipe/"),
+    usuarioAtual(),
+  ]);
   const base = process.env.APP_PUBLIC_URL ?? "http://localhost:3000";
   const linkDoCliente = `${base}/os/${ordem.token_publico}`;
 
@@ -89,7 +95,13 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium">Senha de desbloqueio</h2>
-        <SenhaDoAparelho aparelho={ordem.aparelho} />
+        {podeVerSenha(usuario) ? (
+          <SenhaDoAparelho aparelho={ordem.aparelho} />
+        ) : (
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            Só técnicos e o dono podem ver a senha de desbloqueio.
+          </p>
+        )}
       </section>
 
       <section className="space-y-3">
@@ -121,7 +133,12 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         <AcoesDeStatus id={ordem.id} transicoes={ordem.transicoes_possiveis} />
       </section>
 
-      <FotosDaOrdem id={ordem.id} fotos={ordem.fotos} />
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium">Detalhes do reparo</h2>
+        <DetalhesDoReparo ordem={ordem} equipe={equipe} />
+      </section>
+
+      <FotosDaOrdem id={ordem.id} fotos={ordem.fotos} podeApagar={podeApagar(usuario)} />
 
       {ordem.itens.length > 0 && (
         <section className="space-y-3">
