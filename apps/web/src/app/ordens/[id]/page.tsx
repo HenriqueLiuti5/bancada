@@ -118,6 +118,11 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
                 {evento.usuario && ` · ${evento.usuario}`}
                 {evento.nota && ` · ${evento.nota}`}
               </p>
+              {evento.aviso && (
+                <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                  Cliente avisado por e-mail em {evento.aviso.destino}
+                </p>
+              )}
             </li>
           ))}
         </ol>

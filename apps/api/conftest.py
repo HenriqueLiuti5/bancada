@@ -98,3 +98,9 @@ def api_intruso(intruso: Usuario) -> "APIClient":
 @pytest.fixture(autouse=True)
 def hash_rapido_de_senha(settings: Any) -> None:
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
+
+@pytest.fixture(autouse=True)
+def celery_no_mesmo_processo(settings: Any) -> None:
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+    settings.CELERY_TASK_EAGER_PROPAGATES = True

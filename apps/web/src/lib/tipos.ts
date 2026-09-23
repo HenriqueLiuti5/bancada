@@ -31,6 +31,8 @@ export type Cliente = {
   aparelhos: Aparelho[];
 };
 
+export type AvisoAoCliente = { destino: string; enviado_em: string };
+
 export type Evento = {
   id: number;
   de_status: string;
@@ -39,6 +41,7 @@ export type Evento = {
   para_label: string;
   usuario: string | null;
   nota: string;
+  aviso: AvisoAoCliente | null;
   criado_em: string;
 };
 

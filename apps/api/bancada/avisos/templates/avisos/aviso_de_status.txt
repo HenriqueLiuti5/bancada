@@ -1,0 +1,13 @@
+Olá, {{ primeiro_nome }}.
+
+{{ chamada }}
+
+Acompanhe o reparo do seu {{ aparelho }} por aqui:
+{{ link }}
+
+Ordem de serviço nº {{ numero }}.
+
+{{ assistencia }}{% if telefone %}
+Telefone: {{ telefone }}{% endif %}
+
+Esta mensagem é automática. Para falar com a gente, responda pelo telefone acima.

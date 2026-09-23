@@ -70,7 +70,7 @@ class Command(BaseCommand):
         joao, _ = Cliente.objects.get_or_create(
             tenant=tenant,
             telefone="11988887777",
-            defaults={"nome": "João Pereira"},
+            defaults={"nome": "João Pereira", "email": "joao@exemplo.com"},
         )
         samsung, _ = Aparelho.objects.get_or_create(
             tenant=tenant,
@@ -79,6 +79,8 @@ class Command(BaseCommand):
             modelo="Galaxy A15",
             defaults={"cor": "Preto", "imei": "352099001761481"},
         )
+
+        self._garantir_email_de_demonstracao({maria: "maria@exemplo.com", joao: "joao@exemplo.com"})
 
         if OrdemServico.objects.filter(tenant=tenant).exists():
             self.stdout.write(self.style.WARNING("Já existem ordens; nada foi criado."))
@@ -134,6 +136,13 @@ class Command(BaseCommand):
         self.stdout.write(f"  OS #{recebida.numero}: {recebida.status}")
         self.stdout.write(f"  OS #{em_reparo.numero}: {em_reparo.status}")
         self._resumo(tenant)
+
+    def _garantir_email_de_demonstracao(self, enderecos: dict[Cliente, str]) -> None:
+        for cliente, endereco in enderecos.items():
+            if cliente.email:
+                continue
+            cliente.email = endereco
+            cliente.save(update_fields=["email"])
 
     def _garantir_fotos(self, tenant: Tenant, tecnico: Usuario) -> None:
         for ordem in OrdemServico.objects.filter(tenant=tenant).select_related("aparelho"):

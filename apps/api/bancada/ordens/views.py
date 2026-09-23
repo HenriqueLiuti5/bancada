@@ -32,7 +32,9 @@ class OrdemServicoViewSet(ViewSetDoTenant):
     def get_queryset(self) -> QuerySet[OrdemServico]:
         consulta = super().get_queryset()
         if self.action != "list":
-            consulta = consulta.prefetch_related("itens", "eventos__usuario", "fotos")
+            consulta = consulta.prefetch_related(
+                "itens", "eventos__usuario", "eventos__aviso", "fotos"
+            )
         situacao = self.request.query_params.get("status")
         if situacao:
             consulta = consulta.filter(status=situacao)

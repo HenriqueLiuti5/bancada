@@ -46,6 +46,7 @@ class EventoOSSerializer(serializers.ModelSerializer):
     usuario = serializers.CharField(source="usuario.username", read_only=True, default=None)
     de_label = serializers.SerializerMethodField()
     para_label = serializers.SerializerMethodField()
+    aviso = serializers.SerializerMethodField()
 
     class Meta:
         model = EventoOS
@@ -57,8 +58,15 @@ class EventoOSSerializer(serializers.ModelSerializer):
             "para_label",
             "usuario",
             "nota",
+            "aviso",
             "criado_em",
         ]
+
+    def get_aviso(self, obj: EventoOS) -> dict[str, str] | None:
+        aviso = getattr(obj, "aviso", None)
+        if aviso is None or aviso.enviado_em is None:
+            return None
+        return {"destino": aviso.destino, "enviado_em": aviso.enviado_em.isoformat()}
 
     def get_de_label(self, obj: EventoOS) -> str:
         return StatusOS(obj.de_status).label if obj.de_status else "Abertura"

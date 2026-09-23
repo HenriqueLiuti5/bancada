@@ -6,8 +6,14 @@ criar conta.
 
 ## Estado atual
 
-Fase 1D concluída: o produto fecha o ciclo. A assistência abre a ordem, fotografa o aparelho,
-movimenta o status e envia o link; o cliente acompanha o reparo e vê as fotos sem criar conta.
+Fase 2A concluída. A assistência abre a ordem, fotografa o aparelho e movimenta o status; o
+cliente recebe o link por e-mail e acompanha o reparo sem criar conta.
+
+O aviso ao cliente sai numa tarefa do Celery, disparada quando a ordem entra num status que
+interessa a ele: recebido, orçamento enviado, aguardando peça e pronto para retirada. No ambiente
+local o e-mail é impresso no log do worker (`make logs`), sem precisar de conta em lugar nenhum.
+Para enviar de verdade, preencha as variáveis `EMAIL_*` do `.env` e troque
+`DJANGO_EMAIL_BACKEND` por `django.core.mail.backends.smtp.EmailBackend`.
 
 As fotos ficam em armazenamento privado: não existe endereço fixo para elas. Cada página gera um
 link assinado que vale 15 minutos, e toda imagem enviada é reduzida e regravada, o que descarta os
