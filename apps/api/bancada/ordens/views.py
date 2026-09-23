@@ -10,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 
 from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
-from bancada.ordens import documentos
-from bancada.ordens.estados import TransicaoInvalida
+from bancada.ordens import consultas, documentos
+from bancada.ordens.estados import StatusOS, TransicaoInvalida
 from bancada.ordens.fotos import FotoInvalida
 from bancada.ordens.models import FotoOS, OrdemServico
 from bancada.ordens.serializers import (
@@ -35,14 +35,11 @@ class OrdemServicoViewSet(ViewSetDoTenant):
 
     def get_queryset(self) -> QuerySet[OrdemServico]:
         consulta = super().get_queryset()
+
         if self.action != "list":
-            consulta = consulta.prefetch_related(
-                "itens", "eventos__usuario", "eventos__aviso", "fotos"
-            )
-        situacao = self.request.query_params.get("status")
-        if situacao:
-            consulta = consulta.filter(status=situacao)
-        return consulta
+            return consulta.prefetch_related("itens", "eventos__usuario", "eventos__aviso", "fotos")
+
+        return consultas.filtrar(consulta, self.request.query_params)
 
     def create(self, request: Request, *args: object, **kwargs: object) -> Response:
         tenant = tenant_do_pedido(request)
@@ -63,6 +60,20 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         )
         saida = OrdemServicoDetailSerializer(ordem, context=self.get_serializer_context())
         return Response(saida.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["get"])
+    def catalogo(self, request: Request) -> Response:
+        return Response(
+            {
+                "status": [
+                    {"valor": situacao.value, "rotulo": situacao.label} for situacao in StatusOS
+                ],
+                "ordenacoes": [
+                    {"valor": chave, "rotulo": rotulo}
+                    for chave, rotulo in consultas.ROTULOS_DE_ORDENACAO.items()
+                ],
+            }
+        )
 
     def _documento_em_pdf(
         self, gerar: Callable[[OrdemServico], bytes], documento: str

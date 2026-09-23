@@ -6,9 +6,13 @@ criar conta.
 
 ## Estado atual
 
-Fase 2 concluída. A assistência abre a ordem, fotografa o aparelho, imprime o comprovante que o
+Fase 3A concluída. A assistência abre a ordem, fotografa o aparelho, imprime o comprovante que o
 cliente assina no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o
 reparo sem criar conta e, na entrega, recebe o recibo da garantia em PDF.
+
+A lista de ordens tem busca e filtros: um campo só procura por cliente, aparelho, IMEI, telefone
+ou número da OS, e os atalhos separam o que está aberto, atrasado ou encerrado. Os filtros vivem na
+URL, então a busca é compartilhável e o botão voltar funciona.
 
 A senha de desbloqueio do aparelho é o dado mais sensível do sistema, e tem tratamento próprio:
 fica criptografada, só técnicos conseguem vê-la, toda consulta fica registrada em auditoria — as

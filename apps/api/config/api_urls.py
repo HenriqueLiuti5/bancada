@@ -6,7 +6,7 @@ from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
 from bancada.ordens.views import FotoViewSet, OrdemServicoViewSet
 from bancada.ordens.views_fotos import ArquivoDaFotoView
 from bancada.ordens.views_publicas import AcompanhamentoPublicoView
-from bancada.tenants.views import EuView, LoginView, LogoutView, LojasView
+from bancada.tenants.views import EquipeView, EuView, LoginView, LogoutView, LojasView
 
 router = DefaultRouter()
 router.register("clientes", ClienteViewSet, basename="cliente")
@@ -19,6 +19,7 @@ urlpatterns = [
     path("auth/logout/", LogoutView.as_view(), name="logout"),
     path("auth/eu/", EuView.as_view(), name="eu"),
     path("lojas/", LojasView.as_view(), name="lojas"),
+    path("equipe/", EquipeView.as_view(), name="equipe"),
     path(
         "fotos/arquivo/<str:assinatura>/",
         transaction.non_atomic_requests(ArquivoDaFotoView.as_view()),

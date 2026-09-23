@@ -65,7 +65,11 @@ export type Foto = {
   criado_em: string;
 };
 
-export type Transicao = { valor: string; rotulo: string };
+export type Opcao = { valor: string; rotulo: string };
+
+export type Catalogo = { status: Opcao[]; ordenacoes: Opcao[] };
+
+export type Transicao = Opcao;
 
 export type OrdemResumo = {
   id: number;

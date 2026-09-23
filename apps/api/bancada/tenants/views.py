@@ -62,3 +62,15 @@ class LojasView(APIView):
         tenant = usuario.tenant if isinstance(usuario, Usuario) else None
         lojas = Loja.objects.filter(tenant=tenant)
         return Response(LojaSerializer(lojas, many=True).data)
+
+
+class EquipeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: Request) -> Response:
+        usuario = request.user
+        tenant = usuario.tenant if isinstance(usuario, Usuario) else None
+        colegas = Usuario.objects.filter(tenant=tenant, is_active=True).order_by(
+            "first_name", "username"
+        )
+        return Response(UsuarioSerializer(colegas, many=True).data)
