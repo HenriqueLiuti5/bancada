@@ -83,6 +83,28 @@ def test_convite_com_email_vai_pelo_correio(
 
 
 @pytest.mark.django_db
+def test_email_do_convite_nao_escapa_caracteres_como_html(
+    api_dono: APIClient,
+    tenant: Tenant,
+    django_capture_on_commit_callbacks: DjangoCaptureOnCommitCallbacks,
+) -> None:
+    tenant.nome = "Cell & Cia D'Ávila"
+    tenant.save(update_fields=["nome"])
+
+    with django_capture_on_commit_callbacks(execute=True):
+        api_dono.post(
+            "/api/convites/",
+            {"nome": "Paulo Reis", "papel": Papel.TECNICO, "email": "paulo@central.test"},
+            format="json",
+        )
+
+    corpo = str(mail.outbox[0].body)
+    assert "Cell & Cia D'Ávila" in corpo
+    assert "&amp;" not in corpo
+    assert "&#x27;" not in corpo
+
+
+@pytest.mark.django_db
 def test_convite_para_email_que_ja_tem_conta_e_recusado(
     api_dono: APIClient, tecnico: Usuario
 ) -> None:

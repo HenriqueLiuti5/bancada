@@ -35,6 +35,19 @@ def test_abertura_da_ordem_manda_o_link_para_o_cliente(
 
 
 @pytest.mark.django_db
+def test_aviso_nao_escapa_caracteres_como_html(ordem_de_quem_tem_email: OrdemServico) -> None:
+    ordem_de_quem_tem_email.tenant.nome = "Cell & Cia D'Ávila"
+    ordem_de_quem_tem_email.tenant.save(update_fields=["nome"])
+
+    avisar(ordem_de_quem_tem_email, StatusOS.RECEBIDO)
+
+    corpo = mail.outbox[0].body
+    assert "Cell & Cia D'Ávila" in corpo
+    assert "&amp;" not in corpo
+    assert "&#x27;" not in corpo
+
+
+@pytest.mark.django_db
 def test_status_que_nao_interessa_ao_cliente_nao_gera_email(
     ordem_de_quem_tem_email: OrdemServico,
 ) -> None:

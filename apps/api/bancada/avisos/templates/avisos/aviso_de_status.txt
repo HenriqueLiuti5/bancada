@@ -1,4 +1,4 @@
-Olá, {{ primeiro_nome }}.
+{% autoescape off %}Olá, {{ primeiro_nome }}.
 
 {{ chamada }}
 
@@ -10,4 +10,4 @@ Ordem de serviço nº {{ numero }}.
 {{ assistencia }}{% if telefone %}
 Telefone: {{ telefone }}{% endif %}
 
-Esta mensagem é automática. Para falar com a gente, responda pelo telefone acima.
+Esta mensagem é automática. Para falar com a gente, responda pelo telefone acima.{% endautoescape %}

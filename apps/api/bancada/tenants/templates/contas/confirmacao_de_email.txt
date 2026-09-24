@@ -1,4 +1,4 @@
-Olá, {{ primeiro_nome }}.
+{% autoescape off %}Olá, {{ primeiro_nome }}.
 
 Falta só confirmar que este e-mail é seu. É por ele que você recupera a senha se esquecer.
 
@@ -9,4 +9,4 @@ O link vale por 7 dias.{% if assistencia %}
 
 {{ assistencia }} no Bancada{% endif %}
 
-Se não foi você que criou esta conta, é só ignorar esta mensagem.
+Se não foi você que criou esta conta, é só ignorar esta mensagem.{% endautoescape %}
