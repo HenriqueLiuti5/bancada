@@ -75,7 +75,7 @@ o operador.
 | 4A | Cadastro da assistência, convite da equipe e recuperação de senha | |
 | 4B | Assinatura pelo Asaas, com teste grátis de 30 dias | |
 | 4C | Tutorial guiado e canal de contato | |
-| 4D | Painel completo da loja | |
+| 4D | Pagamento na entrega e painel completo da loja | |
 | 4E | Painel da plataforma, exclusivo do Henrique | |
 | 4F | Publicação: domínio, página inicial, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
@@ -146,23 +146,29 @@ conta, montar a equipe, recuperar a senha, aprender as telas, pagar e pedir ajud
   ao cliente, convidar a equipe e assinar.
 - Um botão "Fale com a gente" abre o WhatsApp do Henrique já com o nome da assistência na mensagem.
 
-### 4D — Painel completo da loja
+### 4D — Pagamento na entrega e painel completo da loja
 
-O painel da Fase 3B mostra o estado de agora. Esta fase acrescenta resumos por período.
+O painel da Fase 3B mostra o estado de agora. Esta fase passa a registrar o dinheiro que de fato
+entra no caixa e acrescenta resumos por período.
+
+- Ao marcar a ordem como entregue, quem atende informa o valor recebido e a forma de pagamento:
+  PIX, dinheiro, débito ou crédito. O valor já vem preenchido com o total aprovado e só é mudado
+  quando há desconto. O pagamento pode ser dividido em mais de uma forma, e o aparelho entregue
+  sem pagamento fica registrado como valor a receber até ser quitado.
+- O recibo de entrega em PDF da Fase 2B passa a mostrar o valor pago e a forma de pagamento.
+
+Com esse registro, o painel passa a ter:
 
 - Escolha de período: hoje, últimos 7 dias, mês e intervalo personalizado, com comparação com o
   período anterior.
-- Dinheiro: faturamento (orçamentos aprovados das ordens entregues no período), ticket médio,
-  valor aprovado ainda em aberto e taxa de aprovação de orçamentos.
+- Dinheiro: valor recebido no período, separado por forma de pagamento; descontos dados; valores a
+  receber; ticket médio; valor aprovado ainda em aberto e taxa de aprovação de orçamentos.
 - Operação: ordens abertas e entregues, atrasadas, tempo médio de reparo e tempo parado em cada
   etapa.
-- Equipe: ordens concluídas e faturamento por técnico.
+- Equipe: ordens concluídas e valor recebido por técnico.
 - Atendimento: marcas e modelos mais atendidos, defeitos mais comuns e clientes que mais voltam.
 - Filtro por loja, para assistências com mais de uma.
 - Os números de dinheiro aparecem só para o dono. Técnico e atendente veem a parte de operação.
-
-Hoje o sistema sabe quanto foi aprovado, mas não quanto de fato entrou no caixa. Se as
-assistências pedirem isso, a entrega passa a registrar valor recebido e forma de pagamento.
 
 ### 4E — Painel da plataforma
 
