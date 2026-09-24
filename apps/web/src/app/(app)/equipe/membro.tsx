@@ -35,10 +35,7 @@ export function Membro({ membro, souEu }: { membro: MembroDaEquipe; souEu: boole
               </span>
             )}
           </p>
-          <p className="truncate text-[13px] text-texto-suave">
-            {membro.username}
-            {membro.email && ` · ${membro.email}`}
-          </p>
+          <p className="truncate text-[13px] text-texto-suave">{membro.email || membro.username}</p>
         </div>
 
         {souEu ? (

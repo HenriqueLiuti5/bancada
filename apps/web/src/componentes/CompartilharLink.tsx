@@ -1,32 +1,18 @@
 "use client";
 
 import { Check, Copy, ExternalLink, MessageCircle } from "lucide-react";
-import { useState } from "react";
 import { botao, juntar } from "@/componentes/ui/estilos";
+import { useCopiar } from "@/componentes/useCopiar";
 
-export function CompartilharLink({
-  url,
-  aparelho,
-  cliente,
-}: {
+type Props = {
   url: string;
-  aparelho: string;
-  cliente: string;
-}) {
-  const [copiado, setCopiado] = useState(false);
+  mensagem: string;
+  rotuloDaPrevia?: string;
+};
 
-  const mensagem = `Olá, ${cliente}! Acompanhe o reparo do seu ${aparelho} por aqui: ${url}`;
+export function CompartilharLink({ url, mensagem, rotuloDaPrevia }: Props) {
+  const { copiado, copiar } = useCopiar();
   const whatsapp = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-
-  async function copiar() {
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 2000);
-    } catch {
-      setCopiado(false);
-    }
-  }
 
   return (
     <div className="space-y-3">
@@ -35,7 +21,7 @@ export function CompartilharLink({
       </p>
 
       <div className="grid grid-cols-2 gap-2">
-        <button type="button" onClick={copiar} className={botao("secundario", "sm")}>
+        <button type="button" onClick={() => copiar(url)} className={botao("secundario", "sm")}>
           {copiado ? <Check size={14} strokeWidth={2} /> : <Copy size={14} strokeWidth={2} />}
           {copiado ? "Copiado" : "Copiar"}
         </button>
@@ -43,15 +29,17 @@ export function CompartilharLink({
           <MessageCircle size={14} strokeWidth={2} />
           WhatsApp
         </a>
-        <a
-          href={url}
-          target="_blank"
-          rel="noreferrer"
-          className={juntar(botao("fantasma", "sm"), "col-span-2")}
-        >
-          <ExternalLink size={14} strokeWidth={2} />
-          Ver como o cliente vê
-        </a>
+        {rotuloDaPrevia && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className={juntar(botao("fantasma", "sm"), "col-span-2")}
+          >
+            <ExternalLink size={14} strokeWidth={2} />
+            {rotuloDaPrevia}
+          </a>
+        )}
       </div>
     </div>
   );

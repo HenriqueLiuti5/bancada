@@ -31,6 +31,9 @@ export const seletor = `${BASE_DO_CAMPO} seletor h-9`;
 
 export const areaDeTexto = `${BASE_DO_CAMPO} min-h-20 py-2 leading-relaxed`;
 
+export const link =
+  "font-medium text-texto underline-offset-4 transition-colors hover:underline focus-visible:underline outline-none";
+
 export function juntar(...classes: Array<string | false | null | undefined>): string {
   return twMerge(...classes);
 }

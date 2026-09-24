@@ -2,6 +2,7 @@ from typing import Any
 
 from django.db.models import ProtectedError, QuerySet
 from rest_framework import permissions, status, viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
@@ -18,8 +19,18 @@ def tenant_do_pedido(request: Request) -> Tenant | None:
     return None
 
 
+SEM_ASSISTENCIA = "Seu usuário não está vinculado a nenhuma assistência."
+
+
+def tenant_obrigatorio(request: Request) -> Tenant:
+    tenant = tenant_do_pedido(request)
+    if tenant is None:
+        raise PermissionDenied(SEM_ASSISTENCIA)
+    return tenant
+
+
 class PertenceAUmaAssistencia(permissions.BasePermission):
-    message = "Seu usuário não está vinculado a nenhuma assistência."
+    message = SEM_ASSISTENCIA
 
     def has_permission(self, request: Request, view: APIView) -> bool:
         return tenant_do_pedido(request) is not None

@@ -25,6 +25,9 @@ logs: ## Acompanha os logs de todos os servicos
 ps: ## Mostra o estado dos servicos
 	docker compose ps
 
+reiniciar-worker: ## Reinicia o worker e o agendador para carregarem codigo novo de tarefas
+	docker compose restart worker beat
+
 shell: ## Abre um terminal dentro do container da API
 	docker compose exec api bash
 
@@ -55,4 +58,4 @@ fmt: ## Formata o codigo do backend
 clean: ## Derruba tudo e apaga os volumes (APAGA O BANCO LOCAL)
 	docker compose down -v
 
-.PHONY: help setup up down logs ps shell migrate makemigrations semear superuser test lint fmt clean
+.PHONY: help setup up down logs ps reiniciar-worker shell migrate makemigrations semear superuser test lint fmt clean

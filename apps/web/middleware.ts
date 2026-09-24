@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const SEM_LOGIN = ["/os", "/fotos"];
-const SO_PARA_DESLOGADO = ["/login"];
+const SEM_LOGIN = [
+  "/os",
+  "/fotos",
+  "/convite",
+  "/redefinir-senha",
+  "/confirmar-email",
+  "/termos",
+  "/privacidade",
+];
+const SO_PARA_DESLOGADO = ["/login", "/cadastro", "/esqueci-senha"];
 
 export function middleware(request: NextRequest) {
   const caminho = request.nextUrl.pathname;

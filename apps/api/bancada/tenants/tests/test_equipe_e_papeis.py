@@ -28,78 +28,37 @@ def api_dono(dono: Usuario) -> APIClient:
 
 
 @pytest.mark.django_db
-def test_dono_cria_um_usuario_da_equipe(api_dono: APIClient, tenant: Tenant) -> None:
+def test_equipe_nao_cria_usuario_direto_so_por_convite(api_dono: APIClient) -> None:
     resposta = api_dono.post(
-        "/api/usuarios/",
-        {
-            "username": "carla",
-            "first_name": "Carla",
-            "papel": Papel.ATENDENTE,
-            "senha": "bancada-2026-forte",
-        },
-        format="json",
-    )
-
-    assert resposta.status_code == 201
-
-    criada = Usuario.objects.get(username="carla")
-    assert criada.tenant == tenant
-    assert criada.papel == Papel.ATENDENTE
-    assert criada.check_password("bancada-2026-forte")
-    assert not criada.is_staff
-    assert not criada.is_superuser
-
-
-@pytest.mark.django_db
-def test_criacao_de_usuario_fica_na_auditoria(api_dono: APIClient, dono: Usuario) -> None:
-    api_dono.post(
         "/api/usuarios/",
         {"username": "carla", "papel": Papel.ATENDENTE, "senha": "bancada-2026-forte"},
         format="json",
     )
 
-    registro = RegistroDeAuditoria.objects.get(acao=Acao.USUARIO_CRIADO)
-    assert registro.usuario == dono
-    assert "carla" in registro.detalhe
-
-
-@pytest.mark.django_db
-def test_senha_fraca_e_recusada(api_dono: APIClient) -> None:
-    resposta = api_dono.post(
-        "/api/usuarios/",
-        {"username": "carla", "papel": Papel.ATENDENTE, "senha": "1234"},
-        format="json",
-    )
-
-    assert resposta.status_code == 400
-    assert "senha" in resposta.json()
+    assert resposta.status_code == 405
+    assert "convite" in resposta.json()["detail"]
     assert not Usuario.objects.filter(username="carla").exists()
 
 
 @pytest.mark.django_db
-def test_nome_de_usuario_repetido_e_recusado(api_dono: APIClient, tecnico: Usuario) -> None:
-    resposta = api_dono.post(
-        "/api/usuarios/",
-        {"username": tecnico.username.upper(), "papel": Papel.TECNICO, "senha": "outra-2026-ok"},
-        format="json",
-    )
+def test_dono_nao_troca_o_email_de_ninguem(api_dono: APIClient, tecnico: Usuario) -> None:
+    api_dono.patch(f"/api/usuarios/{tecnico.pk}/", {"email": "outro@central.test"}, format="json")
 
-    assert resposta.status_code == 400
-    assert "username" in resposta.json()
+    tecnico.refresh_from_db()
+    assert tecnico.email == "joana@central.test"
 
 
 @pytest.mark.django_db
-def test_tecnico_nao_gerencia_a_equipe(api_tecnico: APIClient) -> None:
+def test_tecnico_nao_gerencia_a_equipe(api_tecnico: APIClient, tecnico: Usuario) -> None:
     listagem = api_tecnico.get("/api/usuarios/")
-    criacao = api_tecnico.post(
-        "/api/usuarios/",
-        {"username": "carla", "papel": Papel.ATENDENTE, "senha": "bancada-2026-forte"},
-        format="json",
+    alteracao = api_tecnico.patch(
+        f"/api/usuarios/{tecnico.pk}/", {"papel": Papel.DONO}, format="json"
     )
 
     assert listagem.status_code == 403
-    assert criacao.status_code == 403
-    assert not Usuario.objects.filter(username="carla").exists()
+    assert alteracao.status_code == 403
+    tecnico.refresh_from_db()
+    assert tecnico.papel == Papel.TECNICO
 
 
 @pytest.mark.django_db

@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -8,6 +8,7 @@ from bancada.auditoria.registro import registrar_acesso_a_senha
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.clientes.serializers import AparelhoSerializer, ClienteSerializer
 from bancada.core.api import ViewSetDoTenant
+from bancada.core.telefones import DIGITOS_MINIMOS_PARA_BUSCAR_TELEFONE, so_digitos
 from bancada.tenants.models import Usuario
 from bancada.tenants.permissoes import ApagarSoDonoOuTecnico
 
@@ -19,10 +20,15 @@ class ClienteViewSet(ViewSetDoTenant):
 
     def get_queryset(self) -> QuerySet[Cliente]:
         consulta = super().get_queryset()
-        busca = self.request.query_params.get("busca")
-        if busca:
-            consulta = consulta.filter(nome__icontains=busca)
-        return consulta
+        busca = self.request.query_params.get("busca", "").strip()
+        if not busca:
+            return consulta
+
+        filtro = Q(nome__icontains=busca)
+        digitos = so_digitos(busca)
+        if len(digitos) >= DIGITOS_MINIMOS_PARA_BUSCAR_TELEFONE:
+            filtro |= Q(telefone__contains=digitos)
+        return consulta.filter(filtro)
 
 
 class AparelhoViewSet(ViewSetDoTenant):

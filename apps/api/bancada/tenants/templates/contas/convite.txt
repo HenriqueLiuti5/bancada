@@ -1,0 +1,8 @@
+Olá, {{ primeiro_nome }}.
+
+{% if quem_convidou %}{{ quem_convidou }} chamou você para a equipe da {{ assistencia }} no Bancada{% else %}Você recebeu um convite para a equipe da {{ assistencia }} no Bancada{% endif %}, como {{ papel }}.
+
+Para entrar, abra o link abaixo e crie a sua senha:
+{{ link }}
+
+O convite vale até {{ expira_em|date:"d/m/Y" }}.

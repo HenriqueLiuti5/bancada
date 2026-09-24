@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { lerToken } from "@/lib/sessao";
 
@@ -38,9 +39,18 @@ export function mensagemDaApi(erro: unknown, alternativa: string): string {
   return alternativa;
 }
 
+async function enderecoDoVisitante(): Promise<string | null> {
+  const recebidos = await headers();
+  const encaminhado = recebidos.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return encaminhado || recebidos.get("x-real-ip");
+}
+
 export async function chamarApi<T>(caminho: string, opcoes: Opcoes = {}): Promise<T> {
   const { metodo = "GET", corpo, autenticado = true } = opcoes;
   const cabecalhos: Record<string, string> = { "Content-Type": "application/json" };
+
+  const visitante = await enderecoDoVisitante();
+  if (visitante) cabecalhos["X-Forwarded-For"] = visitante;
 
   if (autenticado) {
     const token = await lerToken();

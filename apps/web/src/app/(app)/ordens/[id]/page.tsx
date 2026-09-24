@@ -195,8 +195,8 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
           <Cartao titulo="Link do cliente" descricao="O cliente acompanha o reparo sem criar conta.">
             <CompartilharLink
               url={linkDoCliente}
-              aparelho={ordem.aparelho_descricao}
-              cliente={ordem.cliente_nome.split(" ")[0]}
+              mensagem={`Olá, ${ordem.cliente_nome.split(" ")[0]}! Acompanhe o reparo do seu ${ordem.aparelho_descricao} por aqui: ${linkDoCliente}`}
+              rotuloDaPrevia="Ver como o cliente vê"
             />
           </Cartao>
         </aside>

@@ -1,10 +1,11 @@
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { chamarApi } from "@/lib/api";
-import type { MembroDaEquipe, Pagina } from "@/lib/tipos";
+import type { Convite, MembroDaEquipe, Pagina } from "@/lib/tipos";
 import { gerenciaEquipe, usuarioAtual } from "@/lib/usuario";
+import { ConvitePendente } from "./convitePendente";
 import { Membro } from "./membro";
-import { NovoMembro } from "./novoMembro";
+import { NovoConvite } from "./novoConvite";
 
 export const dynamic = "force-dynamic";
 
@@ -29,8 +30,12 @@ export default async function Equipe() {
     );
   }
 
-  const pagina = await chamarApi<Pagina<MembroDaEquipe>>("/api/usuarios/");
+  const [pagina, convites] = await Promise.all([
+    chamarApi<Pagina<MembroDaEquipe>>("/api/usuarios/"),
+    chamarApi<Convite[]>("/api/convites/"),
+  ]);
   const ativos = pagina.results.filter((membro) => membro.is_active).length;
+  const assistencia = usuario.tenant?.nome ?? "";
 
   return (
     <>
@@ -46,14 +51,17 @@ export default async function Equipe() {
               {pagina.results.map((membro) => (
                 <Membro key={membro.id} membro={membro} souEu={membro.id === usuario.id} />
               ))}
+              {convites.map((convite) => (
+                <ConvitePendente key={convite.id} convite={convite} assistencia={assistencia} />
+              ))}
             </ul>
           </Cartao>
 
           <Cartao
-            titulo="Adicionar pessoa"
-            descricao="A pessoa entra com o usuário e a senha que você definir aqui."
+            titulo="Convidar pessoa"
+            descricao="Você informa o nome e o papel. A pessoa abre o link do convite e cria a própria senha."
           >
-            <NovoMembro />
+            <NovoConvite assistencia={assistencia} />
           </Cartao>
         </div>
 

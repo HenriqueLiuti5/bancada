@@ -6,17 +6,25 @@ criar conta.
 
 ## Estado atual
 
-Fase 3 concluída. A assistência abre a ordem, fotografa o aparelho, imprime o comprovante que o
-cliente assina no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o
-reparo sem criar conta e, na entrega, recebe o recibo da garantia em PDF.
+Fase 4A concluída, a primeira parte do lançamento self-service. A assistência abre a ordem no
+balcão, buscando o cliente pelo nome ou telefone ou cadastrando cliente e aparelho na mesma tela,
+fotografa o aparelho, imprime o comprovante que o cliente assina no balcão e movimenta o status; o
+cliente recebe o link por e-mail, acompanha o reparo sem criar conta e, na entrega, recebe o recibo
+da garantia em PDF.
 
 O painel mostra como a loja está: o que está na bancada, o que passou do prazo, o que espera o
 cliente aprovar e quanto dinheiro aprovado ainda não entrou. Cada número leva à lista já filtrada.
 A lista tem busca por cliente, aparelho, IMEI, telefone ou número da OS, e os filtros vivem na URL.
 
-Cada pessoa entra com o próprio usuário e um papel — dono, técnico ou atendente. O dono gerencia a
-equipe; técnicos veem a senha de desbloqueio; atendentes abrem ordens e atendem, mas não veem a
-senha nem apagam nada. O status de uma ordem só muda pela máquina de estados, e o histórico não
+Uma assistência nova se cadastra sozinha: o dono informa o nome da assistência, o próprio nome,
+e-mail, WhatsApp e senha, aceita os termos e já cai dentro do sistema. Para montar a equipe, ele
+cria um convite só com nome e papel e manda o link pelo WhatsApp; quem recebe abre o link e cria a
+própria senha. Todo mundo entra pelo e-mail, e quem esquece a senha recebe um link para criar
+outra. O e-mail é confirmado por link, sem travar o uso.
+
+Cada pessoa entra com o próprio e-mail e um papel — dono, técnico ou atendente. O dono gerencia a
+equipe e os dados da assistência que aparecem para o cliente; técnicos veem a senha de
+desbloqueio; atendentes abrem ordens e atendem, mas não veem a senha nem apagam nada. O status de uma ordem só muda pela máquina de estados, e o histórico não
 pode ser apagado pela API.
 
 A senha de desbloqueio do aparelho é o dado mais sensível do sistema, e tem tratamento próprio:
@@ -76,12 +84,16 @@ O `make semear` cria uma assistência de exemplo com clientes, aparelhos, duas o
 uma foto de demonstração em cada uma. Rodar de novo não duplica nada. Os usuários de demonstração
 usam a senha `bancada123` e existem apenas para uso local:
 
-| Usuário | Papel |
+| E-mail para entrar | Papel |
 |---|---|
-| `marcos` | dono — vê tudo, inclusive a tela de equipe |
-| `joana` | técnica — vê a senha de desbloqueio e apaga fotos |
-| `carla` | atendente — abre ordens, não vê a senha nem apaga |
-| `admin` | superusuário do painel administrativo do Django |
+| `marcos@central.test` | dono — vê tudo, inclusive equipe e dados da assistência |
+| `joana@central.test` | técnica — vê a senha de desbloqueio e apaga fotos |
+| `carla@central.test` | atendente — abre ordens, não vê a senha nem apaga |
+| `admin` (usuário, não e-mail) | superusuário do painel administrativo do Django |
+
+Para testar o caminho de uma assistência nova, abra http://localhost:3000/cadastro. Os e-mails de
+confirmação, convite e recuperação de senha aparecem no log do worker (`make logs`), com o link
+completo para copiar.
 
 As fotos enviadas ficam em `apps/api/media/`, que não vai para o controle de versão.
 
@@ -97,7 +109,7 @@ Serviços disponíveis:
 
 | Endereço | O que é |
 |---|---|
-| http://localhost:3000 | Aplicação web (entre com `marcos` / `bancada123`) |
+| http://localhost:3000 | Aplicação web (entre com `marcos@central.test` / `bancada123`) |
 | http://localhost:8000/api/health/ | Verificação de saúde da API |
 | http://localhost:8000/admin/ | Administração do Django |
 | http://localhost:3000/os/`token` | Acompanhamento público (o token aparece no detalhe da OS) |
@@ -116,6 +128,7 @@ make setup       # cria o .env com uma chave de criptografia nova
 make up          # sobe os serviços
 make down        # derruba os serviços
 make logs        # acompanha os logs
+make reiniciar-worker  # o Celery não recarrega sozinho: rode depois de mudar uma tarefa
 make test        # roda os testes do backend
 make lint        # roda ruff e mypy
 make migrate     # aplica migrações

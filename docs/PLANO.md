@@ -72,7 +72,7 @@ o operador.
 | 3A | Busca, filtros e paginação na lista de ordens | concluída |
 | 3B | Painel com os números do dia | concluída |
 | 3C | Papéis, permissões e gestão da equipe | concluída |
-| 4A | Cadastro da assistência, convite da equipe e recuperação de senha | |
+| 4A | Cadastro da assistência, convite da equipe e recuperação de senha | concluída |
 | 4B | Assinatura pelo Asaas, com teste grátis de 30 dias | |
 | 4C | Tutorial guiado e canal de contato | |
 | 4D | Pagamento na entrega e painel completo da loja | |
@@ -119,6 +119,12 @@ conta, montar a equipe, recuperar a senha, aprender as telas, pagar e pedir ajud
   para mandar pelo WhatsApp ou por e-mail. O funcionário abre o link, informa o próprio e-mail e
   cria a senha. A gestão da equipe da Fase 3C continua valendo: trocar papel e desativar conta.
 - "Esqueci minha senha" por e-mail, para qualquer usuário.
+- O dono edita os dados que aparecem para o cliente no comprovante, no recibo e nos avisos: nome
+  da assistência, CNPJ, WhatsApp, e nome, telefone e endereço da loja. Sem isso, uma assistência
+  que se cadastrou sozinha ficaria com o comprovante sem endereço.
+- A abertura de ordem cadastra cliente e aparelho na mesma tela, com busca por nome ou telefone.
+  Até aqui só existiam clientes criados pelo painel administrativo ou pelos dados de exemplo, e
+  uma assistência nova não conseguia abrir nenhuma ordem.
 
 ### 4B — Assinatura pelo Asaas
 

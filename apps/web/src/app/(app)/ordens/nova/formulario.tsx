@@ -5,24 +5,73 @@ import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { areaDeTexto, botao, seletor } from "@/componentes/ui/estilos";
+import type { EstadoDoFormulario } from "@/lib/formularios";
 import type { Cliente, Loja } from "@/lib/tipos";
-import { abrirOrdem, type EstadoAbertura } from "./acoes";
+import { abrirOrdem } from "./acoes";
+import { EscolhaDoAparelho } from "./escolhaDoAparelho";
+import { EscolhaDoCliente } from "./escolhaDoCliente";
 
-const INICIAL: EstadoAbertura = {};
+const INICIAL: EstadoDoFormulario = {};
 
-export function FormularioDeAbertura({ lojas, clientes }: { lojas: Loja[]; clientes: Cliente[] }) {
+function aparelhoInicial(cliente: Cliente): string {
+  if (cliente.aparelhos.length === 0) return "novo";
+  if (cliente.aparelhos.length === 1) return String(cliente.aparelhos[0].id);
+  return "";
+}
+
+function Secao({
+  titulo,
+  erro,
+  children,
+}: {
+  titulo: string;
+  erro?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold">{titulo}</h2>
+      {children}
+      {erro && <p className="text-xs text-perigo-forte">{erro}</p>}
+    </section>
+  );
+}
+
+export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
   const [estado, acao, enviando] = useActionState(abrirOrdem, INICIAL);
-  const [clienteId, setClienteId] = useState<string>("");
+  const [cliente, setCliente] = useState<Cliente | null>(null);
+  const [clienteNovo, setClienteNovo] = useState(false);
+  const [rascunho, setRascunho] = useState("");
+  const [aparelho, setAparelho] = useState("");
+  const erros = estado.erros ?? {};
+  const valores = estado.valores ?? {};
 
-  const selecionado = clientes.find((cliente) => String(cliente.id) === clienteId);
-  const aparelhos = selecionado?.aparelhos ?? [];
+  function escolherCliente(escolhido: Cliente) {
+    setCliente(escolhido);
+    setClienteNovo(false);
+    setAparelho(aparelhoInicial(escolhido));
+  }
+
+  function cadastrarCliente(termo: string) {
+    setCliente(null);
+    setClienteNovo(true);
+    setRascunho(termo);
+    setAparelho("novo");
+  }
+
+  function trocarCliente() {
+    setCliente(null);
+    setClienteNovo(false);
+    setRascunho("");
+    setAparelho("");
+  }
 
   return (
     <form action={acao}>
       <Cartao>
-        <div className="space-y-5">
+        <div className="space-y-6">
           {lojas.length > 1 ? (
-            <CampoRotulado rotulo="Loja" htmlFor="loja">
+            <CampoRotulado rotulo="Loja" htmlFor="loja" erro={erros.loja}>
               <select id="loja" name="loja" defaultValue={lojas[0]?.id ?? ""} className={seletor}>
                 {lojas.map((loja) => (
                   <option key={loja.id} value={loja.id}>
@@ -35,50 +84,48 @@ export function FormularioDeAbertura({ lojas, clientes }: { lojas: Loja[]; clien
             <input type="hidden" name="loja" value={lojas[0]?.id ?? ""} />
           )}
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <CampoRotulado rotulo="Cliente" htmlFor="cliente">
-              <select
-                id="cliente"
-                name="cliente"
-                value={clienteId}
-                onChange={(evento) => setClienteId(evento.target.value)}
-                className={seletor}
-              >
-                <option value="">Selecione</option>
-                {clientes.map((cliente) => (
-                  <option key={cliente.id} value={cliente.id}>
-                    {cliente.nome} · {cliente.telefone}
-                  </option>
-                ))}
-              </select>
-            </CampoRotulado>
-
-            <CampoRotulado rotulo="Aparelho" htmlFor="aparelho">
-              <select id="aparelho" name="aparelho" disabled={!clienteId} className={seletor}>
-                <option value="">{clienteId ? "Selecione" : "Escolha o cliente primeiro"}</option>
-                {aparelhos.map((aparelho) => (
-                  <option key={aparelho.id} value={aparelho.id}>
-                    {aparelho.descricao}
-                    {aparelho.cor && ` · ${aparelho.cor}`}
-                  </option>
-                ))}
-              </select>
-            </CampoRotulado>
-          </div>
-
-          <CampoRotulado
-            rotulo="Problema relatado"
-            htmlFor="problema_relatado"
-            dica="Escreva como o cliente descreveu. Aparece no comprovante que ele assina."
-          >
-            <textarea
-              id="problema_relatado"
-              name="problema_relatado"
-              rows={4}
-              placeholder="Ex.: não carrega desde que caiu na água"
-              className={areaDeTexto}
+          <Secao titulo="Cliente" erro={erros.cliente}>
+            <EscolhaDoCliente
+              escolhido={cliente}
+              novo={clienteNovo}
+              rascunho={rascunho}
+              erros={erros}
+              valores={valores}
+              onEscolher={escolherCliente}
+              onNovo={cadastrarCliente}
+              onTrocar={trocarCliente}
             />
-          </CampoRotulado>
+          </Secao>
+
+          <Secao titulo="Aparelho" erro={erros.aparelho}>
+            <EscolhaDoAparelho
+              cliente={cliente}
+              clienteNovo={clienteNovo}
+              escolha={aparelho}
+              erros={erros}
+              valores={valores}
+              onEscolher={setAparelho}
+            />
+          </Secao>
+
+          <Secao titulo="Defeito">
+            <CampoRotulado
+              rotulo="Problema relatado"
+              htmlFor="problema_relatado"
+              erro={erros.problema_relatado}
+              dica="Escreva como o cliente descreveu. Aparece no comprovante que ele assina."
+            >
+              <textarea
+                id="problema_relatado"
+                name="problema_relatado"
+                rows={4}
+                required
+                placeholder="Ex.: não carrega desde que caiu na água"
+                defaultValue={valores.problema_relatado}
+                className={areaDeTexto}
+              />
+            </CampoRotulado>
+          </Secao>
         </div>
 
         <div className="-mx-5 -mb-5 mt-6 flex flex-wrap items-center gap-3 border-t border-borda bg-realce px-5 py-3">

@@ -1,33 +1,24 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { ErroDaApi, chamarApi } from "@/lib/api";
-import { gravarToken } from "@/lib/sessao";
-import type { Usuario } from "@/lib/tipos";
+import { abrirSessaoPor } from "@/lib/acesso";
+import { estadoDeErro, texto, type EstadoDoFormulario } from "@/lib/formularios";
 
-export type EstadoLogin = { erro?: string };
-
-export async function entrar(_anterior: EstadoLogin, dados: FormData): Promise<EstadoLogin> {
-  const username = String(dados.get("username") ?? "").trim();
+export async function entrar(
+  _anterior: EstadoDoFormulario,
+  dados: FormData,
+): Promise<EstadoDoFormulario> {
+  const email = texto(dados, "email");
   const password = String(dados.get("password") ?? "");
 
-  if (!username || !password) {
-    return { erro: "Preencha usuário e senha." };
+  if (!email || !password) {
+    return { erro: "Preencha e-mail e senha.", valores: { email } };
   }
 
   try {
-    const resposta = await chamarApi<{ token: string; usuario: Usuario }>("/api/auth/login/", {
-      metodo: "POST",
-      corpo: { username, password },
-      autenticado: false,
-    });
-    await gravarToken(resposta.token);
+    await abrirSessaoPor("/api/auth/login/", { email, password });
   } catch (erro) {
-    if (erro instanceof ErroDaApi) {
-      const corpo = erro.corpo as { detail?: string } | null;
-      return { erro: corpo?.detail ?? "Não foi possível entrar." };
-    }
-    return { erro: "Não foi possível falar com o servidor." };
+    return estadoDeErro(erro, "Não foi possível entrar.", { email });
   }
 
   redirect("/ordens");

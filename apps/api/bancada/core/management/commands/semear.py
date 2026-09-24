@@ -4,6 +4,7 @@ from typing import Any
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 from PIL import Image, ImageDraw, ImageFont
 
 from bancada.clientes.models import Aparelho, Cliente
@@ -13,6 +14,7 @@ from bancada.ordens.models import FotoOS, ItemOrcamento, OrdemServico, TipoItem
 from bancada.tenants.models import Loja, Papel, Tenant, Usuario
 
 SENHA_DEMO = "bancada123"
+DOMINIO_DEMO = "central.test"
 
 
 def imagem_de_demonstracao(texto: str, fundo: tuple[int, int, int]) -> ContentFile:
@@ -49,6 +51,9 @@ class Command(BaseCommand):
         tecnico = self._garantir_usuario(tenant, "joana", "Joana", Papel.TECNICO)
         self._garantir_usuario(tenant, "marcos", "Marcos", Papel.DONO)
         self._garantir_usuario(tenant, "carla", "Carla", Papel.ATENDENTE)
+        if not tenant.whatsapp:
+            tenant.whatsapp = "11912345678"
+            tenant.save(update_fields=["whatsapp"])
 
         maria, _ = Cliente.objects.get_or_create(
             tenant=tenant,
@@ -141,6 +146,10 @@ class Command(BaseCommand):
         if criado:
             usuario.set_password(SENHA_DEMO)
             usuario.save(update_fields=["password"])
+        if not usuario.email:
+            usuario.email = f"{username}@{DOMINIO_DEMO}"
+            usuario.email_confirmado_em = timezone.now()
+            usuario.save(update_fields=["email", "email_confirmado_em"])
         return usuario
 
     def _garantir_email_de_demonstracao(self, enderecos: dict[Cliente, str]) -> None:
@@ -165,9 +174,9 @@ class Command(BaseCommand):
 
     def _resumo(self, tenant: Tenant) -> None:
         self.stdout.write("")
-        self.stdout.write(f"  admin / {SENHA_DEMO}  (superusuário)")
-        self.stdout.write(f"  marcos / {SENHA_DEMO}  (dono de {tenant.nome})")
-        self.stdout.write(f"  joana / {SENHA_DEMO}  (técnica de {tenant.nome})")
-        self.stdout.write(f"  carla / {SENHA_DEMO}  (atendente de {tenant.nome})")
+        self.stdout.write(f"  admin / {SENHA_DEMO}  (superusuário, só no painel administrativo)")
+        self.stdout.write(f"  marcos@{DOMINIO_DEMO} / {SENHA_DEMO}  (dono de {tenant.nome})")
+        self.stdout.write(f"  joana@{DOMINIO_DEMO} / {SENHA_DEMO}  (técnica de {tenant.nome})")
+        self.stdout.write(f"  carla@{DOMINIO_DEMO} / {SENHA_DEMO}  (atendente de {tenant.nome})")
         for ordem in OrdemServico.objects.filter(tenant=tenant):
             self.stdout.write(f"  token público da OS #{ordem.numero}: {ordem.token_publico}")

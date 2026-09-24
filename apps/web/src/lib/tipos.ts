@@ -5,9 +5,35 @@ export type Usuario = {
   username: string;
   first_name: string;
   email: string;
+  email_confirmado: boolean;
   papel: string;
   tenant: Tenant | null;
 };
+
+export type Sessao = { token: string; usuario: Usuario };
+
+export type Convite = {
+  id: number;
+  nome: string;
+  papel: string;
+  papel_rotulo: string;
+  email: string;
+  link: string;
+  expira_em: string;
+  expirado: boolean;
+  criado_em: string;
+};
+
+export type ConvitePublico = {
+  assistencia: string;
+  nome: string;
+  email: string;
+  papel: string;
+  papel_rotulo: string;
+  expira_em: string;
+};
+
+export type Assistencia = { nome: string; documento: string; whatsapp: string };
 
 export type MembroDaEquipe = {
   id: number;

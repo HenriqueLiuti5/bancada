@@ -11,6 +11,10 @@ class Acao(models.TextChoices):
     USUARIO_CRIADO = "usuario_criado", "Usuário criado"
     USUARIO_ALTERADO = "usuario_alterado", "Usuário alterado"
     SENHA_REDEFINIDA = "senha_redefinida", "Senha de acesso redefinida"
+    ASSISTENCIA_CRIADA = "assistencia_criada", "Assistência criada"
+    ASSISTENCIA_ALTERADA = "assistencia_alterada", "Dados da assistência alterados"
+    CONVITE_CRIADO = "convite_criado", "Convite para a equipe criado"
+    CONVITE_CANCELADO = "convite_cancelado", "Convite para a equipe cancelado"
 
 
 class RegistroDeAuditoria(PertenceAoTenant):

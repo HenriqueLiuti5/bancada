@@ -1,6 +1,14 @@
 "use client";
 
-import { ClipboardList, LayoutGrid, LogOut, Plus, Users, type LucideIcon } from "lucide-react";
+import {
+  ClipboardList,
+  LayoutGrid,
+  LogOut,
+  Plus,
+  Store,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar } from "@/componentes/ui/Avatar";
@@ -14,6 +22,7 @@ const ITENS: Item[] = [
   { href: "/painel", rotulo: "Painel", icone: LayoutGrid },
   { href: "/ordens", rotulo: "Ordens de serviço", icone: ClipboardList },
   { href: "/equipe", rotulo: "Equipe", icone: Users, soDono: true },
+  { href: "/assistencia", rotulo: "Assistência", icone: Store, soDono: true },
 ];
 
 function estaAtivo(caminho: string, href: string): boolean {
@@ -24,12 +33,12 @@ type Props = {
   nome: string;
   papel: string;
   assistencia: string;
-  mostrarEquipe: boolean;
+  eDono: boolean;
 };
 
-export function BarraLateral({ nome, papel, assistencia, mostrarEquipe }: Props) {
+export function BarraLateral({ nome, papel, assistencia, eDono }: Props) {
   const caminho = usePathname();
-  const itens = ITENS.filter((item) => !item.soDono || mostrarEquipe);
+  const itens = ITENS.filter((item) => !item.soDono || eDono);
 
   return (
     <>

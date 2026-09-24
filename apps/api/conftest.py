@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 import pytest
+from django.core.cache import cache
 
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.ordens.models import OrdemServico
@@ -29,6 +30,7 @@ def loja(tenant: Tenant) -> Loja:
 def tecnico(tenant: Tenant) -> Usuario:
     return Usuario.objects.create_user(
         username="joana",
+        email="joana@central.test",
         password="senha-de-teste",
         tenant=tenant,
         papel=Papel.TECNICO,
@@ -39,6 +41,7 @@ def tecnico(tenant: Tenant) -> Usuario:
 def atendente_do_tenant(tenant: Tenant) -> Usuario:
     return Usuario.objects.create_user(
         username="carla",
+        email="carla@central.test",
         password="senha-de-teste",
         tenant=tenant,
         papel=Papel.ATENDENTE,
@@ -135,3 +138,8 @@ def hash_rapido_de_senha(settings: Any) -> None:
 def celery_no_mesmo_processo(settings: Any) -> None:
     settings.CELERY_TASK_ALWAYS_EAGER = True
     settings.CELERY_TASK_EAGER_PROPAGATES = True
+
+
+@pytest.fixture(autouse=True)
+def limites_de_requisicao_zerados() -> None:
+    cache.clear()

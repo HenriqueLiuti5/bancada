@@ -2,33 +2,37 @@
 
 import { revalidatePath } from "next/cache";
 import { chamarApi, mensagemDaApi } from "@/lib/api";
+import { estadoDeErro, texto, type EstadoDoFormulario } from "@/lib/formularios";
+import type { Convite } from "@/lib/tipos";
 
 export type EstadoDaEquipe = { erro?: string; ok?: string };
 
-export async function criarUsuario(
-  _anterior: EstadoDaEquipe,
+export type EstadoDoConvite = EstadoDoFormulario & { convite?: Convite };
+
+export async function criarConvite(
+  _anterior: EstadoDoConvite,
   dados: FormData,
-): Promise<EstadoDaEquipe> {
-  const corpo = {
-    username: String(dados.get("username") ?? "").trim(),
-    first_name: String(dados.get("first_name") ?? "").trim(),
-    email: String(dados.get("email") ?? "").trim(),
-    papel: String(dados.get("papel") ?? ""),
-    senha: String(dados.get("senha") ?? ""),
+): Promise<EstadoDoConvite> {
+  const valores = {
+    nome: texto(dados, "nome"),
+    papel: texto(dados, "papel"),
+    email: texto(dados, "email"),
   };
 
-  if (!corpo.username || !corpo.senha || !corpo.papel) {
-    return { erro: "Preencha usuário, papel e senha." };
-  }
-
+  let convite: Convite;
   try {
-    await chamarApi("/api/usuarios/", { metodo: "POST", corpo });
+    convite = await chamarApi<Convite>("/api/convites/", { metodo: "POST", corpo: valores });
   } catch (erro) {
-    return { erro: mensagemDaApi(erro, "Não foi possível criar o usuário.") };
+    return estadoDeErro(erro, "Não foi possível criar o convite.", valores);
   }
 
   revalidatePath("/equipe");
-  return { ok: `${corpo.first_name || corpo.username} agora faz parte da equipe.` };
+  return { convite };
+}
+
+export async function cancelarConvite(id: number): Promise<void> {
+  await chamarApi(`/api/convites/${id}/`, { metodo: "DELETE" });
+  revalidatePath("/equipe");
 }
 
 export async function alterarUsuario(

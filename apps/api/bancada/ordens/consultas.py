@@ -3,6 +3,7 @@ from collections.abc import Mapping
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 
+from bancada.core.telefones import DIGITOS_MINIMOS_PARA_BUSCAR_TELEFONE, so_digitos
 from bancada.ordens.estados import ESTADOS_FINAIS, StatusOS
 from bancada.ordens.models import OrdemServico
 
@@ -21,12 +22,7 @@ ROTULOS_DE_ORDENACAO: dict[str, str] = {
 }
 
 ORDENACAO_PADRAO = "recentes"
-DIGITOS_MINIMOS_PARA_TELEFONE = 4
 DIGITOS_MINIMOS_PARA_IMEI = 6
-
-
-def so_digitos(texto: str) -> str:
-    return "".join(caractere for caractere in texto if caractere.isdigit())
 
 
 def por_texto(consulta: QuerySet[OrdemServico], texto: str) -> QuerySet[OrdemServico]:
@@ -42,7 +38,7 @@ def por_texto(consulta: QuerySet[OrdemServico], texto: str) -> QuerySet[OrdemSer
     )
 
     digitos = so_digitos(procurado)
-    if len(digitos) >= DIGITOS_MINIMOS_PARA_TELEFONE:
+    if len(digitos) >= DIGITOS_MINIMOS_PARA_BUSCAR_TELEFONE:
         filtro |= Q(cliente__telefone__contains=digitos)
     if len(digitos) >= DIGITOS_MINIMOS_PARA_IMEI:
         filtro |= Q(aparelho__imei__contains=digitos)

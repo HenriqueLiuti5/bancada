@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from bancada.clientes.models import Aparelho, Cliente
+from bancada.core.telefones import so_digitos, telefone_brasileiro
 from bancada.ordens.estados import TRANSICOES, StatusOS
 from bancada.ordens.fotos import MomentoDaFoto, assinar
 from bancada.ordens.models import EventoOS, FotoOS, ItemOrcamento, OrdemServico
@@ -144,18 +145,64 @@ class EdicaoDaOrdemSerializer(serializers.ModelSerializer):
         return valor
 
 
+class NovoClienteSerializer(serializers.Serializer):
+    nome = serializers.CharField(max_length=140)
+    telefone = serializers.CharField(max_length=30)
+    email = serializers.EmailField(required=False, allow_blank=True, default="")
+    documento = serializers.CharField(max_length=14, required=False, allow_blank=True, default="")
+
+    def validate_nome(self, valor: str) -> str:
+        return valor.strip()
+
+    def validate_telefone(self, valor: str) -> str:
+        digitos = telefone_brasileiro(valor)
+        if digitos is None:
+            raise serializers.ValidationError("Informe o telefone com DDD.")
+        return digitos
+
+
+class NovoAparelhoSerializer(serializers.Serializer):
+    marca = serializers.CharField(max_length=60)
+    modelo = serializers.CharField(max_length=80)
+    cor = serializers.CharField(max_length=40, required=False, allow_blank=True, default="")
+    imei = serializers.CharField(max_length=20, required=False, allow_blank=True, default="")
+    senha_desbloqueio = serializers.CharField(required=False, allow_blank=True, default="")
+
+    def validate_imei(self, valor: str) -> str:
+        return so_digitos(valor)
+
+
 class AberturaOrdemSerializer(serializers.Serializer):
     loja = serializers.PrimaryKeyRelatedField(queryset=Loja.objects.all())
-    cliente = serializers.PrimaryKeyRelatedField(queryset=Cliente.objects.all())
-    aparelho = serializers.PrimaryKeyRelatedField(queryset=Aparelho.objects.all())
+    cliente = serializers.PrimaryKeyRelatedField(
+        queryset=Cliente.objects.all(), required=False, allow_null=True
+    )
+    cliente_novo = NovoClienteSerializer(required=False, allow_null=True)
+    aparelho = serializers.PrimaryKeyRelatedField(
+        queryset=Aparelho.objects.all(), required=False, allow_null=True
+    )
+    aparelho_novo = NovoAparelhoSerializer(required=False, allow_null=True)
     problema_relatado = serializers.CharField()
 
+    def _exigir_um_dos_dois(self, attrs: dict, existente: str, novo: str, rotulo: str) -> None:
+        if bool(attrs.get(existente)) == bool(attrs.get(novo)):
+            raise serializers.ValidationError(
+                {existente: f"Escolha um {rotulo} já cadastrado ou cadastre um novo."}
+            )
+
     def validate(self, attrs: dict) -> dict:
+        self._exigir_um_dos_dois(attrs, "cliente", "cliente_novo", "cliente")
+        self._exigir_um_dos_dois(attrs, "aparelho", "aparelho_novo", "aparelho")
+
         tenant = self.context["tenant"]
         for campo in ["loja", "cliente", "aparelho"]:
-            if attrs[campo].tenant_id != tenant.id:
+            registro = attrs.get(campo)
+            if registro is not None and registro.tenant_id != tenant.id:
                 raise serializers.ValidationError({campo: "Não pertence à sua assistência."})
-        if attrs["aparelho"].cliente_id != attrs["cliente"].id:
+
+        aparelho = attrs.get("aparelho")
+        cliente = attrs.get("cliente")
+        if aparelho is not None and (cliente is None or aparelho.cliente_id != cliente.id):
             raise serializers.ValidationError({"aparelho": "Não pertence a esse cliente."})
         return attrs
 

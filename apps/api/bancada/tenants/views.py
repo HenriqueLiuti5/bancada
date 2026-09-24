@@ -1,71 +1,34 @@
-from django.contrib.auth import authenticate
-from django.db.models import QuerySet
+from django.db.models import Model, QuerySet
 from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 from rest_framework.views import APIView
 
 from bancada.auditoria.models import Acao
 from bancada.auditoria.registro import origem_do_pedido, registrar
-from bancada.core.api import PertenceAUmaAssistencia, ViewSetDoTenant, tenant_do_pedido
+from bancada.core.api import (
+    PertenceAUmaAssistencia,
+    ViewSetDoTenant,
+    tenant_do_pedido,
+    tenant_obrigatorio,
+)
 from bancada.tenants.models import Loja, Papel, Usuario
 from bancada.tenants.permissoes import ApenasDono
 from bancada.tenants.serializers import (
-    CriacaoDeUsuarioSerializer,
+    AssistenciaSerializer,
+    EdicaoDeLojaSerializer,
     EdicaoDeUsuarioSerializer,
-    LoginSerializer,
     LojaSerializer,
     NovaSenhaSerializer,
     UsuarioDaEquipeSerializer,
     UsuarioSerializer,
 )
-
-
-class LoginView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes: list = []
-
-    def post(self, request: Request) -> Response:
-        entrada = LoginSerializer(data=request.data)
-        entrada.is_valid(raise_exception=True)
-
-        usuario = authenticate(
-            username=entrada.validated_data["username"],
-            password=entrada.validated_data["password"],
-        )
-        if usuario is None or not isinstance(usuario, Usuario):
-            return Response(
-                {"detail": "Usuário ou senha inválidos."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-        if usuario.tenant is None:
-            return Response(
-                {"detail": "Seu usuário não está vinculado a nenhuma assistência."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        token, _ = Token.objects.get_or_create(user=usuario)
-        return Response({"token": token.key, "usuario": UsuarioSerializer(usuario).data})
-
-
-class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request: Request) -> Response:
-        usuario = request.user
-        if isinstance(usuario, Usuario):
-            Token.objects.filter(user=usuario).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class EuView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request: Request) -> Response:
-        return Response(UsuarioSerializer(request.user).data)
 
 
 class LojasView(APIView):
@@ -114,21 +77,7 @@ class UsuarioViewSet(ViewSetDoTenant):
         )
 
     def create(self, request: Request, *args: object, **kwargs: object) -> Response:
-        entrada = CriacaoDeUsuarioSerializer(data=request.data)
-        entrada.is_valid(raise_exception=True)
-        dados = entrada.validated_data
-
-        novo = Usuario.objects.create_user(
-            username=dados["username"],
-            password=dados["senha"],
-            first_name=dados["first_name"],
-            email=dados["email"],
-            tenant=tenant_do_pedido(request),
-            papel=dados["papel"],
-        )
-
-        self._registrar(novo, Acao.USUARIO_CRIADO, f"{novo.username} como {novo.papel}")
-        return Response(UsuarioDaEquipeSerializer(novo).data, status=status.HTTP_201_CREATED)
+        raise MethodNotAllowed("POST", detail="Para adicionar alguém à equipe, crie um convite.")
 
     def _perderia_o_ultimo_dono(self, alvo: Usuario, dados: dict) -> bool:
         if alvo.papel != Papel.DONO:
@@ -166,7 +115,9 @@ class UsuarioViewSet(ViewSetDoTenant):
 
         if dados:
             mudancas = ", ".join(f"{campo}={valor}" for campo, valor in dados.items())
-            self._registrar(alvo, Acao.USUARIO_ALTERADO, f"{alvo.username}: {mudancas}")
+            self._registrar(
+                alvo, Acao.USUARIO_ALTERADO, f"{alvo.email or alvo.username}: {mudancas}"
+            )
 
         return Response(UsuarioDaEquipeSerializer(alvo).data)
 
@@ -180,5 +131,52 @@ class UsuarioViewSet(ViewSetDoTenant):
         alvo.save(update_fields=["password"])
         Token.objects.filter(user=alvo).delete()
 
-        self._registrar(alvo, Acao.SENHA_REDEFINIDA, alvo.username)
+        self._registrar(alvo, Acao.SENHA_REDEFINIDA, f"{alvo.email or alvo.username}, pelo dono")
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def _salvar_alteracoes(
+    request: Request, objeto: Model, serializer: ModelSerializer, nome_do_objeto: str
+) -> None:
+    serializer.is_valid(raise_exception=True)
+    mudancas = {
+        campo: valor
+        for campo, valor in serializer.validated_data.items()
+        if getattr(objeto, campo) != valor
+    }
+    serializer.save()
+
+    if not mudancas:
+        return
+    registrar(
+        tenant=tenant_obrigatorio(request),
+        usuario=request.user if isinstance(request.user, Usuario) else None,
+        acao=Acao.ASSISTENCIA_ALTERADA,
+        objeto=nome_do_objeto,
+        objeto_id=objeto.pk,
+        detalhe=", ".join(f"{campo}={valor}" for campo, valor in mudancas.items()),
+        origem=origem_do_pedido(request),
+    )
+
+
+class AssistenciaView(APIView):
+    permission_classes = [IsAuthenticated, PertenceAUmaAssistencia, ApenasDono]
+
+    def get(self, request: Request) -> Response:
+        return Response(AssistenciaSerializer(tenant_obrigatorio(request)).data)
+
+    def patch(self, request: Request) -> Response:
+        tenant = tenant_obrigatorio(request)
+        serializer = AssistenciaSerializer(tenant, data=request.data, partial=True)
+        _salvar_alteracoes(request, tenant, serializer, "assistencia")
+        return Response(serializer.data)
+
+
+class LojaView(APIView):
+    permission_classes = [IsAuthenticated, PertenceAUmaAssistencia, ApenasDono]
+
+    def patch(self, request: Request, pk: int) -> Response:
+        loja = get_object_or_404(Loja, pk=pk, tenant=tenant_obrigatorio(request))
+        serializer = EdicaoDeLojaSerializer(loja, data=request.data, partial=True)
+        _salvar_alteracoes(request, loja, serializer, "loja")
+        return Response(LojaSerializer(loja).data)

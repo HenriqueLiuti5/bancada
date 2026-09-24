@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 
+from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
 from bancada.ordens import consultas, documentos
 from bancada.ordens.estados import StatusOS, TransicaoInvalida
@@ -68,13 +69,21 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         entrada = AberturaOrdemSerializer(data=request.data, context={"tenant": tenant})
         entrada.is_valid(raise_exception=True)
 
+        dados = entrada.validated_data
+        cliente = dados.get("cliente") or Cliente.objects.create(
+            tenant=tenant, **dados["cliente_novo"]
+        )
+        aparelho = dados.get("aparelho") or Aparelho.objects.create(
+            tenant=tenant, cliente=cliente, **dados["aparelho_novo"]
+        )
+
         usuario = request.user if isinstance(request.user, Usuario) else None
         ordem = OrdemServico.abrir(
             tenant=tenant,
-            loja=entrada.validated_data["loja"],
-            cliente=entrada.validated_data["cliente"],
-            aparelho=entrada.validated_data["aparelho"],
-            problema_relatado=entrada.validated_data["problema_relatado"],
+            loja=dados["loja"],
+            cliente=cliente,
+            aparelho=aparelho,
+            problema_relatado=dados["problema_relatado"],
             aberta_por=usuario,
             tecnico=usuario,
         )

@@ -1,0 +1,10 @@
+Olá, {{ primeiro_nome }}.
+
+Recebemos um pedido para criar uma nova senha para a sua conta no Bancada.
+
+Crie a nova senha por aqui:
+{{ link }}
+
+O link vale por {{ horas_de_validade }} horas e só funciona uma vez.
+
+Se não foi você que pediu, é só ignorar esta mensagem. Sua senha atual continua valendo.

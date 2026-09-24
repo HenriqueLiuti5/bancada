@@ -115,6 +115,8 @@ DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Bancada <nao-responda
 
 APP_PUBLIC_URL = os.environ.get("APP_PUBLIC_URL", "http://localhost:3000").rstrip("/")
 
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 2
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -130,6 +132,11 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "acompanhamento_publico": os.environ.get("THROTTLE_PUBLICO", "60/min"),
         "arquivo_de_foto": os.environ.get("THROTTLE_FOTOS", "240/min"),
+        "login": os.environ.get("THROTTLE_LOGIN", "20/min"),
+        "cadastro": os.environ.get("THROTTLE_CADASTRO", "10/hour"),
+        "recuperacao_de_senha": os.environ.get("THROTTLE_RECUPERACAO_DE_SENHA", "10/hour"),
+        "confirmacao_de_email": os.environ.get("THROTTLE_CONFIRMACAO_DE_EMAIL", "10/hour"),
+        "convite": os.environ.get("THROTTLE_CONVITE", "30/hour"),
     },
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 25,
