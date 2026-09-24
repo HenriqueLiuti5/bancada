@@ -131,7 +131,7 @@ apps/api                      Backend Django, Celery e testes
 apps/web                      Frontend Next.js
 apps/web/src/componentes/ui   Peças visuais reutilizáveis (botão, campo, cartão, selo...)
 docs/                         Plano do projeto e registros de decisão de arquitetura
-infra/                        Infraestrutura de produção (a partir da Fase 6)
+infra/                        Infraestrutura de produção (a partir da Fase 4F)
 ```
 
 ## Documentação

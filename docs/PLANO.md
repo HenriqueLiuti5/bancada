@@ -40,7 +40,7 @@ RECEBIDO → EM_DIAGNOSTICO → ORCAMENTO_ENVIADO ─┬→ APROVADO → EM_REPA
 
 Transições são validadas explicitamente. Cada uma grava um `EventoOS`, que nunca é editado nem
 apagado. Esse histórico é a trilha de auditoria do produto e será a base de dados da camada de
-inteligência artificial na Fase 4.
+inteligência artificial na Fase 5.
 
 ## Dados sensíveis
 
@@ -72,15 +72,135 @@ o operador.
 | 3A | Busca, filtros e paginação na lista de ordens | concluída |
 | 3B | Painel com os números do dia | concluída |
 | 3C | Papéis, permissões e gestão da equipe | concluída |
-| 4 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
-| 5 | Cobrança recorrente, planos, limites de uso | |
-| 6 | Publicação, entrega contínua, monitoramento, backup | |
-| 7 | WhatsApp, relatórios, estoque de peças | |
+| 4A | Cadastro da assistência, convite da equipe e recuperação de senha | |
+| 4B | Assinatura pelo Asaas, com teste grátis de 30 dias | |
+| 4C | Tutorial guiado e canal de contato | |
+| 4D | Painel completo da loja | |
+| 4E | Painel da plataforma, exclusivo do Henrique | |
+| 4F | Publicação: domínio, página inicial, termos, backup e monitoramento | |
+| 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
+| 6 | WhatsApp, relatórios além do painel, estoque de peças | |
 
 A Fase 1 termina quando uma assistência real conseguir abrir uma ordem de serviço e enviar o
 link ao cliente. Nada que não sirva a essa frase entra antes.
+
+A Fase 4 termina quando uma assistência que nunca falou com a gente conseguir se cadastrar,
+montar a equipe, aprender a usar o sistema e assinar, tudo sozinha.
+
+Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
+O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
+mudança usam a numeração antiga: as Fases 5 e 6 citadas neles fazem parte hoje da Fase 4, e a
+Fase 4 citada neles é hoje a Fase 5.
 
 O cache que a Fase 2 previa foi entregue antes, na Fase 1C: a leitura da página pública passa por
 cache no Redis, no formato cache-aside, com invalidação por sinal. Nada mais no sistema tem hoje
 volume de leitura que justifique cache, e cache sem necessidade só acrescenta caminhos para o
 dado ficar velho.
+
+## Fase 4: lançamento self-service
+
+### Como a assistência chega ao produto
+
+O Bancada é vendido à distância. A assistência recebe uma mensagem com o link, se cadastra, testa
+e assina sem que ninguém vá até a loja, e a conversa sobre o que melhorar acontece pelo WhatsApp.
+Tudo que um vendedor presente resolveria precisa, então, estar dentro do próprio produto: criar a
+conta, montar a equipe, recuperar a senha, aprender as telas, pagar e pedir ajuda.
+
+### 4A — Cadastro e contas
+
+- O dono cria a assistência num formulário só: nome da assistência, nome dele, e-mail, WhatsApp,
+  senha e aceite dos termos de uso. O formulário cria a assistência, a primeira loja e a conta do
+  dono de uma vez, já dentro do teste grátis.
+- O e-mail do dono é confirmado por link, sem bloquear o uso durante o teste. É por ele que chegam
+  a recuperação de senha e as cobranças.
+- O login passa a ser por e-mail. Hoje o nome de usuário é único no sistema inteiro (ADR 0016), o
+  que não funciona quando cada assistência cria as próprias contas.
+- Para adicionar um funcionário, o dono informa só o nome e o papel e recebe um link de convite
+  para mandar pelo WhatsApp ou por e-mail. O funcionário abre o link, informa o próprio e-mail e
+  cria a senha. A gestão da equipe da Fase 3C continua valendo: trocar papel e desativar conta.
+- "Esqueci minha senha" por e-mail, para qualquer usuário.
+
+### 4B — Assinatura pelo Asaas
+
+- Toda assistência nova começa com 30 dias grátis, sem pedir forma de pagamento no cadastro.
+- Nos últimos dias do teste, o dono recebe aviso na interface e por e-mail, e assina dentro do
+  próprio sistema. A cobrança mensal é gerada pelo Asaas e paga por PIX, boleto ou cartão.
+- A assinatura segue a máquina de estados do ADR 0006: `trial → ativa → inadimplente → suspensa →
+  cancelada`. O webhook do Asaas tem a assinatura verificada e é idempotente.
+- Inadimplente tem período de tolerância com aviso. Suspensa, ou teste vencido sem assinatura,
+  passa a somente leitura. Os dados nunca são apagados por falta de pagamento.
+- O dono tem uma tela com a situação da assinatura, as faturas e a forma de pagamento. Técnico e
+  atendente não veem essa tela.
+- O desenvolvimento usa o ambiente de testes do Asaas, que é gratuito.
+
+### 4C — Tutorial guiado e contato
+
+- No primeiro acesso a cada tela principal, um tour destaca os botões um de cada vez, dizendo o
+  que cada um faz e o que fazer em seguida: lista de ordens, abertura de ordem, detalhe da ordem,
+  painel e equipe.
+- O tour mostra só o que o papel do usuário enxerga: o do atendente não apresenta botões que ele
+  não pode usar.
+- O tour pode ser pulado e reaberto a qualquer momento pelo menu. O sistema guarda quais tours cada
+  usuário já viu, para não repeti-los quando ele entrar por outro aparelho.
+- Uma lista de primeiros passos acompanha o começo do teste: abrir a primeira ordem, mandar o link
+  ao cliente, convidar a equipe e assinar.
+- Um botão "Fale com a gente" abre o WhatsApp do Henrique já com o nome da assistência na mensagem.
+
+### 4D — Painel completo da loja
+
+O painel da Fase 3B mostra o estado de agora. Esta fase acrescenta resumos por período.
+
+- Escolha de período: hoje, últimos 7 dias, mês e intervalo personalizado, com comparação com o
+  período anterior.
+- Dinheiro: faturamento (orçamentos aprovados das ordens entregues no período), ticket médio,
+  valor aprovado ainda em aberto e taxa de aprovação de orçamentos.
+- Operação: ordens abertas e entregues, atrasadas, tempo médio de reparo e tempo parado em cada
+  etapa.
+- Equipe: ordens concluídas e faturamento por técnico.
+- Atendimento: marcas e modelos mais atendidos, defeitos mais comuns e clientes que mais voltam.
+- Filtro por loja, para assistências com mais de uma.
+- Os números de dinheiro aparecem só para o dono. Técnico e atendente veem a parte de operação.
+
+Hoje o sistema sabe quanto foi aprovado, mas não quanto de fato entrou no caixa. Se as
+assistências pedirem isso, a entrega passa a registrar valor recebido e forma de pagamento.
+
+### 4E — Painel da plataforma
+
+Uma área separada, visível apenas para a conta do Henrique.
+
+- Dinheiro: receita recorrente mensal, valor recebido no mês, taxas do Asaas, custos do mês
+  (servidor, domínio, e-mail e outros, registrados à mão) e lucro.
+- Assinaturas: quantas estão em teste, ativas, inadimplentes, suspensas e canceladas; conversão de
+  teste para assinatura; cancelamentos no mês.
+- Crescimento: cadastros novos por semana e evolução da receita mês a mês.
+- Uso: lista de assistências com dono, WhatsApp, data de cadastro, situação da assinatura, ordens
+  abertas no período e último acesso. Ficam em destaque quem se cadastrou e não abriu nenhuma
+  ordem e quem parou de usar, e um clique abre o WhatsApp do dono.
+- Um e-mail avisa o Henrique a cada cadastro novo.
+
+Este painel lê dados de todas as assistências, então atravessa o isolamento por RLS (ADR 0009) por
+um caminho próprio, explícito e registrado em auditoria. Ele mostra números e o contato do dono,
+nunca dados dos clientes finais das assistências.
+
+### 4F — Publicação
+
+- Domínio e HTTPS.
+- Servidor com entrega contínua: o que passa na CI na `main` vai para produção.
+- Backup diário do banco e das fotos, com restauração testada.
+- E-mail por provedor com domínio verificado (ADR 0011) e armazenamento das fotos em produção
+  (ADR 0010).
+- Endereço de origem lido corretamente atrás do proxy e trava de instância única do Celery Beat,
+  as duas pendências do ADR 0013.
+- Monitoramento de erros e de disponibilidade.
+- Asaas em produção.
+- Página inicial com o botão "Testar grátis", termos de uso e política de privacidade, deixando
+  claro que o Bancada é o operador dos dados dos clientes finais.
+
+### Decisões em aberto
+
+Ficam para quando cada parte chegar:
+
+- Preço da assinatura e se haverá mais de um plano.
+- Documentos que o Asaas exige para receber (CPF ou CNPJ) e emissão de nota fiscal.
+- Nome do domínio.
+- Provedores de servidor, e-mail, armazenamento e monitoramento.
