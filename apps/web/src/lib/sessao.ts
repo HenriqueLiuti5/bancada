@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 const NOME_DO_COOKIE = "bancada_token";
+const SESSAO_EXPIRADA = "expirada";
 const TRINTA_DIAS = 60 * 60 * 24 * 30;
 
 export async function lerToken(): Promise<string | null> {
@@ -24,4 +25,12 @@ export async function limparToken(): Promise<void> {
   armazem.delete(NOME_DO_COOKIE);
 }
 
-export { NOME_DO_COOKIE };
+export async function limparTokenSePermitido(): Promise<void> {
+  try {
+    await limparToken();
+  } catch {
+    return;
+  }
+}
+
+export { NOME_DO_COOKIE, SESSAO_EXPIRADA };

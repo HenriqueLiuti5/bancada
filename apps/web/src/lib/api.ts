@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { lerToken } from "@/lib/sessao";
+import { redirect, unstable_rethrow } from "next/navigation";
+import { SESSAO_EXPIRADA, lerToken, limparTokenSePermitido } from "@/lib/sessao";
 
 const BASE = process.env.API_INTERNAL_URL ?? "http://localhost:8000";
 
@@ -16,7 +16,10 @@ export class ErroDaApi extends Error {
 type Opcoes = { metodo?: string; corpo?: unknown; autenticado?: boolean };
 
 async function interpretar<T>(resposta: Response, autenticado: boolean): Promise<T> {
-  if (resposta.status === 401 && autenticado) redirect("/login");
+  if (resposta.status === 401 && autenticado) {
+    await limparTokenSePermitido();
+    redirect(`/login?sessao=${SESSAO_EXPIRADA}`);
+  }
 
   const texto = await resposta.text();
   const dados = texto ? JSON.parse(texto) : null;
@@ -27,6 +30,7 @@ async function interpretar<T>(resposta: Response, autenticado: boolean): Promise
 }
 
 export function mensagemDaApi(erro: unknown, alternativa: string): string {
+  unstable_rethrow(erro);
   if (!(erro instanceof ErroDaApi)) return "Não foi possível falar com o servidor.";
 
   const corpo = erro.corpo as Record<string, unknown> | null;

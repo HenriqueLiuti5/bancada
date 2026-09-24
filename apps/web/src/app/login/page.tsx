@@ -1,13 +1,23 @@
 import Link from "next/link";
 import { TelaDeAcesso } from "@/componentes/TelaDeAcesso";
 import { link } from "@/componentes/ui/estilos";
+import { SESSAO_EXPIRADA } from "@/lib/sessao";
 import { FormularioLogin } from "./formulario";
 
-export default function Login() {
+type Props = { searchParams: Promise<{ sessao?: string }> };
+
+export default async function Login({ searchParams }: Props) {
+  const { sessao } = await searchParams;
+  const expirou = sessao === SESSAO_EXPIRADA;
+
   return (
     <TelaDeAcesso
       titulo="Entrar no Bancada"
-      descricao="Ordens de serviço da sua assistência técnica"
+      descricao={
+        expirou
+          ? "Sua sessão terminou. Entre de novo para continuar."
+          : "Ordens de serviço da sua assistência técnica"
+      }
       rodape={
         <>
           Ainda não usa o Bancada?{" "}
