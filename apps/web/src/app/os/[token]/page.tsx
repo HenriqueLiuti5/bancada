@@ -6,13 +6,12 @@ import { LinhaDoTempo } from "@/componentes/ui/LinhaDoTempo";
 import { PontoDeStatus } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { enderecoDaFoto } from "@/lib/fotos";
+import { emReais } from "@/lib/moeda";
 import { buscarAcompanhamento, type FotoPublica } from "@/lib/publico";
 
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ token: string }> };
-
-const MOEDA = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { token } = await params;
@@ -147,23 +146,23 @@ export default async function Acompanhamento({ params }: Props) {
       </section>
 
       {dados.orcamento && (
-        <Cartao titulo="Orçamento" semEspaco>
+        <Cartao titulo={dados.orcamento.aprovado ? "Orçamento aprovado" : "Orçamento"} semEspaco>
           <ul className="divide-y divide-borda">
-            {dados.orcamento.itens.map((item) => (
+            {dados.orcamento.itens.map((item, indice) => (
               <li
-                key={item.descricao}
+                key={indice}
                 className="flex items-center justify-between gap-4 px-5 py-2.5 text-sm"
               >
                 <span>{item.descricao}</span>
                 <span className="text-texto-suave tabular-nums">
-                  {MOEDA.format(Number(item.valor))}
+                  {emReais(item.valor)}
                 </span>
               </li>
             ))}
           </ul>
           <div className="flex items-center justify-between border-t border-borda bg-realce px-5 py-2.5 text-sm font-medium">
             <span>Total</span>
-            <span className="tabular-nums">{MOEDA.format(Number(dados.orcamento.total))}</span>
+            <span className="tabular-nums">{emReais(dados.orcamento.total)}</span>
           </div>
         </Cartao>
       )}

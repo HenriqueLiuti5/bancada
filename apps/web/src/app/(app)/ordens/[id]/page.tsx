@@ -6,18 +6,18 @@ import { LinhaDoTempo } from "@/componentes/ui/LinhaDoTempo";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { chamarApi } from "@/lib/api";
+import { emReais } from "@/lib/moeda";
 import type { Ordem, Usuario } from "@/lib/tipos";
 import { podeApagar, podeVerSenha, usuarioAtual } from "@/lib/usuario";
 import { AcoesDeStatus } from "./acoesDeStatus";
 import { DetalhesDoReparo } from "./detalhesDoReparo";
 import { FotosDaOrdem } from "./fotosDaOrdem";
+import { OrcamentoDaOrdem } from "./orcamentoDaOrdem";
 import { SenhaDoAparelho } from "./senhaDoAparelho";
 
 export const dynamic = "force-dynamic";
 
 const STATUS_COM_RECIBO = ["pronto", "entregue", "devolvido_sem_reparo"];
-
-const MOEDA = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 function formatarMomento(iso: string): string {
   return new Date(iso).toLocaleString("pt-BR", {
@@ -96,28 +96,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
             <p className="text-sm leading-relaxed whitespace-pre-wrap">{ordem.problema_relatado}</p>
           </Cartao>
 
-          {ordem.itens.length > 0 && (
-            <Cartao titulo="Orçamento" semEspaco>
-              <ul className="divide-y divide-borda">
-                {ordem.itens.map((item) => (
-                  <li key={item.id} className="flex items-center justify-between gap-4 px-5 py-2.5">
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm">{item.descricao}</span>
-                      <span className="text-xs text-texto-suave">
-                        {item.tipo === "peca" ? "Peça" : "Serviço"}
-                        {item.aprovado && " · aprovado"}
-                      </span>
-                    </span>
-                    <span className="text-sm tabular-nums">{MOEDA.format(Number(item.valor))}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="flex items-center justify-between border-t border-borda bg-realce px-5 py-2.5 text-sm font-medium">
-                <span>Total</span>
-                <span className="tabular-nums">{MOEDA.format(Number(ordem.total_orcamento))}</span>
-              </div>
-            </Cartao>
-          )}
+          <OrcamentoDaOrdem ordem={ordem} />
 
           <Cartao titulo="Detalhes do reparo">
             <DetalhesDoReparo ordem={ordem} equipe={equipe} />
@@ -155,7 +134,11 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
         <aside className="order-first space-y-6 lg:order-none">
           <Cartao titulo="Mudar status">
-            <AcoesDeStatus id={ordem.id} transicoes={ordem.transicoes_possiveis} />
+            <AcoesDeStatus
+              id={ordem.id}
+              transicoes={ordem.transicoes_possiveis}
+              itens={ordem.itens}
+            />
           </Cartao>
 
           <Cartao titulo="Propriedades">
@@ -169,8 +152,10 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
               <Propriedade rotulo="Prazo">
                 {ordem.prometida_para ? formatarDia(ordem.prometida_para) : "—"}
               </Propriedade>
-              <Propriedade rotulo="Orçamento">
-                <span className="tabular-nums">{MOEDA.format(Number(ordem.total_orcamento))}</span>
+              <Propriedade rotulo={ordem.orcamento_aprovado ? "Aprovado" : "Orçamento"}>
+                <span className="tabular-nums">
+                  {emReais(ordem.orcamento_aprovado ? ordem.total_aprovado : ordem.total_orcamento)}
+                </span>
               </Propriedade>
             </dl>
           </Cartao>

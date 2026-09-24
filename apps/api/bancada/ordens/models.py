@@ -1,4 +1,5 @@
 import secrets
+from collections.abc import Collection
 from decimal import Decimal
 from typing import Any
 from uuid import uuid4
@@ -10,6 +11,8 @@ from django.db import models, transaction
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.models import Carimbado, PertenceAoTenant
 from bancada.ordens.estados import (
+    ESTADOS_COM_ORCAMENTO_APROVADO,
+    ESTADOS_COM_ORCAMENTO_EDITAVEL,
     ESTADOS_FINAIS,
     TRANSICOES,
     StatusOS,
@@ -117,10 +120,14 @@ class OrdemServico(PertenceAoTenant):
         *,
         usuario: Usuario | None = None,
         nota: str = "",
+        itens_aprovados: Collection[int] | None = None,
     ) -> "EventoOS":
         anterior = self.status
         if not pode_ir_de(anterior, novo_status):
             raise TransicaoInvalida(anterior, novo_status)
+
+        if novo_status == StatusOS.APROVADO:
+            self._registrar_aprovacao(itens_aprovados)
 
         self.status = novo_status
         campos = ["status", "atualizado_em"]
@@ -141,6 +148,13 @@ class OrdemServico(PertenceAoTenant):
             nota=nota,
         )
 
+    def _registrar_aprovacao(self, itens_aprovados: Collection[int] | None) -> None:
+        if itens_aprovados is None:
+            self.itens.update(aprovado=True)
+            return
+        self.itens.filter(pk__in=itens_aprovados).update(aprovado=True)
+        self.itens.exclude(pk__in=itens_aprovados).update(aprovado=False)
+
     @property
     def transicoes_possiveis(self) -> list[str]:
         return sorted(TRANSICOES.get(self.status, frozenset()))
@@ -148,6 +162,14 @@ class OrdemServico(PertenceAoTenant):
     @property
     def encerrada(self) -> bool:
         return self.status in ESTADOS_FINAIS
+
+    @property
+    def orcamento_editavel(self) -> bool:
+        return self.status in ESTADOS_COM_ORCAMENTO_EDITAVEL
+
+    @property
+    def orcamento_aprovado(self) -> bool:
+        return self.status in ESTADOS_COM_ORCAMENTO_APROVADO
 
     @property
     def total_orcamento(self) -> Decimal:

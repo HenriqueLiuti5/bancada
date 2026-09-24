@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from rest_framework import serializers
 
 from bancada.clientes.models import Aparelho, Cliente
@@ -12,6 +14,13 @@ class ItemOrcamentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemOrcamento
         fields = ["id", "tipo", "descricao", "valor", "aprovado"]
+        read_only_fields = ["aprovado"]
+        extra_kwargs = {
+            "valor": {
+                "min_value": Decimal("0"),
+                "error_messages": {"min_value": "O valor não pode ser negativo."},
+            }
+        }
 
 
 class FotoOSSerializer(serializers.ModelSerializer):
@@ -106,6 +115,9 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     fotos = FotoOSSerializer(many=True, read_only=True)
     transicoes_possiveis = serializers.SerializerMethodField()
     total_orcamento = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    total_aprovado = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    orcamento_editavel = serializers.BooleanField(read_only=True)
+    orcamento_aprovado = serializers.BooleanField(read_only=True)
     imei_mascarado = serializers.CharField(source="aparelho.imei_mascarado", read_only=True)
 
     class Meta(OrdemServicoListSerializer.Meta):
@@ -124,6 +136,9 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
             "fotos",
             "transicoes_possiveis",
             "total_orcamento",
+            "total_aprovado",
+            "orcamento_editavel",
+            "orcamento_aprovado",
         ]
 
     def get_transicoes_possiveis(self, obj: OrdemServico) -> list[dict[str, str]]:
@@ -210,3 +225,34 @@ class AberturaOrdemSerializer(serializers.Serializer):
 class TransicaoSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=StatusOS.choices)
     nota = serializers.CharField(required=False, allow_blank=True, default="")
+    itens_aprovados = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        allow_empty=False,
+        error_messages={
+            "empty": "Marque ao menos um item. Se o cliente recusou tudo, use Reprovado."
+        },
+    )
+
+    def validate(self, attrs: dict) -> dict:
+        ordem: OrdemServico = self.context["ordem"]
+        destino = attrs["status"]
+
+        if destino == StatusOS.ORCAMENTO_ENVIADO and not ordem.itens.exists():
+            raise serializers.ValidationError(
+                {"status": "Adicione ao menos um item ao orçamento antes de enviá-lo ao cliente."}
+            )
+
+        aprovados = attrs.get("itens_aprovados")
+        if aprovados is None:
+            return attrs
+        if destino != StatusOS.APROVADO:
+            raise serializers.ValidationError(
+                {"itens_aprovados": "Só se escolhem itens ao aprovar o orçamento."}
+            )
+        do_orcamento = set(ordem.itens.values_list("pk", flat=True))
+        if not set(aprovados) <= do_orcamento:
+            raise serializers.ValidationError(
+                {"itens_aprovados": "Há itens que não fazem parte deste orçamento."}
+            )
+        return attrs

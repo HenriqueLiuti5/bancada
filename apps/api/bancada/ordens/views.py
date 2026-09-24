@@ -5,6 +5,7 @@ from django.db.models import QuerySet
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -15,19 +16,30 @@ from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
 from bancada.ordens import consultas, documentos
 from bancada.ordens.estados import StatusOS, TransicaoInvalida
 from bancada.ordens.fotos import FotoInvalida
-from bancada.ordens.models import FotoOS, OrdemServico
+from bancada.ordens.models import FotoOS, ItemOrcamento, OrdemServico
 from bancada.ordens.painel import numeros as numeros_do_painel
 from bancada.ordens.serializers import (
     AberturaOrdemSerializer,
     EdicaoDaOrdemSerializer,
     EnvioDeFotoSerializer,
     FotoOSSerializer,
+    ItemOrcamentoSerializer,
     OrdemServicoDetailSerializer,
     OrdemServicoListSerializer,
     TransicaoSerializer,
 )
 from bancada.tenants.models import Usuario
 from bancada.tenants.permissoes import ApagarSoDonoOuTecnico
+
+
+class OrcamentoTravado(APIException):
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = "O orçamento já foi enviado ao cliente e não pode mais ser alterado."
+
+
+def exigir_orcamento_editavel(ordem: OrdemServico) -> None:
+    if not ordem.orcamento_editavel:
+        raise OrcamentoTravado
 
 
 class OrdemServicoViewSet(ViewSetDoTenant):
@@ -151,18 +163,29 @@ class OrdemServicoViewSet(ViewSetDoTenant):
 
         return Response(FotoOSSerializer(foto).data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=["post"], url_path="itens")
+    def adicionar_item(self, request: Request, pk: str | None = None) -> Response:
+        ordem = self.get_object()
+        exigir_orcamento_editavel(ordem)
+
+        entrada = ItemOrcamentoSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        item = entrada.save(ordem=ordem)
+        return Response(ItemOrcamentoSerializer(item).data, status=status.HTTP_201_CREATED)
+
     @action(detail=True, methods=["post"])
     def transicionar(self, request: Request, pk: str | None = None) -> Response:
-        entrada = TransicaoSerializer(data=request.data)
+        ordem = self.get_object()
+        entrada = TransicaoSerializer(data=request.data, context={"ordem": ordem})
         entrada.is_valid(raise_exception=True)
 
-        ordem = self.get_object()
         usuario = request.user if isinstance(request.user, Usuario) else None
         try:
             ordem.transicionar(
                 entrada.validated_data["status"],
                 usuario=usuario,
                 nota=entrada.validated_data["nota"],
+                itens_aprovados=entrada.validated_data.get("itens_aprovados"),
             )
         except TransicaoInvalida as erro:
             return Response({"detail": str(erro)}, status=status.HTTP_409_CONFLICT)
@@ -177,3 +200,16 @@ class FotoViewSet(ViewSetDoTenant):
     queryset = FotoOS.objects.select_related("ordem")
     permission_classes = [*ViewSetDoTenant.permission_classes, ApagarSoDonoOuTecnico]
     http_method_names = ["patch", "delete"]
+
+
+class ItemOrcamentoViewSet(ViewSetDoTenant):
+    serializer_class = ItemOrcamentoSerializer
+    queryset = ItemOrcamento.objects.select_related("ordem")
+    http_method_names = ["delete"]
+
+    def get_queryset(self) -> QuerySet[ItemOrcamento]:
+        return self.queryset.filter(ordem__tenant=tenant_do_pedido(self.request))
+
+    def perform_destroy(self, instance: ItemOrcamento) -> None:
+        exigir_orcamento_editavel(instance.ordem)
+        instance.delete()

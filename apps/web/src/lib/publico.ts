@@ -25,7 +25,11 @@ export type AcompanhamentoPublico = {
   entregue_em: string | null;
   linha_do_tempo: EtapaPublica[];
   fotos: FotoPublica[];
-  orcamento?: { total: string; itens: { descricao: string; valor: string }[] };
+  orcamento?: {
+    aprovado: boolean;
+    total: string;
+    itens: { descricao: string; valor: string }[];
+  };
 };
 
 export type ResultadoPublico =

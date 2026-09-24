@@ -75,8 +75,8 @@ def html_do_recibo(ordem: OrdemServico) -> str:
         "ordens/documentos/recibo.html",
         {
             **_comum(ordem),
-            "itens": list(ordem.itens.all()),
-            "total": ordem.total_orcamento,
+            "itens": list(ordem.itens.filter(aprovado=True)),
+            "total": ordem.total_aprovado,
             "linha_do_tempo": _linha_do_tempo(ordem),
         },
     )

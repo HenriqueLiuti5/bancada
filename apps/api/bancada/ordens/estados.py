@@ -29,6 +29,20 @@ TRANSICOES: dict[str, frozenset[str]] = {
 
 ESTADOS_FINAIS: frozenset[str] = frozenset({StatusOS.ENTREGUE, StatusOS.DEVOLVIDO_SEM_REPARO})
 
+ESTADOS_COM_ORCAMENTO_EDITAVEL: frozenset[str] = frozenset(
+    {StatusOS.RECEBIDO, StatusOS.EM_DIAGNOSTICO}
+)
+
+ESTADOS_COM_ORCAMENTO_APROVADO: frozenset[str] = frozenset(
+    {
+        StatusOS.APROVADO,
+        StatusOS.EM_REPARO,
+        StatusOS.AGUARDANDO_PECA,
+        StatusOS.PRONTO,
+        StatusOS.ENTREGUE,
+    }
+)
+
 
 class TransicaoInvalida(Exception):
     def __init__(self, de: str, para: str) -> None:

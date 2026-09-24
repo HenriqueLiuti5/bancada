@@ -58,14 +58,29 @@ def test_nenhum_documento_imprime_a_senha_de_desbloqueio(
 
 @pytest.mark.django_db
 def test_recibo_lista_pecas_servicos_e_total(ordem: OrdemServico) -> None:
-    ItemOrcamento.objects.create(ordem=ordem, descricao="Conector de carga", valor="90.00")
-    ItemOrcamento.objects.create(ordem=ordem, descricao="Mão de obra", valor="60.00")
+    ItemOrcamento.objects.create(
+        ordem=ordem, descricao="Conector de carga", valor="90.00", aprovado=True
+    )
+    ItemOrcamento.objects.create(ordem=ordem, descricao="Mão de obra", valor="60.00", aprovado=True)
 
     html = documentos.html_do_recibo(ordem)
 
     assert "Conector de carga" in html
     assert "150,00" in html
     assert "Recebi o aparelho" in html
+
+
+@pytest.mark.django_db
+def test_recibo_nao_cobra_o_que_o_cliente_recusou(ordem: OrdemServico) -> None:
+    ItemOrcamento.objects.create(ordem=ordem, descricao="Tela", valor="300.00", aprovado=True)
+    ItemOrcamento.objects.create(ordem=ordem, descricao="Bateria", valor="120.00", aprovado=False)
+
+    html = documentos.html_do_recibo(ordem)
+
+    assert "Tela" in html
+    assert "Bateria" not in html
+    assert "300,00" in html
+    assert "420,00" not in html
 
 
 @pytest.mark.django_db

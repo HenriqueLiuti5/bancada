@@ -24,3 +24,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0016](0016-papeis-escrita-protegida-e-equipe.md) | Papéis, escrita protegida e gestão da equipe |
 | [0017](0017-sistema-visual.md) | Sistema visual |
 | [0018](0018-contas-self-service.md) | Contas self-service: cadastro, login por e-mail, convites e recuperação de senha |
+| [0019](0019-orcamento-montagem-trava-e-aprovacao-por-item.md) | Orçamento: montagem na tela, trava depois do envio e aprovação por item |

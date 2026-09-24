@@ -4,11 +4,10 @@ import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { PontoDeStatus } from "@/componentes/ui/Selo";
 import { chamarApi } from "@/lib/api";
+import { emReais } from "@/lib/moeda";
 import type { Painel } from "@/lib/tipos";
 
 export const dynamic = "force-dynamic";
-
-const MOEDA = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 function hojeEscrito(): string {
   const texto = new Date().toLocaleDateString("pt-BR", {
@@ -70,7 +69,7 @@ export default async function PainelDoDia() {
           />
           <Indicador
             rotulo="Aprovado em aberto"
-            valor={MOEDA.format(Number(painel.valor_aprovado_em_aberto))}
+            valor={emReais(painel.valor_aprovado_em_aberto)}
             nota="a receber nas ordens abertas"
           />
           <Indicador

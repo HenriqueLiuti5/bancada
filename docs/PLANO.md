@@ -125,6 +125,9 @@ conta, montar a equipe, recuperar a senha, aprender as telas, pagar e pedir ajud
 - A abertura de ordem cadastra cliente e aparelho na mesma tela, com busca por nome ou telefone.
   Até aqui só existiam clientes criados pelo painel administrativo ou pelos dados de exemplo, e
   uma assistência nova não conseguia abrir nenhuma ordem.
+- O orçamento é montado na tela da ordem, item por item, e trava quando é enviado ao cliente. Na
+  aprovação, quem atende desmarca o que o cliente recusou. Até aqui os itens também só nasciam
+  pelo painel administrativo, e nada marcava o que foi aprovado (ADR 0019).
 
 ### 4B — Assinatura pelo Asaas
 

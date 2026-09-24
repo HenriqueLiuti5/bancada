@@ -3,7 +3,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
-from bancada.ordens.views import FotoViewSet, OrdemServicoViewSet
+from bancada.ordens.views import FotoViewSet, ItemOrcamentoViewSet, OrdemServicoViewSet
 from bancada.ordens.views_fotos import ArquivoDaFotoView
 from bancada.ordens.views_publicas import AcompanhamentoPublicoView
 from bancada.tenants.views import (
@@ -34,6 +34,7 @@ router.register("clientes", ClienteViewSet, basename="cliente")
 router.register("aparelhos", AparelhoViewSet, basename="aparelho")
 router.register("ordens", OrdemServicoViewSet, basename="ordem")
 router.register("fotos", FotoViewSet, basename="foto")
+router.register("itens", ItemOrcamentoViewSet, basename="item")
 router.register("usuarios", UsuarioViewSet, basename="usuario")
 router.register("convites", ConviteViewSet, basename="convite")
 

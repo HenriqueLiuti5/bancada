@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import Any
 
 from django.core.cache import cache
@@ -64,6 +65,18 @@ def para_o_cliente(foto: FotoOS) -> dict[str, Any]:
     }
 
 
+def orcamento_para_o_cliente(ordem: OrdemServico) -> dict[str, Any]:
+    itens = list(ordem.itens.all())
+    if ordem.orcamento_aprovado:
+        itens = [item for item in itens if item.aprovado]
+
+    return {
+        "aprovado": ordem.orcamento_aprovado,
+        "total": str(sum((item.valor for item in itens), Decimal("0.00"))),
+        "itens": [{"descricao": item.descricao, "valor": str(item.valor)} for item in itens],
+    }
+
+
 def montar(ordem: OrdemServico) -> dict[str, Any]:
     linha_do_tempo = [
         {
@@ -94,13 +107,7 @@ def montar(ordem: OrdemServico) -> dict[str, Any]:
     }
 
     if ordem.status in STATUS_QUE_REVELAM_ORCAMENTO:
-        dados["orcamento"] = {
-            "total": str(ordem.total_orcamento),
-            "itens": [
-                {"descricao": item.descricao, "valor": str(item.valor)}
-                for item in ordem.itens.all()
-            ],
-        }
+        dados["orcamento"] = orcamento_para_o_cliente(ordem)
 
     return dados
 

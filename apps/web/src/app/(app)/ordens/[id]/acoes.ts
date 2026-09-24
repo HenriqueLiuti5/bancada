@@ -2,11 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { chamarApi, enviarArquivo, mensagemDaApi } from "@/lib/api";
+import { lerReais } from "@/lib/moeda";
 
 export type EstadoTransicao = { erro?: string };
 export type EstadoDaFoto = { erro?: string; enviada?: boolean };
 export type EstadoDaSenha = { senha?: string; erro?: string; revelada?: boolean };
 export type EstadoDosDetalhes = { erro?: string; salvo?: boolean };
+export type EstadoDoItem = { erro?: string; adicionado?: boolean };
 
 export async function transicionar(
   _anterior: EstadoTransicao,
@@ -15,11 +17,13 @@ export async function transicionar(
   const id = String(dados.get("id"));
   const status = String(dados.get("status"));
   const nota = String(dados.get("nota") ?? "");
+  const escolheuItens = status === "aprovado" && dados.get("escolha_de_itens") === "sim";
+  const itensAprovados = dados.getAll("itens_aprovados").map(Number);
 
   try {
     await chamarApi(`/api/ordens/${id}/transicionar/`, {
       metodo: "POST",
-      corpo: { status, nota },
+      corpo: escolheuItens ? { status, nota, itens_aprovados: itensAprovados } : { status, nota },
     });
   } catch (erro) {
     return { erro: mensagemDaApi(erro, "Não foi possível mudar o status.") };
@@ -117,4 +121,39 @@ export async function salvarDetalhes(
 
   revalidatePath(`/ordens/${id}`);
   return { salvo: true };
+}
+
+export async function adicionarItem(
+  _anterior: EstadoDoItem,
+  dados: FormData,
+): Promise<EstadoDoItem> {
+  const id = String(dados.get("id"));
+  const descricao = String(dados.get("descricao") ?? "").trim();
+  const digitado = String(dados.get("valor") ?? "").trim();
+  const valor = lerReais(digitado);
+
+  if (!descricao) return { erro: "Descreva a peça ou o serviço." };
+  if (!digitado) return { erro: "Informe o valor." };
+  if (valor === null) return { erro: "Valor inválido. Escreva só o número, como 150,00." };
+
+  try {
+    await chamarApi(`/api/ordens/${id}/itens/`, {
+      metodo: "POST",
+      corpo: { tipo: String(dados.get("tipo") ?? "peca"), descricao, valor },
+    });
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível adicionar o item.") };
+  }
+
+  revalidatePath(`/ordens/${id}`);
+  return { adicionado: true };
+}
+
+export async function apagarItem(dados: FormData): Promise<void> {
+  const id = String(dados.get("id"));
+  const item = String(dados.get("item"));
+
+  await chamarApi(`/api/itens/${item}/`, { metodo: "DELETE" });
+
+  revalidatePath(`/ordens/${id}`);
 }

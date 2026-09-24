@@ -13,6 +13,7 @@ def limpar_cache_ao_mudar_status(sender: type, instance: EventoOS, **kwargs: Any
 
 
 @receiver(post_save, sender=ItemOrcamento)
+@receiver(post_delete, sender=ItemOrcamento)
 def limpar_cache_ao_mudar_orcamento(sender: type, instance: ItemOrcamento, **kwargs: Any) -> None:
     publico.invalidar(instance.ordem.token_publico)
 

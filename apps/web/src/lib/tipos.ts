@@ -135,6 +135,9 @@ export type Ordem = OrdemResumo & {
   fotos: Foto[];
   transicoes_possiveis: Transicao[];
   total_orcamento: string;
+  total_aprovado: string;
+  orcamento_editavel: boolean;
+  orcamento_aprovado: boolean;
 };
 
 export type LinhaDeStatus = { status: string; rotulo: string; total: number };
