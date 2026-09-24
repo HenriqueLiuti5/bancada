@@ -6,6 +6,7 @@ import { LinhaDoTempo } from "@/componentes/ui/LinhaDoTempo";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { chamarApi } from "@/lib/api";
+import { FUSO_HORARIO } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import type { Ordem, Usuario } from "@/lib/tipos";
 import { podeApagar, podeVerSenha, usuarioAtual } from "@/lib/usuario";
@@ -25,6 +26,7 @@ function formatarMomento(iso: string): string {
     month: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: FUSO_HORARIO,
   });
 }
 
@@ -33,6 +35,7 @@ function formatarDia(iso: string): string {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: FUSO_HORARIO,
   });
 }
 

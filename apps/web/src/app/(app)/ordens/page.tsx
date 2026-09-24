@@ -6,6 +6,7 @@ import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { ErroDaApi, chamarApi } from "@/lib/api";
+import { FUSO_HORARIO } from "@/lib/datas";
 import type { Catalogo, OrdemResumo, Pagina, Usuario } from "@/lib/tipos";
 import { Filtros, type ValoresDosFiltros } from "./filtros";
 
@@ -60,7 +61,11 @@ async function buscarOrdens(consulta: URLSearchParams): Promise<Pagina<OrdemResu
 }
 
 function formatarData(iso: string): string {
-  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    timeZone: FUSO_HORARIO,
+  });
 }
 
 function Segmento({

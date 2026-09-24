@@ -219,3 +219,5 @@ Ficam para quando cada parte chegar:
 - Documentos que o Asaas exige para receber (CPF ou CNPJ) e emissão de nota fiscal.
 - Nome do domínio.
 - Provedores de servidor, e-mail, armazenamento e monitoramento.
+- Fuso horário por assistência. Hoje as telas, os documentos e o agendador usam o horário de
+  Brasília; uma assistência em Manaus veria as horas uma hora adiantadas.

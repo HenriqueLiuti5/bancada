@@ -4,6 +4,7 @@ import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { PontoDeStatus } from "@/componentes/ui/Selo";
 import { chamarApi } from "@/lib/api";
+import { FUSO_HORARIO } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import type { Painel } from "@/lib/tipos";
 
@@ -14,6 +15,7 @@ function hojeEscrito(): string {
     weekday: "long",
     day: "numeric",
     month: "long",
+    timeZone: FUSO_HORARIO,
   });
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }

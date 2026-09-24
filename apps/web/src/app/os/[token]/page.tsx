@@ -5,6 +5,7 @@ import { Cartao } from "@/componentes/ui/Cartao";
 import { LinhaDoTempo } from "@/componentes/ui/LinhaDoTempo";
 import { PontoDeStatus } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
+import { FUSO_HORARIO } from "@/lib/datas";
 import { enderecoDaFoto } from "@/lib/fotos";
 import { emReais } from "@/lib/moeda";
 import { buscarAcompanhamento, type FotoPublica } from "@/lib/publico";
@@ -41,6 +42,7 @@ function formatarMomento(iso: string): string {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: FUSO_HORARIO,
   });
 }
 
