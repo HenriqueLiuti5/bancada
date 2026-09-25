@@ -6,6 +6,7 @@ from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
 from bancada.ordens.views import FotoViewSet, ItemOrcamentoViewSet, OrdemServicoViewSet
 from bancada.ordens.views_fotos import ArquivoDaFotoView
 from bancada.ordens.views_publicas import AcompanhamentoPublicoView
+from bancada.orientacao.views import PrimeirosPassosView, TourVistoView
 from bancada.tenants.views import (
     AssistenciaView,
     EquipeView,
@@ -51,6 +52,12 @@ urlpatterns = [
     path("lojas/", LojasView.as_view(), name="lojas"),
     path("lojas/<int:pk>/", LojaView.as_view(), name="loja"),
     path("equipe/", EquipeView.as_view(), name="equipe"),
+    path("orientacao/tours/", TourVistoView.as_view(), name="tour-visto"),
+    path(
+        "orientacao/primeiros-passos/",
+        PrimeirosPassosView.as_view(),
+        name="primeiros-passos",
+    ),
     path(
         "fotos/arquivo/<str:assinatura>/",
         transaction.non_atomic_requests(ArquivoDaFotoView.as_view()),

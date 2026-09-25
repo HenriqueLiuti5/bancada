@@ -10,6 +10,8 @@ import { FUSO_HORARIO } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import type { Ordem, Usuario } from "@/lib/tipos";
 import { podeApagar, podeVerSenha, usuarioAtual } from "@/lib/usuario";
+import { registrarLinkCompartilhado } from "../../acoes";
+import { Tour } from "../../tour";
 import { AcoesDeStatus } from "./acoesDeStatus";
 import { DetalhesDoReparo } from "./detalhesDoReparo";
 import { FotosDaOrdem } from "./fotosDaOrdem";
@@ -73,6 +75,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
               href={`/ordens/${ordem.id}/documentos/comprovante`}
               target="_blank"
               rel="noopener"
+              data-tour="documentos"
               className={botao("secundario", "sm")}
             >
               <FileText size={14} strokeWidth={2} />
@@ -107,7 +110,11 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
           <FotosDaOrdem id={ordem.id} fotos={ordem.fotos} podeApagar={podeApagar(usuario)} />
 
-          <Cartao titulo="Histórico" descricao="Cada mudança de status fica registrada e não pode ser apagada.">
+          <Cartao
+            tour="historico"
+            titulo="Histórico"
+            descricao="Cada mudança de status fica registrada e não pode ser apagada."
+          >
             <LinhaDoTempo
               etapas={ordem.eventos.map((evento, indice) => ({
                 chave: evento.id,
@@ -136,7 +143,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         </div>
 
         <aside className="order-first space-y-6 lg:order-none">
-          <Cartao titulo="Mudar status">
+          <Cartao tour="mudar-status" titulo="Mudar status">
             <AcoesDeStatus
               id={ordem.id}
               transicoes={ordem.transicoes_possiveis}
@@ -164,6 +171,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
           </Cartao>
 
           <Cartao
+            tour="senha"
             titulo={
               <span className="flex items-center gap-1.5">
                 <Lock size={13} strokeWidth={2} className="text-texto-suave" />
@@ -180,15 +188,22 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
             )}
           </Cartao>
 
-          <Cartao titulo="Link do cliente" descricao="O cliente acompanha o reparo sem criar conta.">
+          <Cartao
+            tour="link-do-cliente"
+            titulo="Link do cliente"
+            descricao="O cliente acompanha o reparo sem criar conta."
+          >
             <CompartilharLink
               url={linkDoCliente}
+              aoCompartilhar={registrarLinkCompartilhado.bind(null, ordem.id)}
               mensagem={`Olá, ${ordem.cliente_nome.split(" ")[0]}! Acompanhe o reparo do seu ${ordem.aparelho_descricao} por aqui: ${linkDoCliente}`}
               rotuloDaPrevia="Ver como o cliente vê"
             />
           </Cartao>
         </aside>
       </div>
+
+      <Tour nome="ordem" />
     </>
   );
 }

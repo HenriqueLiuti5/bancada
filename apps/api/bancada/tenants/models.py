@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models.functions import Lower
 from django.utils import timezone
@@ -78,6 +79,8 @@ class Usuario(AbstractUser):
     )
     papel = models.CharField(max_length=20, choices=Papel.choices, blank=True)
     email_confirmado_em = models.DateTimeField(null=True, blank=True)
+    tours_vistos = ArrayField(models.CharField(max_length=30), default=list, blank=True)
+    primeiros_passos_escondidos = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "usuário"

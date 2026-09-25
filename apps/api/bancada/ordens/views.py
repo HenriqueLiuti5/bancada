@@ -11,6 +11,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 
+from bancada.auditoria.models import Acao
+from bancada.auditoria.registro import origem_do_pedido, registrar
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
 from bancada.ordens import consultas, documentos
@@ -20,6 +22,7 @@ from bancada.ordens.models import FotoOS, ItemOrcamento, OrdemServico
 from bancada.ordens.painel import numeros as numeros_do_painel
 from bancada.ordens.serializers import (
     AberturaOrdemSerializer,
+    CompartilhamentoDoLinkSerializer,
     EdicaoDaOrdemSerializer,
     EnvioDeFotoSerializer,
     FotoOSSerializer,
@@ -172,6 +175,24 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         entrada.is_valid(raise_exception=True)
         item = entrada.save(ordem=ordem)
         return Response(ItemOrcamentoSerializer(item).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["post"], url_path="link-compartilhado")
+    def link_compartilhado(self, request: Request, pk: str | None = None) -> Response:
+        ordem = self.get_object()
+        entrada = CompartilhamentoDoLinkSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+
+        meio = CompartilhamentoDoLinkSerializer.MEIOS[entrada.validated_data["meio"]]
+        registrar(
+            tenant=ordem.tenant,
+            usuario=request.user if isinstance(request.user, Usuario) else None,
+            acao=Acao.LINK_COMPARTILHADO,
+            objeto="ordem",
+            objeto_id=ordem.pk,
+            detalhe=f"OS #{ordem.numero}, {meio}",
+            origem=origem_do_pedido(request),
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=["post"])
     def transicionar(self, request: Request, pk: str | None = None) -> Response:

@@ -6,11 +6,11 @@ criar conta.
 
 ## Estado atual
 
-Fase 4A concluída, a primeira parte do lançamento self-service. A assistência abre a ordem no
-balcão, buscando o cliente pelo nome ou telefone ou cadastrando cliente e aparelho na mesma tela,
-fotografa o aparelho, imprime o comprovante que o cliente assina no balcão e movimenta o status; o
-cliente recebe o link por e-mail, acompanha o reparo sem criar conta e, na entrega, recebe o recibo
-da garantia em PDF.
+Fases 4A e 4C concluídas, do lançamento self-service; a 4B, de assinatura, ficou para depois. A
+assistência abre a ordem no balcão, buscando o cliente pelo nome ou telefone ou cadastrando cliente
+e aparelho na mesma tela, fotografa o aparelho, imprime o comprovante que o cliente assina no
+balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o reparo sem criar conta
+e, na entrega, recebe o recibo da garantia em PDF.
 
 O painel mostra como a loja está: o que está na bancada, o que passou do prazo, o que espera o
 cliente aprovar e quanto dinheiro aprovado ainda não entrou. Cada número leva à lista já filtrada.
@@ -21,6 +21,12 @@ e-mail, WhatsApp e senha, aceita os termos e já cai dentro do sistema. Para mon
 cria um convite só com nome e papel e manda o link pelo WhatsApp; quem recebe abre o link e cria a
 própria senha. Todo mundo entra pelo e-mail, e quem esquece a senha recebe um link para criar
 outra. O e-mail é confirmado por link, sem travar o uso.
+
+Quem entra pela primeira vez aprende sozinho. Na primeira visita a cada tela principal, um tour
+destaca os botões um de cada vez e diz o que cada um faz, mostrando só o que o papel da pessoa
+enxerga. O dono acompanha uma lista de primeiros passos que se marca sozinha conforme ele abre a
+primeira ordem, manda o link ao cliente, completa o endereço da loja e convida a equipe. O botão
+Ajuda, na barra lateral, reabre o tour da tela e leva ao WhatsApp de suporte.
 
 Cada pessoa entra com o próprio e-mail e um papel — dono, técnico ou atendente. O dono gerencia a
 equipe e os dados da assistência que aparecem para o cliente; técnicos veem a senha de
@@ -95,6 +101,13 @@ Para testar o caminho de uma assistência nova, abra http://localhost:3000/cadas
 confirmação, convite e recuperação de senha aparecem no log do worker (`make logs`), com o link
 completo para copiar.
 
+O botão "Fale com a gente" do menu Ajuda só aparece com o número de suporte preenchido no `.env`,
+com DDD, e depois de um `make up`:
+
+```bash
+WHATSAPP_DO_SUPORTE=11912345678
+```
+
 As fotos enviadas ficam em `apps/api/media/`, que não vai para o controle de versão.
 
 Se `docker compose` não for reconhecido mas `docker-compose` existir, o plugin não está
@@ -125,7 +138,7 @@ locais nas portas padrão. Dentro da rede do Docker os serviços continuam nas p
 ```bash
 make help        # lista todos os comandos
 make setup       # cria o .env com uma chave de criptografia nova
-make up          # sobe os serviços
+make up          # sobe os serviços, com o node_modules do frontend renovado
 make down        # derruba os serviços
 make logs        # acompanha os logs
 make reiniciar-worker  # o Celery não recarrega sozinho: rode depois de mudar uma tarefa

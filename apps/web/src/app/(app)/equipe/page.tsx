@@ -3,6 +3,7 @@ import { Cartao } from "@/componentes/ui/Cartao";
 import { chamarApi } from "@/lib/api";
 import type { Convite, MembroDaEquipe, Pagina } from "@/lib/tipos";
 import { gerenciaEquipe, usuarioAtual } from "@/lib/usuario";
+import { Tour } from "../tour";
 import { ConvitePendente } from "./convitePendente";
 import { Membro } from "./membro";
 import { NovoConvite } from "./novoConvite";
@@ -46,7 +47,7 @@ export default async function Equipe() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-6">
-          <Cartao titulo="Pessoas" semEspaco>
+          <Cartao tour="pessoas" titulo="Pessoas" semEspaco>
             <ul className="divide-y divide-borda">
               {pagina.results.map((membro) => (
                 <Membro key={membro.id} membro={membro} souEu={membro.id === usuario.id} />
@@ -58,6 +59,7 @@ export default async function Equipe() {
           </Cartao>
 
           <Cartao
+            tour="convidar"
             titulo="Convidar pessoa"
             descricao="Você informa o nome e o papel. A pessoa abre o link do convite e cria a própria senha."
           >
@@ -66,7 +68,7 @@ export default async function Equipe() {
         </div>
 
         <aside>
-          <Cartao titulo="Papéis">
+          <Cartao tour="papeis" titulo="Papéis">
             <dl className="space-y-3">
               {PAPEIS.map((papel) => (
                 <div key={papel.nome} className="space-y-0.5">
@@ -78,6 +80,8 @@ export default async function Equipe() {
           </Cartao>
         </aside>
       </div>
+
+      <Tour nome="equipe" />
     </>
   );
 }

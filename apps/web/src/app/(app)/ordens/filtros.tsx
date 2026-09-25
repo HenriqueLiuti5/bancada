@@ -29,7 +29,12 @@ export function Filtros({
   const aplicar = () => formulario.current?.requestSubmit();
 
   return (
-    <form ref={formulario} action="/ordens" className="flex flex-wrap items-center gap-2">
+    <form
+      ref={formulario}
+      action="/ordens"
+      data-tour="busca"
+      className="flex flex-wrap items-center gap-2"
+    >
       {valores.situacao && <input type="hidden" name="situacao" value={valores.situacao} />}
       {valores.atrasadas && <input type="hidden" name="atrasadas" value={valores.atrasadas} />}
 

@@ -15,6 +15,7 @@ class Acao(models.TextChoices):
     ASSISTENCIA_ALTERADA = "assistencia_alterada", "Dados da assistência alterados"
     CONVITE_CRIADO = "convite_criado", "Convite para a equipe criado"
     CONVITE_CANCELADO = "convite_cancelado", "Convite para a equipe cancelado"
+    LINK_COMPARTILHADO = "link_compartilhado", "Link de acompanhamento compartilhado"
 
 
 class RegistroDeAuditoria(PertenceAoTenant):

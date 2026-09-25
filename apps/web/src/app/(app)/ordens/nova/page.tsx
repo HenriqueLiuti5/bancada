@@ -1,6 +1,7 @@
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { chamarApi } from "@/lib/api";
 import type { Loja } from "@/lib/tipos";
+import { Tour } from "../../tour";
 import { FormularioDeAbertura } from "./formulario";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ export default async function NovaOrdem() {
         descricao="Busque o cliente ou cadastre na hora, junto com o aparelho. Se o cliente tiver e-mail, ele recebe o link de acompanhamento assim que a ordem abre."
       />
       <FormularioDeAbertura lojas={lojas} />
+      <Tour nome="nova-ordem" />
     </div>
   );
 }

@@ -256,3 +256,9 @@ class TransicaoSerializer(serializers.Serializer):
                 {"itens_aprovados": "Há itens que não fazem parte deste orçamento."}
             )
         return attrs
+
+
+class CompartilhamentoDoLinkSerializer(serializers.Serializer):
+    MEIOS = {"whatsapp": "pelo WhatsApp", "copia": "link copiado"}
+
+    meio = serializers.ChoiceField(choices=list(MEIOS))

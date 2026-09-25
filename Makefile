@@ -14,7 +14,7 @@ setup: ## Prepara o .env local com uma chave de criptografia nova
 	fi
 
 up: ## Sobe todos os servicos
-	docker compose up -d --build
+	docker compose up -d --build --renew-anon-volumes
 
 down: ## Derruba todos os servicos
 	docker compose down

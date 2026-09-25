@@ -121,6 +121,7 @@ export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
 
   return (
     <Cartao
+      tour="orcamento"
       titulo="Orçamento"
       descricao={
         ordem.orcamento_editavel

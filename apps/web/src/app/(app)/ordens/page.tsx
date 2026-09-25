@@ -8,6 +8,8 @@ import { botao } from "@/componentes/ui/estilos";
 import { ErroDaApi, chamarApi } from "@/lib/api";
 import { FUSO_HORARIO } from "@/lib/datas";
 import type { Catalogo, OrdemResumo, Pagina, Usuario } from "@/lib/tipos";
+import { PrimeirosPassos } from "../primeirosPassos";
+import { Tour } from "../tour";
 import { Filtros, type ValoresDosFiltros } from "./filtros";
 
 export const dynamic = "force-dynamic";
@@ -128,16 +130,21 @@ export default async function ListaDeOrdens({
         titulo="Ordens de serviço"
         descricao={pagina.count === 0 ? "Nenhuma ordem encontrada" : total}
         acoes={
-          <Link href="/ordens/nova" className={botao("primario")}>
+          <Link href="/ordens/nova" data-tour="nova-ordem" className={botao("primario")}>
             <Plus size={15} strokeWidth={2} />
             Nova ordem
           </Link>
         }
       />
 
+      <PrimeirosPassos />
+
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <nav className="inline-flex rounded-lg border border-borda bg-realce p-0.5">
+          <nav
+            data-tour="situacoes"
+            className="inline-flex rounded-lg border border-borda bg-realce p-0.5"
+          >
             <Segmento
               href={comParametro(consulta, { situacao: null, atrasadas: null })}
               ativo={!valores.situacao && !valores.atrasadas}
@@ -178,7 +185,10 @@ export default async function ListaDeOrdens({
           ordenacoes={catalogo.ordenacoes}
         />
 
-        <div className="overflow-hidden rounded-xl border border-borda bg-superficie shadow-sutil">
+        <div
+          data-tour="lista"
+          className="overflow-hidden rounded-xl border border-borda bg-superficie shadow-sutil"
+        >
           {pagina.results.length === 0 ? (
             filtrando ? (
               <EstadoVazio
@@ -279,6 +289,8 @@ export default async function ListaDeOrdens({
           )}
         </div>
       </div>
+
+      <Tour nome="ordens" />
     </>
   );
 }

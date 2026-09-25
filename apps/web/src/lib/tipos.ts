@@ -10,6 +10,11 @@ export type Usuario = {
   tenant: Tenant | null;
 };
 
+export type UsuarioAtual = Usuario & {
+  tours_vistos: string[];
+  primeiros_passos_escondidos: boolean;
+};
+
 export type Sessao = { token: string; usuario: Usuario };
 
 export type Convite = {
@@ -161,4 +166,12 @@ export type Pagina<T> = {
   next: string | null;
   previous: string | null;
   results: T[];
+};
+
+export type Passo = { chave: string; feito: boolean };
+
+export type PrimeirosPassos = {
+  escondidos: boolean;
+  passos: Passo[];
+  ordem_mais_recente: number | null;
 };

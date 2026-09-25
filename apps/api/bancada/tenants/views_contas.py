@@ -19,6 +19,7 @@ from bancada.tenants.serializers import (
     CadastroSerializer,
     ConfirmacaoDeEmailSerializer,
     EsqueciASenhaSerializer,
+    EuSerializer,
     LoginSerializer,
     RedefinicaoDeSenhaSerializer,
     UsuarioSerializer,
@@ -80,7 +81,7 @@ class EuView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request) -> Response:
-        return Response(UsuarioSerializer(request.user).data)
+        return Response(EuSerializer(request.user).data)
 
 
 class CadastroView(RotaPublicaLimitada):

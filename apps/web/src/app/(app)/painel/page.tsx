@@ -7,6 +7,8 @@ import { chamarApi } from "@/lib/api";
 import { FUSO_HORARIO } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import type { Painel } from "@/lib/tipos";
+import { PrimeirosPassos } from "../primeirosPassos";
+import { Tour } from "../tour";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +35,10 @@ export default async function PainelDoDia() {
     <>
       <CabecalhoDaPagina titulo="Painel" descricao={hojeEscrito()} />
 
+      <PrimeirosPassos />
+
       <div className="space-y-6">
-        <GradeDeIndicadores>
+        <GradeDeIndicadores tour="indicadores">
           <Indicador
             rotulo="Na bancada"
             valor={String(painel.abertas)}
@@ -62,7 +66,7 @@ export default async function PainelDoDia() {
           />
         </GradeDeIndicadores>
 
-        <GradeDeIndicadores>
+        <GradeDeIndicadores tour="indicadores-extras">
           <Indicador
             rotulo="Aguardando peça"
             valor={String(painel.aguardando_peca)}
@@ -87,6 +91,7 @@ export default async function PainelDoDia() {
         </GradeDeIndicadores>
 
         <Cartao
+          tour="fila"
           titulo="Fila por status"
           descricao="Quantas ordens estão em cada etapa agora"
           semEspaco
@@ -128,6 +133,8 @@ export default async function PainelDoDia() {
           </ul>
         </Cartao>
       </div>
+
+      <Tour nome="painel" />
     </>
   );
 }

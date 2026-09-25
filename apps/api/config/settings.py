@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "bancada.ordens",
     "bancada.avisos",
     "bancada.auditoria",
+    "bancada.orientacao",
 ]
 
 MIDDLEWARE = [

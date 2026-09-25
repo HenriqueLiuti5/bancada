@@ -74,7 +74,7 @@ o operador.
 | 3C | Papéis, permissões e gestão da equipe | concluída |
 | 4A | Cadastro da assistência, convite da equipe e recuperação de senha | concluída |
 | 4B | Assinatura pelo Asaas, com teste grátis de 30 dias | |
-| 4C | Tutorial guiado e canal de contato | |
+| 4C | Tutorial guiado e canal de contato | concluída |
 | 4D | Pagamento na entrega e painel completo da loja | |
 | 4E | Painel da plataforma, exclusivo do Henrique | |
 | 4F | Publicação: domínio, página inicial, termos, backup e monitoramento | |
@@ -141,6 +141,7 @@ conta, montar a equipe, recuperar a senha, aprender as telas, pagar e pedir ajud
 - O dono tem uma tela com a situação da assinatura, as faturas e a forma de pagamento. Técnico e
   atendente não veem essa tela.
 - O desenvolvimento usa o ambiente de testes do Asaas, que é gratuito.
+- A lista de primeiros passos da Fase 4C ganha o passo de assinar.
 
 ### 4C — Tutorial guiado e contato
 
@@ -152,7 +153,8 @@ conta, montar a equipe, recuperar a senha, aprender as telas, pagar e pedir ajud
 - O tour pode ser pulado e reaberto a qualquer momento pelo menu. O sistema guarda quais tours cada
   usuário já viu, para não repeti-los quando ele entrar por outro aparelho.
 - Uma lista de primeiros passos acompanha o começo do teste: abrir a primeira ordem, mandar o link
-  ao cliente, convidar a equipe e assinar.
+  ao cliente, completar o endereço da loja e convidar a equipe. O passo de assinar entra com a
+  Fase 4B (ADR 0020).
 - Um botão "Fale com a gente" abre o WhatsApp do Henrique já com o nome da assistência na mensagem.
 
 ### 4D — Pagamento na entrega e painel completo da loja

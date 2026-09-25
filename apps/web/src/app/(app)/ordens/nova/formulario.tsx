@@ -22,14 +22,16 @@ function aparelhoInicial(cliente: Cliente): string {
 function Secao({
   titulo,
   erro,
+  tour,
   children,
 }: {
   titulo: string;
   erro?: string;
+  tour: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-3">
+    <section data-tour={tour} className="space-y-3">
       <h2 className="text-sm font-semibold">{titulo}</h2>
       {children}
       {erro && <p className="text-xs text-perigo-forte">{erro}</p>}
@@ -84,7 +86,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
             <input type="hidden" name="loja" value={lojas[0]?.id ?? ""} />
           )}
 
-          <Secao titulo="Cliente" erro={erros.cliente}>
+          <Secao titulo="Cliente" tour="cliente" erro={erros.cliente}>
             <EscolhaDoCliente
               escolhido={cliente}
               novo={clienteNovo}
@@ -97,7 +99,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
             />
           </Secao>
 
-          <Secao titulo="Aparelho" erro={erros.aparelho}>
+          <Secao titulo="Aparelho" tour="aparelho" erro={erros.aparelho}>
             <EscolhaDoAparelho
               cliente={cliente}
               clienteNovo={clienteNovo}
@@ -108,7 +110,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
             />
           </Secao>
 
-          <Secao titulo="Defeito">
+          <Secao titulo="Defeito" tour="defeito">
             <CampoRotulado
               rotulo="Problema relatado"
               htmlFor="problema_relatado"
@@ -129,7 +131,12 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
         </div>
 
         <div className="-mx-5 -mb-5 mt-6 flex flex-wrap items-center gap-3 border-t border-borda bg-realce px-5 py-3">
-          <button type="submit" disabled={enviando} className={botao("primario")}>
+          <button
+            type="submit"
+            disabled={enviando}
+            data-tour="abrir"
+            className={botao("primario")}
+          >
             {enviando ? "Abrindo..." : "Abrir ordem de serviço"}
           </button>
           {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}

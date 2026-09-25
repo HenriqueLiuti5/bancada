@@ -15,6 +15,7 @@ import { Avatar } from "@/componentes/ui/Avatar";
 import { Marca } from "@/componentes/ui/Marca";
 import { botao, juntar } from "@/componentes/ui/estilos";
 import { sair } from "../acoes";
+import { MenuDeAjuda } from "./menuDeAjuda";
 
 type Item = { href: string; rotulo: string; icone: LucideIcon; soDono?: boolean };
 
@@ -34,9 +35,18 @@ type Props = {
   papel: string;
   assistencia: string;
   eDono: boolean;
+  linkDoSuporte: string | null;
+  podeReabrirPrimeirosPassos: boolean;
 };
 
-export function BarraLateral({ nome, papel, assistencia, eDono }: Props) {
+export function BarraLateral({
+  nome,
+  papel,
+  assistencia,
+  eDono,
+  linkDoSuporte,
+  podeReabrirPrimeirosPassos,
+}: Props) {
   const caminho = usePathname();
   const itens = ITENS.filter((item) => !item.soDono || eDono);
 
@@ -79,6 +89,14 @@ export function BarraLateral({ nome, papel, assistencia, eDono }: Props) {
           })}
         </nav>
 
+        <div className="px-3 pb-3">
+          <MenuDeAjuda
+            lugar="barra-lateral"
+            linkDoSuporte={linkDoSuporte}
+            podeReabrirPrimeirosPassos={podeReabrirPrimeirosPassos}
+          />
+        </div>
+
         <div className="flex items-center gap-2.5 border-t border-borda px-4 py-3">
           <Avatar nome={nome} />
           <div className="min-w-0 flex-1">
@@ -102,6 +120,11 @@ export function BarraLateral({ nome, papel, assistencia, eDono }: Props) {
             <Plus size={15} strokeWidth={2} />
             <span className="sr-only">Nova ordem de serviço</span>
           </Link>
+          <MenuDeAjuda
+            lugar="cabecalho"
+            linkDoSuporte={linkDoSuporte}
+            podeReabrirPrimeirosPassos={podeReabrirPrimeirosPassos}
+          />
           <form action={sair}>
             <button type="submit" title="Sair" className={botao("fantasma", "sm")}>
               <LogOut size={15} strokeWidth={1.75} />

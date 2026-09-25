@@ -116,3 +116,95 @@ textarea::placeholder {
   background-size: 14px;
   padding-right: 2rem;
 }
+
+.driver-popover.popover-do-bancada {
+  background-color: var(--superficie);
+  color: var(--texto);
+  font-family: var(--font-sans);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 260px;
+  max-width: 320px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.2);
+}
+
+.popover-do-bancada .driver-popover-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  padding-right: 24px;
+}
+
+.popover-do-bancada .driver-popover-description {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--texto-suave);
+}
+
+.popover-do-bancada .driver-popover-close-btn {
+  color: var(--texto-apagado);
+}
+
+.popover-do-bancada .driver-popover-close-btn:hover,
+.popover-do-bancada .driver-popover-close-btn:focus {
+  color: var(--texto);
+}
+
+.popover-do-bancada .driver-popover-progress-text {
+  font-size: 12px;
+  color: var(--texto-apagado);
+}
+
+.popover-do-bancada .driver-popover-footer {
+  margin-top: 16px;
+}
+
+.popover-do-bancada .driver-popover-footer-btn {
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  background-color: var(--superficie);
+  color: var(--texto);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 30px;
+  text-shadow: none;
+}
+
+.popover-do-bancada .driver-popover-footer-btn:hover,
+.popover-do-bancada .driver-popover-footer-btn:focus-visible {
+  background-color: var(--realce);
+}
+
+.popover-do-bancada .driver-popover-next-btn {
+  border-color: var(--primario);
+  background-color: var(--primario);
+  color: var(--primario-texto);
+}
+
+.popover-do-bancada .driver-popover-next-btn:hover,
+.popover-do-bancada .driver-popover-next-btn:focus-visible {
+  background-color: var(--primario-hover);
+}
+
+.popover-do-bancada .driver-popover-navigation-btns button + button {
+  margin-left: 6px;
+}
+
+.popover-do-bancada .driver-popover-arrow-side-left {
+  border-left-color: var(--superficie);
+}
+
+.popover-do-bancada .driver-popover-arrow-side-right {
+  border-right-color: var(--superficie);
+}
+
+.popover-do-bancada .driver-popover-arrow-side-top {
+  border-top-color: var(--superficie);
+}
+
+.popover-do-bancada .driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--superficie);
+}

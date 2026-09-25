@@ -40,9 +40,18 @@ export function Indicador({ rotulo, valor, nota, href, alerta = false }: Props) 
   );
 }
 
-export function GradeDeIndicadores({ children }: { children: React.ReactNode }) {
+export function GradeDeIndicadores({
+  children,
+  tour,
+}: {
+  children: React.ReactNode;
+  tour?: string;
+}) {
   return (
-    <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-borda bg-borda shadow-sutil lg:grid-cols-4">
+    <div
+      data-tour={tour}
+      className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-borda bg-borda shadow-sutil lg:grid-cols-4"
+    >
       {children}
     </div>
   );

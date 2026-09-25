@@ -5,11 +5,21 @@ type Props = {
   children: React.ReactNode;
   semEspaco?: boolean;
   className?: string;
+  tour?: string;
 };
 
-export function Cartao({ titulo, descricao, acoes, children, semEspaco = false, className = "" }: Props) {
+export function Cartao({
+  titulo,
+  descricao,
+  acoes,
+  children,
+  semEspaco = false,
+  className = "",
+  tour,
+}: Props) {
   return (
     <section
+      data-tour={tour}
       className={`overflow-hidden rounded-xl border border-borda bg-superficie shadow-sutil ${className}`}
     >
       {(titulo || acoes) && (

@@ -30,6 +30,11 @@ class UsuarioSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "first_name", "email", "email_confirmado", "papel", "tenant"]
 
 
+class EuSerializer(UsuarioSerializer):
+    class Meta(UsuarioSerializer.Meta):
+        fields = [*UsuarioSerializer.Meta.fields, "tours_vistos", "primeiros_passos_escondidos"]
+
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, style={"input_type": "password"})

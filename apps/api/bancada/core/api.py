@@ -29,6 +29,13 @@ def tenant_obrigatorio(request: Request) -> Tenant:
     return tenant
 
 
+def usuario_obrigatorio(request: Request) -> Usuario:
+    usuario = request.user
+    if not isinstance(usuario, Usuario):
+        raise PermissionDenied(SEM_ASSISTENCIA)
+    return usuario
+
+
 class PertenceAUmaAssistencia(permissions.BasePermission):
     message = SEM_ASSISTENCIA
 

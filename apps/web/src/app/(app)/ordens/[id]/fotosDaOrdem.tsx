@@ -96,6 +96,7 @@ export function FotosDaOrdem({
 
   return (
     <Cartao
+      tour="fotos"
       titulo="Fotos do aparelho"
       descricao="Aparecem no link do cliente, a menos que você as esconda."
     >
