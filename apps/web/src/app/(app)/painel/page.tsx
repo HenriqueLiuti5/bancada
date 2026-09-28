@@ -1,16 +1,23 @@
-import Link from "next/link";
 import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
-import { Cartao } from "@/componentes/ui/Cartao";
-import { PontoDeStatus } from "@/componentes/ui/Selo";
-import { chamarApi } from "@/lib/api";
+import { Mensagem } from "@/componentes/ui/Mensagem";
+import { ErroDaApi, chamarApi, mensagemDaApi } from "@/lib/api";
 import { FUSO_HORARIO } from "@/lib/datas";
-import { emReais } from "@/lib/moeda";
-import type { Painel } from "@/lib/tipos";
+import type { Loja, Painel } from "@/lib/tipos";
 import { PrimeirosPassos } from "../primeirosPassos";
 import { Tour } from "../tour";
+import { SecaoAtendimento } from "./atendimento";
+import { SecaoDinheiro } from "./dinheiro";
+import { SecaoEquipe } from "./equipe";
+import { FiltrosDoPainel } from "./filtrosDoPainel";
+import { SecaoOperacao } from "./operacao";
+import { Secao } from "./secao";
 
 export const dynamic = "force-dynamic";
+
+const PARAMETROS = ["periodo", "de", "ate", "loja"] as const;
+
+type Parametros = Record<string, string | string[] | undefined>;
 
 function hojeEscrito(): string {
   const texto = new Date().toLocaleDateString("pt-BR", {
@@ -22,14 +29,74 @@ function hojeEscrito(): string {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
-function emDias(valor: number | null): string {
-  if (valor === null) return "—";
-  return `${valor.toLocaleString("pt-BR")} ${valor === 1 ? "dia" : "dias"}`;
+function lerParametros(recebidos: Parametros): URLSearchParams {
+  const consulta = new URLSearchParams();
+  for (const chave of PARAMETROS) {
+    const valor = recebidos[chave];
+    if (typeof valor === "string" && valor !== "") consulta.set(chave, valor);
+  }
+  return consulta;
 }
 
-export default async function PainelDoDia() {
-  const painel = await chamarApi<Painel>("/api/ordens/painel/");
-  const maior = Math.max(...painel.por_status.map((linha) => linha.total), 1);
+async function buscarPainel(
+  consulta: URLSearchParams,
+): Promise<{ painel: Painel; erro?: string }> {
+  try {
+    return { painel: await chamarApi<Painel>(`/api/ordens/painel/?${consulta}`) };
+  } catch (erro) {
+    if (!(erro instanceof ErroDaApi) || erro.status !== 400) throw erro;
+    return {
+      painel: await chamarApi<Painel>("/api/ordens/painel/"),
+      erro: mensagemDaApi(erro, "Não deu para usar esse filtro. Mostramos o mês atual."),
+    };
+  }
+}
+
+function Agora({ agora }: { agora: Painel["agora"] }) {
+  return (
+    <Secao titulo="Agora" descricao="Como a loja está neste momento, sem depender do período.">
+      <GradeDeIndicadores tour="indicadores">
+        <Indicador
+          rotulo="Na bancada"
+          valor={String(agora.abertas)}
+          nota="ordens ainda abertas"
+          href="/ordens?situacao=abertas"
+        />
+        <Indicador
+          rotulo="Atrasadas"
+          valor={String(agora.atrasadas)}
+          nota="passaram do prazo prometido"
+          href="/ordens?atrasadas=1"
+          alerta={agora.atrasadas > 0}
+        />
+        <Indicador
+          rotulo="Esperando o cliente"
+          valor={String(agora.aguardando_cliente)}
+          nota="orçamento enviado, sem resposta"
+          href="/ordens?status=orcamento_enviado"
+        />
+        <Indicador
+          rotulo="Prontas para retirada"
+          valor={String(agora.prontas)}
+          nota="ocupando a prateleira"
+          href="/ordens?status=pronto"
+        />
+      </GradeDeIndicadores>
+    </Secao>
+  );
+}
+
+export default async function PainelDaLoja({
+  searchParams,
+}: {
+  searchParams: Promise<Parametros>;
+}) {
+  const consulta = lerParametros(await searchParams);
+  const [{ painel, erro }, lojas] = await Promise.all([
+    buscarPainel(consulta),
+    chamarApi<Loja[]>("/api/lojas/"),
+  ]);
+  const loja = erro ? "" : (consulta.get("loja") ?? "");
 
   return (
     <>
@@ -37,101 +104,17 @@ export default async function PainelDoDia() {
 
       <PrimeirosPassos />
 
-      <div className="space-y-6">
-        <GradeDeIndicadores tour="indicadores">
-          <Indicador
-            rotulo="Na bancada"
-            valor={String(painel.abertas)}
-            nota="ordens ainda abertas"
-            href="/ordens?situacao=abertas"
-          />
-          <Indicador
-            rotulo="Atrasadas"
-            valor={String(painel.atrasadas)}
-            nota="passaram do prazo prometido"
-            href="/ordens?atrasadas=1"
-            alerta={painel.atrasadas > 0}
-          />
-          <Indicador
-            rotulo="Esperando o cliente"
-            valor={String(painel.aguardando_cliente)}
-            nota="orçamento enviado, sem resposta"
-            href="/ordens?status=orcamento_enviado"
-          />
-          <Indicador
-            rotulo="Prontas para retirada"
-            valor={String(painel.prontas)}
-            nota="ocupando a prateleira"
-            href="/ordens?status=pronto"
-          />
-        </GradeDeIndicadores>
+      <div className="space-y-10">
+        <div className="space-y-3">
+          <FiltrosDoPainel periodo={painel.periodo} lojas={lojas} loja={loja} />
+          {erro && <Mensagem tipo="erro">{erro}</Mensagem>}
+        </div>
 
-        <GradeDeIndicadores tour="indicadores-extras">
-          <Indicador
-            rotulo="Aguardando peça"
-            valor={String(painel.aguardando_peca)}
-            nota="reparo parado por falta de peça"
-            href="/ordens?status=aguardando_peca"
-          />
-          <Indicador
-            rotulo="Aprovado em aberto"
-            valor={emReais(painel.valor_aprovado_em_aberto)}
-            nota="a receber nas ordens abertas"
-          />
-          <Indicador
-            rotulo="Tempo médio de reparo"
-            valor={emDias(painel.dias_medios_de_reparo)}
-            nota={`entregas dos últimos ${painel.dias_da_media} dias`}
-          />
-          <Indicador
-            rotulo="Abertas hoje"
-            valor={String(painel.abertas_hoje)}
-            nota={`${painel.entregues_no_mes} ${painel.entregues_no_mes === 1 ? "entregue" : "entregues"} no mês`}
-          />
-        </GradeDeIndicadores>
-
-        <Cartao
-          tour="fila"
-          titulo="Fila por status"
-          descricao="Quantas ordens estão em cada etapa agora"
-          semEspaco
-        >
-          <ul className="divide-y divide-borda">
-            {painel.por_status.map((linha) => {
-              const vazia = linha.total === 0;
-              return (
-                <li key={linha.status}>
-                  <Link
-                    href={`/ordens?status=${linha.status}`}
-                    className="flex items-center gap-4 px-5 py-2.5 transition-colors hover:bg-realce"
-                  >
-                    <span
-                      className={`flex min-w-0 flex-1 items-center gap-2.5 text-sm sm:w-52 sm:flex-none ${vazia ? "text-texto-apagado" : ""}`}
-                    >
-                      <PontoDeStatus status={linha.status} />
-                      <span className="truncate">{linha.rotulo}</span>
-                    </span>
-
-                    <span className="hidden h-1.5 flex-1 items-center sm:flex" aria-hidden="true">
-                      {!vazia && (
-                        <span
-                          className="h-1.5 rounded-full bg-texto-apagado"
-                          style={{ width: `${Math.max((linha.total / maior) * 100, 2)}%` }}
-                        />
-                      )}
-                    </span>
-
-                    <span
-                      className={`w-8 shrink-0 text-right text-sm tabular-nums ${vazia ? "text-texto-apagado" : "font-medium"}`}
-                    >
-                      {linha.total}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </Cartao>
+        <Agora agora={painel.agora} />
+        {painel.dinheiro && <SecaoDinheiro dinheiro={painel.dinheiro} />}
+        <SecaoOperacao painel={painel} />
+        {painel.equipe && <SecaoEquipe equipe={painel.equipe} />}
+        <SecaoAtendimento atendimento={painel.atendimento} />
       </div>
 
       <Tour nome="painel" />

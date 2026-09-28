@@ -95,6 +95,15 @@ export type ItemOrcamento = {
   aprovado: boolean;
 };
 
+export type Pagamento = {
+  id: number;
+  forma: string;
+  forma_rotulo: string;
+  valor: string;
+  recebido_em: string;
+  registrado_por: string | null;
+};
+
 export type Foto = {
   id: number;
   momento: string;
@@ -143,22 +152,67 @@ export type Ordem = OrdemResumo & {
   total_aprovado: string;
   orcamento_editavel: boolean;
   orcamento_aprovado: boolean;
+  valor_cobrado: string | null;
+  desconto: string;
+  pagamentos: Pagamento[];
+  total_pago: string;
+  saldo_a_receber: string;
 };
 
 export type LinhaDeStatus = { status: string; rotulo: string; total: number };
 
+export type Comparacao<T> = { atual: T; anterior: T };
+
+export type Intervalo = { inicio: string; fim: string };
+
+export type PeriodoDoPainel = Intervalo & { chave: string; anterior: Intervalo };
+
+export type EtapaMedida = { status: string; rotulo: string; horas: number; vezes: number };
+
+export type ValorPorForma = { forma: string; rotulo: string; valor: string };
+
+export type LinhaDaEquipe = {
+  tecnico: number | null;
+  nome: string;
+  concluidas: number;
+  recebido: string;
+};
+
 export type Painel = {
-  abertas: number;
-  atrasadas: number;
-  aguardando_cliente: number;
-  aguardando_peca: number;
-  prontas: number;
-  abertas_hoje: number;
-  entregues_no_mes: number;
-  por_status: LinhaDeStatus[];
-  dias_medios_de_reparo: number | null;
-  valor_aprovado_em_aberto: string;
-  dias_da_media: number;
+  periodo: PeriodoDoPainel;
+  agora: {
+    abertas: number;
+    atrasadas: number;
+    aguardando_cliente: number;
+    aguardando_peca: number;
+    prontas: number;
+    por_status: LinhaDeStatus[];
+  };
+  operacao: {
+    abertas: Comparacao<number>;
+    entregues: Comparacao<number>;
+    dias_medios_de_reparo: Comparacao<number | null>;
+    tempo_por_etapa: EtapaMedida[];
+  };
+  atendimento: {
+    aparelhos: { marca: string; modelo: string; total: number }[];
+    defeitos: { defeito: string; total: number }[];
+    clientes: {
+      atendidos: number;
+      que_voltaram: number;
+      mais_frequentes: { nome: string; telefone: string; ordens: number }[];
+    };
+  };
+  dinheiro?: {
+    recebido: Comparacao<string>;
+    por_forma: ValorPorForma[];
+    descontos: Comparacao<string>;
+    ticket_medio: Comparacao<string | null>;
+    taxa_de_aprovacao: Comparacao<number | null>;
+    a_receber: { valor: string; ordens: number };
+    aprovado_em_aberto: string;
+  };
+  equipe?: LinhaDaEquipe[];
 };
 
 export type Pagina<T> = {

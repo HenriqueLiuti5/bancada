@@ -9,6 +9,24 @@ export type EstadoDaFoto = { erro?: string; enviada?: boolean };
 export type EstadoDaSenha = { senha?: string; erro?: string; revelada?: boolean };
 export type EstadoDosDetalhes = { erro?: string; salvo?: boolean };
 export type EstadoDoItem = { erro?: string; adicionado?: boolean };
+export type EstadoDaEntrega = { erro?: string };
+export type EstadoDoRecebimento = { erro?: string; registrado?: boolean };
+
+type PagamentoInformado = { forma: string; valor: string };
+
+function pagamentosInformados(dados: FormData): PagamentoInformado[] | string {
+  const formas = dados.getAll("forma").map(String);
+  const valores = dados.getAll("valor_pago").map(String);
+  const pagamentos: PagamentoInformado[] = [];
+
+  for (const [indice, forma] of formas.entries()) {
+    const valor = lerReais(valores[indice] ?? "");
+    if (valor === null) return "Um dos pagamentos está com valor inválido. Escreva só o número.";
+    if (Number(valor) === 0) return "Cada pagamento precisa ter valor maior que zero.";
+    pagamentos.push({ forma, valor });
+  }
+  return pagamentos;
+}
 
 export async function transicionar(
   _anterior: EstadoTransicao,
@@ -154,6 +172,68 @@ export async function apagarItem(dados: FormData): Promise<void> {
   const item = String(dados.get("item"));
 
   await chamarApi(`/api/itens/${item}/`, { metodo: "DELETE" });
+
+  revalidatePath(`/ordens/${id}`);
+}
+
+export async function entregar(
+  _anterior: EstadoDaEntrega,
+  dados: FormData,
+): Promise<EstadoDaEntrega> {
+  const id = String(dados.get("id"));
+  const valorCobrado = lerReais(String(dados.get("valor_cobrado") ?? ""));
+  if (valorCobrado === null) return { erro: "Informe o valor cobrado. Escreva só o número." };
+
+  const pagamentos = pagamentosInformados(dados);
+  if (typeof pagamentos === "string") return { erro: pagamentos };
+
+  try {
+    await chamarApi(`/api/ordens/${id}/transicionar/`, {
+      metodo: "POST",
+      corpo: {
+        status: "entregue",
+        nota: String(dados.get("nota") ?? ""),
+        cobranca: { valor_cobrado: valorCobrado, pagamentos },
+      },
+    });
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível registrar a entrega.") };
+  }
+
+  revalidatePath(`/ordens/${id}`);
+  revalidatePath("/ordens");
+  return {};
+}
+
+export async function receberPagamento(
+  _anterior: EstadoDoRecebimento,
+  dados: FormData,
+): Promise<EstadoDoRecebimento> {
+  const id = String(dados.get("id"));
+  const valor = lerReais(String(dados.get("valor") ?? ""));
+  if (valor === null || Number(valor) === 0) {
+    return { erro: "Informe quanto o cliente pagou. Escreva só o número, como 150,00." };
+  }
+
+  try {
+    await chamarApi(`/api/ordens/${id}/pagamentos/`, {
+      metodo: "POST",
+      corpo: { forma: String(dados.get("forma") ?? "pix"), valor },
+    });
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível registrar o pagamento.") };
+  }
+
+  revalidatePath(`/ordens/${id}`);
+  revalidatePath("/ordens");
+  return { registrado: true };
+}
+
+export async function removerPagamento(dados: FormData): Promise<void> {
+  const id = String(dados.get("id"));
+  const pagamento = String(dados.get("pagamento"));
+
+  await chamarApi(`/api/pagamentos/${pagamento}/`, { metodo: "DELETE" });
 
   revalidatePath(`/ordens/${id}`);
 }

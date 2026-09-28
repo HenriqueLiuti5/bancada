@@ -26,3 +26,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0018](0018-contas-self-service.md) | Contas self-service: cadastro, login por e-mail, convites e recuperação de senha |
 | [0019](0019-orcamento-montagem-trava-e-aprovacao-por-item.md) | Orçamento: montagem na tela, trava depois do envio e aprovação por item |
 | [0020](0020-tutorial-guiado-primeiros-passos-e-contato.md) | Tutorial guiado, primeiros passos e contato |
+| [0021](0021-pagamento-na-entrega-e-painel-por-periodo.md) | Pagamento na entrega e painel por período |

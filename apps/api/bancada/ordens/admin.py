@@ -8,7 +8,7 @@ from django.utils.html import format_html
 
 from bancada.ordens.forms import OrdemServicoForm
 from bancada.ordens.fotos import assinar
-from bancada.ordens.models import EventoOS, FotoOS, ItemOrcamento, OrdemServico
+from bancada.ordens.models import EventoOS, FotoOS, ItemOrcamento, OrdemServico, Pagamento
 from bancada.tenants.models import Usuario
 
 
@@ -19,6 +19,13 @@ def usuario_da_requisicao(request: HttpRequest) -> Usuario | None:
 class ItemOrcamentoInline(admin.TabularInline):
     model = ItemOrcamento
     extra = 1
+
+
+class PagamentoInline(admin.TabularInline):
+    model = Pagamento
+    extra = 0
+    fields = ["forma", "valor", "recebido_em", "registrado_por"]
+    readonly_fields = ["registrado_por"]
 
 
 class EventoOSInline(admin.TabularInline):
@@ -56,7 +63,7 @@ class OrdemServicoAdmin(admin.ModelAdmin):
     list_filter = ["tenant", "status", "loja"]
     search_fields = ["numero", "cliente__nome", "aparelho__marca", "aparelho__modelo"]
     readonly_fields = ["numero", "token_publico", "entregue_em", "criado_em", "atualizado_em"]
-    inlines = [ItemOrcamentoInline, FotoOSInline, EventoOSInline]
+    inlines = [ItemOrcamentoInline, PagamentoInline, FotoOSInline, EventoOSInline]
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[OrdemServico]:
         return super().get_queryset(request).select_related("cliente", "aparelho", "tenant")

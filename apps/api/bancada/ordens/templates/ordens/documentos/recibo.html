@@ -55,32 +55,76 @@
             <tr>
               <td>{{ item.descricao }}</td>
               <td>{{ item.get_tipo_display }}</td>
-              <td class="valor">R$ {{ item.valor|floatformat:2 }}</td>
+              <td class="valor">{{ item.valor|reais }}</td>
             </tr>
           {% endfor %}
         </tbody>
         <tfoot>
           <tr>
             <td colspan="2">Total</td>
-            <td class="valor">R$ {{ total|floatformat:2 }}</td>
+            <td class="valor">{{ total|reais }}</td>
           </tr>
         </tfoot>
       </table>
     </section>
   {% endif %}
 
-  <section>
-    <h2>Histórico</h2>
-    <table class="historico">
-      <tbody>
-        {% for etapa in linha_do_tempo %}
-          <tr>
-            <td>{{ etapa.em|date:"d/m/Y H:i" }}</td>
-            <td>{{ etapa.rotulo }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <section class="colunas">
+    {% if ordem.valor_cobrado is not None %}
+      <div>
+        <h2>Pagamento</h2>
+        <table>
+          <tbody>
+            {% if ordem.desconto %}
+              <tr>
+                <td>Desconto</td>
+                <td class="valor">-{{ ordem.desconto|reais }}</td>
+              </tr>
+              <tr>
+                <td>Valor cobrado</td>
+                <td class="valor">{{ ordem.valor_cobrado|reais }}</td>
+              </tr>
+            {% endif %}
+            {% for pagamento in pagamentos %}
+              <tr>
+                <td>{{ pagamento.get_forma_display }} em {{ pagamento.recebido_em|date:"d/m/Y" }}</td>
+                <td class="valor">{{ pagamento.valor|reais }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="2">Nenhum pagamento registrado até agora.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Total pago</td>
+              <td class="valor">{{ ordem.total_pago|reais }}</td>
+            </tr>
+            {% if ordem.saldo_a_receber %}
+              <tr>
+                <td>Falta pagar</td>
+                <td class="valor">{{ ordem.saldo_a_receber|reais }}</td>
+              </tr>
+            {% endif %}
+          </tfoot>
+        </table>
+      </div>
+    {% endif %}
+
+    <div>
+      <h2>Histórico</h2>
+      <table class="historico">
+        <tbody>
+          {% for etapa in linha_do_tempo %}
+            <tr>
+              <td>{{ etapa.em|date:"d/m/Y H:i" }}</td>
+              <td>{{ etapa.rotulo }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <section>

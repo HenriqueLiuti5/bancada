@@ -1,11 +1,13 @@
 from collections.abc import Mapping
+from decimal import Decimal
 
-from django.db.models import Q, QuerySet
+from django.db.models import DecimalField, F, OuterRef, Q, QuerySet, Subquery, Sum, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from bancada.core.telefones import DIGITOS_MINIMOS_PARA_BUSCAR_TELEFONE, so_digitos
 from bancada.ordens.estados import ESTADOS_FINAIS, StatusOS
-from bancada.ordens.models import OrdemServico
+from bancada.ordens.models import OrdemServico, Pagamento
 
 ORDENACOES: dict[str, list[str]] = {
     "recentes": ["-criado_em"],
@@ -56,11 +58,30 @@ def atrasadas() -> Q:
     return abertas() & Q(prometida_para__lt=timezone.localdate())
 
 
+def com_valor_pago(consulta: QuerySet[OrdemServico]) -> QuerySet[OrdemServico]:
+    pago = (
+        Pagamento.objects.filter(ordem=OuterRef("pk"))
+        .values("ordem")
+        .annotate(total=Sum("valor"))
+        .values("total")
+    )
+    dinheiro = DecimalField(max_digits=12, decimal_places=2)
+    return consulta.annotate(
+        valor_pago=Coalesce(Subquery(pago, output_field=dinheiro), Value(Decimal("0.00")))
+    )
+
+
+def com_saldo_a_receber(consulta: QuerySet[OrdemServico]) -> QuerySet[OrdemServico]:
+    return com_valor_pago(consulta).filter(valor_cobrado__gt=F("valor_pago"))
+
+
 def por_situacao(consulta: QuerySet[OrdemServico], situacao: str) -> QuerySet[OrdemServico]:
     if situacao == "abertas":
         return consulta.filter(abertas())
     if situacao == "encerradas":
         return consulta.filter(status__in=ESTADOS_FINAIS)
+    if situacao == "a_receber":
+        return com_saldo_a_receber(consulta)
     return consulta
 
 

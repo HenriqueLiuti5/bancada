@@ -8,6 +8,7 @@ import { botao, campo, juntar } from "@/componentes/ui/estilos";
 import { emReais } from "@/lib/moeda";
 import type { ItemOrcamento, Transicao } from "@/lib/tipos";
 import { transicionar, type EstadoTransicao } from "./acoes";
+import { RegistroDaEntrega } from "./registroDaEntrega";
 
 const INICIAL: EstadoTransicao = {};
 
@@ -42,13 +43,18 @@ export function AcoesDeStatus({
   id,
   transicoes,
   itens,
+  totalAprovado,
 }: {
   id: number;
   transicoes: Transicao[];
   itens: ItemOrcamento[];
+  totalAprovado: string;
 }) {
   const [estado, acao, enviando] = useActionState(transicionar, INICIAL);
   const aguardaAprovacao = transicoes.some((transicao) => transicao.valor === "aprovado");
+  const podeEntregar = transicoes.some((transicao) => transicao.valor === "entregue");
+
+  if (podeEntregar) return <RegistroDaEntrega id={id} totalAprovado={totalAprovado} />;
 
   if (transicoes.length === 0) {
     return (

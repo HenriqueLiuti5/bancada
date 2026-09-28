@@ -16,6 +16,7 @@ class Acao(models.TextChoices):
     CONVITE_CRIADO = "convite_criado", "Convite para a equipe criado"
     CONVITE_CANCELADO = "convite_cancelado", "Convite para a equipe cancelado"
     LINK_COMPARTILHADO = "link_compartilhado", "Link de acompanhamento compartilhado"
+    PAGAMENTO_REMOVIDO = "pagamento_removido", "Pagamento removido"
 
 
 class RegistroDeAuditoria(PertenceAoTenant):

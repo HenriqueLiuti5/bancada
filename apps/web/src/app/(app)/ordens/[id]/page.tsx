@@ -9,13 +9,14 @@ import { chamarApi } from "@/lib/api";
 import { FUSO_HORARIO } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import type { Ordem, Usuario } from "@/lib/tipos";
-import { podeApagar, podeVerSenha, usuarioAtual } from "@/lib/usuario";
+import { gerenciaEquipe, podeApagar, podeVerSenha, usuarioAtual } from "@/lib/usuario";
 import { registrarLinkCompartilhado } from "../../acoes";
 import { Tour } from "../../tour";
 import { AcoesDeStatus } from "./acoesDeStatus";
 import { DetalhesDoReparo } from "./detalhesDoReparo";
 import { FotosDaOrdem } from "./fotosDaOrdem";
 import { OrcamentoDaOrdem } from "./orcamentoDaOrdem";
+import { PagamentoDaOrdem } from "./pagamentoDaOrdem";
 import { SenhaDoAparelho } from "./senhaDoAparelho";
 
 export const dynamic = "force-dynamic";
@@ -104,6 +105,8 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
           <OrcamentoDaOrdem ordem={ordem} />
 
+          <PagamentoDaOrdem ordem={ordem} podeRemover={gerenciaEquipe(usuario)} />
+
           <Cartao titulo="Detalhes do reparo">
             <DetalhesDoReparo ordem={ordem} equipe={equipe} />
           </Cartao>
@@ -143,11 +146,19 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         </div>
 
         <aside className="order-first space-y-6 lg:order-none">
-          <Cartao tour="mudar-status" titulo="Mudar status">
+          <Cartao
+            tour="mudar-status"
+            titulo={
+              ordem.transicoes_possiveis.some((transicao) => transicao.valor === "entregue")
+                ? "Entregar ao cliente"
+                : "Mudar status"
+            }
+          >
             <AcoesDeStatus
               id={ordem.id}
               transicoes={ordem.transicoes_possiveis}
               itens={ordem.itens}
+              totalAprovado={ordem.total_aprovado}
             />
           </Cartao>
 

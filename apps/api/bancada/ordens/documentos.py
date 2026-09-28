@@ -77,6 +77,7 @@ def html_do_recibo(ordem: OrdemServico) -> str:
             **_comum(ordem),
             "itens": list(ordem.itens.filter(aprovado=True)),
             "total": ordem.total_aprovado,
+            "pagamentos": list(ordem.pagamentos.all()),
             "linha_do_tempo": _linha_do_tempo(ordem),
         },
     )

@@ -1,12 +1,24 @@
 from decimal import Decimal
 
+from django.utils import timezone
 from rest_framework import serializers
 
 from bancada.clientes.models import Aparelho, Cliente
+from bancada.core.formatos import em_reais
 from bancada.core.telefones import so_digitos, telefone_brasileiro
-from bancada.ordens.estados import TRANSICOES, StatusOS
+from bancada.ordens.estados import TRANSICOES, StatusOS, pode_ir_de
 from bancada.ordens.fotos import MomentoDaFoto, assinar
-from bancada.ordens.models import EventoOS, FotoOS, ItemOrcamento, OrdemServico
+from bancada.ordens.models import (
+    Cobranca,
+    EventoOS,
+    FormaDePagamento,
+    FotoOS,
+    ItemOrcamento,
+    OrdemServico,
+    Pagamento,
+    Recebimento,
+)
+from bancada.ordens.painel import periodo as periodos
 from bancada.tenants.models import Loja
 
 
@@ -21,6 +33,40 @@ class ItemOrcamentoSerializer(serializers.ModelSerializer):
                 "error_messages": {"min_value": "O valor não pode ser negativo."},
             }
         }
+
+
+class PagamentoSerializer(serializers.ModelSerializer):
+    forma_rotulo = serializers.CharField(source="get_forma_display", read_only=True)
+    registrado_por = serializers.CharField(
+        source="registrado_por.nome_de_exibicao", read_only=True, default=None
+    )
+
+    class Meta:
+        model = Pagamento
+        fields = ["id", "forma", "forma_rotulo", "valor", "recebido_em", "registrado_por"]
+
+
+class RecebimentoSerializer(serializers.Serializer):
+    forma = serializers.ChoiceField(
+        choices=FormaDePagamento.choices,
+        error_messages={"invalid_choice": "Escolha PIX, dinheiro, débito ou crédito."},
+    )
+    valor = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        min_value=Decimal("0.01"),
+        error_messages={"min_value": "Cada pagamento precisa ter valor maior que zero."},
+    )
+
+
+class CobrancaSerializer(serializers.Serializer):
+    valor_cobrado = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        min_value=Decimal("0"),
+        error_messages={"min_value": "O valor cobrado não pode ser negativo."},
+    )
+    pagamentos = RecebimentoSerializer(many=True, required=False)
 
 
 class FotoOSSerializer(serializers.ModelSerializer):
@@ -119,6 +165,10 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     orcamento_editavel = serializers.BooleanField(read_only=True)
     orcamento_aprovado = serializers.BooleanField(read_only=True)
     imei_mascarado = serializers.CharField(source="aparelho.imei_mascarado", read_only=True)
+    pagamentos = PagamentoSerializer(many=True, read_only=True)
+    desconto = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    total_pago = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    saldo_a_receber = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta(OrdemServicoListSerializer.Meta):
         fields = [
@@ -139,6 +189,11 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
             "total_aprovado",
             "orcamento_editavel",
             "orcamento_aprovado",
+            "valor_cobrado",
+            "desconto",
+            "pagamentos",
+            "total_pago",
+            "saldo_a_receber",
         ]
 
     def get_transicoes_possiveis(self, obj: OrdemServico) -> list[dict[str, str]]:
@@ -233,6 +288,7 @@ class TransicaoSerializer(serializers.Serializer):
             "empty": "Marque ao menos um item. Se o cliente recusou tudo, use Reprovado."
         },
     )
+    cobranca = CobrancaSerializer(required=False)
 
     def validate(self, attrs: dict) -> dict:
         ordem: OrdemServico = self.context["ordem"]
@@ -242,6 +298,8 @@ class TransicaoSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"status": "Adicione ao menos um item ao orçamento antes de enviá-lo ao cliente."}
             )
+
+        self._conferir_cobranca(attrs)
 
         aprovados = attrs.get("itens_aprovados")
         if aprovados is None:
@@ -257,8 +315,86 @@ class TransicaoSerializer(serializers.Serializer):
             )
         return attrs
 
+    def _conferir_cobranca(self, attrs: dict) -> None:
+        ordem: OrdemServico = self.context["ordem"]
+        cobranca = attrs.get("cobranca")
+
+        if attrs["status"] != StatusOS.ENTREGUE:
+            if cobranca is not None:
+                raise serializers.ValidationError(
+                    {"cobranca": "O pagamento só é registrado na entrega do aparelho."}
+                )
+            return
+        if not pode_ir_de(ordem.status, StatusOS.ENTREGUE):
+            attrs.pop("cobranca", None)
+            return
+        if cobranca is None:
+            raise serializers.ValidationError(
+                {"cobranca": "Informe quanto foi cobrado e como o cliente pagou."}
+            )
+
+        recebimentos = tuple(
+            Recebimento(**pagamento) for pagamento in cobranca.get("pagamentos", [])
+        )
+        attrs["cobranca"] = Cobranca(
+            valor_cobrado=cobranca["valor_cobrado"], recebimentos=recebimentos
+        )
+        self._conferir_valores(attrs["cobranca"])
+
+    def _conferir_valores(self, cobranca: Cobranca) -> None:
+        aprovado = self.context["ordem"].total_aprovado
+        if cobranca.valor_cobrado > aprovado:
+            raise serializers.ValidationError(
+                {
+                    "cobranca": "O valor cobrado não pode passar do total aprovado, "
+                    f"que é {em_reais(aprovado)}."
+                }
+            )
+
+        pago = sum((recebimento.valor for recebimento in cobranca.recebimentos), Decimal(0))
+        if pago > cobranca.valor_cobrado:
+            raise serializers.ValidationError(
+                {
+                    "cobranca": f"Os pagamentos somam {em_reais(pago)}, mais que o valor "
+                    f"cobrado de {em_reais(cobranca.valor_cobrado)}."
+                }
+            )
+
 
 class CompartilhamentoDoLinkSerializer(serializers.Serializer):
     MEIOS = {"whatsapp": "pelo WhatsApp", "copia": "link copiado"}
 
     meio = serializers.ChoiceField(choices=list(MEIOS))
+
+
+class FiltroDoPainelSerializer(serializers.Serializer):
+    periodo = serializers.ChoiceField(choices=periodos.CHAVES, default=periodos.CHAVE_PADRAO)
+    de = serializers.DateField(required=False)
+    ate = serializers.DateField(required=False)
+    loja = serializers.PrimaryKeyRelatedField(queryset=Loja.objects.all(), required=False)
+
+    def validate_loja(self, loja: Loja) -> Loja:
+        if loja.tenant_id != self.context["tenant"].id:
+            raise serializers.ValidationError("Não pertence à sua assistência.")
+        return loja
+
+    def validate(self, attrs: dict) -> dict:
+        chave = attrs["periodo"]
+        de, ate = attrs.get("de"), attrs.get("ate")
+
+        if chave == periodos.PERSONALIZADO:
+            if de is None or ate is None:
+                raise serializers.ValidationError({"de": "Escolha a data inicial e a final."})
+            if de > ate:
+                raise serializers.ValidationError(
+                    {"de": "A data inicial precisa vir antes da final."}
+                )
+            if (ate - de).days + 1 > periodos.DIAS_NO_MAXIMO:
+                raise serializers.ValidationError(
+                    {"de": f"Escolha um intervalo de até {periodos.DIAS_NO_MAXIMO} dias."}
+                )
+
+        atual = periodos.pedido(chave, timezone.localdate(), de, ate)
+        attrs["atual"] = atual
+        attrs["anterior"] = periodos.anterior(chave, atual)
+        return attrs

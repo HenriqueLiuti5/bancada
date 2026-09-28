@@ -6,15 +6,24 @@ criar conta.
 
 ## Estado atual
 
-Fases 4A e 4C concluídas, do lançamento self-service; a 4B, de assinatura, ficou para depois. A
-assistência abre a ordem no balcão, buscando o cliente pelo nome ou telefone ou cadastrando cliente
-e aparelho na mesma tela, fotografa o aparelho, imprime o comprovante que o cliente assina no
-balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o reparo sem criar conta
-e, na entrega, recebe o recibo da garantia em PDF.
+Fases 4A, 4C e 4D concluídas, do lançamento self-service; a 4B, de assinatura, ficou para depois.
+A assistência abre a ordem no balcão, buscando o cliente pelo nome ou telefone ou cadastrando
+cliente e aparelho na mesma tela, fotografa o aparelho, imprime o comprovante que o cliente assina
+no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o reparo sem criar
+conta e, na entrega, recebe o recibo da garantia em PDF.
 
-O painel mostra como a loja está: o que está na bancada, o que passou do prazo, o que espera o
-cliente aprovar e quanto dinheiro aprovado ainda não entrou. Cada número leva à lista já filtrada.
-A lista tem busca por cliente, aparelho, IMEI, telefone ou número da OS, e os filtros vivem na URL.
+Na entrega, quem atende registra quanto cobrou e como o cliente pagou: PIX, dinheiro, débito ou
+crédito, divididos como for preciso. O valor já vem com o total aprovado e só muda se houver
+desconto. O que o cliente ficar devendo aparece como a receber na ordem, na lista e no painel, até
+ser pago. O recibo mostra o desconto, cada pagamento e o que falta.
+
+O painel mostra como a loja está agora e como foi num período à escolha — hoje, 7 dias, este mês ou
+datas escolhidas —, comparado com o período anterior: ordens abertas e entregues, tempo de reparo,
+tempo parado em cada etapa, aparelhos e defeitos mais comuns e clientes que voltam. O dono vê também
+o dinheiro que entrou, por forma de pagamento, os descontos, o ticket médio, a taxa de aprovação de
+orçamentos, o que falta receber e quanto cada técnico entregou. Cada número de contagem leva à lista
+já filtrada. A lista tem busca por cliente, aparelho, IMEI, telefone ou número da OS, e os filtros
+vivem na URL.
 
 Uma assistência nova se cadastra sozinha: o dono informa o nome da assistência, o próprio nome,
 e-mail, WhatsApp e senha, aceita os termos e já cai dentro do sistema. Para montar a equipe, ele
@@ -97,6 +106,10 @@ usam a senha `bancada123` e existem apenas para uso local:
 | `carla@central.test` | atendente — abre ordens, não vê a senha nem apaga |
 | `admin` (usuário, não e-mail) | superusuário do painel administrativo do Django |
 
+Para o painel ter números para mostrar, `make semear-movimento` cria dois meses de ordens na
+assistência de exemplo, com pagamentos, descontos, valores a receber e uma segunda loja. Rodar de
+novo não duplica nada.
+
 Para testar o caminho de uma assistência nova, abra http://localhost:3000/cadastro. Os e-mails de
 confirmação, convite e recuperação de senha aparecem no log do worker (`make logs`), com o link
 completo para copiar.
@@ -146,6 +159,7 @@ make test        # roda os testes do backend
 make lint        # roda ruff e mypy
 make migrate     # aplica migrações
 make semear      # popula o banco com dados de demonstração
+make semear-movimento  # cria dois meses de ordens e pagamentos de exemplo para o painel
 make superuser   # cria um administrador
 make clean       # derruba tudo e apaga o banco local
 ```

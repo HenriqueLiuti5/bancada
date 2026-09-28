@@ -1,5 +1,6 @@
 import secrets
-from collections.abc import Collection
+from collections.abc import Collection, Sequence
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
 from uuid import uuid4
@@ -7,8 +8,10 @@ from uuid import uuid4
 from django.conf import settings
 from django.core.files import File
 from django.db import models, transaction
+from django.utils import timezone
 
 from bancada.clientes.models import Aparelho, Cliente
+from bancada.core.formatos import em_reais
 from bancada.core.models import Carimbado, PertenceAoTenant
 from bancada.ordens.estados import (
     ESTADOS_COM_ORCAMENTO_APROVADO,
@@ -25,6 +28,35 @@ from bancada.tenants.models import Loja, Tenant, Usuario
 
 def gerar_token_publico() -> str:
     return secrets.token_urlsafe(9)
+
+
+class FormaDePagamento(models.TextChoices):
+    PIX = "pix", "PIX"
+    DINHEIRO = "dinheiro", "Dinheiro"
+    DEBITO = "debito", "Débito"
+    CREDITO = "credito", "Crédito"
+
+
+@dataclass(frozen=True)
+class Recebimento:
+    forma: str
+    valor: Decimal
+
+
+@dataclass(frozen=True)
+class Cobranca:
+    valor_cobrado: Decimal
+    recebimentos: Sequence[Recebimento] = ()
+
+
+class PagamentoAcimaDoSaldo(Exception):
+    def __init__(self, saldo: Decimal) -> None:
+        if saldo <= 0:
+            mensagem = "Esta ordem não tem nada a receber."
+        else:
+            mensagem = f"O valor passa do que falta receber, que é {em_reais(saldo)}."
+        super().__init__(mensagem)
+        self.saldo = saldo
 
 
 def proximo_numero(tenant: Tenant) -> int:
@@ -61,6 +93,7 @@ class OrdemServico(PertenceAoTenant):
     prometida_para = models.DateField(null=True, blank=True)
     entregue_em = models.DateTimeField(null=True, blank=True)
     garantia_ate = models.DateField(null=True, blank=True)
+    valor_cobrado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     class Meta:
         verbose_name = "ordem de serviço"
@@ -68,6 +101,10 @@ class OrdemServico(PertenceAoTenant):
         ordering = ["-criado_em"]
         constraints = [
             models.UniqueConstraint(fields=["tenant", "numero"], name="numero_unico_por_tenant"),
+            models.CheckConstraint(
+                condition=models.Q(valor_cobrado__gte=0),
+                name="valor_cobrado_nao_negativo",
+            ),
         ]
         indexes = [
             models.Index(fields=["tenant", "status"]),
@@ -121,6 +158,7 @@ class OrdemServico(PertenceAoTenant):
         usuario: Usuario | None = None,
         nota: str = "",
         itens_aprovados: Collection[int] | None = None,
+        cobranca: Cobranca | None = None,
     ) -> "EventoOS":
         anterior = self.status
         if not pode_ir_de(anterior, novo_status):
@@ -133,12 +171,16 @@ class OrdemServico(PertenceAoTenant):
         campos = ["status", "atualizado_em"]
 
         if novo_status == StatusOS.ENTREGUE:
-            from django.utils import timezone
-
             self.entregue_em = timezone.now()
             campos.append("entregue_em")
+            if cobranca is not None:
+                self.valor_cobrado = cobranca.valor_cobrado
+                campos.append("valor_cobrado")
 
         self.save(update_fields=campos)
+
+        if novo_status == StatusOS.ENTREGUE and cobranca is not None:
+            self._registrar_recebimentos(cobranca.recebimentos, usuario)
 
         return EventoOS.objects.create(
             ordem=self,
@@ -154,6 +196,36 @@ class OrdemServico(PertenceAoTenant):
             return
         self.itens.filter(pk__in=itens_aprovados).update(aprovado=True)
         self.itens.exclude(pk__in=itens_aprovados).update(aprovado=False)
+
+    def _registrar_recebimentos(
+        self, recebimentos: Sequence[Recebimento], usuario: Usuario | None
+    ) -> None:
+        Pagamento.objects.bulk_create(
+            Pagamento(
+                tenant_id=self.tenant_id,
+                ordem=self,
+                forma=recebimento.forma,
+                valor=recebimento.valor,
+                recebido_em=self.entregue_em or timezone.now(),
+                registrado_por=usuario,
+            )
+            for recebimento in recebimentos
+        )
+
+    @transaction.atomic
+    def receber(self, recebimento: Recebimento, *, usuario: Usuario | None = None) -> "Pagamento":
+        travada = OrdemServico.objects.select_for_update().get(pk=self.pk)
+        saldo = travada.saldo_a_receber
+        if recebimento.valor > saldo:
+            raise PagamentoAcimaDoSaldo(saldo)
+
+        return Pagamento.objects.create(
+            tenant_id=travada.tenant_id,
+            ordem=travada,
+            forma=recebimento.forma,
+            valor=recebimento.valor,
+            registrado_por=usuario,
+        )
 
     @property
     def transicoes_possiveis(self) -> list[str]:
@@ -181,6 +253,22 @@ class OrdemServico(PertenceAoTenant):
         total = self.itens.filter(aprovado=True).aggregate(models.Sum("valor"))["valor__sum"]
         return total or Decimal("0.00")
 
+    @property
+    def total_pago(self) -> Decimal:
+        return sum((pagamento.valor for pagamento in self.pagamentos.all()), Decimal("0.00"))
+
+    @property
+    def saldo_a_receber(self) -> Decimal:
+        if self.valor_cobrado is None:
+            return Decimal("0.00")
+        return self.valor_cobrado - self.total_pago
+
+    @property
+    def desconto(self) -> Decimal:
+        if self.valor_cobrado is None:
+            return Decimal("0.00")
+        return self.total_aprovado - self.valor_cobrado
+
 
 class TipoItem(models.TextChoices):
     PECA = "peca", "Peça"
@@ -201,6 +289,40 @@ class ItemOrcamento(Carimbado):
 
     def __str__(self) -> str:
         return f"{self.descricao} — R$ {self.valor}"
+
+
+class Pagamento(PertenceAoTenant):
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="pagamentos")
+    forma = models.CharField(max_length=10, choices=FormaDePagamento.choices)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    recebido_em = models.DateTimeField(default=timezone.now)
+    registrado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="pagamentos_registrados",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "pagamento"
+        verbose_name_plural = "pagamentos"
+        ordering = ["recebido_em", "pk"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(valor__gt=0),
+                name="pagamento_com_valor_positivo",
+            ),
+        ]
+        indexes = [models.Index(fields=["tenant", "recebido_em"])]
+
+    def __str__(self) -> str:
+        return f"{self.get_forma_display()} {em_reais(self.valor)} na OS #{self.ordem.numero}"
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        if self.tenant_id is None:
+            self.tenant_id = self.ordem.tenant_id
+        super().save(*args, **kwargs)
 
 
 class EventoOS(models.Model):

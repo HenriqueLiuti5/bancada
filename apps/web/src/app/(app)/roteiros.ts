@@ -85,7 +85,7 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       alvo: "mudar-status",
       titulo: "Mudar status",
       texto:
-        "Cada botão leva a ordem para a próxima etapa, e só aparecem as etapas possíveis agora. O cliente é avisado nas que interessam a ele, como orçamento pronto e aparelho pronto para retirada.",
+        "Cada botão leva a ordem para a próxima etapa, e só aparecem as etapas possíveis agora. O cliente é avisado nas que interessam a ele, como orçamento pronto e aparelho pronto para retirada. Na entrega, você registra quanto cobrou e como o cliente pagou.",
     },
     {
       alvo: "link-do-cliente",
@@ -104,6 +104,12 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       titulo: "Orçamento",
       texto:
         "Monte o orçamento item por item, com peças e serviços. Ele trava quando é enviado ao cliente, e na aprovação você desmarca o que ele recusou.",
+    },
+    {
+      alvo: "pagamento",
+      titulo: "Pagamento",
+      texto:
+        "O que foi cobrado e como o cliente pagou. Se ficou alguma parte para depois, registre aqui quando ele pagar o resto.",
     },
     {
       alvo: "fotos",
@@ -127,22 +133,47 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
   ],
   painel: [
     {
+      alvo: "periodo",
+      titulo: "Período",
+      texto:
+        "Escolha de quando são os números: hoje, os últimos 7 dias, este mês ou as datas que quiser. Cada número vem comparado com o período anterior do mesmo tamanho.",
+    },
+    {
       alvo: "indicadores",
       titulo: "Como a loja está agora",
       texto:
         "O que está na bancada, o que passou do prazo, o que espera resposta do cliente e o que está pronto para retirada. Clique num número para ver essas ordens.",
     },
     {
-      alvo: "indicadores-extras",
-      titulo: "Mais números",
+      alvo: "dinheiro",
+      papeis: ["dono"],
+      titulo: "Dinheiro",
       texto:
-        "Peças que faltam, o valor aprovado que ainda vai entrar, o tempo médio de reparo e o movimento do dia.",
+        "Quanto entrou no caixa, separado por PIX, dinheiro e cartão, os descontos dados e o que os clientes ainda devem. Só quem é dono vê esta parte.",
     },
     {
-      alvo: "fila",
-      titulo: "Fila por status",
+      alvo: "operacao",
+      titulo: "Operação",
       texto:
-        "Quantas ordens estão em cada etapa. Uma fila grande numa etapa mostra onde o trabalho está parando.",
+        "Quantas ordens entraram e saíram no período e quanto tempo o reparo leva, do balcão até a entrega.",
+    },
+    {
+      alvo: "etapas",
+      titulo: "Onde o trabalho para",
+      texto:
+        "O tempo médio em cada etapa mostra o gargalo: orçamento esperando resposta, peça que demora a chegar ou aparelho pronto que o cliente não busca.",
+    },
+    {
+      alvo: "equipe",
+      papeis: ["dono"],
+      titulo: "Equipe",
+      texto: "Quantas ordens cada técnico entregou no período e quanto elas renderam.",
+    },
+    {
+      alvo: "atendimento",
+      titulo: "Atendimento",
+      texto:
+        "Os aparelhos e defeitos que mais aparecem ajudam a decidir quais peças ter em estoque. Os clientes que voltam mostram quem confia na loja.",
     },
   ],
   equipe: [

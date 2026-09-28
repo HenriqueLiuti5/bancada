@@ -40,6 +40,9 @@ makemigrations: ## Gera novas migracoes a partir dos models
 semear: ## Popula o banco com dados de demonstracao
 	docker compose exec api python manage.py semear
 
+semear-movimento: ## Cria dois meses de ordens e pagamentos de exemplo para o painel
+	docker compose exec api python manage.py semear_movimento
+
 superuser: ## Cria um usuario administrador
 	docker compose exec api python manage.py createsuperuser
 
@@ -58,4 +61,4 @@ fmt: ## Formata o codigo do backend
 clean: ## Derruba tudo e apaga os volumes (APAGA O BANCO LOCAL)
 	docker compose down -v
 
-.PHONY: help setup up down logs ps reiniciar-worker shell migrate makemigrations semear superuser test lint fmt clean
+.PHONY: help setup up down logs ps reiniciar-worker shell migrate makemigrations semear semear-movimento superuser test lint fmt clean

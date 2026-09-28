@@ -4,7 +4,7 @@ import Link from "next/link";
 type Props = {
   rotulo: string;
   valor: string;
-  nota?: string;
+  nota?: React.ReactNode;
   href?: string;
   alerta?: boolean;
 };
@@ -27,7 +27,7 @@ export function Indicador({ rotulo, valor, nota, href, alerta = false }: Props) 
       >
         {valor}
       </p>
-      {nota && <p className="mt-2 text-xs text-texto-apagado">{nota}</p>}
+      {nota && <div className="mt-2 text-xs text-texto-apagado">{nota}</div>}
     </>
   );
 
@@ -40,17 +40,24 @@ export function Indicador({ rotulo, valor, nota, href, alerta = false }: Props) 
   );
 }
 
+const COLUNAS = {
+  3: "grid-cols-1 sm:grid-cols-3",
+  4: "grid-cols-2 lg:grid-cols-4",
+};
+
 export function GradeDeIndicadores({
   children,
   tour,
+  colunas = 4,
 }: {
   children: React.ReactNode;
   tour?: string;
+  colunas?: 3 | 4;
 }) {
   return (
     <div
       data-tour={tour}
-      className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-borda bg-borda shadow-sutil lg:grid-cols-4"
+      className={`grid gap-px overflow-hidden rounded-xl border border-borda bg-borda shadow-sutil ${COLUNAS[colunas]}`}
     >
       {children}
     </div>

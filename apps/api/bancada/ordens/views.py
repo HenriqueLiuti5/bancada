@@ -15,24 +15,35 @@ from bancada.auditoria.models import Acao
 from bancada.auditoria.registro import origem_do_pedido, registrar
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
+from bancada.core.formatos import em_reais
 from bancada.ordens import consultas, documentos
 from bancada.ordens.estados import StatusOS, TransicaoInvalida
 from bancada.ordens.fotos import FotoInvalida
-from bancada.ordens.models import FotoOS, ItemOrcamento, OrdemServico
+from bancada.ordens.models import (
+    FotoOS,
+    ItemOrcamento,
+    OrdemServico,
+    Pagamento,
+    PagamentoAcimaDoSaldo,
+    Recebimento,
+)
 from bancada.ordens.painel import numeros as numeros_do_painel
 from bancada.ordens.serializers import (
     AberturaOrdemSerializer,
     CompartilhamentoDoLinkSerializer,
     EdicaoDaOrdemSerializer,
     EnvioDeFotoSerializer,
+    FiltroDoPainelSerializer,
     FotoOSSerializer,
     ItemOrcamentoSerializer,
     OrdemServicoDetailSerializer,
     OrdemServicoListSerializer,
+    PagamentoSerializer,
+    RecebimentoSerializer,
     TransicaoSerializer,
 )
-from bancada.tenants.models import Usuario
-from bancada.tenants.permissoes import ApagarSoDonoOuTecnico
+from bancada.tenants.models import Papel, Usuario
+from bancada.tenants.permissoes import ApagarSoDonoOuTecnico, ApenasDono, papel_do_pedido
 
 
 class OrcamentoTravado(APIException):
@@ -73,7 +84,13 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         consulta = super().get_queryset()
 
         if self.action != "list":
-            return consulta.prefetch_related("itens", "eventos__usuario", "eventos__aviso", "fotos")
+            return consulta.prefetch_related(
+                "itens",
+                "eventos__usuario",
+                "eventos__aviso",
+                "fotos",
+                "pagamentos__registrado_por",
+            )
 
         return consultas.filtrar(consulta, self.request.query_params)
 
@@ -107,8 +124,24 @@ class OrdemServicoViewSet(ViewSetDoTenant):
 
     @action(detail=False, methods=["get"])
     def painel(self, request: Request) -> Response:
-        base = OrdemServico.objects.filter(tenant=tenant_do_pedido(request))
-        return Response(numeros_do_painel(base))
+        tenant = tenant_do_pedido(request)
+        filtro = FiltroDoPainelSerializer(data=request.query_params, context={"tenant": tenant})
+        filtro.is_valid(raise_exception=True)
+        escolhas = filtro.validated_data
+
+        base = OrdemServico.objects.filter(tenant=tenant)
+        if "loja" in escolhas:
+            base = base.filter(loja=escolhas["loja"])
+
+        return Response(
+            numeros_do_painel(
+                base,
+                chave=escolhas["periodo"],
+                atual=escolhas["atual"],
+                anterior=escolhas["anterior"],
+                com_dinheiro=papel_do_pedido(request) == Papel.DONO,
+            )
+        )
 
     @action(detail=False, methods=["get"])
     def catalogo(self, request: Request) -> Response:
@@ -176,6 +209,20 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         item = entrada.save(ordem=ordem)
         return Response(ItemOrcamentoSerializer(item).data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=["post"], url_path="pagamentos")
+    def receber(self, request: Request, pk: str | None = None) -> Response:
+        ordem = self.get_object()
+        entrada = RecebimentoSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+
+        usuario = request.user if isinstance(request.user, Usuario) else None
+        try:
+            pagamento = ordem.receber(Recebimento(**entrada.validated_data), usuario=usuario)
+        except PagamentoAcimaDoSaldo as erro:
+            return Response({"valor": [str(erro)]}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(PagamentoSerializer(pagamento).data, status=status.HTTP_201_CREATED)
+
     @action(detail=True, methods=["post"], url_path="link-compartilhado")
     def link_compartilhado(self, request: Request, pk: str | None = None) -> Response:
         ordem = self.get_object()
@@ -207,6 +254,7 @@ class OrdemServicoViewSet(ViewSetDoTenant):
                 usuario=usuario,
                 nota=entrada.validated_data["nota"],
                 itens_aprovados=entrada.validated_data.get("itens_aprovados"),
+                cobranca=entrada.validated_data.get("cobranca"),
             )
         except TransicaoInvalida as erro:
             return Response({"detail": str(erro)}, status=status.HTTP_409_CONFLICT)
@@ -233,4 +281,26 @@ class ItemOrcamentoViewSet(ViewSetDoTenant):
 
     def perform_destroy(self, instance: ItemOrcamento) -> None:
         exigir_orcamento_editavel(instance.ordem)
+        instance.delete()
+
+
+class PagamentoViewSet(ViewSetDoTenant):
+    serializer_class = PagamentoSerializer
+    queryset = Pagamento.objects.select_related("ordem")
+    permission_classes = [*ViewSetDoTenant.permission_classes, ApenasDono]
+    http_method_names = ["delete"]
+
+    def perform_destroy(self, instance: Pagamento) -> None:
+        registrar(
+            tenant=instance.tenant,
+            usuario=self.request.user if isinstance(self.request.user, Usuario) else None,
+            acao=Acao.PAGAMENTO_REMOVIDO,
+            objeto="ordem",
+            objeto_id=instance.ordem_id,
+            detalhe=(
+                f"OS #{instance.ordem.numero}, {instance.get_forma_display()} "
+                f"{em_reais(instance.valor)}"
+            ),
+            origem=origem_do_pedido(self.request),
+        )
         instance.delete()

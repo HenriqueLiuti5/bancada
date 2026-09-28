@@ -75,7 +75,7 @@ o operador.
 | 4A | Cadastro da assistência, convite da equipe e recuperação de senha | concluída |
 | 4B | Assinatura pelo Asaas, com teste grátis de 30 dias | |
 | 4C | Tutorial guiado e canal de contato | concluída |
-| 4D | Pagamento na entrega e painel completo da loja | |
+| 4D | Pagamento na entrega e painel completo da loja | concluída |
 | 4E | Painel da plataforma, exclusivo do Henrique | |
 | 4F | Publicação: domínio, página inicial, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
@@ -180,6 +180,9 @@ Com esse registro, o painel passa a ter:
 - Atendimento: marcas e modelos mais atendidos, defeitos mais comuns e clientes que mais voltam.
 - Filtro por loja, para assistências com mais de uma.
 - Os números de dinheiro aparecem só para o dono. Técnico e atendente veem a parte de operação.
+
+Na entrega, a seção de equipe também ficou só para o dono, por comparar colegas entre si, e os
+defeitos mais comuns saem de palavras-chave no problema relatado (ADR 0021).
 
 ### 4E — Painel da plataforma
 

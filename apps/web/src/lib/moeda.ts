@@ -18,3 +18,16 @@ export function lerReais(digitado: string): string | null {
   const normalizado = normalizar(limpo);
   return DECIMAL_NORMALIZADO.test(normalizado) ? normalizado : null;
 }
+
+export function emCentavos(digitado: string): number | null {
+  const normalizado = lerReais(digitado);
+  return normalizado === null ? null : Math.round(Number(normalizado) * 100);
+}
+
+export function centavosParaCampo(centavos: number): string {
+  return (centavos / 100).toFixed(2).replace(".", ",");
+}
+
+export function centavosEmReais(centavos: number): string {
+  return emReais(centavos / 100);
+}

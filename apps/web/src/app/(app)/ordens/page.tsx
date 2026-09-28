@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
+import { Segmento, Segmentos } from "@/componentes/ui/Segmentos";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { ErroDaApi, chamarApi } from "@/lib/api";
@@ -70,30 +71,6 @@ function formatarData(iso: string): string {
   });
 }
 
-function Segmento({
-  href,
-  ativo,
-  children,
-}: {
-  href: string;
-  ativo: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      aria-current={ativo ? "page" : undefined}
-      className={
-        ativo
-          ? "rounded-md bg-superficie px-3 py-1 text-[13px] font-medium text-texto shadow-sutil"
-          : "rounded-md px-3 py-1 text-[13px] text-texto-suave transition-colors hover:text-texto"
-      }
-    >
-      {children}
-    </Link>
-  );
-}
-
 export default async function ListaDeOrdens({
   searchParams,
 }: {
@@ -141,10 +118,7 @@ export default async function ListaDeOrdens({
 
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <nav
-            data-tour="situacoes"
-            className="inline-flex rounded-lg border border-borda bg-realce p-0.5"
-          >
+          <Segmentos tour="situacoes">
             <Segmento
               href={comParametro(consulta, { situacao: null, atrasadas: null })}
               ativo={!valores.situacao && !valores.atrasadas}
@@ -169,7 +143,13 @@ export default async function ListaDeOrdens({
             >
               Encerradas
             </Segmento>
-          </nav>
+            <Segmento
+              href={comParametro(consulta, { situacao: "a_receber", atrasadas: null })}
+              ativo={valores.situacao === "a_receber"}
+            >
+              A receber
+            </Segmento>
+          </Segmentos>
 
           {filtrando && (
             <Link href="/ordens" className={botao("fantasma", "sm")}>

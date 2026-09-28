@@ -1,4 +1,8 @@
+from decimal import Decimal
+
 from django import template
+
+from bancada.core.formatos import em_reais
 
 register = template.Library()
 
@@ -21,3 +25,8 @@ def telefone(valor: str | None) -> str:
         return f"({digitos[:2]}) {digitos[2:6]}-{digitos[6:]}"
 
     return original
+
+
+@register.filter
+def reais(valor: Decimal | None) -> str:
+    return em_reais(Decimal(valor or 0))

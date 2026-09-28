@@ -29,6 +29,17 @@ async function interpretar<T>(resposta: Response, autenticado: boolean): Promise
   return dados as T;
 }
 
+function primeiroTexto(valor: unknown): string | null {
+  if (typeof valor === "string") return valor;
+  if (valor === null || typeof valor !== "object") return null;
+
+  for (const dentro of Object.values(valor)) {
+    const texto = primeiroTexto(dentro);
+    if (texto) return texto;
+  }
+  return null;
+}
+
 export function mensagemDaApi(erro: unknown, alternativa: string): string {
   unstable_rethrow(erro);
   if (!(erro instanceof ErroDaApi)) return "Não foi possível falar com o servidor.";
@@ -36,11 +47,7 @@ export function mensagemDaApi(erro: unknown, alternativa: string): string {
   const corpo = erro.corpo as Record<string, unknown> | null;
   if (typeof corpo?.detail === "string") return corpo.detail;
 
-  const primeira = corpo ? Object.values(corpo)[0] : null;
-  if (typeof primeira === "string") return primeira;
-  if (Array.isArray(primeira) && typeof primeira[0] === "string") return primeira[0];
-
-  return alternativa;
+  return primeiroTexto(corpo) ?? alternativa;
 }
 
 async function enderecoDoVisitante(): Promise<string | null> {
