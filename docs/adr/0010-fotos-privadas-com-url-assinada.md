@@ -84,3 +84,22 @@ Aceitar HEIC, o formato padrão do iPhone, ficou de fora: exige `libheif` na ima
 prática o iOS converte para JPEG quando a foto é escolhida por um campo de arquivo. Se uma
 assistência real esbarrar nisso, o arquivo é recusado com uma mensagem clara, e aí vale pagar o
 custo da dependência.
+
+## Atualização: o Next recusava foto acima de 1 MB
+
+A foto chega à API por uma ação de servidor do Next, e o Next limita o corpo dessas ações a 1 MB
+quando nada é configurado. Foto tirada pela câmera do celular costuma ter de 2 a 6 MB, então o
+envio falhava antes de chegar à API: a ação estourava e a tela da ordem era trocada por uma tela de
+erro. O defeito ficou escondido porque as fotos de exemplo nascem no `make semear`, sem passar pela
+tela.
+
+Havia um segundo limite no mesmo caminho. Como o `proxy.ts` roda em todas as rotas, o Next guarda
+uma cópia do corpo de cada requisição para ele, e essa cópia para em 10 MB: o que passa disso é
+cortado, com apenas um aviso no log, e a ação recebe o formulário pela metade. Uma foto de
+exatamente 10 MB, que a API aceita, quebrava por isso.
+
+Os dois limites agora saem de `src/lib/fotos.ts`: o tamanho máximo da foto, 10 MB, que é o mesmo
+da API, mais 1 MB de folga para o resto do formulário. O navegador recusa a foto maior que 10 MB
+antes de enviar, com a mesma mensagem que a API daria, porque um corpo acima do limite do Next
+derruba a tela em vez de voltar como um erro que dê para mostrar. O valor de 10 MB existe no Django e
+no Next, e os dois precisam mudar juntos.

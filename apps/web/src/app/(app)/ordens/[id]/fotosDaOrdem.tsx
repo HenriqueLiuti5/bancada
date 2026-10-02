@@ -7,11 +7,19 @@ import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, juntar, seletor } from "@/componentes/ui/estilos";
-import { enderecoDaFoto } from "@/lib/fotos";
+import { enderecoDaFoto, fotoPassaDoTamanho, TAMANHO_MAXIMO_DA_FOTO_EM_MB } from "@/lib/fotos";
 import type { Foto } from "@/lib/tipos";
 import { alternarVisibilidade, apagarFoto, enviarFoto, type EstadoDaFoto } from "./acoes";
 
 const INICIAL: EstadoDaFoto = {};
+
+async function enviarSeCouber(anterior: EstadoDaFoto, dados: FormData): Promise<EstadoDaFoto> {
+  const arquivo = dados.get("arquivo");
+  if (arquivo instanceof File && fotoPassaDoTamanho(arquivo)) {
+    return { erro: `A imagem passa de ${TAMANHO_MAXIMO_DA_FOTO_EM_MB} MB.` };
+  }
+  return enviarFoto(anterior, dados);
+}
 
 function FotoDaGaleria({ id, foto, podeApagar }: { id: number; foto: Foto; podeApagar: boolean }) {
   const titulo = foto.legenda || foto.momento_label;
@@ -87,7 +95,7 @@ export function FotosDaOrdem({
   fotos: Foto[];
   podeApagar: boolean;
 }) {
-  const [estado, acao, enviando] = useActionState(enviarFoto, INICIAL);
+  const [estado, acao, enviando] = useActionState(enviarSeCouber, INICIAL);
   const formulario = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
