@@ -1,6 +1,7 @@
 import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Mensagem } from "@/componentes/ui/Mensagem";
+import { Secao } from "@/componentes/ui/Secao";
 import { ErroDaApi, chamarApi, mensagemDaApi } from "@/lib/api";
 import { FUSO_HORARIO } from "@/lib/datas";
 import type { Loja, Painel } from "@/lib/tipos";
@@ -11,7 +12,6 @@ import { SecaoDinheiro } from "./dinheiro";
 import { SecaoEquipe } from "./equipe";
 import { FiltrosDoPainel } from "./filtrosDoPainel";
 import { SecaoOperacao } from "./operacao";
-import { Secao } from "./secao";
 
 export const dynamic = "force-dynamic";
 

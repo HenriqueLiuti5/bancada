@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "bancada.auditoria",
     "bancada.orientacao",
     "bancada.assinaturas",
+    "bancada.plataforma",
 ]
 
 MIDDLEWARE = [
@@ -142,7 +143,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication",
+        "bancada.core.autenticacao.TokenQueRegistraAcesso",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_THROTTLE_RATES": {

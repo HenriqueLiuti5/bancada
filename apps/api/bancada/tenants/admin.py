@@ -28,11 +28,31 @@ class LojaAdmin(admin.ModelAdmin):
 
 @admin.register(Usuario)
 class UsuarioAdmin(UserAdmin):
-    list_display = ["username", "email", "tenant", "papel", "email_confirmado_em", "is_staff"]
-    list_filter = ["tenant", "papel", "is_staff", "is_superuser"]
+    list_display = [
+        "username",
+        "email",
+        "tenant",
+        "papel",
+        "email_confirmado_em",
+        "ultimo_acesso",
+        "is_staff",
+    ]
+    list_filter = ["tenant", "papel", "da_plataforma", "is_staff", "is_superuser"]
+    readonly_fields = ["ultimo_acesso"]
     fieldsets = (
         *(UserAdmin.fieldsets or ()),
-        ("Bancada", {"fields": ("tenant", "papel", "email_confirmado_em")}),
+        (
+            "Bancada",
+            {
+                "fields": (
+                    "tenant",
+                    "papel",
+                    "email_confirmado_em",
+                    "da_plataforma",
+                    "ultimo_acesso",
+                )
+            },
+        ),
     )
     add_fieldsets = (
         *(UserAdmin.add_fieldsets or ()),

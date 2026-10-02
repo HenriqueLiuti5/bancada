@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { BarrasHorizontais } from "@/componentes/BarrasHorizontais";
 import { Cartao } from "@/componentes/ui/Cartao";
+import { Secao } from "@/componentes/ui/Secao";
+import { contagem } from "@/lib/formatos";
 import type { Painel } from "@/lib/tipos";
-import { contagem } from "./formatos";
-import { Secao } from "./secao";
 
 type Atendimento = Painel["atendimento"];
 

@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from bancada.core.models import PertenceAoTenant
+from bancada.core.models import Carimbado
 
 
 class Acao(models.TextChoices):
@@ -19,9 +19,19 @@ class Acao(models.TextChoices):
     PAGAMENTO_REMOVIDO = "pagamento_removido", "Pagamento removido"
     ASSINATURA_CONTRATADA = "assinatura_contratada", "Assinatura contratada"
     ASSINATURA_CANCELADA = "assinatura_cancelada", "Assinatura cancelada"
+    PLATAFORMA_CONSULTADA = "plataforma_consultada", "Painel da plataforma consultado"
+    CUSTO_LANCADO = "custo_lancado", "Custo da plataforma lançado"
+    CUSTO_REMOVIDO = "custo_removido", "Custo da plataforma removido"
 
 
-class RegistroDeAuditoria(PertenceAoTenant):
+class RegistroDeAuditoria(Carimbado):
+    tenant = models.ForeignKey(
+        "tenants.Tenant",
+        on_delete=models.CASCADE,
+        related_name="registros_de_auditoria",
+        null=True,
+        blank=True,
+    )
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

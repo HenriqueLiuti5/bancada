@@ -8,6 +8,7 @@ export type Usuario = {
   email_confirmado: boolean;
   papel: string;
   tenant: Tenant | null;
+  da_plataforma: boolean;
 };
 
 export type SituacaoDaAssinatura = "teste" | "ativa" | "inadimplente" | "suspensa" | "cancelada";
@@ -263,4 +264,51 @@ export type DetalheDaAssinatura = ResumoDaAssinatura & {
   documento_do_pagador: string;
   assinada_em: string | null;
   faturas: Fatura[];
+};
+
+export type CustoDoMes = { id: number; descricao: string; valor: string };
+
+export type AlertaDeUso = "sem_ordens" | "parou";
+
+export type LinhaDaAssistencia = {
+  id: number;
+  nome: string;
+  dono: string;
+  email: string;
+  whatsapp: string;
+  cadastro: string;
+  situacao: SituacaoDaAssinatura | null;
+  situacao_rotulo: string;
+  ordens_no_mes: number;
+  ordens_no_total: number;
+  dias_sem_ordem: number | null;
+  ultimo_acesso: string | null;
+  dias_sem_acesso: number | null;
+  alerta: AlertaDeUso | null;
+};
+
+export type MesesDoPainel = { escolhido: string; anterior: string | null; seguinte: string | null };
+
+export type PainelDaPlataforma = {
+  mes: MesesDoPainel;
+  dinheiro: {
+    recebido: string;
+    faturas_pagas: number;
+    taxas: string;
+    custos: string;
+    lucro: string;
+    lista_de_custos: CustoDoMes[];
+  };
+  assinaturas: {
+    por_situacao: { situacao: SituacaoDaAssinatura; rotulo: string; total: number }[];
+    receita_recorrente: { valor: string; assinaturas: number };
+    conversao: { assinaram: number; decidiram: number; taxa: number | null };
+    novas_no_mes: number;
+    canceladas_no_mes: number;
+  };
+  crescimento: {
+    cadastros_por_semana: { inicio: string; total: number }[];
+    recebido_por_mes: { mes: string; recebido: string }[];
+  };
+  assistencias: LinhaDaAssistencia[];
 };

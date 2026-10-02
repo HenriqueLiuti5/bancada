@@ -30,6 +30,8 @@ ROTAS_QUE_FUNCIONAM_SEM_ASSINATURA = {
     "assinar",
     "cancelar-assinatura",
     "webhook-do-asaas",
+    "custos-da-plataforma",
+    "custo-da-plataforma",
 }
 NOVO_CLIENTE = {"nome": "Ana Prado", "telefone": "11977776666"}
 

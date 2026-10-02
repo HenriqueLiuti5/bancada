@@ -63,6 +63,7 @@ class Fatura(PertenceAoTenant):
     assinatura = models.ForeignKey(Assinatura, on_delete=models.CASCADE, related_name="faturas")
     id_no_provedor = models.CharField(max_length=60, unique=True)
     valor = models.DecimalField(max_digits=8, decimal_places=2)
+    valor_liquido = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     vencimento = models.DateField()
     situacao = models.CharField(max_length=20, choices=SituacaoDaFatura.choices)
     forma_de_pagamento = models.CharField(

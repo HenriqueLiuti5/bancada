@@ -17,6 +17,7 @@ from bancada.tenants.models import Loja, Papel, Tenant, Usuario
 
 SENHA_DEMO = "bancada123"
 DOMINIO_DEMO = "central.test"
+CONTA_DA_PLATAFORMA_DEMO = "plataforma@bancada.local"
 
 
 def imagem_de_demonstracao(texto: str, fundo: tuple[int, int, int]) -> ContentFile:
@@ -52,6 +53,15 @@ class Command(BaseCommand):
         if not Usuario.objects.filter(username="admin").exists():
             Usuario.objects.create_superuser(
                 username="admin", email="admin@bancada.local", password=SENHA_DEMO
+            )
+        if not Usuario.objects.filter(username=CONTA_DA_PLATAFORMA_DEMO).exists():
+            Usuario.objects.create_user(
+                username=CONTA_DA_PLATAFORMA_DEMO,
+                email=CONTA_DA_PLATAFORMA_DEMO,
+                password=SENHA_DEMO,
+                first_name="Henrique",
+                da_plataforma=True,
+                email_confirmado_em=timezone.now(),
             )
 
         tecnico = self._garantir_usuario(tenant, "joana", "Joana", Papel.TECNICO)
@@ -181,6 +191,7 @@ class Command(BaseCommand):
     def _resumo(self, tenant: Tenant) -> None:
         self.stdout.write("")
         self.stdout.write(f"  admin / {SENHA_DEMO}  (superusuário, só no painel administrativo)")
+        self.stdout.write(f"  {CONTA_DA_PLATAFORMA_DEMO} / {SENHA_DEMO}  (conta da plataforma)")
         self.stdout.write(f"  marcos@{DOMINIO_DEMO} / {SENHA_DEMO}  (dono de {tenant.nome})")
         self.stdout.write(f"  joana@{DOMINIO_DEMO} / {SENHA_DEMO}  (técnica de {tenant.nome})")
         self.stdout.write(f"  carla@{DOMINIO_DEMO} / {SENHA_DEMO}  (atendente de {tenant.nome})")

@@ -117,6 +117,13 @@ def test_cobranca_paga_por_pix_vem_com_a_data_do_pagamento() -> None:
     assert cobranca.paga_em == date(2026, 10, 30)
 
 
+def test_cobranca_traz_o_valor_liquido_depois_da_taxa_do_asaas() -> None:
+    dados = {"id": "pay_1", "value": 59.9, "dueDate": "2026-11-01", "status": "RECEIVED"}
+
+    assert cobranca_do_asaas({**dados, "netValue": 57.91}).valor_liquido == Decimal("57.91")
+    assert cobranca_do_asaas(dados).valor_liquido is None
+
+
 @pytest.mark.parametrize(
     ("dados", "situacao"),
     [

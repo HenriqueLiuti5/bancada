@@ -1,10 +1,10 @@
 import { BarrasHorizontais } from "@/componentes/BarrasHorizontais";
 import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
 import { Cartao } from "@/componentes/ui/Cartao";
+import { Secao } from "@/componentes/ui/Secao";
+import { contagem, emPorcentagem } from "@/lib/formatos";
 import { emReais } from "@/lib/moeda";
 import type { Painel } from "@/lib/tipos";
-import { contagem, emPorcentagem } from "./formatos";
-import { Secao } from "./secao";
 import { Variacao } from "./variacao";
 
 type Dinheiro = NonNullable<Painel["dinheiro"]>;

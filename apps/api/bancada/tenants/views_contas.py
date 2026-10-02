@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 
 from bancada.auditoria.models import Acao
 from bancada.auditoria.registro import origem_do_pedido, registrar
+from bancada.plataforma.tasks import avisar_a_plataforma_do_cadastro
 from bancada.tenants import contas
 from bancada.tenants.links import usuario_da_confirmacao, usuario_da_recuperacao
 from bancada.tenants.models import Usuario
@@ -58,7 +59,7 @@ class LoginView(RotaPublicaLimitada):
                 {"detail": "E-mail ou senha inválidos."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        if usuario.tenant is None:
+        if usuario.tenant is None and not usuario.da_plataforma:
             return Response(
                 {"detail": "Seu usuário não está vinculado a nenhuma assistência."},
                 status=status.HTTP_403_FORBIDDEN,
@@ -114,6 +115,7 @@ class CadastroView(RotaPublicaLimitada):
             origem=origem_do_pedido(request),
         )
         contas.pedir_confirmacao_de_email(dono)
+        avisar_a_plataforma_do_cadastro(assistencia)
 
         return Response(abrir_sessao(dono), status=status.HTTP_201_CREATED)
 

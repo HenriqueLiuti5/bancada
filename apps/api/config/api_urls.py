@@ -18,6 +18,11 @@ from bancada.ordens.views import (
 from bancada.ordens.views_fotos import ArquivoDaFotoView
 from bancada.ordens.views_publicas import AcompanhamentoPublicoView
 from bancada.orientacao.views import PrimeirosPassosView, TourVistoView
+from bancada.plataforma.views import (
+    CustoDaPlataformaView,
+    CustosDaPlataformaView,
+    PainelDaPlataformaView,
+)
 from bancada.tenants.views import (
     AssistenciaView,
     EquipeView,
@@ -88,6 +93,13 @@ urlpatterns = [
         name="cancelar-assinatura",
     ),
     path("webhooks/asaas/", WebhookDoAsaasView.as_view(), name="webhook-do-asaas"),
+    path("plataforma/painel/", PainelDaPlataformaView.as_view(), name="painel-da-plataforma"),
+    path("plataforma/custos/", CustosDaPlataformaView.as_view(), name="custos-da-plataforma"),
+    path(
+        "plataforma/custos/<int:pk>/",
+        CustoDaPlataformaView.as_view(),
+        name="custo-da-plataforma",
+    ),
     path("publico/convites/<str:token>/", ConvitePublicoView.as_view(), name="convite-publico"),
     path(
         "publico/convites/<str:token>/aceitar/",

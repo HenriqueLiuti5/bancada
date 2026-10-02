@@ -50,6 +50,7 @@ def guardar_cobranca(assinatura: Assinatura, cobranca: Cobranca) -> Fatura:
             "tenant_id": assinatura.tenant_id,
             "assinatura": assinatura,
             "valor": cobranca.valor,
+            "valor_liquido": cobranca.valor_liquido,
             "vencimento": cobranca.vencimento,
             "situacao": cobranca.situacao,
             "forma_de_pagamento": cobranca.forma,

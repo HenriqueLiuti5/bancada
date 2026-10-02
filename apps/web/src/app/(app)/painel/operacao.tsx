@@ -3,10 +3,10 @@ import { BarrasHorizontais } from "@/componentes/BarrasHorizontais";
 import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
+import { Secao } from "@/componentes/ui/Secao";
 import { PontoDeStatus } from "@/componentes/ui/Selo";
+import { emDias, emHoras } from "@/lib/formatos";
 import type { Painel } from "@/lib/tipos";
-import { emDias, emHoras } from "./formatos";
-import { Secao } from "./secao";
 import { Variacao } from "./variacao";
 
 function TempoPorEtapa({ etapas }: { etapas: Painel["operacao"]["tempo_por_etapa"] }) {

@@ -6,7 +6,7 @@ criar conta.
 
 ## Estado atual
 
-Fases 4A a 4D concluídas, do lançamento self-service.
+Fases 4A a 4E concluídas, do lançamento self-service.
 A assistência abre a ordem no balcão, buscando o cliente pelo nome ou telefone ou cadastrando
 cliente e aparelho na mesma tela, fotografa o aparelho, imprime o comprovante que o cliente assina
 no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o reparo sem criar
@@ -38,6 +38,16 @@ mensalidade vence no último dia do teste, para ele não perder nenhum dia grát
 paga por PIX, boleto ou cartão, na página de pagamento do Asaas, e pode cancelar pela própria tela.
 Quem não assina, atrasa a mensalidade mais de 7 dias ou cancela continua entrando e vendo tudo, mas
 o Bancada fica só para consulta até a assinatura ser regularizada. Os dados nunca são apagados.
+
+Fora das assistências existe a conta da plataforma, a de quem administra o Bancada. Ela entra
+pela mesma tela de login e cai num painel só dela: o lucro do mês, com o que as assinaturas pagaram,
+as taxas do Asaas e os custos lançados à mão; a receita recorrente, a conversão do teste, as
+assinaturas novas e os cancelamentos; os cadastros por semana e a receita mês a mês; e a lista das
+assistências, com o contato do dono, as ordens do mês e o último acesso. Vêm primeiro na lista as
+que não abriram nenhuma ordem 3 dias depois do cadastro e as que estão há 14 dias sem ordem nova,
+com um botão que abre o WhatsApp do dono com a mensagem pronta. Cada cadastro novo chega também por
+e-mail. O painel lê todas as assistências por um caminho próprio, registrado em auditoria, e nunca
+mostra os clientes delas.
 
 Quem entra pela primeira vez aprende sozinho. Na primeira visita a cada tela principal, um tour
 destaca os botões um de cada vez e diz o que cada um faz, mostrando só o que o papel da pessoa
@@ -113,11 +123,22 @@ usam a senha `bancada123` e existem apenas para uso local:
 | `marcos@central.test` | dono — vê tudo, inclusive equipe e dados da assistência |
 | `joana@central.test` | técnica — vê a senha de desbloqueio e apaga fotos |
 | `carla@central.test` | atendente — abre ordens, não vê a senha nem apaga |
+| `plataforma@bancada.local` | conta da plataforma — vê o painel com os números de todas as assistências |
 | `admin` (usuário, não e-mail) | superusuário do painel administrativo do Django |
 
 Para o painel ter números para mostrar, `make semear-movimento` cria dois meses de ordens na
 assistência de exemplo, com pagamentos, descontos, valores a receber e uma segunda loja. Rodar de
 novo não duplica nada.
+
+Para o painel da plataforma ter o que mostrar, `make semear-plataforma` cria dez assistências
+fictícias em situações diferentes: em teste, assinadas, com pagamento atrasado, suspensas e
+canceladas, algumas sem nenhuma ordem e outras paradas, com faturas pagas e dois custos lançados.
+Rodar de novo não duplica nada. Como as assinaturas delas são inventadas, a consulta de hora em hora
+ao Asaas registra no log do worker um aviso para cada assinatura em andamento; é esperado.
+
+Fora do ambiente local, a conta da plataforma não vem do `make semear`. Crie a sua com
+`make conta-da-plataforma`, que pergunta nome, e-mail e senha. Ela não usa o "esqueci minha senha":
+para trocar a senha, rode `docker compose exec api python manage.py changepassword seu@email`.
 
 Para testar o caminho de uma assistência nova, abra http://localhost:3000/cadastro. Os e-mails de
 confirmação, convite e recuperação de senha aparecem no log do worker (`make logs`), com o link
@@ -162,6 +183,7 @@ Serviços disponíveis:
 | Endereço | O que é |
 |---|---|
 | http://localhost:3000 | Aplicação web (entre com `marcos@central.test` / `bancada123`) |
+| http://localhost:3000/plataforma | Painel da plataforma (entre com `plataforma@bancada.local` / `bancada123`) |
 | http://localhost:8000/api/health/ | Verificação de saúde da API |
 | http://localhost:8000/admin/ | Administração do Django |
 | http://localhost:3000/os/`token` | Acompanhamento público (o token aparece no detalhe da OS) |
@@ -187,6 +209,8 @@ make migrate     # aplica migrações
 make semear      # popula o banco com dados de demonstração
 make semear-movimento  # cria dois meses de ordens e pagamentos de exemplo para o painel
 make sincronizar-cobrancas  # busca no Asaas as faturas, sem esperar a consulta de hora em hora
+make semear-plataforma  # cria assistências fictícias para o painel da plataforma
+make conta-da-plataforma  # cria a sua conta da plataforma, que vê todas as assistências
 make superuser   # cria um administrador
 make clean       # derruba tudo e apaga o banco local
 ```

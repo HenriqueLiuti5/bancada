@@ -14,3 +14,7 @@ def tenant_aplicado() -> str | None:
         cursor.execute("SELECT current_setting(%s, true)", [VARIAVEL])
         valor = cursor.fetchone()[0]
     return valor or None
+
+
+def ver_todas_as_assistencias() -> None:
+    aplicar_tenant(None)

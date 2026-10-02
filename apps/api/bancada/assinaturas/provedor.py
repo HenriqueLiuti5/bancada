@@ -55,6 +55,7 @@ class Cobranca:
     forma: str
     paga_em: date | None
     link: str
+    valor_liquido: Decimal | None = None
 
 
 @dataclass(frozen=True)
@@ -87,6 +88,10 @@ def _data(valor: Any) -> date | None:
     return date.fromisoformat(valor) if isinstance(valor, str) and valor else None
 
 
+def _decimal(valor: Any) -> Decimal | None:
+    return None if valor is None or valor == "" else Decimal(str(valor))
+
+
 def cobranca_do_asaas(dados: dict[str, Any]) -> Cobranca:
     situacao = (
         SituacaoDaFatura.CANCELADA
@@ -105,6 +110,7 @@ def cobranca_do_asaas(dados: dict[str, Any]) -> Cobranca:
         forma=FORMAS_DO_ASAAS.get(str(dados.get("billingType")), FormaDeCobranca.A_ESCOLHER),
         paga_em=_data(pagamento) if situacao == SituacaoDaFatura.PAGA else None,
         link=str(dados.get("invoiceUrl") or ""),
+        valor_liquido=_decimal(dados.get("netValue")),
     )
 
 

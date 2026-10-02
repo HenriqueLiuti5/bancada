@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 DDD_MINIMO = 11
 DDD_MAXIMO = 99
 CODIGO_DO_BRASIL = "55"
@@ -17,3 +19,10 @@ def telefone_brasileiro(valor: str) -> str | None:
     if not DDD_MINIMO <= int(digitos[:2]) <= DDD_MAXIMO:
         return None
     return digitos
+
+
+def link_do_whatsapp(telefone: str, mensagem: str) -> str | None:
+    digitos = telefone_brasileiro(telefone)
+    if digitos is None:
+        return None
+    return f"https://wa.me/{CODIGO_DO_BRASIL}{digitos}?text={quote(mensagem)}"

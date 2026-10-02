@@ -81,6 +81,8 @@ class Usuario(AbstractUser):
     email_confirmado_em = models.DateTimeField(null=True, blank=True)
     tours_vistos = ArrayField(models.CharField(max_length=30), default=list, blank=True)
     primeiros_passos_escondidos = models.BooleanField(default=False)
+    da_plataforma = models.BooleanField("conta da plataforma", default=False)
+    ultimo_acesso = models.DateTimeField("último acesso", null=True, blank=True)
 
     class Meta:
         verbose_name = "usuário"
@@ -91,6 +93,11 @@ class Usuario(AbstractUser):
                 condition=~models.Q(email=""),
                 name="email_unico_entre_usuarios",
                 violation_error_message="Já existe uma conta com esse e-mail.",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(da_plataforma=False) | models.Q(tenant__isnull=True, papel=""),
+                name="conta_da_plataforma_fora_das_assistencias",
+                violation_error_message="A conta da plataforma não pertence a nenhuma assistência.",
             ),
         ]
 

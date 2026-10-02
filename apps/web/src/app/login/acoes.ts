@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { abrirSessaoPor } from "@/lib/acesso";
 import { estadoDeErro, texto, type EstadoDoFormulario } from "@/lib/formularios";
+import type { Sessao } from "@/lib/tipos";
 
 export async function entrar(
   _anterior: EstadoDoFormulario,
@@ -15,11 +16,12 @@ export async function entrar(
     return { erro: "Preencha e-mail e senha.", valores: { email } };
   }
 
+  let sessao: Sessao;
   try {
-    await abrirSessaoPor("/api/auth/login/", { email, password });
+    sessao = await abrirSessaoPor("/api/auth/login/", { email, password });
   } catch (erro) {
     return estadoDeErro(erro, "Não foi possível entrar.", { email });
   }
 
-  redirect("/ordens");
+  redirect(sessao.usuario.da_plataforma ? "/plataforma" : "/ordens");
 }

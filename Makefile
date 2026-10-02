@@ -47,6 +47,12 @@ semear-movimento: ## Cria dois meses de ordens e pagamentos de exemplo para o pa
 sincronizar-cobrancas: ## Busca no Asaas as faturas das assinaturas, sem esperar a hora cheia
 	docker compose exec api python manage.py sincronizar_cobrancas
 
+semear-plataforma: ## Cria assistencias ficticias em situacoes variadas para o painel da plataforma
+	docker compose exec api python manage.py semear_plataforma
+
+conta-da-plataforma: ## Cria a conta da plataforma, que ve os numeros de todas as assistencias
+	docker compose exec api python manage.py criar_conta_da_plataforma
+
 superuser: ## Cria um usuario administrador
 	docker compose exec api python manage.py createsuperuser
 
@@ -65,4 +71,4 @@ fmt: ## Formata o codigo do backend
 clean: ## Derruba tudo e apaga os volumes (APAGA O BANCO LOCAL)
 	docker compose down -v
 
-.PHONY: help setup up down logs ps reiniciar-worker shell migrate makemigrations semear semear-movimento sincronizar-cobrancas superuser test lint fmt clean
+.PHONY: help setup up down logs ps reiniciar-worker shell migrate makemigrations semear semear-movimento sincronizar-cobrancas semear-plataforma conta-da-plataforma superuser test lint fmt clean

@@ -1,9 +1,9 @@
 import { Users } from "lucide-react";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
+import { Secao } from "@/componentes/ui/Secao";
 import { emReais } from "@/lib/moeda";
 import type { LinhaDaEquipe } from "@/lib/tipos";
-import { Secao } from "./secao";
 
 export function SecaoEquipe({ equipe }: { equipe: LinhaDaEquipe[] }) {
   return (

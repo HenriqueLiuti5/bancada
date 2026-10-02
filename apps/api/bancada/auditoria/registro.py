@@ -8,7 +8,7 @@ from bancada.tenants.models import Tenant, Usuario
 
 def registrar(
     *,
-    tenant: Tenant,
+    tenant: Tenant | None,
     acao: str,
     objeto: str,
     objeto_id: int,

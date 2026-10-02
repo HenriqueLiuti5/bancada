@@ -18,6 +18,8 @@ const COR_DO_STATUS: Record<string, string> = {
   paga: "bg-status-pronto",
   vencida: "bg-status-recusado",
   estornada: "bg-status-encerrado",
+  sem_ordens: "bg-status-espera",
+  parou: "bg-status-recusado",
 };
 
 export function PontoDeStatus({ status, tamanho = "sm" }: { status: string; tamanho?: "sm" | "md" }) {

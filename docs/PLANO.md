@@ -76,7 +76,7 @@ o operador.
 | 4B | Assinatura pelo Asaas, com teste grátis de 30 dias | concluída |
 | 4C | Tutorial guiado e canal de contato | concluída |
 | 4D | Pagamento na entrega e painel completo da loja | concluída |
-| 4E | Painel da plataforma, exclusivo do Henrique | |
+| 4E | Painel da plataforma, exclusivo do Henrique | concluída |
 | 4G | Revisão do design de todo o site | |
 | 4F | Publicação: domínio, página inicial, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
@@ -210,6 +210,12 @@ Uma área separada, visível apenas para a conta do Henrique.
 Este painel lê dados de todas as assistências, então atravessa o isolamento por RLS (ADR 0009) por
 um caminho próprio, explícito e registrado em auditoria. Ele mostra números e o contato do dono,
 nunca dados dos clientes finais das assistências.
+
+Na entrega, a conta da plataforma ficou fora de qualquer assistência e é criada por comando no
+servidor; os custos são lançados no próprio painel; e vêm primeiro na lista as assistências sem
+nenhuma ordem 3 dias depois do cadastro e as que estão há 14 dias sem ordem nova. Para o último
+acesso existir, cada pessoa passou a ter o horário de uso gravado, no máximo a cada 15 minutos
+(ADR 0023).
 
 ### 4G — Revisão do design
 

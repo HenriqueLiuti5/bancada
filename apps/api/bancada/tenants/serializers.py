@@ -32,7 +32,17 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ["id", "username", "first_name", "email", "email_confirmado", "papel", "tenant"]
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "email",
+            "email_confirmado",
+            "papel",
+            "tenant",
+            "da_plataforma",
+        ]
+        read_only_fields = ["da_plataforma"]
 
 
 class EuSerializer(UsuarioSerializer):

@@ -28,3 +28,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0020](0020-tutorial-guiado-primeiros-passos-e-contato.md) | Tutorial guiado, primeiros passos e contato |
 | [0021](0021-pagamento-na-entrega-e-painel-por-periodo.md) | Pagamento na entrega e painel por período |
 | [0022](0022-assinatura-teste-gratis-e-somente-leitura.md) | Assinatura pelo Asaas, teste grátis e modo só de consulta |
+| [0023](0023-painel-da-plataforma.md) | Painel da plataforma |

@@ -1,0 +1,14 @@
+{% load formatos %}{% autoescape off %}Uma assistência nova se cadastrou no Bancada.
+
+Assistência: {{ assistencia }}
+Dono: {{ dono }}
+E-mail: {{ email }}
+WhatsApp: {{ whatsapp|telefone }}
+Cadastro: {{ cadastro|date:"d/m/Y \à\s H:i" }}{% if teste_termina_em %}
+Teste grátis até: {{ teste_termina_em|date:"d/m/Y" }}{% endif %}
+{% if link_do_whatsapp %}
+Para dar as boas-vindas pelo WhatsApp:
+{{ link_do_whatsapp }}
+{% endif %}
+Painel da plataforma:
+{{ link_do_painel }}{% endautoescape %}

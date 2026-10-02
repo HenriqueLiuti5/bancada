@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { linkDoSuporte } from "@/lib/suporte";
 import { gerenciaEquipe, rotuloDoPapel, usuarioAtual } from "@/lib/usuario";
 import { AvisoDaAssinatura } from "./avisoDaAssinatura";
@@ -7,6 +8,8 @@ import { ProvedorDeTour } from "./tour";
 
 export default async function LayoutDoApp({ children }: { children: React.ReactNode }) {
   const usuario = await usuarioAtual();
+  if (usuario.da_plataforma) redirect("/plataforma");
+
   const nome = usuario.first_name || usuario.username;
   const assistencia = usuario.tenant?.nome ?? "";
   const eDono = gerenciaEquipe(usuario);

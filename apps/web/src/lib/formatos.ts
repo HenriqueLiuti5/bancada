@@ -20,3 +20,9 @@ export function emPorcentagem(valor: number | null): string {
 export function contagem(total: number, singular: string, plural: string): string {
   return `${total} ${total === 1 ? singular : plural}`;
 }
+
+export function haDias(dias: number): string {
+  if (dias <= 0) return "hoje";
+  if (dias === 1) return "ontem";
+  return `há ${dias} dias`;
+}
