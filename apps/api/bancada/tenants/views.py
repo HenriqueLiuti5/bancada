@@ -1,5 +1,5 @@
 from django.db.models import Model, QuerySet
-from rest_framework import permissions, status
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from bancada.auditoria.models import Acao
 from bancada.auditoria.registro import origem_do_pedido, registrar
 from bancada.core.api import (
+    AssinaturaPermiteEditar,
     PertenceAUmaAssistencia,
     ViewSetDoTenant,
     tenant_do_pedido,
@@ -56,7 +57,7 @@ class EquipeView(APIView):
 class UsuarioViewSet(ViewSetDoTenant):
     serializer_class = UsuarioDaEquipeSerializer
     queryset = Usuario.objects.all()
-    permission_classes = [permissions.IsAuthenticated, PertenceAUmaAssistencia, ApenasDono]
+    permission_classes = [*ViewSetDoTenant.permission_classes, ApenasDono]
     http_method_names = ["get", "post", "patch", "head", "options"]
 
     def get_queryset(self) -> QuerySet[Usuario]:
@@ -160,7 +161,12 @@ def _salvar_alteracoes(
 
 
 class AssistenciaView(APIView):
-    permission_classes = [IsAuthenticated, PertenceAUmaAssistencia, ApenasDono]
+    permission_classes = [
+        IsAuthenticated,
+        PertenceAUmaAssistencia,
+        AssinaturaPermiteEditar,
+        ApenasDono,
+    ]
 
     def get(self, request: Request) -> Response:
         return Response(AssistenciaSerializer(tenant_obrigatorio(request)).data)
@@ -173,7 +179,12 @@ class AssistenciaView(APIView):
 
 
 class LojaView(APIView):
-    permission_classes = [IsAuthenticated, PertenceAUmaAssistencia, ApenasDono]
+    permission_classes = [
+        IsAuthenticated,
+        PertenceAUmaAssistencia,
+        AssinaturaPermiteEditar,
+        ApenasDono,
+    ]
 
     def patch(self, request: Request, pk: int) -> Response:
         loja = get_object_or_404(Loja, pk=pk, tenant=tenant_obrigatorio(request))

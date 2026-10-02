@@ -10,9 +10,24 @@ export type Usuario = {
   tenant: Tenant | null;
 };
 
+export type SituacaoDaAssinatura = "teste" | "ativa" | "inadimplente" | "suspensa" | "cancelada";
+
+export type ResumoDaAssinatura = {
+  situacao: SituacaoDaAssinatura;
+  situacao_rotulo: string;
+  pode_editar: boolean;
+  contratada: boolean;
+  em_teste: boolean;
+  teste_termina_em: string;
+  dias_de_teste: number;
+  pagar_ate: string | null;
+  acesso_ate: string | null;
+};
+
 export type UsuarioAtual = Usuario & {
   tours_vistos: string[];
   primeiros_passos_escondidos: boolean;
+  assinatura: ResumoDaAssinatura | null;
 };
 
 export type Sessao = { token: string; usuario: Usuario };
@@ -228,4 +243,24 @@ export type PrimeirosPassos = {
   escondidos: boolean;
   passos: Passo[];
   ordem_mais_recente: number | null;
+};
+
+export type Fatura = {
+  id: number;
+  valor: string;
+  vencimento: string;
+  situacao: "aberta" | "paga" | "vencida" | "estornada" | "cancelada";
+  situacao_rotulo: string;
+  forma_de_pagamento: string;
+  forma_rotulo: string;
+  paga_em: string | null;
+  link_de_pagamento: string;
+};
+
+export type DetalheDaAssinatura = ResumoDaAssinatura & {
+  valor_mensal: string;
+  primeiro_vencimento: string;
+  documento_do_pagador: string;
+  assinada_em: string | null;
+  faturas: Fatura[];
 };

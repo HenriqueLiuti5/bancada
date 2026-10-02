@@ -7,6 +7,8 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 from PIL import Image, ImageDraw, ImageFont
 
+from bancada.assinaturas.models import Assinatura, SituacaoDaAssinatura
+from bancada.assinaturas.regras import fim_do_teste
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.ordens.estados import StatusOS
 from bancada.ordens.fotos import MomentoDaFoto
@@ -41,6 +43,10 @@ class Command(BaseCommand):
             tenant=tenant,
             nome="Matriz",
             defaults={"telefone": "1133334444", "endereco": "Rua das Flores, 100"},
+        )
+        Assinatura.objects.filter(tenant=tenant, assinatura_no_provedor="").update(
+            situacao=SituacaoDaAssinatura.TESTE,
+            teste_termina_em=fim_do_teste(timezone.localdate()),
         )
 
         if not Usuario.objects.filter(username="admin").exists():

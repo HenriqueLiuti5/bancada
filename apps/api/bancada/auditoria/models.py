@@ -17,6 +17,8 @@ class Acao(models.TextChoices):
     CONVITE_CANCELADO = "convite_cancelado", "Convite para a equipe cancelado"
     LINK_COMPARTILHADO = "link_compartilhado", "Link de acompanhamento compartilhado"
     PAGAMENTO_REMOVIDO = "pagamento_removido", "Pagamento removido"
+    ASSINATURA_CONTRATADA = "assinatura_contratada", "Assinatura contratada"
+    ASSINATURA_CANCELADA = "assinatura_cancelada", "Assinatura cancelada"
 
 
 class RegistroDeAuditoria(PertenceAoTenant):

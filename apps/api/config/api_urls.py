@@ -2,6 +2,12 @@ from django.db import transaction
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
+from bancada.assinaturas.views import (
+    AssinarView,
+    AssinaturaView,
+    CancelarAssinaturaView,
+    WebhookDoAsaasView,
+)
 from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
 from bancada.ordens.views import (
     FotoViewSet,
@@ -74,6 +80,14 @@ urlpatterns = [
         transaction.non_atomic_requests(AcompanhamentoPublicoView.as_view()),
         name="acompanhamento-publico",
     ),
+    path("assinatura/", AssinaturaView.as_view(), name="assinatura"),
+    path("assinatura/assinar/", AssinarView.as_view(), name="assinar"),
+    path(
+        "assinatura/cancelar/",
+        CancelarAssinaturaView.as_view(),
+        name="cancelar-assinatura",
+    ),
+    path("webhooks/asaas/", WebhookDoAsaasView.as_view(), name="webhook-do-asaas"),
     path("publico/convites/<str:token>/", ConvitePublicoView.as_view(), name="convite-publico"),
     path(
         "publico/convites/<str:token>/aceitar/",

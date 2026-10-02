@@ -2,6 +2,7 @@
 
 import {
   ClipboardList,
+  CreditCard,
   LayoutGrid,
   LogOut,
   Plus,
@@ -24,6 +25,7 @@ const ITENS: Item[] = [
   { href: "/ordens", rotulo: "Ordens de serviço", icone: ClipboardList },
   { href: "/equipe", rotulo: "Equipe", icone: Users, soDono: true },
   { href: "/assistencia", rotulo: "Assistência", icone: Store, soDono: true },
+  { href: "/assinatura", rotulo: "Assinatura", icone: CreditCard, soDono: true },
 ];
 
 function estaAtivo(caminho: string, href: string): boolean {

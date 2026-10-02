@@ -1,0 +1,12 @@
+{% load formatos %}{% autoescape off %}Olá, {{ primeiro_nome }}.
+
+O teste grátis da {{ assistencia }} no Bancada termina {{ quando }}, em {{ teste_termina_em|date:"d/m/Y" }}.
+
+Para continuar abrindo e atualizando ordens de serviço depois disso, assine por aqui:
+{{ link }}
+
+A mensalidade é de {{ valor|reais }}. Ela vence no último dia do teste, então você não perde nenhum dia grátis, e o pagamento pode ser por PIX, boleto ou cartão.
+
+Se preferir não assinar agora, nada se perde: as ordens e os clientes continuam lá, só para consulta, até você assinar.
+
+Equipe Bancada{% endautoescape %}

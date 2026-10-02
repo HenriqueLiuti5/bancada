@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from bancada.assinaturas.models import Assinatura, SituacaoDaAssinatura
 from bancada.auditoria.models import Acao, RegistroDeAuditoria
 from bancada.avisos.models import AvisoDeStatus
 from bancada.ordens.models import OrdemServico
@@ -36,12 +37,22 @@ def convidou_a_equipe(tenant: Tenant) -> bool:
     return convidou or Usuario.objects.filter(tenant=tenant).count() > 1
 
 
+def assinou(tenant: Tenant) -> bool:
+    return (
+        Assinatura.objects.filter(tenant=tenant)
+        .exclude(assinatura_no_provedor="")
+        .exclude(situacao=SituacaoDaAssinatura.CANCELADA)
+        .exists()
+    )
+
+
 def primeiros_passos(tenant: Tenant) -> list[Passo]:
     return [
         Passo("abrir-ordem", abriu_a_primeira_ordem(tenant)),
         Passo("mandar-link", mandou_o_link_ao_cliente(tenant)),
         Passo("endereco-da-loja", completou_o_endereco_da_loja(tenant)),
         Passo("convidar-equipe", convidou_a_equipe(tenant)),
+        Passo("assinar", assinou(tenant)),
     ]
 
 

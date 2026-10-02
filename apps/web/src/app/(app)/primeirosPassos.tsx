@@ -40,6 +40,12 @@ const TEXTOS: Record<string, Texto> = {
     acao: "Convidar",
     destino: () => "/equipe",
   },
+  assinar: {
+    titulo: "Assinar o Bancada",
+    dica: "Assinando durante o teste você não perde nenhum dia grátis: a primeira mensalidade só vence quando o teste acabar.",
+    acao: "Assinar",
+    destino: () => "/assinatura",
+  },
 };
 
 export async function PrimeirosPassos() {

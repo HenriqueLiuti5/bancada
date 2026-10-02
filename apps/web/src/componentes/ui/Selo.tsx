@@ -9,6 +9,15 @@ const COR_DO_STATUS: Record<string, string> = {
   entregue: "bg-status-encerrado",
   devolvido_sem_reparo: "bg-status-encerrado",
   reprovado: "bg-status-recusado",
+  teste: "bg-status-novo",
+  ativa: "bg-status-pronto",
+  inadimplente: "bg-status-espera",
+  suspensa: "bg-status-recusado",
+  cancelada: "bg-status-encerrado",
+  aberta: "bg-status-espera",
+  paga: "bg-status-pronto",
+  vencida: "bg-status-recusado",
+  estornada: "bg-status-encerrado",
 };
 
 export function PontoDeStatus({ status, tamanho = "sm" }: { status: string; tamanho?: "sm" | "md" }) {

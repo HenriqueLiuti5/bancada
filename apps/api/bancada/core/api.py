@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.db.models import ProtectedError, QuerySet
+from django.utils import timezone
 from rest_framework import permissions, status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
 
+from bancada.assinaturas.regras import assistencia_pode_editar
 from bancada.core.rls import aplicar_tenant
 from bancada.tenants.models import Tenant, Usuario
 
@@ -43,13 +45,35 @@ class PertenceAUmaAssistencia(permissions.BasePermission):
         return tenant_do_pedido(request) is not None
 
 
-class ViewSetDoTenant(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated, PertenceAUmaAssistencia]
+SOMENTE_PARA_CONSULTA = (
+    "A assinatura da assistência não está em dia, então o Bancada está só para consulta. "
+    "O dono regulariza na tela Assinatura."
+)
 
+
+class AssinaturaPermiteEditar(permissions.BasePermission):
+    message = SOMENTE_PARA_CONSULTA
+
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        tenant = tenant_do_pedido(request)
+        return tenant is None or assistencia_pode_editar(tenant, timezone.localdate())
+
+
+class ViewDoTenant(APIView):
     def initial(self, request: Request, *args: Any, **kwargs: Any) -> None:
         super().initial(request, *args, **kwargs)
         tenant = tenant_do_pedido(request)
         aplicar_tenant(tenant.pk if tenant else -1)
+
+
+class ViewSetDoTenant(ViewDoTenant, viewsets.ModelViewSet):
+    permission_classes = [
+        permissions.IsAuthenticated,
+        PertenceAUmaAssistencia,
+        AssinaturaPermiteEditar,
+    ]
 
     def get_queryset(self) -> QuerySet[Any]:
         return super().get_queryset().filter(tenant=tenant_do_pedido(self.request))

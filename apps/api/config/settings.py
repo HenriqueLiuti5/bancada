@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 from pathlib import Path
 
 from celery.schedules import crontab
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
     "bancada.avisos",
     "bancada.auditoria",
     "bancada.orientacao",
+    "bancada.assinaturas",
 ]
 
 MIDDLEWARE = [
@@ -101,6 +103,14 @@ CELERY_BEAT_SCHEDULE = {
         "task": "clientes.purgar_senhas_de_desbloqueio",
         "schedule": crontab(hour=3, minute=30),
     },
+    "revisar-assinaturas": {
+        "task": "assinaturas.revisar_assinaturas",
+        "schedule": crontab(hour=7, minute=0),
+    },
+    "sincronizar-cobrancas": {
+        "task": "assinaturas.sincronizar_cobrancas",
+        "schedule": crontab(minute=10),
+    },
 }
 
 EMAIL_BACKEND = os.environ.get(
@@ -115,6 +125,11 @@ EMAIL_TIMEOUT = 15
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Bancada <nao-responda@bancada.local>")
 
 APP_PUBLIC_URL = os.environ.get("APP_PUBLIC_URL", "http://localhost:3000").rstrip("/")
+
+ASAAS_API_URL = os.environ.get("ASAAS_API_URL", "https://api-sandbox.asaas.com/v3")
+ASAAS_API_KEY = os.environ.get("ASAAS_API_KEY", "")
+ASAAS_WEBHOOK_TOKEN = os.environ.get("ASAAS_WEBHOOK_TOKEN", "")
+VALOR_DA_ASSINATURA = Decimal(os.environ.get("VALOR_DA_ASSINATURA", "59.90"))
 
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 2
 

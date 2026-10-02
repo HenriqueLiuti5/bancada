@@ -1,5 +1,6 @@
 import { linkDoSuporte } from "@/lib/suporte";
 import { gerenciaEquipe, rotuloDoPapel, usuarioAtual } from "@/lib/usuario";
+import { AvisoDaAssinatura } from "./avisoDaAssinatura";
 import { AvisoDeEmail } from "./avisoDeEmail";
 import { BarraLateral } from "./barraLateral";
 import { ProvedorDeTour } from "./tour";
@@ -23,6 +24,9 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
         />
         <main className="min-w-0">
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+            {usuario.assinatura && (
+              <AvisoDaAssinatura assinatura={usuario.assinatura} eDono={eDono} />
+            )}
             {!usuario.email_confirmado && usuario.email && <AvisoDeEmail email={usuario.email} />}
             {children}
           </div>

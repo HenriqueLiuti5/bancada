@@ -27,3 +27,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0019](0019-orcamento-montagem-trava-e-aprovacao-por-item.md) | Orçamento: montagem na tela, trava depois do envio e aprovação por item |
 | [0020](0020-tutorial-guiado-primeiros-passos-e-contato.md) | Tutorial guiado, primeiros passos e contato |
 | [0021](0021-pagamento-na-entrega-e-painel-por-periodo.md) | Pagamento na entrega e painel por período |
+| [0022](0022-assinatura-teste-gratis-e-somente-leitura.md) | Assinatura pelo Asaas, teste grátis e modo só de consulta |

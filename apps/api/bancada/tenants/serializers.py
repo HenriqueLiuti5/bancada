@@ -1,7 +1,12 @@
+from typing import Any
+
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as ErroDeValidacaoDoDjango
+from django.utils import timezone
 from rest_framework import serializers
 
+from bancada.assinaturas.models import Assinatura
+from bancada.assinaturas.serializers import resumo_da_assinatura
 from bancada.core.telefones import telefone_brasileiro
 from bancada.tenants.links import link_do_convite
 from bancada.tenants.models import Convite, Loja, Papel, Tenant, Usuario, normalizar_email
@@ -31,8 +36,23 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 
 class EuSerializer(UsuarioSerializer):
+    assinatura = serializers.SerializerMethodField()
+
     class Meta(UsuarioSerializer.Meta):
-        fields = [*UsuarioSerializer.Meta.fields, "tours_vistos", "primeiros_passos_escondidos"]
+        fields = [
+            *UsuarioSerializer.Meta.fields,
+            "tours_vistos",
+            "primeiros_passos_escondidos",
+            "assinatura",
+        ]
+
+    def get_assinatura(self, usuario: Usuario) -> dict[str, Any] | None:
+        if usuario.tenant_id is None:
+            return None
+        assinatura = Assinatura.objects.filter(tenant_id=usuario.tenant_id).first()
+        if assinatura is None:
+            return None
+        return resumo_da_assinatura(assinatura, timezone.localdate())
 
 
 class LoginSerializer(serializers.Serializer):

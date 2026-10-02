@@ -73,7 +73,7 @@ o operador.
 | 3B | Painel com os números do dia | concluída |
 | 3C | Papéis, permissões e gestão da equipe | concluída |
 | 4A | Cadastro da assistência, convite da equipe e recuperação de senha | concluída |
-| 4B | Assinatura pelo Asaas, com teste grátis de 30 dias | |
+| 4B | Assinatura pelo Asaas, com teste grátis de 30 dias | concluída |
 | 4C | Tutorial guiado e canal de contato | concluída |
 | 4D | Pagamento na entrega e painel completo da loja | concluída |
 | 4E | Painel da plataforma, exclusivo do Henrique | |
@@ -146,6 +146,11 @@ conta, montar a equipe, recuperar a senha, aprender as telas, pagar e pedir ajud
   atendente não veem essa tela.
 - O desenvolvimento usa o ambiente de testes do Asaas, que é gratuito.
 - A lista de primeiros passos da Fase 4C ganha o passo de assinar.
+
+Na entrega, a tolerância ficou em 7 dias contados do vencimento; quem assina durante o teste paga a
+primeira mensalidade só no último dia do teste; e o dono pode cancelar pela tela, mantendo o acesso
+até o fim do período já pago. A forma de pagamento fica em aberto na assinatura e é escolhida a cada
+mês na página de pagamento do Asaas, sem tela no Bancada para isso (ADR 0022).
 
 ### 4C — Tutorial guiado e contato
 

@@ -1,12 +1,12 @@
 from django.db import IntegrityError, transaction
 from django.db.models import QuerySet
-from rest_framework import permissions, status
+from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from bancada.auditoria.models import Acao
 from bancada.auditoria.registro import origem_do_pedido, registrar
-from bancada.core.api import PertenceAUmaAssistencia, ViewSetDoTenant, tenant_obrigatorio
+from bancada.core.api import ViewSetDoTenant, tenant_obrigatorio
 from bancada.tenants import contas
 from bancada.tenants.models import Convite, Usuario
 from bancada.tenants.permissoes import ApenasDono
@@ -22,7 +22,7 @@ from bancada.tenants.views_contas import EMAIL_JA_EM_USO, RotaPublicaLimitada, a
 class ConviteViewSet(ViewSetDoTenant):
     serializer_class = ConviteSerializer
     queryset = Convite.objects.all()
-    permission_classes = [permissions.IsAuthenticated, PertenceAUmaAssistencia, ApenasDono]
+    permission_classes = [*ViewSetDoTenant.permission_classes, ApenasDono]
     http_method_names = ["get", "post", "delete", "head", "options"]
     pagination_class = None
 

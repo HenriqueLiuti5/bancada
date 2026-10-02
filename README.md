@@ -6,7 +6,7 @@ criar conta.
 
 ## Estado atual
 
-Fases 4A, 4C e 4D concluídas, do lançamento self-service; a 4B, de assinatura, ficou para depois.
+Fases 4A a 4D concluídas, do lançamento self-service.
 A assistência abre a ordem no balcão, buscando o cliente pelo nome ou telefone ou cadastrando
 cliente e aparelho na mesma tela, fotografa o aparelho, imprime o comprovante que o cliente assina
 no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o reparo sem criar
@@ -30,6 +30,14 @@ e-mail, WhatsApp e senha, aceita os termos e já cai dentro do sistema. Para mon
 cria um convite só com nome e papel e manda o link pelo WhatsApp; quem recebe abre o link e cria a
 própria senha. Todo mundo entra pelo e-mail, e quem esquece a senha recebe um link para criar
 outra. O e-mail é confirmado por link, sem travar o uso.
+
+Toda assistência nova ganha 30 dias grátis, sem informar forma de pagamento. Na última semana do
+teste o dono vê um aviso no topo das telas e recebe e-mail sete dias antes e na véspera. Ele assina
+na tela Assinatura informando só o CPF ou o CNPJ: a cobrança mensal é criada no Asaas, e a primeira
+mensalidade vence no último dia do teste, para ele não perder nenhum dia grátis. A cada mês ele
+paga por PIX, boleto ou cartão, na página de pagamento do Asaas, e pode cancelar pela própria tela.
+Quem não assina, atrasa a mensalidade mais de 7 dias ou cancela continua entrando e vendo tudo, mas
+o Bancada fica só para consulta até a assinatura ser regularizada. Os dados nunca são apagados.
 
 Quem entra pela primeira vez aprende sozinho. Na primeira visita a cada tela principal, um tour
 destaca os botões um de cada vez e diz o que cada um faz, mostrando só o que o papel da pessoa
@@ -91,12 +99,13 @@ make up
 make semear
 ```
 
-O `make setup` cria o `.env` a partir do exemplo e gera uma chave de criptografia própria da
-máquina. Essa chave protege a senha de desbloqueio dos aparelhos, então **cada ambiente tem a
+O `make setup` cria o `.env` a partir do exemplo e gera uma chave de criptografia e um token de
+webhook próprios da máquina. Essa chave protege a senha de desbloqueio dos aparelhos, então **cada ambiente tem a
 sua** e ela nunca é versionada. Dados gravados com uma chave não podem ser lidos com outra.
 
 O `make semear` cria uma assistência de exemplo com clientes, aparelhos, duas ordens de serviço e
-uma foto de demonstração em cada uma. Rodar de novo não duplica nada. Os usuários de demonstração
+uma foto de demonstração em cada uma. Rodar de novo não duplica nada e renova o teste grátis da
+assistência de exemplo. Os usuários de demonstração
 usam a senha `bancada123` e existem apenas para uso local:
 
 | E-mail para entrar | Papel |
@@ -120,6 +129,23 @@ com DDD, e depois de um `make up`:
 ```bash
 WHATSAPP_DO_SUPORTE=11912345678
 ```
+
+A assinatura usa o ambiente de testes do Asaas, o Sandbox, onde nada é cobrado de verdade. A conta
+do Sandbox é separada da conta de produção: crie uma em https://sandbox.asaas.com, gere uma chave
+em Integrações → Chaves de API e cole no `.env` **entre aspas simples**. A chave começa com `$`, e
+sem as aspas o Docker Compose a troca por um texto vazio:
+
+```bash
+ASAAS_API_KEY='$aact_hmlg_...'
+```
+
+Depois, `make up`. Sem a chave, o resto do sistema funciona normalmente; só o botão de assinar
+responde que a cobrança não está configurada.
+
+Para testar um pagamento, assine pela tela Assinatura, abra a cobrança no painel do Sandbox e
+confirme o recebimento em dinheiro. O Bancada fica sabendo do pagamento de dois jeitos: pelo aviso
+que o Asaas manda (webhook), que só chega a um endereço público, e por uma consulta ao Asaas a cada
+hora. No ambiente local, para não esperar a hora cheia, rode `make sincronizar-cobrancas`.
 
 As fotos enviadas ficam em `apps/api/media/`, que não vai para o controle de versão.
 
@@ -160,6 +186,7 @@ make lint        # roda ruff e mypy
 make migrate     # aplica migrações
 make semear      # popula o banco com dados de demonstração
 make semear-movimento  # cria dois meses de ordens e pagamentos de exemplo para o painel
+make sincronizar-cobrancas  # busca no Asaas as faturas, sem esperar a consulta de hora em hora
 make superuser   # cria um administrador
 make clean       # derruba tudo e apaga o banco local
 ```

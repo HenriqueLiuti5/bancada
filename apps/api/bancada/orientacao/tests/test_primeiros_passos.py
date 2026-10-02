@@ -42,6 +42,7 @@ def test_assistencia_recem_criada_comeca_sem_nenhum_passo(api_dono: APIClient, l
         "mandar-link",
         "endereco-da-loja",
         "convidar-equipe",
+        "assinar",
     ]
     assert not any(passo["feito"] for passo in dados["passos"])
     assert dados["ordem_mais_recente"] is None
