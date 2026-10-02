@@ -77,6 +77,7 @@ o operador.
 | 4C | Tutorial guiado e canal de contato | concluída |
 | 4D | Pagamento na entrega e painel completo da loja | concluída |
 | 4E | Painel da plataforma, exclusivo do Henrique | |
+| 4G | Revisão do design de todo o site | |
 | 4F | Publicação: domínio, página inicial, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 6 | WhatsApp, relatórios além do painel, estoque de peças | |
@@ -86,6 +87,9 @@ link ao cliente. Nada que não sirva a essa frase entra antes.
 
 A Fase 4 termina quando uma assistência que nunca falou com a gente conseguir se cadastrar,
 montar a equipe, aprender a usar o sistema e assinar, tudo sozinha.
+
+A publicação, Fase 4F, é a última do lançamento: o sistema vai para o ar depois de todas as outras.
+A 4G, de design, entrou no plano depois da 4F, por isso tem a letra seguinte, mas vem antes dela.
 
 Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
 O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
@@ -202,6 +206,11 @@ Este painel lê dados de todas as assistências, então atravessa o isolamento p
 um caminho próprio, explícito e registrado em auditoria. Ele mostra números e o contato do dono,
 nunca dados dos clientes finais das assistências.
 
+### 4G — Revisão do design
+
+Penúltima fase do lançamento: revisão do design de todo o site antes da publicação. O que muda é
+decidido no começo da fase.
+
 ### 4F — Publicação
 
 - Domínio e HTTPS.
@@ -209,8 +218,11 @@ nunca dados dos clientes finais das assistências.
 - Backup diário do banco e das fotos, com restauração testada.
 - E-mail por provedor com domínio verificado (ADR 0011) e armazenamento das fotos em produção
   (ADR 0010).
-- Endereço de origem lido corretamente atrás do proxy e trava de instância única do Celery Beat,
-  as duas pendências do ADR 0013.
+- Endereço de quem acessa lido corretamente atrás do proxy, na auditoria e nos limites de acesso
+  (ADRs 0013 e 0018). Hoje a página de acompanhamento e a rota de fotos nem repassam esse endereço
+  à API, então os limites delas contam todos os visitantes como um só.
+- Trava de instância única do Celery Beat (ADR 0013).
+- Validade e troca do token de login, que hoje não expira (ADR 0007).
 - Monitoramento de erros e de disponibilidade.
 - Asaas em produção.
 - Página inicial com o botão "Testar grátis", termos de uso e política de privacidade, deixando
