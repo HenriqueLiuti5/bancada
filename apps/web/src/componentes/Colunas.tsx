@@ -53,7 +53,7 @@ function Dica({ coluna, aDireita }: { coluna: Coluna; aDireita: boolean }) {
   return (
     <span
       className={juntar(
-        "pointer-events-none absolute top-0 z-10 rounded-md border border-borda bg-superficie px-2 py-1 text-left whitespace-nowrap opacity-0 shadow-sutil transition-opacity group-hover:opacity-100",
+        "pointer-events-none absolute top-0 z-10 rounded-xl border border-borda bg-superficie px-3 py-2 text-left whitespace-nowrap opacity-0 shadow-elevada transition-opacity duration-150 group-hover:opacity-100",
         aDireita ? "right-0" : "left-0",
       )}
     >
@@ -78,13 +78,13 @@ function Barra({
     <li className="group relative flex h-full flex-1 items-end justify-center">
       {fracao > 0 && (
         <span
-          className="relative block w-full max-w-6 rounded-t-[4px] bg-texto-apagado transition-colors group-hover:bg-texto-suave"
+          className="relative block w-full max-w-6 rounded-t-md bg-grafico transition-colors duration-150 group-hover:bg-grafico-forte"
           style={{ height: `${Math.max(fracao * 100, 2)}%` }}
         >
           {rotulo && (
             <span
               className={juntar(
-                "absolute bottom-full left-1/2 mb-1 -translate-x-1/2 rounded-sm bg-superficie px-0.5 text-[11px] font-medium whitespace-nowrap text-texto-suave",
+                "absolute bottom-full left-1/2 mb-1 -translate-x-1/2 rounded-full bg-superficie px-1 text-[11px] font-semibold whitespace-nowrap text-texto-suave",
                 rotulo === "fora-do-celular" && "max-sm:hidden",
               )}
             >
@@ -101,7 +101,7 @@ function Barra({
 function Tabela({ colunas, nomeDoPeriodo, nomeDaMedida }: Omit<Props, "titulo">) {
   return (
     <details className="border-t border-borda">
-      <summary className="cursor-pointer px-5 py-2.5 text-[13px] text-texto-suave transition-colors select-none hover:text-texto">
+      <summary className="cursor-pointer px-5 py-3 text-[13px] font-medium text-texto-apagado transition-colors select-none hover:text-texto">
         Ver os números
       </summary>
       <table className="w-full text-sm">

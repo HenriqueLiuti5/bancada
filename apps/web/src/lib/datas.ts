@@ -1,5 +1,9 @@
 export const FUSO_HORARIO = "America/Sao_Paulo";
 
+export function hojeEmIso(): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone: FUSO_HORARIO });
+}
+
 function meioDoDia(iso: string): Date {
   return new Date(`${iso}T12:00:00`);
 }

@@ -15,7 +15,7 @@ class TenantAdmin(admin.ModelAdmin):
     list_filter = ["ativo"]
     search_fields = ["nome", "documento", "whatsapp"]
     prepopulated_fields = {"slug": ("nome",)}
-    readonly_fields = ["termos_aceitos_em", "versao_dos_termos"]
+    readonly_fields = ["logo", "termos_aceitos_em", "versao_dos_termos"]
     inlines = [LojaInline]
 
 

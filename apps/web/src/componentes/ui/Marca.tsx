@@ -1,11 +1,26 @@
-export function Marca({ tamanho = "sm" }: { tamanho?: "sm" | "md" }) {
-  const medida = tamanho === "md" ? "size-9 text-base rounded-[10px]" : "size-7 text-[13px] rounded-lg";
+import { juntar } from "@/componentes/ui/estilos";
+
+const MEDIDAS = { sm: "size-8", md: "size-10" };
+
+type Props = { tamanho?: keyof typeof MEDIDAS; className?: string };
+
+export function Marca({ tamanho = "sm", className }: Props) {
   return (
-    <span
-      aria-hidden="true"
-      className={`inline-flex shrink-0 items-center justify-center bg-primario font-semibold tracking-tight text-primario-texto ${medida}`}
-    >
-      B
-    </span>
+    <svg viewBox="0 0 32 32" aria-hidden="true" className={juntar("shrink-0", MEDIDAS[tamanho], className)}>
+      <rect width="32" height="32" rx="10" className="fill-primario" />
+      <path
+        d="M11 15.5h5.25a3.5 3.5 0 0 0 0-7H11v15h6.25a4 4 0 0 0 0-8z"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="2.75"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function NomeDaMarca({ className }: { className?: string }) {
+  return (
+    <span className={juntar("text-lg leading-none font-bold tracking-tight", className)}>Bancada</span>
   );
 }

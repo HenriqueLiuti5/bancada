@@ -1,9 +1,10 @@
+import { ImageSquareIcon, MapPinIcon, StorefrontIcon } from "@/componentes/icones";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { chamarApi } from "@/lib/api";
 import type { Assistencia, Loja } from "@/lib/tipos";
 import { gerenciaEquipe, usuarioAtual } from "@/lib/usuario";
-import { FormularioDaAssistencia, FormularioDaLoja } from "./formularios";
+import { FormularioDaAssistencia, FormularioDaLogo, FormularioDaLoja } from "./formularios";
 
 export const dynamic = "force-dynamic";
 
@@ -32,14 +33,23 @@ export default async function PaginaDaAssistencia() {
       />
 
       <div className="max-w-3xl space-y-6">
-        <Cartao titulo="Dados da assistência">
+        <Cartao titulo="Dados da assistência" icone={StorefrontIcon}>
           <FormularioDaAssistencia assistencia={assistencia} />
+        </Cartao>
+
+        <Cartao
+          titulo="Logo"
+          icone={ImageSquareIcon}
+          descricao="Aparece para o cliente no acompanhamento, nos e-mails, no comprovante e no recibo."
+        >
+          <FormularioDaLogo assistencia={assistencia} />
         </Cartao>
 
         {lojas.map((loja) => (
           <Cartao
             key={loja.id}
             titulo={lojas.length > 1 ? loja.nome : "Loja"}
+            icone={MapPinIcon}
             descricao="Telefone e endereço aparecem para o cliente."
           >
             <FormularioDaLoja loja={loja} />

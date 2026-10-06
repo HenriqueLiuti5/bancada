@@ -17,12 +17,15 @@ type Props = {
 };
 
 function Barra({ fracao }: { fracao: number }) {
-  if (fracao <= 0) return null;
   return (
-    <span
-      className="block h-2 rounded-r-sm bg-texto-apagado"
-      style={{ width: `${Math.max(fracao * 100, 2)}%` }}
-    />
+    <span className="block h-2 w-full overflow-hidden rounded-full bg-realce">
+      {fracao > 0 && (
+        <span
+          className="block h-full rounded-full bg-grafico"
+          style={{ width: `${Math.max(fracao * 100, 3)}%` }}
+        />
+      )}
+    </span>
   );
 }
 
@@ -30,7 +33,7 @@ function Rotulo({ linha, vazia }: { linha: LinhaComBarra; vazia: boolean }) {
   return (
     <span
       className={juntar(
-        "flex min-w-0 items-center gap-2.5 text-sm",
+        "flex min-w-0 items-center gap-2 text-sm font-medium",
         vazia && "text-texto-apagado",
       )}
     >
@@ -54,7 +57,7 @@ function Valor({
       className={juntar(
         "shrink-0 text-right text-sm tabular-nums",
         largura,
-        vazia ? "text-texto-apagado" : "font-medium",
+        vazia ? "text-texto-apagado" : "font-semibold",
       )}
     >
       {linha.valor}
@@ -96,7 +99,7 @@ function ConteudoEmpilhado({
 }) {
   const vazia = linha.medida === 0;
   return (
-    <span className="block w-full space-y-1.5">
+    <span className="block w-full space-y-2">
       <span className="flex items-center justify-between gap-3">
         <Rotulo linha={linha} vazia={vazia} />
         <Valor linha={linha} vazia={vazia} largura={largura} />
@@ -111,10 +114,10 @@ function ConteudoEmpilhado({
 export function BarrasHorizontais({ linhas, empilhada = false, larguraDoValor = "w-10" }: Props) {
   const maior = Math.max(...linhas.map((linha) => linha.medida), 0);
   const Conteudo = empilhada ? ConteudoEmpilhado : ConteudoEmLinha;
-  const espaco = "flex items-center gap-4 px-5 py-2.5";
+  const espaco = "flex items-center gap-4 rounded-xl px-3 py-2.5";
 
   return (
-    <ul className="divide-y divide-borda">
+    <ul className="space-y-0.5 p-2">
       {linhas.map((linha) => {
         const fracao = maior > 0 ? linha.medida / maior : 0;
         const conteudo = <Conteudo linha={linha} fracao={fracao} largura={larguraDoValor} />;

@@ -8,6 +8,7 @@ from rest_framework import serializers
 from bancada.assinaturas.models import Assinatura
 from bancada.assinaturas.serializers import resumo_da_assinatura
 from bancada.core.telefones import telefone_brasileiro
+from bancada.tenants import logo
 from bancada.tenants.links import link_do_convite
 from bancada.tenants.models import Convite, Loja, Papel, Tenant, Usuario, normalizar_email
 
@@ -227,16 +228,25 @@ class AceiteDeConviteSerializer(serializers.Serializer):
 
 
 class AssistenciaSerializer(serializers.ModelSerializer):
+    logo = serializers.SerializerMethodField()
+
     class Meta:
         model = Tenant
-        fields = ["nome", "documento", "whatsapp"]
+        fields = ["nome", "documento", "whatsapp", "logo"]
         extra_kwargs = {"whatsapp": {"allow_blank": False}}
+
+    def get_logo(self, tenant: Tenant) -> dict[str, Any] | None:
+        return logo.para_exibir(tenant)
 
     def validate_nome(self, valor: str) -> str:
         return valor.strip()
 
     def validate_whatsapp(self, valor: str) -> str:
         return _conferir_whatsapp(valor)
+
+
+class EnvioDeLogoSerializer(serializers.Serializer):
+    arquivo = serializers.FileField()
 
 
 class EdicaoDeLojaSerializer(serializers.ModelSerializer):

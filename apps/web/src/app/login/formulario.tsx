@@ -31,7 +31,7 @@ export function FormularioLogin() {
         rotulo="Senha"
         htmlFor="password"
         acessorio={
-          <Link href="/esqueci-senha" className={juntar(link, "text-xs font-normal text-texto-suave")}>
+          <Link href="/esqueci-senha" className={juntar(link, "text-[13px]")}>
             Esqueci minha senha
           </Link>
         }

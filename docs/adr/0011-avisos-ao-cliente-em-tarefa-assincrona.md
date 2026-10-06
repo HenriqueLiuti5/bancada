@@ -84,3 +84,17 @@ coluna nova no histórico.
 Avisar em toda transição foi considerado e descartado. Quem recebe e-mail de "em diagnóstico" e
 "aprovado" para de abrir o e-mail de "pronto para retirada", que é o único que faz o aparelho sair
 da loja.
+
+## Atualização: e-mail em HTML com a logo da assistência
+
+O aviso deixou de ser só texto. Agora leva também uma versão em HTML, no estilo do sistema, com a
+logo da assistência no topo, o nome da loja quando a assistência tem mais de uma, o botão
+"Acompanhar o reparo" e os dados da ordem (ADR 0025). A versão em texto continua na mesma
+mensagem, para os programas que não mostram HTML, e o teste que procura a senha e as anotações
+internas agora olha as duas versões.
+
+A logo vai embutida na mensagem, e não como link para o site, para aparecer mesmo nos programas que
+bloqueiam imagens externas. Isso pede uma mensagem em partes aninhadas: o texto e o HTML como
+versões alternativas, e o HTML agrupado com a imagem que ele cita; quando o recibo vai anexado,
+tudo isso entra numa parte externa junto com o anexo. O Django não monta essa estrutura sozinho, e
+por isso ela sai de uma classe própria, `EmailComImagens`, em `bancada/avisos/mensagem.py`.

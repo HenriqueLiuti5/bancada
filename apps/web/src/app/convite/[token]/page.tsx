@@ -41,7 +41,7 @@ export default async function Convite({ params }: Props) {
           </Link>
         }
       >
-        <p className="text-center text-sm text-texto-suave">{busca.problema}</p>
+        <p className="text-[15px] text-texto-apagado">{busca.problema}</p>
       </TelaDeAcesso>
     );
   }

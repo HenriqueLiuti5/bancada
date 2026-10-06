@@ -10,8 +10,12 @@ from weasyprint import HTML
 from bancada.ordens.estados import StatusOS
 from bancada.ordens.fotos import MomentoDaFoto
 from bancada.ordens.models import FotoOS, OrdemServico
+from bancada.tenants import logo
+from bancada.tenants.models import Tenant
 
 FOTOS_NO_COMPROVANTE = 4
+LARGURA_MAXIMA_DA_LOGO_EM_MM = 42
+ALTURA_MAXIMA_DA_LOGO_EM_MM = 16
 
 
 def _data_uri(conteudo: bytes, tipo: str) -> str:
@@ -33,6 +37,19 @@ def foto_embutida(foto: FotoOS) -> str | None:
         return None
 
 
+def logo_embutida(tenant: Tenant) -> dict[str, Any] | None:
+    medidas = logo.caber(tenant, LARGURA_MAXIMA_DA_LOGO_EM_MM, ALTURA_MAXIMA_DA_LOGO_EM_MM)
+    conteudo = logo.conteudo(tenant)
+    if medidas is None or conteudo is None:
+        return None
+    largura, altura = medidas
+    return {
+        "src": _data_uri(conteudo, "image/png"),
+        "largura": f"{largura:.1f}",
+        "altura": f"{altura:.1f}",
+    }
+
+
 def _fotos_da_entrada(ordem: OrdemServico) -> list[str]:
     entradas = [foto for foto in ordem.fotos.all() if foto.momento == MomentoDaFoto.ENTRADA]
     embutidas = (foto_embutida(foto) for foto in entradas[:FOTOS_NO_COMPROVANTE])
@@ -48,6 +65,7 @@ def _comum(ordem: OrdemServico) -> dict[str, Any]:
     return {
         "ordem": ordem,
         "assistencia": ordem.tenant,
+        "logo": logo_embutida(ordem.tenant),
         "loja": ordem.loja,
         "cliente": ordem.cliente,
         "aparelho": ordem.aparelho,

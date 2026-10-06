@@ -1,14 +1,15 @@
 import logging
 from datetime import timedelta
 from smtplib import SMTPException
+from typing import Any
 
 from celery import shared_task
 from django.conf import settings
-from django.core.mail import EmailMessage
 from django.db.models import F, Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 
+from bancada.avisos.mensagem import EmailComImagens, logo_do_email
 from bancada.avisos.models import AvisoDeStatus
 from bancada.avisos.regras import AVISOS, ModeloDeAviso, modelo_para
 from bancada.ordens import documentos
@@ -27,13 +28,26 @@ TENTATIVAS_ANTES_DE_DESISTIR = 5
 
 
 def montar_mensagem(
-    ordem: OrdemServico, modelo: ModeloDeAviso, assunto: str, corpo: str, destino: str
-) -> EmailMessage:
-    mensagem = EmailMessage(
+    ordem: OrdemServico,
+    modelo: ModeloDeAviso,
+    assunto: str,
+    contexto: dict[str, Any],
+    destino: str,
+) -> EmailComImagens:
+    logo = logo_do_email(ordem.tenant)
+    mensagem = EmailComImagens(
         subject=assunto,
-        body=corpo,
+        body=render_to_string("avisos/aviso_de_status.txt", contexto),
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[destino],
+        imagens=[logo.imagem] if logo else [],
+    )
+    mensagem.attach_alternative(
+        render_to_string(
+            "avisos/aviso_de_status.html",
+            {**contexto, "assunto": assunto, "logo": logo},
+        ),
+        "text/html",
     )
     if modelo.anexa_recibo:
         mensagem.attach(
@@ -90,22 +104,20 @@ def avisar_cliente(evento_id: int) -> str:
     if aviso.enviado_em:
         return JA_ENVIADO
 
-    corpo = render_to_string(
-        "avisos/aviso_de_status.txt",
-        {
-            "primeiro_nome": ordem.cliente.nome.split()[0],
-            "chamada": modelo.chamada,
-            "aparelho": aparelho,
-            "link": f"{settings.APP_PUBLIC_URL}/os/{ordem.token_publico}",
-            "numero": ordem.numero,
-            "assistencia": ordem.tenant.nome,
-            "telefone": ordem.loja.telefone,
-        },
-    )
+    contexto = {
+        "primeiro_nome": ordem.cliente.nome.split()[0],
+        "chamada": modelo.chamada,
+        "aparelho": aparelho,
+        "link": f"{settings.APP_PUBLIC_URL}/os/{ordem.token_publico}",
+        "numero": ordem.numero,
+        "assistencia": ordem.tenant.nome,
+        "loja": ordem.loja_para_o_cliente,
+        "telefone": ordem.loja.telefone,
+    }
 
     aviso.tentativas += 1
     try:
-        montar_mensagem(ordem, modelo, aviso.assunto, corpo, destino).send()
+        montar_mensagem(ordem, modelo, aviso.assunto, contexto, destino).send()
     except Exception as erro:
         aviso.erro = str(erro)[:500]
         aviso.save(update_fields=["tentativas", "erro", "atualizado_em"])

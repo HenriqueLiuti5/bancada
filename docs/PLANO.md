@@ -77,7 +77,7 @@ o operador.
 | 4C | Tutorial guiado e canal de contato | concluída |
 | 4D | Pagamento na entrega e painel completo da loja | concluída |
 | 4E | Painel da plataforma, exclusivo do Henrique | concluída |
-| 4G | Revisão do design de todo o site | |
+| 4G | Revisão do design de todo o site | concluída |
 | 4F | Publicação: domínio, página inicial, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 6 | WhatsApp, relatórios além do painel, estoque de peças | |
@@ -222,16 +222,50 @@ acesso existir, cada pessoa passou a ter o horário de uso gravado, no máximo a
 Penúltima fase do lançamento: revisão do design de todo o site antes da publicação. O que muda é
 decidido no começo da fase.
 
+Durante a fase, duas propostas foram descartadas: uma paleta escura, em grafite e verde-água, e
+outra creme e verde, com cara de papel. O pedido final foi um sistema branco, com botões verdes bem
+arredondados, barra lateral de uma cor mais escura que combine, ícones para representar cada coisa
+e nenhuma poluição visual, seguindo os padrões de UI/UX.
+
+Na entrega:
+
+- Fundo quase branco com cartões brancos, botões verdes em pílula e barra lateral preta, que se
+  recolhe para mostrar só os ícones. Cada combinação de texto e fundo passa no contraste mínimo da
+  WCAG.
+- Modo escuro em cinza-escuro neutro, com um verde próprio que combina com ele.
+- Nada de vidro fosco nem fundo escurecido: tudo com cor sólida.
+- Tour próprio no lugar do driver.js: o balão e o contorno deslizam de um passo para o outro, sem
+  piscar e sem escurecer a tela.
+- Ícones do Phosphor, de traço fino e sem fundo, em cada item do menu, cartão, seção, indicador do
+  painel, status, linha do resumo da ordem e etapa da barra de andamento do cliente. Cinza quando só
+  identificam a coisa; coloridos só quando a cor significa algo.
+- Status como ícone na cor do grupo, seguido do nome em cinza, sem caixinha, como no GitHub e no
+  Linear; avisos do topo da tela como cartões brancos com ícone, título e descrição.
+- Fonte Plus Jakarta Sans, de formas arredondadas, no lugar da Geist.
+- O sistema abre sempre claro; escuro e automático ficam como opção no menu da conta.
+- No celular, navegação numa barra embaixo da tela, campos que não disparam o zoom do iPhone,
+  botões do tamanho do dedo e filtros da lista recolhidos.
+- Página do cliente com a barra de etapas com ícones, a previsão de entrega e o contato com a loja
+  em destaque quando ele precisa responder ao orçamento ou retirar o aparelho.
+- Marca nova, um "B" branco num quadrado verde, no sistema, no ícone da aba e da tela inicial do
+  celular.
+- Logo da assistência, enviada pelo dono na tela Assistência. Ela aparece para o cliente na página
+  de acompanhamento, na prévia do link no WhatsApp, no e-mail, que ganhou versão em HTML, e no
+  comprovante e no recibo. Quando a assistência tem mais de uma loja, o cliente vê também o nome
+  da loja da ordem.
+
+Os detalhes e as alternativas descartadas estão na ADR 0024; os da logo, na ADR 0025.
+
 ### 4F — Publicação
 
 - Domínio e HTTPS.
 - Servidor com entrega contínua: o que passa na CI na `main` vai para produção.
-- Backup diário do banco e das fotos, com restauração testada.
+- Backup diário do banco, das fotos e das logos, com restauração testada.
 - E-mail por provedor com domínio verificado (ADR 0011) e armazenamento das fotos em produção
   (ADR 0010).
 - Endereço de quem acessa lido corretamente atrás do proxy, na auditoria e nos limites de acesso
-  (ADRs 0013 e 0018). Hoje a página de acompanhamento e a rota de fotos nem repassam esse endereço
-  à API, então os limites delas contam todos os visitantes como um só.
+  (ADRs 0013 e 0018). Hoje a página de acompanhamento e as rotas de fotos e de logos nem repassam
+  esse endereço à API, então os limites delas contam todos os visitantes como um só.
 - Trava de instância única do Celery Beat (ADR 0013).
 - Validade e troca do token de login, que hoje não expira (ADR 0007).
 - Monitoramento de erros e de disponibilidade.

@@ -4,7 +4,7 @@ export function Segmentos({ children, tour }: { children: React.ReactNode; tour?
   return (
     <nav
       data-tour={tour}
-      className="inline-flex max-w-full overflow-x-auto rounded-lg border border-borda bg-realce p-0.5"
+      className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full bg-realce p-1"
     >
       {children}
     </nav>
@@ -26,8 +26,8 @@ export function Segmento({
       aria-current={ativo ? "page" : undefined}
       className={
         ativo
-          ? "shrink-0 rounded-md bg-superficie px-3 py-1 text-[13px] font-medium whitespace-nowrap text-texto shadow-sutil"
-          : "shrink-0 rounded-md px-3 py-1 text-[13px] whitespace-nowrap text-texto-suave transition-colors hover:text-texto"
+          ? "shrink-0 rounded-full bg-superficie px-4 py-2 text-sm font-semibold whitespace-nowrap text-texto shadow-suave sm:py-1.5 sm:text-[13px]"
+          : "shrink-0 rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap text-texto-apagado transition-colors hover:text-texto sm:py-1.5 sm:text-[13px]"
       }
     >
       {children}

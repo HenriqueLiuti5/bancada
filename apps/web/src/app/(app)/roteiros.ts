@@ -1,10 +1,13 @@
 export type NomeDoTour = "ordens" | "nova-ordem" | "ordem" | "painel" | "equipe";
 
+export type Lado = "baixo" | "cima" | "direita" | "esquerda";
+
 export type Parada = {
   alvo?: string;
   titulo: string;
   texto: string;
   papeis?: string[];
+  lado?: Lado;
 };
 
 const DONO_E_TECNICO = ["dono", "tecnico"];
@@ -49,6 +52,7 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
     },
     {
       alvo: "ajuda",
+      lado: "direita",
       titulo: "Ajuda",
       texto:
         "Para ver este tour de novo ou falar com a gente pelo WhatsApp, use este botão. Quando estiver pronto, abra uma ordem em Nova ordem.",

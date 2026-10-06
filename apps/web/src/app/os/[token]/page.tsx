@@ -1,16 +1,51 @@
-import { CloudOff, Link2Off, Phone, TimerOff } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
+import { CabecalhoDaLoja } from "@/componentes/CabecalhoDaLoja";
+import { ProgressoDoReparo } from "@/componentes/ProgressoDoReparo";
+import {
+  CalendarCheckIcon,
+  CameraIcon,
+  ClockCounterClockwiseIcon,
+  CloudSlashIcon,
+  HourglassLowIcon,
+  LinkBreakIcon,
+  PhoneIcon,
+  ReceiptIcon,
+  WhatsappLogoIcon,
+} from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { LinhaDoTempo } from "@/componentes/ui/LinhaDoTempo";
-import { PontoDeStatus } from "@/componentes/ui/Selo";
+import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
-import { FUSO_HORARIO } from "@/lib/datas";
+import { FUSO_HORARIO, diaPorExtenso, hojeEmIso } from "@/lib/datas";
 import { enderecoDaFoto } from "@/lib/fotos";
+import { enderecoDaLogo } from "@/lib/logo";
 import { emReais } from "@/lib/moeda";
-import { buscarAcompanhamento, type FotoPublica } from "@/lib/publico";
+import {
+  buscarAcompanhamento,
+  nomeParaOCliente,
+  type AcompanhamentoPublico,
+  type FotoPublica,
+} from "@/lib/publico";
+import { formatarTelefone } from "@/lib/telefone";
+import { linkDoWhatsApp } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
+
+const STATUS_COM_PREVISAO = [
+  "recebido",
+  "em_diagnostico",
+  "orcamento_enviado",
+  "aprovado",
+  "em_reparo",
+  "aguardando_peca",
+];
+
+const STATUS_COM_CONTATO_NO_TOPO = ["orcamento_enviado", "pronto"];
+
+const DIGITOS_DE_CELULAR = 11;
+
+const ENDERECO_PUBLICO = process.env.APP_PUBLIC_URL ?? "http://localhost:3000";
 
 type Props = { params: Promise<{ token: string }> };
 
@@ -23,14 +58,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const { dados } = resultado;
+  const { logo } = dados.assistencia;
   return {
     title: `${dados.aparelho} · ${dados.status_rotulo}`,
     description: dados.mensagem,
     openGraph: {
-      title: `${dados.aparelho} · ${dados.status_rotulo}`,
-      description: dados.mensagem,
+      title: nomeParaOCliente(dados.assistencia),
+      description: `${dados.aparelho} · ${dados.status_rotulo}. ${dados.mensagem}`,
       siteName: dados.assistencia.nome,
       type: "website",
+      images: logo
+        ? [
+            {
+              url: `${ENDERECO_PUBLICO}${enderecoDaLogo(logo.assinatura)}`,
+              width: logo.largura,
+              height: logo.altura,
+              alt: dados.assistencia.nome,
+            },
+          ]
+        : undefined,
     },
   };
 }
@@ -56,15 +102,11 @@ function Aviso({
   texto: string;
 }) {
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
-      <div className="flex max-w-sm flex-col items-center gap-4 text-center">
-        <div className="flex size-11 items-center justify-center rounded-full border border-borda bg-superficie text-texto-suave shadow-sutil">
-          {icone}
-        </div>
-        <div className="space-y-1.5">
-          <h1 className="text-lg font-semibold tracking-tight">{titulo}</h1>
-          <p className="text-sm text-texto-suave">{texto}</p>
-        </div>
+    <main className="flex min-h-screen items-center justify-center px-5">
+      <div className="flex max-w-sm flex-col items-center text-center">
+        <span className="text-icone">{icone}</span>
+        <h1 className="mt-4 text-xl leading-tight font-bold tracking-tight">{titulo}</h1>
+        <p className="mt-2 text-[15px] text-texto-apagado">{texto}</p>
       </div>
     </main>
   );
@@ -79,13 +121,100 @@ function Foto({ foto }: { foto: FotoPublica }) {
         width={foto.largura}
         height={foto.altura}
         unoptimized
-        className="aspect-[4/3] w-full rounded-lg border border-borda object-cover"
+        className="aspect-[4/3] w-full rounded-xl border border-borda object-cover"
       />
-      <figcaption className="text-xs text-texto-suave">
+      <figcaption className="text-[13px] text-texto-apagado">
         {foto.momento_rotulo}
         {foto.legenda && ` · ${foto.legenda}`}
       </figcaption>
     </figure>
+  );
+}
+
+function Situacao({ dados }: { dados: AcompanhamentoPublico }) {
+  const previsao =
+    dados.prometida_para &&
+    dados.prometida_para >= hojeEmIso() &&
+    STATUS_COM_PREVISAO.includes(dados.status)
+      ? dados.prometida_para
+      : null;
+
+  return (
+    <section className="space-y-6 rounded-3xl border border-borda bg-superficie p-5 shadow-cartao sm:p-6">
+      <div className="space-y-3">
+        <Selo status={dados.status} rotulo={dados.status_rotulo} />
+        <p className="text-xl leading-snug font-bold tracking-tight">{dados.mensagem}</p>
+      </div>
+
+      <ProgressoDoReparo status={dados.status} />
+
+      {previsao && (
+        <p className="flex items-center gap-3 rounded-2xl bg-realce px-4 py-3 text-sm">
+          <CalendarCheckIcon size={20} className="shrink-0 text-icone" />
+          <span>
+            Previsão de entrega: <strong className="font-semibold">{diaPorExtenso(previsao)}</strong>
+          </span>
+        </p>
+      )}
+    </section>
+  );
+}
+
+function chamadaDoContato(status: string): string {
+  if (status === "orcamento_enviado") {
+    return "Para aprovar ou recusar o orçamento, fale com a assistência.";
+  }
+  if (status === "pronto") return "Combine a retirada com a assistência.";
+  return "Ficou com alguma dúvida sobre o reparo?";
+}
+
+function Contato({ dados, chamada }: { dados: AcompanhamentoPublico; chamada: string }) {
+  const telefone = dados.assistencia.telefone;
+  if (!telefone) return null;
+
+  const celular = telefone.replace(/\D/g, "").length === DIGITOS_DE_CELULAR;
+  const mensagem = `Olá! Sou ${dados.cliente_primeiro_nome}, da ordem de serviço nº ${dados.numero} (${dados.aparelho}).`;
+  const whatsapp = celular ? linkDoWhatsApp(telefone, mensagem) : null;
+
+  return (
+    <section className="rounded-3xl border border-borda bg-superficie p-5 shadow-cartao sm:p-6">
+      <p className="text-[15px] font-bold">{chamada}</p>
+      <p className="mt-1.5 flex items-center gap-2 text-sm text-texto-apagado">
+        <PhoneIcon size={15} className="shrink-0" />
+        {nomeParaOCliente(dados.assistencia)} · {formatarTelefone(telefone)}
+      </p>
+      <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+        {whatsapp && (
+          <a href={whatsapp} target="_blank" rel="noreferrer" className={botao("primario")}>
+            <WhatsappLogoIcon size={17} />
+            Conversar no WhatsApp
+          </a>
+        )}
+        <a href={`tel:${telefone}`} className={botao(whatsapp ? "secundario" : "primario")}>
+          <PhoneIcon size={17} />
+          Ligar para a assistência
+        </a>
+      </div>
+    </section>
+  );
+}
+
+function Orcamento({ orcamento }: { orcamento: NonNullable<AcompanhamentoPublico["orcamento"]> }) {
+  return (
+    <Cartao titulo={orcamento.aprovado ? "Orçamento aprovado" : "Orçamento"} icone={ReceiptIcon} semEspaco>
+      <ul className="divide-y divide-borda">
+        {orcamento.itens.map((item, indice) => (
+          <li key={indice} className="flex items-center justify-between gap-4 px-5 py-3.5 text-[15px]">
+            <span className="font-medium">{item.descricao}</span>
+            <span className="shrink-0 font-semibold tabular-nums">{emReais(item.valor)}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="flex items-center justify-between border-t border-borda bg-realce px-5 py-4 text-base font-bold">
+        <span>Total</span>
+        <span className="tabular-nums">{emReais(orcamento.total)}</span>
+      </div>
+    </Cartao>
   );
 }
 
@@ -96,7 +225,7 @@ export default async function Acompanhamento({ params }: Props) {
   if (resultado.tipo === "inexistente") {
     return (
       <Aviso
-        icone={<Link2Off size={18} strokeWidth={1.75} />}
+        icone={<LinkBreakIcon size={44} weight="light" />}
         titulo="Link não encontrado"
         texto="Confira se o endereço foi copiado por inteiro, ou fale com a assistência."
       />
@@ -106,7 +235,7 @@ export default async function Acompanhamento({ params }: Props) {
   if (resultado.tipo === "expirado") {
     return (
       <Aviso
-        icone={<TimerOff size={18} strokeWidth={1.75} />}
+        icone={<HourglassLowIcon size={44} weight="light" />}
         titulo="Link expirado"
         texto="Este acompanhamento não está mais disponível. Fale com a assistência se precisar."
       />
@@ -116,7 +245,7 @@ export default async function Acompanhamento({ params }: Props) {
   if (resultado.tipo === "indisponivel") {
     return (
       <Aviso
-        icone={<CloudOff size={18} strokeWidth={1.75} />}
+        icone={<CloudSlashIcon size={44} weight="light" />}
         titulo="Serviço indisponível"
         texto="Não conseguimos carregar o acompanhamento agora. Tente novamente em instantes."
       />
@@ -125,52 +254,35 @@ export default async function Acompanhamento({ params }: Props) {
 
   const { dados } = resultado;
   const ultima = dados.linha_do_tempo.length - 1;
+  const contatoNoTopo = STATUS_COM_CONTATO_NO_TOPO.includes(dados.status);
+  const chamada = chamadaDoContato(dados.status);
 
   return (
-    <main className="mx-auto max-w-lg space-y-6 px-4 py-10 sm:py-14">
-      <header className="space-y-3">
-        <p className="text-[13px] font-medium text-texto-suave">{dados.assistencia.nome}</p>
+    <main className="mx-auto max-w-lg space-y-5 px-4 py-8 sm:py-12">
+      <header className="space-y-6">
+        <CabecalhoDaLoja
+          nome={nomeParaOCliente(dados.assistencia)}
+          detalhe={`Ordem de serviço nº ${dados.numero}`}
+          logo={dados.assistencia.logo}
+        />
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Olá, {dados.cliente_primeiro_nome}
+          <h1 className="text-[28px] leading-tight font-bold tracking-tight">
+            Olá, {dados.cliente_primeiro_nome}!
           </h1>
-          <p className="text-sm text-texto-suave">Acompanhe o reparo do seu {dados.aparelho}.</p>
+          <p className="text-[15px] text-texto-apagado">
+            Aqui você acompanha o reparo do seu {dados.aparelho}.
+          </p>
         </div>
       </header>
 
-      <section className="rounded-xl border border-borda bg-superficie p-5 shadow-sutil">
-        <p className="text-[13px] text-texto-suave">Situação agora</p>
-        <p className="mt-1.5 flex items-center gap-2.5 text-xl font-semibold tracking-tight">
-          <PontoDeStatus status={dados.status} tamanho="md" />
-          {dados.status_rotulo}
-        </p>
-        <p className="mt-2 text-sm leading-relaxed text-texto-suave">{dados.mensagem}</p>
-      </section>
+      <Situacao dados={dados} />
 
-      {dados.orcamento && (
-        <Cartao titulo={dados.orcamento.aprovado ? "Orçamento aprovado" : "Orçamento"} semEspaco>
-          <ul className="divide-y divide-borda">
-            {dados.orcamento.itens.map((item, indice) => (
-              <li
-                key={indice}
-                className="flex items-center justify-between gap-4 px-5 py-2.5 text-sm"
-              >
-                <span>{item.descricao}</span>
-                <span className="text-texto-suave tabular-nums">
-                  {emReais(item.valor)}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <div className="flex items-center justify-between border-t border-borda bg-realce px-5 py-2.5 text-sm font-medium">
-            <span>Total</span>
-            <span className="tabular-nums">{emReais(dados.orcamento.total)}</span>
-          </div>
-        </Cartao>
-      )}
+      {dados.orcamento && <Orcamento orcamento={dados.orcamento} />}
+
+      {contatoNoTopo && <Contato dados={dados} chamada={chamada} />}
 
       {dados.fotos.length > 0 && (
-        <Cartao titulo="Fotos do aparelho">
+        <Cartao titulo="Fotos do aparelho" icone={CameraIcon}>
           <div className="grid grid-cols-2 gap-3">
             {dados.fotos.map((foto) => (
               <Foto key={foto.assinatura} foto={foto} />
@@ -179,7 +291,7 @@ export default async function Acompanhamento({ params }: Props) {
         </Cartao>
       )}
 
-      <Cartao titulo="Andamento">
+      <Cartao titulo="Andamento" icone={ClockCounterClockwiseIcon}>
         <LinhaDoTempo
           etapas={dados.linha_do_tempo.map((etapa, indice) => ({
             chave: `${etapa.status}-${etapa.em}`,
@@ -191,16 +303,10 @@ export default async function Acompanhamento({ params }: Props) {
         />
       </Cartao>
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 pt-2">
-        <p className="text-xs text-texto-apagado">
-          Ordem de serviço nº {dados.numero} · aberta em {formatarMomento(dados.aberta_em)}
-        </p>
-        {dados.assistencia.telefone && (
-          <a href={`tel:${dados.assistencia.telefone}`} className={botao("secundario", "sm")}>
-            <Phone size={14} strokeWidth={2} />
-            Falar com a assistência
-          </a>
-        )}
+      {!contatoNoTopo && <Contato dados={dados} chamada={chamada} />}
+
+      <footer className="pt-2 text-center text-[13px] text-texto-apagado">
+        Aberta em {formatarMomento(dados.aberta_em)}
       </footer>
     </main>
   );

@@ -249,6 +249,10 @@ class OrdemServico(PertenceAoTenant):
         return total or Decimal("0.00")
 
     @property
+    def loja_para_o_cliente(self) -> str:
+        return self.loja.nome if self.tenant.tem_varias_lojas else ""
+
+    @property
     def total_aprovado(self) -> Decimal:
         total = self.itens.filter(aprovado=True).aggregate(models.Sum("valor"))["valor__sum"]
         return total or Decimal("0.00")

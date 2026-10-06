@@ -60,7 +60,7 @@ export function CancelamentoDaAssinatura() {
   }
 
   return (
-    <form action={acao} className="w-full space-y-3 rounded-lg border border-borda bg-realce p-4">
+    <form action={acao} className="w-full space-y-3 rounded-2xl border border-borda bg-realce p-4">
       <p className="text-[13px] text-texto">
         Cancelar a assinatura? Nada mais é cobrado. Você continua usando até o fim do período já
         pago, ou do teste grátis, e depois disso o Bancada fica só para consulta, com todos os dados

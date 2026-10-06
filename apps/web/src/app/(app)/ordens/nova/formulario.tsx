@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { ChatTextIcon, DeviceMobileIcon, UserIcon, type Icon } from "@/componentes/icones";
 import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Mensagem } from "@/componentes/ui/Mensagem";
@@ -20,21 +21,29 @@ function aparelhoInicial(cliente: Cliente): string {
 }
 
 function Secao({
+  icone: Icone,
   titulo,
   erro,
   tour,
   children,
 }: {
+  icone: Icon;
   titulo: string;
   erro?: string;
   tour: string;
   children: React.ReactNode;
 }) {
   return (
-    <section data-tour={tour} className="space-y-3">
-      <h2 className="text-sm font-semibold">{titulo}</h2>
+    <section
+      data-tour={tour}
+      className="space-y-4 border-t border-borda pt-6 first-of-type:border-t-0 first-of-type:pt-0"
+    >
+      <h2 className="flex items-center gap-3 text-base font-bold">
+        <Icone size={22} className="shrink-0 text-icone" />
+        {titulo}
+      </h2>
       {children}
-      {erro && <p className="text-xs text-perigo-forte">{erro}</p>}
+      {erro && <p className="text-[13px] text-perigo sm:text-xs">{erro}</p>}
     </section>
   );
 }
@@ -86,7 +95,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
             <input type="hidden" name="loja" value={lojas[0]?.id ?? ""} />
           )}
 
-          <Secao titulo="Cliente" tour="cliente" erro={erros.cliente}>
+          <Secao icone={UserIcon} titulo="Cliente" tour="cliente" erro={erros.cliente}>
             <EscolhaDoCliente
               escolhido={cliente}
               novo={clienteNovo}
@@ -99,7 +108,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
             />
           </Secao>
 
-          <Secao titulo="Aparelho" tour="aparelho" erro={erros.aparelho}>
+          <Secao icone={DeviceMobileIcon} titulo="Aparelho" tour="aparelho" erro={erros.aparelho}>
             <EscolhaDoAparelho
               cliente={cliente}
               clienteNovo={clienteNovo}
@@ -110,7 +119,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
             />
           </Secao>
 
-          <Secao titulo="Defeito" tour="defeito">
+          <Secao icone={ChatTextIcon} titulo="Defeito" tour="defeito">
             <CampoRotulado
               rotulo="Problema relatado"
               htmlFor="problema_relatado"
@@ -130,7 +139,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
           </Secao>
         </div>
 
-        <div className="-mx-5 -mb-5 mt-6 flex flex-wrap items-center gap-3 border-t border-borda bg-realce px-5 py-3">
+        <div className="-mx-5 -mb-5 mt-6 flex flex-wrap items-center gap-3 border-t border-borda bg-realce px-5 py-4">
           <button
             type="submit"
             disabled={enviando}

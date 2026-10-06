@@ -1,9 +1,9 @@
 "use client";
 
-import { Plus, X } from "lucide-react";
 import { useActionState, useRef, useState } from "react";
+import { PlusIcon, XIcon } from "@/componentes/icones";
 import { Mensagem } from "@/componentes/ui/Mensagem";
-import { botao, campo, juntar, seletor } from "@/componentes/ui/estilos";
+import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
 import { centavosEmReais, centavosParaCampo, emCentavos } from "@/lib/moeda";
 import { FORMAS_DE_PAGAMENTO } from "@/lib/pagamentos";
 import { entregar, type EstadoDaEntrega } from "./acoes";
@@ -36,7 +36,7 @@ function problemaDosValores(
 
 function Resumo({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 text-[13px]">
+    <div className="flex items-baseline justify-between gap-3 text-sm sm:text-[13px]">
       <dt className="text-texto-suave">{rotulo}</dt>
       <dd className="tabular-nums">{valor}</dd>
     </div>
@@ -80,9 +80,9 @@ function LinhaDePagamento({
         type="button"
         onClick={aoRemover}
         title="Tirar esta forma"
-        className={juntar(botao("fantasma", "sm"), "shrink-0 px-2")}
+        className={botaoDeIcone}
       >
-        <X size={14} strokeWidth={2} />
+        <XIcon size={16} />
         <span className="sr-only">Tirar esta forma de pagamento</span>
       </button>
     </div>
@@ -133,12 +133,12 @@ export function RegistroDaEntrega({ id, totalAprovado }: { id: number; totalApro
     <form action={acao} className="space-y-4">
       <input type="hidden" name="id" value={id} />
 
-      <p className="text-[13px] text-texto-suave">
+      <p className="text-sm text-texto-suave sm:text-[13px]">
         Para entregar, registre quanto foi cobrado e como o cliente pagou.
       </p>
 
       <label className="block space-y-1.5">
-        <span className="text-[13px] font-medium">Valor cobrado</span>
+        <span className="text-sm font-semibold sm:text-[13px]">Valor cobrado</span>
         <input
           name="valor_cobrado"
           inputMode="decimal"
@@ -147,13 +147,13 @@ export function RegistroDaEntrega({ id, totalAprovado }: { id: number; totalApro
           onChange={(evento) => mudarCobrado(evento.target.value)}
           className={juntar(campo, "tabular-nums")}
         />
-        <span className="block text-xs text-texto-apagado">
+        <span className="block text-[13px] text-texto-apagado sm:text-xs">
           Total aprovado: {centavosEmReais(aprovado)}. Mude só se der desconto.
         </span>
       </label>
 
       <fieldset className="space-y-2">
-        <legend className="mb-1.5 text-[13px] font-medium">Como o cliente pagou</legend>
+        <legend className="mb-1.5 text-sm font-semibold sm:text-[13px]">Como o cliente pagou</legend>
 
         {linhas.map((linha) => (
           <LinhaDePagamento
@@ -167,13 +167,13 @@ export function RegistroDaEntrega({ id, totalAprovado }: { id: number; totalApro
         ))}
 
         {linhas.length === 0 && (
-          <p className="text-xs text-texto-suave">
+          <p className="text-[13px] text-texto-suave sm:text-xs">
             Nada pago agora. O valor fica a receber e pode ser registrado depois, na própria ordem.
           </p>
         )}
 
         <button type="button" onClick={adicionarLinha} className={botao("fantasma", "sm")}>
-          <Plus size={14} strokeWidth={2} />
+          <PlusIcon size={16} />
           {linhas.length === 0 ? "Adicionar pagamento" : "Dividir em outra forma"}
         </button>
       </fieldset>

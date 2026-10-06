@@ -1,7 +1,7 @@
 "use client";
 
-import { MailCheck } from "lucide-react";
 import { useActionState } from "react";
+import { EnvelopeSimpleIcon } from "@/componentes/icones";
 import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, juntar } from "@/componentes/ui/estilos";
@@ -15,13 +15,13 @@ export function FormularioEsqueciSenha() {
 
   if (estado.ok) {
     return (
-      <div className="flex flex-col items-center gap-3 text-center">
-        <MailCheck size={22} strokeWidth={1.75} className="text-sucesso" />
-        <p className="text-sm">
-          Se existir uma conta com <strong className="font-medium">{estado.ok}</strong>, enviamos
+      <div className="flex flex-col items-center rounded-2xl border border-borda bg-realce px-6 py-8 text-center">
+        <EnvelopeSimpleIcon size={44} weight="light" className="text-sucesso" />
+        <p className="mt-4 text-[15px]">
+          Se existir uma conta com <strong className="font-semibold">{estado.ok}</strong>, enviamos
           um link para criar uma nova senha.
         </p>
-        <p className="text-[13px] text-texto-suave">
+        <p className="mt-2 text-[13px] text-texto-apagado">
           O link vale por 2 horas. Olhe também a caixa de spam.
         </p>
       </div>

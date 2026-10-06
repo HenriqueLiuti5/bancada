@@ -5,6 +5,7 @@ import { NOME_DO_COOKIE, SESSAO_EXPIRADA } from "@/lib/sessao";
 const SEM_LOGIN = [
   "/os",
   "/fotos",
+  "/logos",
   "/convite",
   "/redefinir-senha",
   "/confirmar-email",
@@ -41,5 +42,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png).*)"],
 };

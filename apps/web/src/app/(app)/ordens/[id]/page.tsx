@@ -1,5 +1,23 @@
-import { FileText, Lock, Mail, Receipt } from "lucide-react";
 import { CompartilharLink } from "@/componentes/CompartilharLink";
+import {
+  ArrowsLeftRightIcon,
+  CalendarDotsIcon,
+  ChatTextIcon,
+  ClockCounterClockwiseIcon,
+  DeviceMobileIcon,
+  EnvelopeSimpleIcon,
+  FileTextIcon,
+  HashIcon,
+  InfoIcon,
+  LinkSimpleIcon,
+  NotePencilIcon,
+  PackageIcon,
+  PasswordIcon,
+  ReceiptIcon,
+  UserIcon,
+  WrenchIcon,
+  type Icon,
+} from "@/componentes/icones";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { LinhaDoTempo } from "@/componentes/ui/LinhaDoTempo";
@@ -42,11 +60,22 @@ function formatarDia(iso: string): string {
   });
 }
 
-function Propriedade({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {
+function Propriedade({
+  rotulo,
+  icone: Icone,
+  children,
+}: {
+  rotulo: string;
+  icone: Icon;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex items-baseline justify-between gap-4 py-2">
-      <dt className="text-[13px] text-texto-suave">{rotulo}</dt>
-      <dd className="min-w-0 truncate text-right text-[13px] font-medium">{children}</dd>
+    <div className="flex items-center justify-between gap-4 py-2.5">
+      <dt className="flex items-center gap-2.5 text-sm text-texto-apagado sm:text-[13px]">
+        <Icone size={16} className="shrink-0" />
+        {rotulo}
+      </dt>
+      <dd className="min-w-0 truncate text-right text-sm font-semibold sm:text-[13px]">{children}</dd>
     </div>
   );
 }
@@ -62,6 +91,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
   const base = process.env.APP_PUBLIC_URL ?? "http://localhost:3000";
   const linkDoCliente = `${base}/os/${ordem.token_publico}`;
   const ultimoEvento = ordem.eventos.length - 1;
+  const podeEntregar = ordem.transicoes_possiveis.some((transicao) => transicao.valor === "entregue");
 
   return (
     <>
@@ -79,7 +109,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
               data-tour="documentos"
               className={botao("secundario", "sm")}
             >
-              <FileText size={14} strokeWidth={2} />
+              <FileTextIcon size={15} />
               Comprovante
             </a>
             {STATUS_COM_RECIBO.includes(ordem.status) && (
@@ -89,7 +119,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
                 rel="noopener"
                 className={botao("secundario", "sm")}
               >
-                <Receipt size={14} strokeWidth={2} />
+                <ReceiptIcon size={15} />
                 Recibo
               </a>
             )}
@@ -99,7 +129,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-6">
-          <Cartao titulo="Problema relatado">
+          <Cartao titulo="Problema relatado" icone={ChatTextIcon}>
             <p className="text-sm leading-relaxed whitespace-pre-wrap">{ordem.problema_relatado}</p>
           </Cartao>
 
@@ -107,7 +137,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
           <PagamentoDaOrdem ordem={ordem} podeRemover={gerenciaEquipe(usuario)} />
 
-          <Cartao titulo="Detalhes do reparo">
+          <Cartao titulo="Detalhes do reparo" icone={NotePencilIcon}>
             <DetalhesDoReparo ordem={ordem} equipe={equipe} />
           </Cartao>
 
@@ -116,6 +146,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
           <Cartao
             tour="historico"
             titulo="Histórico"
+            icone={ClockCounterClockwiseIcon}
             descricao="Cada mudança de status fica registrada e não pode ser apagada."
           >
             <LinhaDoTempo
@@ -125,7 +156,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
                 atual: indice === ultimoEvento,
                 titulo: evento.de_status ? (
                   <>
-                    <span className="text-texto-suave">{evento.de_label} → </span>
+                    <span className="font-medium text-texto-apagado">{evento.de_label} → </span>
                     {evento.para_label}
                   </>
                 ) : (
@@ -135,8 +166,8 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
                   .filter(Boolean)
                   .join(" · "),
                 complemento: evento.aviso && (
-                  <p className="flex items-center gap-1.5 pt-0.5 text-xs text-texto-suave">
-                    <Mail size={12} strokeWidth={2} />
+                  <p className="flex items-center gap-1.5 pt-1 text-[13px] text-texto-apagado sm:text-xs">
+                    <EnvelopeSimpleIcon size={14} className="text-destaque" />
                     Cliente avisado em {evento.aviso.destino}
                   </p>
                 ),
@@ -148,11 +179,8 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         <aside className="order-first space-y-6 lg:order-none">
           <Cartao
             tour="mudar-status"
-            titulo={
-              ordem.transicoes_possiveis.some((transicao) => transicao.valor === "entregue")
-                ? "Entregar ao cliente"
-                : "Mudar status"
-            }
+            titulo={podeEntregar ? "Entregar ao cliente" : "Mudar status"}
+            icone={podeEntregar ? PackageIcon : ArrowsLeftRightIcon}
           >
             <AcoesDeStatus
               id={ordem.id}
@@ -162,18 +190,27 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
             />
           </Cartao>
 
-          <Cartao titulo="Propriedades">
-            <dl className="-my-2 divide-y divide-borda">
-              <Propriedade rotulo="Cliente">{ordem.cliente_nome}</Propriedade>
-              <Propriedade rotulo="Aparelho">{ordem.aparelho_descricao}</Propriedade>
-              <Propriedade rotulo="IMEI">
-                <span className="font-mono">{ordem.imei_mascarado || "—"}</span>
+          <Cartao titulo="Propriedades" icone={InfoIcon}>
+            <dl className="-my-2.5 divide-y divide-borda">
+              <Propriedade rotulo="Cliente" icone={UserIcon}>
+                {ordem.cliente_nome}
               </Propriedade>
-              <Propriedade rotulo="Técnico">{ordem.tecnico_nome ?? "—"}</Propriedade>
-              <Propriedade rotulo="Prazo">
+              <Propriedade rotulo="Aparelho" icone={DeviceMobileIcon}>
+                {ordem.aparelho_descricao}
+              </Propriedade>
+              <Propriedade rotulo="IMEI" icone={HashIcon}>
+                <span className="tabular-nums">{ordem.imei_mascarado || "—"}</span>
+              </Propriedade>
+              <Propriedade rotulo="Técnico" icone={WrenchIcon}>
+                {ordem.tecnico_nome ?? "—"}
+              </Propriedade>
+              <Propriedade rotulo="Prazo" icone={CalendarDotsIcon}>
                 {ordem.prometida_para ? formatarDia(ordem.prometida_para) : "—"}
               </Propriedade>
-              <Propriedade rotulo={ordem.orcamento_aprovado ? "Aprovado" : "Orçamento"}>
+              <Propriedade
+                rotulo={ordem.orcamento_aprovado ? "Aprovado" : "Orçamento"}
+                icone={ReceiptIcon}
+              >
                 <span className="tabular-nums">
                   {emReais(ordem.orcamento_aprovado ? ordem.total_aprovado : ordem.total_orcamento)}
                 </span>
@@ -181,19 +218,11 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
             </dl>
           </Cartao>
 
-          <Cartao
-            tour="senha"
-            titulo={
-              <span className="flex items-center gap-1.5">
-                <Lock size={13} strokeWidth={2} className="text-texto-suave" />
-                Senha de desbloqueio
-              </span>
-            }
-          >
+          <Cartao tour="senha" titulo="Senha de desbloqueio" icone={PasswordIcon}>
             {podeVerSenha(usuario) ? (
               <SenhaDoAparelho aparelho={ordem.aparelho} />
             ) : (
-              <p className="text-[13px] text-texto-suave">
+              <p className="text-sm text-texto-apagado sm:text-[13px]">
                 Só técnicos e o dono podem ver a senha de desbloqueio.
               </p>
             )}
@@ -202,6 +231,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
           <Cartao
             tour="link-do-cliente"
             titulo="Link do cliente"
+            icone={LinkSimpleIcon}
             descricao="O cliente acompanha o reparo sem criar conta."
           >
             <CompartilharLink

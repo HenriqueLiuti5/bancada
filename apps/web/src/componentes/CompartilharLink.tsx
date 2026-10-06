@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, ExternalLink, MessageCircle } from "lucide-react";
+import { ArrowSquareOutIcon, CheckIcon, CopyIcon, WhatsappLogoIcon } from "@/componentes/icones";
 import { botao, juntar } from "@/componentes/ui/estilos";
 import { useCopiar } from "@/componentes/useCopiar";
 
@@ -28,25 +28,25 @@ export function CompartilharLink({ url, mensagem, rotuloDaPrevia, aoCompartilhar
 
   return (
     <div className="space-y-3">
-      <p className="truncate rounded-lg border border-borda bg-realce px-3 py-2 font-mono text-xs text-texto-suave">
+      <p className="truncate rounded-xl bg-realce px-3.5 py-2.5 font-mono text-xs text-texto-suave">
         {url}
       </p>
 
       <div className="grid grid-cols-2 gap-2">
-        <button type="button" onClick={copiarLink} className={botao("secundario", "sm")}>
-          {copiado ? <Check size={14} strokeWidth={2} /> : <Copy size={14} strokeWidth={2} />}
-          {copiado ? "Copiado" : "Copiar"}
-        </button>
         <a
           href={whatsapp}
           target="_blank"
           rel="noreferrer"
           onClick={() => avisar("whatsapp")}
-          className={botao("secundario", "sm")}
+          className={botao("primario", "sm")}
         >
-          <MessageCircle size={14} strokeWidth={2} />
+          <WhatsappLogoIcon size={15} />
           WhatsApp
         </a>
+        <button type="button" onClick={copiarLink} className={botao("secundario", "sm")}>
+          {copiado ? <CheckIcon size={15} /> : <CopyIcon size={15} />}
+          {copiado ? "Copiado" : "Copiar"}
+        </button>
         {rotuloDaPrevia && (
           <a
             href={url}
@@ -54,7 +54,7 @@ export function CompartilharLink({ url, mensagem, rotuloDaPrevia, aoCompartilhar
             rel="noreferrer"
             className={juntar(botao("fantasma", "sm"), "col-span-2")}
           >
-            <ExternalLink size={14} strokeWidth={2} />
+            <ArrowSquareOutIcon size={15} />
             {rotuloDaPrevia}
           </a>
         )}

@@ -1,7 +1,7 @@
 "use client";
 
-import { Search, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { MagnifyingGlassIcon, UserPlusIcon } from "@/componentes/icones";
 import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { botao, campo, juntar } from "@/componentes/ui/estilos";
 import { formatarTelefone } from "@/lib/telefone";
@@ -59,10 +59,9 @@ function Busca({ onEscolher, onNovo }: Pick<Props, "onEscolher" | "onNovo">) {
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search
-          size={15}
-          strokeWidth={1.75}
-          className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-texto-apagado"
+        <MagnifyingGlassIcon
+          size={16}
+          className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-texto-apagado"
         />
         <input
           type="search"
@@ -72,22 +71,22 @@ function Busca({ onEscolher, onNovo }: Pick<Props, "onEscolher" | "onNovo">) {
           onChange={(evento) => setTermo(evento.target.value)}
           autoComplete="off"
           autoFocus
-          className={juntar(campo, "pl-9")}
+          className={juntar(campo, "pl-10")}
         />
       </div>
 
       {clientes.length > 0 && (
-        <ul className="divide-y divide-borda overflow-hidden rounded-lg border border-borda">
+        <ul className="divide-y divide-borda overflow-hidden rounded-xl border border-borda shadow-suave">
           {clientes.map((cliente) => (
             <li key={cliente.id}>
               <button
                 type="button"
                 onClick={() => onEscolher(cliente)}
-                className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left transition-colors hover:bg-realce"
+                className="flex w-full items-center justify-between gap-3 px-3 py-3 text-left transition-colors hover:bg-realce sm:py-2.5"
               >
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium">{cliente.nome}</span>
-                  <span className="block text-[13px] text-texto-suave">
+                  <span className="block truncate text-sm font-semibold">{cliente.nome}</span>
+                  <span className="block text-sm text-texto-suave sm:text-[13px]">
                     {formatarTelefone(cliente.telefone)}
                   </span>
                 </span>
@@ -102,11 +101,13 @@ function Busca({ onEscolher, onNovo }: Pick<Props, "onEscolher" | "onNovo">) {
       )}
 
       {pronto && clientes.length === 0 && (
-        <p className="text-[13px] text-texto-suave">Nenhum cliente encontrado com “{procurado}”.</p>
+        <p className="text-sm text-texto-suave sm:text-[13px]">
+          Nenhum cliente encontrado com “{procurado}”. Cadastre abaixo.
+        </p>
       )}
 
       <button type="button" onClick={() => onNovo(procurado)} className={botao("secundario", "sm")}>
-        <UserPlus size={14} strokeWidth={2} />
+        <UserPlusIcon size={14} />
         Cadastrar cliente novo
       </button>
     </div>
@@ -184,12 +185,12 @@ export function EscolhaDoCliente(props: Props) {
 
   if (escolhido) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-lg border border-borda bg-realce px-3 py-2.5">
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-anel bg-destaque-suave px-3.5 py-3">
         <input type="hidden" name="modo_cliente" value="existente" />
         <input type="hidden" name="cliente" value={escolhido.id} />
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{escolhido.nome}</p>
-          <p className="text-[13px] text-texto-suave">{formatarTelefone(escolhido.telefone)}</p>
+          <p className="truncate text-sm font-semibold">{escolhido.nome}</p>
+          <p className="text-sm text-texto-suave sm:text-[13px]">{formatarTelefone(escolhido.telefone)}</p>
         </div>
         <button type="button" onClick={onTrocar} className={botao("fantasma", "sm")}>
           Trocar

@@ -48,6 +48,23 @@
         padding-bottom: 8px;
       }
 
+      .cabecalho .identidade {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .cabecalho .identidade > div {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .cabecalho .logo {
+        flex: none;
+      }
+
       .cabecalho .assistencia {
         font-size: 12pt;
         font-weight: 700;
@@ -59,6 +76,8 @@
       }
 
       .cabecalho .direita {
+        flex: none;
+        margin-left: 12px;
         text-align: right;
       }
 
@@ -220,12 +239,22 @@
   </head>
   <body>
     <header class="cabecalho">
-      <div>
-        <div class="assistencia">{{ assistencia.nome }}</div>
-        <div class="miudos">
-          {{ loja.nome }}{% if loja.endereco %} · {{ loja.endereco }}{% endif %}
-          {% if loja.telefone %}<br />Telefone: {{ loja.telefone|telefone }}{% endif %}
-          {% if assistencia.documento %}<br />CNPJ {{ assistencia.documento }}{% endif %}
+      <div class="identidade">
+        {% if logo %}
+          <img
+            class="logo"
+            src="{{ logo.src }}"
+            style="width: {{ logo.largura }}mm; height: {{ logo.altura }}mm"
+            alt=""
+          />
+        {% endif %}
+        <div>
+          <div class="assistencia">{{ assistencia.nome }}</div>
+          <div class="miudos">
+            {{ loja.nome }}{% if loja.endereco %} · {{ loja.endereco }}{% endif %}
+            {% if loja.telefone %}<br />Telefone: {{ loja.telefone|telefone }}{% endif %}
+            {% if assistencia.documento %}<br />CNPJ {{ assistencia.documento }}{% endif %}
+          </div>
         </div>
       </div>
       <div class="direita">

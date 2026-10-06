@@ -1,11 +1,11 @@
 "use client";
 
-import { Plus, ReceiptText, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useRef } from "react";
+import { InvoiceIcon, PlusIcon, ReceiptIcon, TrashIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Mensagem } from "@/componentes/ui/Mensagem";
-import { botao, campo, juntar, seletor } from "@/componentes/ui/estilos";
+import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
 import { emReais } from "@/lib/moeda";
 import type { ItemOrcamento, Ordem } from "@/lib/tipos";
 import { adicionarItem, apagarItem, type EstadoDoItem } from "./acoes";
@@ -22,12 +22,12 @@ function LinhaDoItem({ ordem, item }: { ordem: Ordem; item: ItemOrcamento }) {
   const recusado = ordem.orcamento_aprovado && !item.aprovado;
 
   return (
-    <li className="flex items-center justify-between gap-4 px-5 py-2.5">
+    <li className="flex items-center justify-between gap-4 px-5 py-3">
       <span className="min-w-0">
-        <span className={juntar("block truncate text-sm", recusado && "text-texto-apagado")}>
+        <span className={juntar("block truncate text-sm font-medium", recusado && "text-texto-apagado")}>
           {item.descricao}
         </span>
-        <span className="text-xs text-texto-suave">
+        <span className="text-xs text-texto-apagado">
           {situacaoDoItem(item, ordem.orcamento_aprovado)}
         </span>
       </span>
@@ -35,7 +35,7 @@ function LinhaDoItem({ ordem, item }: { ordem: Ordem; item: ItemOrcamento }) {
       <span className="flex shrink-0 items-center gap-1">
         <span
           className={juntar(
-            "text-sm tabular-nums",
+            "text-sm font-semibold tabular-nums",
             recusado && "text-texto-apagado line-through",
           )}
         >
@@ -49,9 +49,9 @@ function LinhaDoItem({ ordem, item }: { ordem: Ordem; item: ItemOrcamento }) {
             <button
               type="submit"
               title="Remover item"
-              className={juntar(botao("fantasma", "sm"), "px-2")}
+              className={botaoDeIcone}
             >
-              <Trash2 size={14} strokeWidth={1.75} />
+              <TrashIcon size={16} />
               <span className="sr-only">Remover {item.descricao}</span>
             </button>
           </form>
@@ -105,7 +105,7 @@ function NovoItem({ ordem }: { ordem: Ordem }) {
           className={juntar(campo, "w-32 tabular-nums")}
         />
         <button type="submit" disabled={adicionando} className={botao("secundario")}>
-          <Plus size={14} strokeWidth={2} />
+          <PlusIcon size={16} />
           {adicionando ? "Adicionando..." : "Adicionar"}
         </button>
       </div>
@@ -123,6 +123,7 @@ export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
     <Cartao
       tour="orcamento"
       titulo="Orçamento"
+      icone={ReceiptIcon}
       descricao={
         ordem.orcamento_editavel
           ? "O cliente vê o orçamento quando você muda o status para Orçamento enviado. Depois disso, ele não muda mais."
@@ -132,7 +133,7 @@ export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
     >
       {vazio ? (
         <EstadoVazio
-          icone={<ReceiptText size={18} strokeWidth={1.75} />}
+          icone={InvoiceIcon}
           titulo="Nenhum item ainda"
           descricao="Adicione as peças e os serviços do reparo, cada um com o seu valor."
         />
@@ -143,7 +144,7 @@ export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
               <LinhaDoItem key={item.id} ordem={ordem} item={item} />
             ))}
           </ul>
-          <div className="flex items-center justify-between border-t border-borda bg-realce px-5 py-2.5 text-sm font-medium">
+          <div className="flex items-center justify-between border-t border-borda bg-realce px-5 py-3.5 text-sm font-bold">
             <span>{ordem.orcamento_aprovado ? "Total aprovado" : "Total"}</span>
             <span className="tabular-nums">
               {emReais(ordem.orcamento_aprovado ? ordem.total_aprovado : ordem.total_orcamento)}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
-import { botao, campo, juntar, link } from "@/componentes/ui/estilos";
+import { botao, caixaDeMarcar, campo, juntar, link } from "@/componentes/ui/estilos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
 import { cadastrar } from "./acoes";
 
@@ -93,14 +93,14 @@ export function FormularioDeCadastro() {
       </CampoRotulado>
 
       <div className="space-y-1.5">
-        <label className="flex items-start gap-2.5 text-[13px] text-texto-suave">
+        <label className="flex cursor-pointer items-start gap-2.5 text-sm text-texto-suave sm:text-[13px]">
           <input
             type="checkbox"
             name="aceite_dos_termos"
             value="sim"
             required
             defaultChecked={valores.aceite_dos_termos === "sim"}
-            className="mt-0.5 size-4 shrink-0 accent-primario"
+            className={juntar(caixaDeMarcar, "mt-0.5")}
           />
           <span>
             Li e aceito os{" "}
@@ -115,7 +115,7 @@ export function FormularioDeCadastro() {
           </span>
         </label>
         {erros.aceite_dos_termos && (
-          <p className="text-xs text-perigo-forte">{erros.aceite_dos_termos}</p>
+          <p className="text-[13px] text-perigo sm:text-xs">{erros.aceite_dos_termos}</p>
         )}
       </div>
 

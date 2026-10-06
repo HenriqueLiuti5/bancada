@@ -1,4 +1,4 @@
-import { MessageCircle, Store } from "lucide-react";
+import { StorefrontIcon, WhatsappLogoIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Secao } from "@/componentes/ui/Secao";
@@ -64,11 +64,11 @@ function Linha({
     <li className="flex flex-wrap items-start gap-x-4 gap-y-3 px-5 py-4">
       <div className="min-w-0 flex-1 basis-full space-y-1 sm:basis-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-medium">{linha.nome}</p>
+          <p className="text-sm font-semibold">{linha.nome}</p>
           {linha.situacao && <Selo status={linha.situacao} rotulo={linha.situacao_rotulo} />}
           {linha.alerta && <Selo status={linha.alerta} rotulo={textoDoAlerta(linha)} />}
         </div>
-        {contato && <p className="text-[13px] break-words text-texto-suave">{contato}</p>}
+        {contato && <p className="text-[13px] break-words text-texto-apagado">{contato}</p>}
         <p className="text-xs text-texto-apagado first-letter:uppercase">
           {movimento(linha, nomeDoMes)}
         </p>
@@ -80,7 +80,7 @@ function Linha({
           rel="noopener noreferrer"
           className={botao(linha.alerta ? "primario" : "secundario", "sm")}
         >
-          <MessageCircle size={14} strokeWidth={2} />
+          <WhatsappLogoIcon size={14} />
           WhatsApp
           <span className="sr-only"> de {linha.dono || linha.nome}</span>
         </a>
@@ -102,7 +102,7 @@ export function SecaoAssistencias({
   const resumo = `${contagem(assistencias.length, "cadastrada", "cadastradas")}, ${contagem(pedemContato, "pede contato", "pedem contato")}. Vêm primeiro as que não abriram nenhuma ordem 3 dias depois do cadastro e as que estão há 14 dias sem ordem nova.`;
 
   return (
-    <Secao titulo="Assistências" descricao={resumo}>
+    <Secao titulo="Assistências" icone={StorefrontIcon} descricao={resumo}>
       <Cartao semEspaco>
         {assistencias.length > 0 ? (
           <ul className="divide-y divide-borda">
@@ -112,7 +112,7 @@ export function SecaoAssistencias({
           </ul>
         ) : (
           <EstadoVazio
-            icone={<Store size={18} strokeWidth={1.75} />}
+            icone={StorefrontIcon}
             titulo="Nenhuma assistência cadastrada ainda"
             descricao="Cada cadastro novo aparece aqui, e um e-mail avisa você na hora."
           />

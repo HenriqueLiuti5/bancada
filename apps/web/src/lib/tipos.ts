@@ -54,7 +54,14 @@ export type ConvitePublico = {
   expira_em: string;
 };
 
-export type Assistencia = { nome: string; documento: string; whatsapp: string };
+export type Logo = { assinatura: string; largura: number; altura: number };
+
+export type Assistencia = {
+  nome: string;
+  documento: string;
+  whatsapp: string;
+  logo: Logo | null;
+};
 
 export type MembroDaEquipe = {
   id: number;

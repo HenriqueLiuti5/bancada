@@ -149,6 +149,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "acompanhamento_publico": os.environ.get("THROTTLE_PUBLICO", "60/min"),
         "arquivo_de_foto": os.environ.get("THROTTLE_FOTOS", "240/min"),
+        "arquivo_de_logo": os.environ.get("THROTTLE_LOGOS", "240/min"),
         "login": os.environ.get("THROTTLE_LOGIN", "20/min"),
         "cadastro": os.environ.get("THROTTLE_CADASTRO", "10/hour"),
         "recuperacao_de_senha": os.environ.get("THROTTLE_RECUPERACAO_DE_SENHA", "10/hour"),

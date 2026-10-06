@@ -1,4 +1,4 @@
-import { ExternalLink, Receipt } from "lucide-react";
+import { ArrowSquareOutIcon, ReceiptIcon, SealCheckIcon } from "@/componentes/icones";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
@@ -55,7 +55,7 @@ function BotaoDaFatura({ fatura, atrasada }: { fatura: Fatura; atrasada: boolean
       className={botao(atrasada ? "primario" : "secundario")}
     >
       {atrasada ? "Pagar a fatura" : "Ver a próxima fatura"}
-      <ExternalLink size={14} strokeWidth={2} />
+      <ArrowSquareOutIcon size={14} />
     </a>
   );
 }
@@ -66,10 +66,10 @@ function LinhaDaFatura({ fatura }: { fatura: Fatura }) {
     : "";
 
   return (
-    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3">
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium tabular-nums">{emReais(fatura.valor)}</p>
-        <p className="text-[13px] text-texto-suave">
+        <p className="text-sm font-semibold tabular-nums">{emReais(fatura.valor)}</p>
+        <p className="text-[13px] text-texto-apagado">
           Vence em {dataCurta(fatura.vencimento)}
           {pagamento}
         </p>
@@ -83,7 +83,7 @@ function LinhaDaFatura({ fatura }: { fatura: Fatura }) {
           className={botao("fantasma", "sm")}
         >
           {EM_ABERTO.has(fatura.situacao) ? "Pagar" : "Ver"}
-          <ExternalLink size={13} strokeWidth={2} />
+          <ArrowSquareOutIcon size={13} />
         </a>
       )}
     </li>
@@ -118,7 +118,7 @@ export default async function PaginaDaAssinatura() {
       />
 
       <div className="max-w-3xl space-y-6">
-        <Cartao titulo="Situação">
+        <Cartao titulo="Situação" icone={SealCheckIcon}>
           <div className="space-y-5">
             <p className="text-sm leading-relaxed text-texto-suave">
               {explicacaoDaAssinatura(assinatura)}
@@ -144,7 +144,7 @@ export default async function PaginaDaAssinatura() {
           </div>
         </Cartao>
 
-        <Cartao titulo="Faturas" semEspaco>
+        <Cartao titulo="Faturas" icone={ReceiptIcon} semEspaco>
           {assinatura.faturas.length > 0 ? (
             <ul className="divide-y divide-borda">
               {assinatura.faturas.map((fatura) => (
@@ -153,7 +153,7 @@ export default async function PaginaDaAssinatura() {
             </ul>
           ) : (
             <EstadoVazio
-              icone={<Receipt size={18} strokeWidth={1.75} />}
+              icone={ReceiptIcon}
               titulo="Nenhuma fatura ainda"
               descricao="A primeira aparece aqui assim que você assinar."
             />

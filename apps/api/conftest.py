@@ -1,10 +1,15 @@
+import io
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
 from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
+from PIL import Image
 
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.ordens.models import OrdemServico
+from bancada.tenants import logo
 from bancada.tenants.models import Loja, Papel, Tenant, Usuario
 
 if TYPE_CHECKING:
@@ -143,3 +148,12 @@ def celery_no_mesmo_processo(settings: Any) -> None:
 @pytest.fixture(autouse=True)
 def limites_de_requisicao_zerados() -> None:
     cache.clear()
+
+
+@pytest.fixture
+def tenant_com_logo(tenant: Tenant, settings: Any, tmp_path: Path) -> Tenant:
+    settings.MEDIA_ROOT = str(tmp_path)
+    destino = io.BytesIO()
+    Image.new("RGBA", (240, 80), (21, 128, 61, 255)).save(destino, format="PNG")
+    logo.trocar(tenant, SimpleUploadedFile("logo.png", destino.getvalue(), "image/png"))
+    return tenant

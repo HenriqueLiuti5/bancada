@@ -1,18 +1,24 @@
 "use client";
 
-import { CircleHelp, Compass, ListChecks, MessageCircle, type LucideIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { botao, juntar } from "@/componentes/ui/estilos";
+import {
+  CompassIcon,
+  ListChecksIcon,
+  QuestionIcon,
+  WhatsappLogoIcon,
+  type Icon,
+} from "@/componentes/icones";
+import { focoNaLateral, itemDaLateral, juntar, rotuloDaLateral } from "@/componentes/ui/estilos";
+import { posicaoDoMenu, useMenuSuspenso } from "@/componentes/useMenuSuspenso";
 import { mostrarPrimeirosPassos } from "./acoes";
 import { useTour } from "./tour";
 
 const ITEM =
-  "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[13px] text-texto transition-colors hover:bg-realce";
+  "flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-left text-sm font-medium text-texto transition-colors duration-150 hover:bg-realce sm:py-2";
 
-function Rotulo({ icone: Icone, children }: { icone: LucideIcon; children: React.ReactNode }) {
+function Rotulo({ icone: Icone, children }: { icone: Icon; children: React.ReactNode }) {
   return (
     <>
-      <Icone size={15} strokeWidth={1.75} className="shrink-0 text-texto-suave" />
+      <Icone size={18} className="shrink-0 text-icone" />
       {children}
     </>
   );
@@ -22,30 +28,17 @@ type Props = {
   linkDoSuporte: string | null;
   podeReabrirPrimeirosPassos: boolean;
   lugar: "barra-lateral" | "cabecalho";
+  recolhida?: boolean;
 };
 
-export function MenuDeAjuda({ linkDoSuporte, podeReabrirPrimeirosPassos, lugar }: Props) {
+export function MenuDeAjuda({
+  linkDoSuporte,
+  podeReabrirPrimeirosPassos,
+  lugar,
+  recolhida = false,
+}: Props) {
   const { abrirTourDaTela } = useTour();
-  const [aberto, setAberto] = useState(false);
-  const caixa = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!aberto) return;
-
-    function fecharSeClicarFora(evento: PointerEvent) {
-      if (!caixa.current?.contains(evento.target as Node)) setAberto(false);
-    }
-    function fecharNoEsc(evento: KeyboardEvent) {
-      if (evento.key === "Escape") setAberto(false);
-    }
-
-    document.addEventListener("pointerdown", fecharSeClicarFora);
-    document.addEventListener("keydown", fecharNoEsc);
-    return () => {
-      document.removeEventListener("pointerdown", fecharSeClicarFora);
-      document.removeEventListener("keydown", fecharNoEsc);
-    };
-  }, [aberto]);
+  const { aberto, setAberto, caixa, painel } = useMenuSuspenso();
 
   if (!abrirTourDaTela && !podeReabrirPrimeirosPassos && !linkDoSuporte) return null;
 
@@ -61,38 +54,44 @@ export function MenuDeAjuda({ linkDoSuporte, podeReabrirPrimeirosPassos, lugar }
       <button
         type="button"
         data-tour="ajuda"
+        data-dica={naBarraLateral ? "Ajuda" : undefined}
         aria-expanded={aberto}
-        aria-haspopup="menu"
-        title="Ajuda"
+        aria-controls={painel}
+        title={naBarraLateral ? undefined : "Ajuda"}
         onClick={() => setAberto((atual) => !atual)}
-        className={
+        className={juntar(
           naBarraLateral
-            ? "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm text-texto-suave transition-colors hover:bg-realce hover:text-texto"
-            : botao("fantasma", "sm")
-        }
+            ? `${itemDaLateral} text-lateral-texto-suave hover:bg-lateral-hover hover:text-lateral-texto`
+            : "flex size-10 items-center justify-center rounded-full text-lateral-texto-suave transition-colors duration-150 hover:bg-lateral-hover hover:text-lateral-texto",
+          focoNaLateral,
+        )}
       >
-        <CircleHelp size={16} strokeWidth={1.75} />
-        {naBarraLateral ? "Ajuda" : <span className="sr-only">Ajuda</span>}
+        <QuestionIcon size={naBarraLateral ? 20 : 21} className="shrink-0" />
+        {naBarraLateral ? (
+          <span className={rotuloDaLateral(recolhida)}>Ajuda</span>
+        ) : (
+          <span className="sr-only">Ajuda</span>
+        )}
       </button>
 
       {aberto && (
         <div
-          role="menu"
+          id={painel}
           className={juntar(
-            "absolute z-20 w-64 space-y-0.5 rounded-xl border border-borda bg-superficie p-1.5 shadow-lg",
-            naBarraLateral ? "bottom-full left-0 mb-1.5" : "top-full right-0 mt-2",
+            "absolute z-30 w-72 space-y-0.5 rounded-2xl border border-borda bg-superficie p-1.5 text-texto shadow-elevada",
+            posicaoDoMenu(naBarraLateral, recolhida),
           )}
         >
           {abrirTourDaTela && (
-            <button type="button" role="menuitem" onClick={verTour} className={ITEM}>
-              <Rotulo icone={Compass}>Ver o tour desta tela</Rotulo>
+            <button type="button" onClick={verTour} className={ITEM}>
+              <Rotulo icone={CompassIcon}>Ver o tour desta tela</Rotulo>
             </button>
           )}
 
           {podeReabrirPrimeirosPassos && (
             <form action={mostrarPrimeirosPassos} onSubmit={() => setAberto(false)}>
-              <button type="submit" role="menuitem" className={ITEM}>
-                <Rotulo icone={ListChecks}>Mostrar os primeiros passos</Rotulo>
+              <button type="submit" className={ITEM}>
+                <Rotulo icone={ListChecksIcon}>Mostrar os primeiros passos</Rotulo>
               </button>
             </form>
           )}
@@ -102,11 +101,10 @@ export function MenuDeAjuda({ linkDoSuporte, podeReabrirPrimeirosPassos, lugar }
               href={linkDoSuporte}
               target="_blank"
               rel="noreferrer"
-              role="menuitem"
               onClick={() => setAberto(false)}
               className={ITEM}
             >
-              <Rotulo icone={MessageCircle}>Fale com a gente no WhatsApp</Rotulo>
+              <Rotulo icone={WhatsappLogoIcon}>Fale com a gente no WhatsApp</Rotulo>
             </a>
           )}
         </div>

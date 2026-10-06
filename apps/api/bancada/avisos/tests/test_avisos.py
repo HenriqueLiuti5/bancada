@@ -6,10 +6,11 @@ from django.core import mail
 from django.core.mail.backends.base import BaseEmailBackend
 from rest_framework.test import APIClient
 
-from bancada.avisos import tasks
+from bancada.avisos import mensagem, tasks
 from bancada.avisos.models import AvisoDeStatus
 from bancada.ordens.estados import StatusOS
 from bancada.ordens.models import EventoOS, OrdemServico
+from bancada.tenants.models import Loja, Tenant
 
 
 class BackendQueFalha(BaseEmailBackend):
@@ -20,6 +21,16 @@ class BackendQueFalha(BaseEmailBackend):
 def avisar(ordem: OrdemServico, status: str) -> str:
     evento = ordem.eventos.filter(para_status=status).latest("criado_em")
     return tasks.avisar_cliente.run(evento.pk)
+
+
+def html_do(enviado: Any) -> str:
+    conteudo, tipo = enviado.alternatives[0]
+    assert tipo == "text/html"
+    return str(conteudo)
+
+
+def partes(mensagem: Any) -> list[str]:
+    return [parte.get_content_type() for parte in mensagem.walk()]
 
 
 @pytest.mark.django_db
@@ -84,7 +95,7 @@ def test_o_aviso_nao_carrega_dado_sensivel(ordem_de_quem_tem_email: OrdemServico
 
     avisar(ordem_de_quem_tem_email, StatusOS.ORCAMENTO_ENVIADO)
     enviado = mail.outbox[0]
-    bruto = json.dumps([enviado.subject, enviado.body])
+    bruto = json.dumps([enviado.subject, enviado.body, html_do(enviado)])
 
     assert ordem_de_quem_tem_email.aparelho.imei not in bruto
     assert "1234" not in bruto
@@ -172,3 +183,77 @@ def test_entrega_manda_o_recibo_em_anexo(ordem_de_quem_tem_email: OrdemServico) 
     assert nome == f"OS-{ordem_de_quem_tem_email.numero}-recibo.pdf"
     assert tipo == "application/pdf"
     assert conteudo[:4] == b"%PDF"
+
+
+@pytest.mark.django_db
+def test_aviso_tem_versao_em_html_com_a_logo_embutida(
+    tenant_com_logo: Tenant, ordem_de_quem_tem_email: OrdemServico
+) -> None:
+    avisar(ordem_de_quem_tem_email, StatusOS.RECEBIDO)
+
+    enviado = mail.outbox[0]
+    html = html_do(enviado)
+    assert f'src="cid:{mensagem.CID_DA_LOGO}"' in html
+    assert "Assistência Central" in html
+    assert ordem_de_quem_tem_email.token_publico in html
+
+    mime = enviado.message()
+    assert partes(mime) == [
+        "multipart/alternative",
+        "text/plain",
+        "multipart/related",
+        "text/html",
+        "image/png",
+    ]
+    imagem = next(parte for parte in mime.walk() if parte.get_content_type() == "image/png")
+    assert imagem["Content-ID"] == f"<{mensagem.CID_DA_LOGO}>"
+
+
+@pytest.mark.django_db
+def test_aviso_sem_logo_tem_html_sem_imagem(ordem_de_quem_tem_email: OrdemServico) -> None:
+    avisar(ordem_de_quem_tem_email, StatusOS.RECEBIDO)
+
+    enviado = mail.outbox[0]
+    assert "cid:" not in html_do(enviado)
+    assert partes(enviado.message()) == ["multipart/alternative", "text/plain", "text/html"]
+
+
+@pytest.mark.django_db
+def test_recibo_continua_em_anexo_quando_o_aviso_tem_logo(
+    tenant_com_logo: Tenant, ordem_de_quem_tem_email: OrdemServico
+) -> None:
+    for status in [
+        StatusOS.EM_DIAGNOSTICO,
+        StatusOS.ORCAMENTO_ENVIADO,
+        StatusOS.APROVADO,
+        StatusOS.EM_REPARO,
+        StatusOS.PRONTO,
+        StatusOS.ENTREGUE,
+    ]:
+        ordem_de_quem_tem_email.transicionar(status)
+    mail.outbox.clear()
+
+    avisar(ordem_de_quem_tem_email, StatusOS.ENTREGUE)
+
+    assert partes(mail.outbox[0].message()) == [
+        "multipart/mixed",
+        "multipart/alternative",
+        "text/plain",
+        "multipart/related",
+        "text/html",
+        "image/png",
+        "application/pdf",
+    ]
+
+
+@pytest.mark.django_db
+def test_aviso_traz_o_nome_da_loja_quando_a_assistencia_tem_mais_de_uma(
+    tenant: Tenant, ordem_de_quem_tem_email: OrdemServico
+) -> None:
+    Loja.objects.create(tenant=tenant, nome="Filial Centro")
+
+    avisar(ordem_de_quem_tem_email, StatusOS.RECEBIDO)
+
+    enviado = mail.outbox[0]
+    assert "Assistência Central · Matriz" in enviado.body
+    assert "Matriz" in html_do(enviado)

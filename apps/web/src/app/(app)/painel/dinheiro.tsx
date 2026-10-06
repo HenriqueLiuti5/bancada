@@ -1,5 +1,13 @@
 import { BarrasHorizontais } from "@/componentes/BarrasHorizontais";
 import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
+import {
+  HandCoinsIcon,
+  MoneyIcon,
+  ReceiptIcon,
+  StampIcon,
+  ThumbsUpIcon,
+  WalletIcon,
+} from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Secao } from "@/componentes/ui/Secao";
 import { contagem, emPorcentagem } from "@/lib/formatos";
@@ -18,11 +26,14 @@ function Recebido({ dinheiro }: { dinheiro: Dinheiro }) {
 
   return (
     <Cartao>
-      <p className="text-[13px] text-texto-suave">Recebido no período</p>
-      <p className="mt-2 text-4xl leading-none font-semibold tracking-tight sm:text-5xl">
+      <div className="flex items-center gap-2.5">
+        <WalletIcon size={22} className="shrink-0 text-icone" />
+        <p className="text-sm font-medium text-texto-apagado">Recebido no período</p>
+      </div>
+      <p className="mt-4 text-4xl leading-none font-bold tracking-tight tabular-nums sm:text-5xl">
         {emReais(recebido.atual)}
       </p>
-      <div className="mt-3 text-xs text-texto-apagado">
+      <div className="mt-2 text-xs text-texto-apagado">
         <Variacao
           atual={Number(recebido.atual)}
           anterior={Number(recebido.anterior)}
@@ -30,10 +41,10 @@ function Recebido({ dinheiro }: { dinheiro: Dinheiro }) {
         />
       </div>
 
-      <div className="mt-6 border-t border-borda pt-4">
-        <p className="text-[13px] text-texto-suave">
+      <div className="mt-6 rounded-xl bg-realce px-4 py-3">
+        <p className="text-[13px] text-texto-apagado">
           Descontos dados:{" "}
-          <span className="font-medium text-texto">{emReais(descontos.atual)}</span>
+          <span className="font-bold text-texto">{emReais(descontos.atual)}</span>
         </p>
         <div className="mt-1 text-xs text-texto-apagado">
           <Variacao
@@ -56,10 +67,11 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
       titulo="Dinheiro"
       descricao="O que entrou no caixa no período. Só quem é dono vê esta parte."
       tour="dinheiro"
+      icone={WalletIcon}
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <Recebido dinheiro={dinheiro} />
-        <Cartao titulo="Por forma de pagamento" semEspaco>
+        <Cartao titulo="Por forma de pagamento" icone={MoneyIcon} semEspaco>
           <BarrasHorizontais
             empilhada
             larguraDoValor="w-auto"
@@ -76,17 +88,20 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
       <GradeDeIndicadores>
         <Indicador
           rotulo="A receber"
+          icone={HandCoinsIcon}
           valor={emReais(aReceber.valor)}
           nota={`${ordensAReceber} sem pagamento completo`}
           href={aReceber.ordens > 0 ? "/ordens?situacao=a_receber" : undefined}
         />
         <Indicador
           rotulo="Aprovado em aberto"
+          icone={StampIcon}
           valor={emReais(dinheiro.aprovado_em_aberto)}
           nota="vai entrar quando as ordens abertas forem entregues"
         />
         <Indicador
           rotulo="Ticket médio"
+          icone={ReceiptIcon}
           valor={ticket.atual === null ? "—" : emReais(ticket.atual)}
           nota={
             <Variacao
@@ -98,6 +113,7 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
         />
         <Indicador
           rotulo="Orçamentos aprovados"
+          icone={ThumbsUpIcon}
           valor={emPorcentagem(taxa.atual)}
           nota={
             <Variacao

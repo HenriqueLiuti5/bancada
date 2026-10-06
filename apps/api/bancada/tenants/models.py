@@ -1,6 +1,7 @@
 import secrets
 from datetime import datetime, timedelta
 from typing import Any
+from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
@@ -18,11 +19,23 @@ def normalizar_email(valor: str) -> str:
     return valor.strip().lower()
 
 
+def caminho_da_logo(instancia: "Tenant", nome_enviado: str) -> str:
+    return f"logos/{instancia.pk}/{uuid4().hex}.png"
+
+
 class Tenant(Carimbado):
     nome = models.CharField(max_length=120)
     slug = models.SlugField(max_length=140, unique=True)
     documento = models.CharField(max_length=18, blank=True)
     whatsapp = models.CharField(max_length=20, blank=True)
+    logo = models.ImageField(
+        upload_to=caminho_da_logo,
+        width_field="logo_largura",
+        height_field="logo_altura",
+        blank=True,
+    )
+    logo_largura = models.PositiveIntegerField(null=True, blank=True, editable=False)
+    logo_altura = models.PositiveIntegerField(null=True, blank=True, editable=False)
     ativo = models.BooleanField(default=True)
     termos_aceitos_em = models.DateTimeField(null=True, blank=True)
     versao_dos_termos = models.CharField(max_length=40, blank=True)
@@ -34,6 +47,10 @@ class Tenant(Carimbado):
 
     def __str__(self) -> str:
         return self.nome
+
+    @property
+    def tem_varias_lojas(self) -> bool:
+        return self.lojas.count() > 1
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.slug:

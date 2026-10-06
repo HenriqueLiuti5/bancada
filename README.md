@@ -6,7 +6,7 @@ criar conta.
 
 ## Estado atual
 
-Fases 4A a 4E concluídas, do lançamento self-service.
+Fases 4A a 4E e 4G concluídas, do lançamento self-service; falta a publicação (4F).
 A assistência abre a ordem no balcão, buscando o cliente pelo nome ou telefone ou cadastrando
 cliente e aparelho na mesma tela, fotografa o aparelho, imprime o comprovante que o cliente assina
 no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o reparo sem criar
@@ -48,6 +48,19 @@ que não abriram nenhuma ordem 3 dias depois do cadastro e as que estão há 14 
 com um botão que abre o WhatsApp do dono com a mensagem pronta. Cada cadastro novo chega também por
 e-mail. O painel lê todas as assistências por um caminho próprio, registrado em auditoria, e nunca
 mostra os clientes delas.
+
+O visual é branco e limpo, com botões verdes arredondados e uma barra lateral preta, que pode ser
+recolhida para mostrar só os ícones. Cada menu, cartão, indicador e status tem um ícone de traço
+fino, sem fundo, e os status têm cor própria para serem achados de relance na lista. O sistema abre
+sempre claro; quem preferir escolhe no menu da conta o modo escuro, em cinza-escuro. No celular, a
+navegação fica numa barra embaixo da tela, como nos aplicativos. Na página que o cliente final abre,
+uma barra com ícones mostra em que etapa o reparo está, junto com a previsão de entrega e os botões
+para ligar ou chamar a loja no WhatsApp.
+
+A assistência pode enviar a própria logo. Ela aparece para o cliente no topo da página de
+acompanhamento, na prévia do link no WhatsApp, nos e-mails, que agora têm versão em HTML, e no
+comprovante e no recibo. Quando a assistência tem mais de uma loja, o cliente vê também o nome da
+loja da ordem.
 
 Quem entra pela primeira vez aprende sozinho. Na primeira visita a cada tela principal, um tour
 destaca os botões um de cada vez e diz o que cada um faz, mostrando só o que o papel da pessoa
@@ -93,7 +106,7 @@ entrega vai anexado ao e-mail que o cliente recebe quando retira o aparelho.
 | Cache e fila | Redis |
 | Tarefas assíncronas | Celery e Celery Beat |
 | Frontend | Next.js 16 (App Router) + React 19 + TypeScript + Tailwind 4 |
-| Interface | Tokens de cor próprios com modo claro e escuro, fonte Geist, ícones Lucide |
+| Interface | Paleta própria em tokens de cor, claro por padrão com escuro opcional, fonte Plus Jakarta Sans, ícones Phosphor |
 | Ambiente | Docker Compose |
 | CI | GitHub Actions |
 
@@ -218,11 +231,12 @@ make clean       # derruba tudo e apaga o banco local
 ## Estrutura
 
 ```
-apps/api                      Backend Django, Celery e testes
-apps/web                      Frontend Next.js
-apps/web/src/componentes/ui   Peças visuais reutilizáveis (botão, campo, cartão, selo...)
-docs/                         Plano do projeto e registros de decisão de arquitetura
-infra/                        Infraestrutura de produção (a partir da Fase 4F)
+apps/api                              Backend Django, Celery e testes
+apps/web                              Frontend Next.js
+apps/web/src/componentes/ui           Peças visuais reutilizáveis (botão, campo, cartão, selo...)
+apps/web/src/componentes/icones.tsx   Todos os ícones do sistema, num lugar só
+docs/                                 Plano do projeto e registros de decisão de arquitetura
+infra/                                Infraestrutura de produção (a partir da Fase 4F)
 ```
 
 ## Documentação

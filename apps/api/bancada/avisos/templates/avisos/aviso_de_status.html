@@ -1,0 +1,80 @@
+{% load formatos %}<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>{{ assunto }}</title>
+  </head>
+  <body style="margin: 0; padding: 0; background: #f6f6f6">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f6f6f6">
+      <tr>
+        <td align="center" style="padding: 24px 12px">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            style="max-width: 520px; background: #ffffff; border: 1px solid #e6e6e6; border-radius: 16px"
+          >
+            <tr>
+              <td style="padding: 28px 28px 0; font-family: Arial, Helvetica, sans-serif">
+                {% if logo %}
+                  <img
+                    src="cid:{{ logo.cid }}"
+                    width="{{ logo.largura }}"
+                    height="{{ logo.altura }}"
+                    alt="{{ assistencia }}"
+                    style="display: block; border: 0; margin: 0 0 14px"
+                  />
+                {% endif %}
+                <p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: bold; color: #171717">
+                  {{ assistencia }}
+                </p>
+                {% if loja %}
+                  <p style="margin: 2px 0 0; font-size: 14px; line-height: 20px; color: #666666">{{ loja }}</p>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="padding: 24px 28px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 24px; color: #171717"
+              >
+                <p style="margin: 0 0 12px">Olá, {{ primeiro_nome }}.</p>
+                <p style="margin: 0 0 24px">{{ chamada }}</p>
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="border-radius: 999px; background: #15803d">
+                      <a
+                        href="{{ link }}"
+                        style="display: inline-block; padding: 12px 24px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 20px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 999px"
+                        >Acompanhar o reparo</a
+                      >
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin: 16px 0 0; font-size: 12px; line-height: 18px; color: #666666; word-break: break-all">
+                  Ou copie o endereço: {{ link }}
+                </p>
+                <p style="margin: 20px 0 0; font-size: 13px; line-height: 20px; color: #666666">
+                  Ordem de serviço nº {{ numero }} · {{ aparelho }}
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="padding: 20px 28px 28px; font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 20px; color: #666666"
+              >
+                <div style="border-top: 1px solid #e6e6e6; padding-top: 16px">
+                  {% if telefone %}Telefone: {{ telefone|telefone }}<br />{% endif %}
+                  Esta mensagem é automática.{% if telefone %} Para falar com a gente, use o telefone acima.{% endif %}
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

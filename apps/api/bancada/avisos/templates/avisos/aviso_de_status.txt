@@ -1,4 +1,4 @@
-{% autoescape off %}Olá, {{ primeiro_nome }}.
+{% load formatos %}{% autoescape off %}Olá, {{ primeiro_nome }}.
 
 {{ chamada }}
 
@@ -7,7 +7,7 @@ Acompanhe o reparo do seu {{ aparelho }} por aqui:
 
 Ordem de serviço nº {{ numero }}.
 
-{{ assistencia }}{% if telefone %}
-Telefone: {{ telefone }}{% endif %}
+{{ assistencia }}{% if loja %} · {{ loja }}{% endif %}{% if telefone %}
+Telefone: {{ telefone|telefone }}{% endif %}
 
 Esta mensagem é automática. Para falar com a gente, responda pelo telefone acima.{% endautoescape %}

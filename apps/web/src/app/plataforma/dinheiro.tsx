@@ -1,3 +1,4 @@
+import { PiggyBankIcon, WalletIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Secao } from "@/componentes/ui/Secao";
 import { juntar } from "@/componentes/ui/estilos";
@@ -12,10 +13,10 @@ function Linha({ rotulo, nota, valor }: { rotulo: string; nota?: string; valor: 
   return (
     <li className="flex items-baseline justify-between gap-4 py-2">
       <span className="min-w-0">
-        <span className="block text-sm">{rotulo}</span>
+        <span className="block text-sm font-medium">{rotulo}</span>
         {nota && <span className="block text-xs text-texto-apagado">{nota}</span>}
       </span>
-      <span className="shrink-0 text-sm tabular-nums">{valor}</span>
+      <span className="shrink-0 text-sm font-semibold tabular-nums">{valor}</span>
     </li>
   );
 }
@@ -25,11 +26,14 @@ function Lucro({ dinheiro, nome }: { dinheiro: Dinheiro; nome: string }) {
 
   return (
     <Cartao>
-      <p className="text-[13px] text-texto-suave">Lucro de {nome}</p>
+      <div className="flex items-center gap-2.5">
+        <PiggyBankIcon size={22} className="shrink-0 text-icone" />
+        <p className="text-sm font-medium text-texto-apagado">Lucro de {nome}</p>
+      </div>
       <p
         className={juntar(
-          "mt-2 text-4xl leading-none font-semibold tracking-tight sm:text-5xl",
-          negativo && "text-perigo-forte",
+          "mt-4 text-4xl leading-none font-bold tracking-tight tabular-nums sm:text-5xl",
+          negativo && "text-perigo",
         )}
       >
         {emReais(dinheiro.lucro)}
@@ -58,7 +62,7 @@ export function SecaoDinheiro({
   nome: string;
 }) {
   return (
-    <Secao titulo="Dinheiro" descricao="O que as assinaturas pagaram no mês, o que saiu e o que sobrou.">
+    <Secao titulo="Dinheiro" icone={WalletIcon} descricao="O que as assinaturas pagaram no mês, o que saiu e o que sobrou.">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <Lucro dinheiro={dinheiro} nome={nome} />
         <CustosDoMes key={mes} mes={mes} nome={nome} custos={dinheiro.lista_de_custos} />

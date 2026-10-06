@@ -80,3 +80,12 @@ Continua sendo uma saída válida se as dependências de sistema virarem um prob
 
 Guardar todo PDF gerado foi considerado e adiado. Traria custo de armazenamento e uma pergunta
 difícil — qual versão vale — sem resolver nenhum problema que exista hoje.
+
+## Atualização: logo da assistência no cabeçalho
+
+O comprovante e o recibo passaram a trazer a logo da assistência, quando ela tem uma, à esquerda do
+nome no cabeçalho (ADR 0025). A logo entra em base64, como as fotos, com o tamanho calculado a
+partir da largura e da altura gravadas, em até 42 mm de largura e 16 mm de altura. Com a medida
+fixada em milímetros, tanto uma logo quadrada quanto uma bem larga cabem no cabeçalho sem espremer
+o nome da assistência nem invadir o título e o número da ordem, à direita. A linha da loja, com
+endereço e telefone, continua logo abaixo do nome, como antes.

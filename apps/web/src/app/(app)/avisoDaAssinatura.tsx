@@ -1,12 +1,24 @@
-import { CalendarClock, CircleAlert, Lock, type LucideIcon } from "lucide-react";
 import Link from "next/link";
+import {
+  ClockCountdownIcon,
+  LockSimpleIcon,
+  WarningCircleIcon,
+  type Icon,
+} from "@/componentes/icones";
+import { Alerta } from "@/componentes/ui/Alerta";
 import { botao } from "@/componentes/ui/estilos";
 import { diaPorExtenso } from "@/lib/datas";
 import type { ResumoDaAssinatura } from "@/lib/tipos";
 
 const DIAS_PARA_LEMBRAR_DO_FIM_DO_TESTE = 7;
 
-type Aviso = { icone: LucideIcon; cor: string; texto: string; acao?: string };
+type Aviso = {
+  icone: Icon;
+  tom: "info" | "aviso" | "perigo";
+  titulo: string;
+  texto: string;
+  acao?: string;
+};
 
 function quandoTermina(dias: number): string {
   if (dias <= 0) return "hoje";
@@ -26,11 +38,12 @@ function acaoDoDono(assinatura: ResumoDaAssinatura): string {
 }
 
 function avisoDeSoConsulta(assinatura: ResumoDaAssinatura, eDono: boolean): Aviso {
-  const texto = `${motivoDoBloqueio(assinatura)}, então o Bancada está só para consulta.`;
+  const motivo = `${motivoDoBloqueio(assinatura)}.`;
   return {
-    icone: Lock,
-    cor: "text-perigo-forte",
-    texto: eDono ? texto : `${texto} Fale com o dono da assistência.`,
+    icone: LockSimpleIcon,
+    tom: "perigo",
+    titulo: "O Bancada está só para consulta",
+    texto: eDono ? motivo : `${motivo} Fale com o dono da assistência.`,
     acao: eDono ? acaoDoDono(assinatura) : undefined,
   };
 }
@@ -38,9 +51,10 @@ function avisoDeSoConsulta(assinatura: ResumoDaAssinatura, eDono: boolean): Avis
 function avisoAoDono(assinatura: ResumoDaAssinatura): Aviso | null {
   if (assinatura.situacao === "inadimplente" && assinatura.pagar_ate) {
     return {
-      icone: CircleAlert,
-      cor: "text-status-espera",
-      texto: `A mensalidade venceu e ainda não foi paga. Pague até ${diaPorExtenso(assinatura.pagar_ate)} para o Bancada não ficar só para consulta.`,
+      icone: WarningCircleIcon,
+      tom: "aviso",
+      titulo: "A mensalidade venceu e ainda não foi paga",
+      texto: `Pague até ${diaPorExtenso(assinatura.pagar_ate)} para o Bancada não ficar só para consulta.`,
       acao: "Pagar a fatura",
     };
   }
@@ -50,18 +64,20 @@ function avisoAoDono(assinatura: ResumoDaAssinatura): Aviso | null {
     assinatura.dias_de_teste <= DIAS_PARA_LEMBRAR_DO_FIM_DO_TESTE
   ) {
     return {
-      icone: CalendarClock,
-      cor: "text-status-espera",
-      texto: `Seu teste grátis termina ${quandoTermina(assinatura.dias_de_teste)}. Assine para continuar editando depois disso.`,
+      icone: ClockCountdownIcon,
+      tom: "info",
+      titulo: `Seu teste grátis termina ${quandoTermina(assinatura.dias_de_teste)}`,
+      texto: "Assine para continuar editando depois disso.",
       acao: "Assinar",
     };
   }
 
   if (assinatura.situacao === "cancelada" && assinatura.acesso_ate) {
     return {
-      icone: CalendarClock,
-      cor: "text-status-espera",
-      texto: `A assinatura foi cancelada. Você usa normalmente até ${diaPorExtenso(assinatura.acesso_ate)}; depois, o Bancada fica só para consulta.`,
+      icone: ClockCountdownIcon,
+      tom: "aviso",
+      titulo: "A assinatura foi cancelada",
+      texto: `Você usa normalmente até ${diaPorExtenso(assinatura.acesso_ate)}; depois, o Bancada fica só para consulta.`,
       acao: "Assinar de novo",
     };
   }
@@ -80,17 +96,21 @@ export function AvisoDaAssinatura({ assinatura, eDono }: Props) {
   const aviso = avisoPara(assinatura, eDono);
   if (!aviso) return null;
 
-  const Icone = aviso.icone;
-
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-borda bg-superficie px-4 py-3 shadow-sutil">
-      <Icone size={16} strokeWidth={1.75} className={`shrink-0 ${aviso.cor}`} />
-      <p className="min-w-0 flex-1 text-[13px] text-texto-suave">{aviso.texto}</p>
-      {aviso.acao && (
-        <Link href="/assinatura" className={botao("secundario", "sm")}>
-          {aviso.acao}
-        </Link>
-      )}
-    </div>
+    <Alerta
+      tom={aviso.tom}
+      icone={aviso.icone}
+      titulo={aviso.titulo}
+      className="mb-6"
+      acao={
+        aviso.acao && (
+          <Link href="/assinatura" className={botao("primario", "sm")}>
+            {aviso.acao}
+          </Link>
+        )
+      }
+    >
+      {aviso.texto}
+    </Alerta>
   );
 }

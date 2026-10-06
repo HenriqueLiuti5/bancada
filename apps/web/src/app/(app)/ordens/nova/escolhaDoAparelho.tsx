@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Plus, Smartphone } from "lucide-react";
+import { CheckCircleIcon, DeviceMobileIcon, PlusIcon } from "@/componentes/icones";
 import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { campo, juntar } from "@/componentes/ui/estilos";
 import type { Aparelho, Cliente } from "@/lib/tipos";
@@ -15,7 +15,7 @@ type Props = {
 };
 
 const OPCAO =
-  "flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors";
+  "flex min-h-12 w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm font-medium transition-colors duration-150";
 
 function Opcao({
   marcada,
@@ -33,11 +33,15 @@ function Opcao({
       onClick={onClick}
       className={juntar(
         OPCAO,
-        marcada ? "border-texto bg-realce" : "border-borda hover:bg-realce",
+        marcada
+          ? "border-anel bg-destaque-suave ring-4 ring-anel/10"
+          : "border-borda-forte hover:bg-realce",
       )}
     >
       {children}
-      {marcada && <Check size={15} strokeWidth={2} className="ml-auto shrink-0" />}
+      {marcada && (
+        <CheckCircleIcon size={22} weight="fill" className="ml-auto shrink-0 text-primario" />
+      )}
     </button>
   );
 }
@@ -113,7 +117,11 @@ function CamposDoAparelhoNovo({ erros, valores }: Pick<Props, "erros" | "valores
 
 export function EscolhaDoAparelho({ cliente, clienteNovo, escolha, erros, valores, onEscolher }: Props) {
   if (!cliente && !clienteNovo) {
-    return <p className="text-[13px] text-texto-suave">Escolha ou cadastre o cliente primeiro.</p>;
+    return (
+      <p className="rounded-xl border border-dashed border-borda-forte px-4 py-3.5 text-sm text-texto-apagado">
+        Escolha ou cadastre o cliente primeiro.
+      </p>
+    );
   }
 
   const aparelhos = cliente?.aparelhos ?? [];
@@ -130,12 +138,12 @@ export function EscolhaDoAparelho({ cliente, clienteNovo, escolha, erros, valore
               marcada={escolha === String(aparelho.id)}
               onClick={() => onEscolher(String(aparelho.id))}
             >
-              <Smartphone size={15} strokeWidth={1.75} className="shrink-0 text-texto-suave" />
+              <DeviceMobileIcon size={17} className="shrink-0 text-texto-apagado" />
               <span className="truncate">{descricao(aparelho)}</span>
             </Opcao>
           ))}
           <Opcao marcada={escolha === "novo"} onClick={() => onEscolher("novo")}>
-            <Plus size={15} strokeWidth={1.75} className="shrink-0 text-texto-suave" />
+            <PlusIcon size={17} className="shrink-0 text-texto-apagado" />
             Outro aparelho
           </Opcao>
         </div>

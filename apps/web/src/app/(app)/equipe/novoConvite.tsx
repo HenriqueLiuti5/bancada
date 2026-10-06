@@ -1,8 +1,8 @@
 "use client";
 
-import { Send } from "lucide-react";
 import { useActionState, useState } from "react";
 import { CompartilharLink } from "@/componentes/CompartilharLink";
+import { PaperPlaneTiltIcon } from "@/componentes/icones";
 import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, seletor } from "@/componentes/ui/estilos";
@@ -76,7 +76,7 @@ export function NovoConvite({ assistencia }: { assistencia: string }) {
 
       <div className="flex flex-wrap items-center gap-3 border-t border-borda pt-4">
         <button type="submit" disabled={enviando} className={botao("primario")}>
-          <Send size={15} strokeWidth={2} />
+          <PaperPlaneTiltIcon size={15} />
           {enviando ? "Criando..." : "Criar convite"}
         </button>
         {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}

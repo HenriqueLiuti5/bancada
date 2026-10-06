@@ -9,17 +9,17 @@ do próprio sistema.
 
 ## Decisão
 
-### Tour por tela, com driver.js
+### Tour por tela
 
 No primeiro acesso a cada tela principal (lista de ordens, abertura de ordem, detalhe da ordem,
 painel e equipe), um tour destaca as partes da tela uma de cada vez, com um balão que diz o que
 cada uma faz. A última parada sugere o que fazer em seguida.
 
-O tour é montado com o driver.js, uma biblioteca pequena, sem dependências e com licença MIT. Ele
-cuida do que dá trabalho fazer à mão: escurecer o resto da tela, rolar até o elemento, posicionar
-o balão sem sair da tela e responder ao teclado. O balão recebe as cores do sistema visual (ADR
-0017), então funciona no modo claro e no escuro. No modo escuro o fundo escurece mais, porque a
-tela já é escura e o destaque perdia contraste.
+O tour foi montado primeiro com o driver.js, uma biblioteca pequena, sem dependências e com licença
+MIT. Na Fase 4G ele virou um componente do próprio sistema, porque o balão do driver.js piscava a
+cada troca de passo (ADR 0024). O componente rola até o elemento, contorna o elemento com um anel
+verde, posiciona o balão sem sair da tela e responde ao teclado: setas para andar e Esc para sair.
+O balão recebe as cores do sistema visual, então funciona no modo claro e no escuro.
 
 Os textos de cada tour ficam em `apps/web/src/app/(app)/roteiros.ts`. Cada parada aponta para um
 elemento pela marca `data-tour`, e não por classe CSS ou posição na tela: uma mudança de estilo não
@@ -33,8 +33,9 @@ Ao começar, cada parada passa por dois filtros:
   sozinho o celular, onde a barra lateral dá lugar a um cabeçalho, e as partes que dependem do
   estado da ordem, como o orçamento de uma ordem já encerrada.
 
-Enquanto o tour roda, a tela não aceita cliques fora do balão. O tour termina com "Entendi", no ×
-ou com Esc; clicar no fundo escuro não fecha nada, para ninguém perder o tour sem querer.
+O tour não escurece a tela nem bloqueia cliques: o resto da página continua funcionando. Ele
+termina com "Entendi", no × ou com Esc. Se a pessoa sair da tela no meio, o tour fecha e conta como
+visto. Até a Fase 4G, a tela escurecia e não aceitava cliques fora do balão.
 
 ### O que já foi visto fica na conta
 
@@ -113,7 +114,9 @@ se repetiria em cada aparelho e depois de cada limpeza do navegador, contrariand
 Escrever o tour do zero daria controle total, mas posicionar o balão sem sair da tela, rolar até o
 elemento e escurecer o resto em qualquer tamanho de tela é justamente a parte difícil. Outras
 bibliotecas populares foram descartadas: o react-joyride, por ficar amarrado às versões do React; e
-o Intro.js, pela licença AGPL, que exige licença paga para uso num produto comercial fechado.
+o Intro.js, pela licença AGPL, que exige licença paga para uso num produto comercial fechado. Na
+Fase 4G a conta mudou: sem o fundo escurecido e com a animação entre passos virando requisito, o
+tour passou a ser escrito do zero (ADR 0024).
 
 Vídeos curtos no lugar do tour ficariam desatualizados a cada mudança de tela, e custam para gravar
 de novo. O tour usa a própria tela, então não tem como mostrar uma versão velha.

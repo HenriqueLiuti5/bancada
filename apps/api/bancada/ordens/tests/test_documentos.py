@@ -9,6 +9,7 @@ from bancada.ordens import documentos
 from bancada.ordens.estados import StatusOS
 from bancada.ordens.models import FotoOS, ItemOrcamento, OrdemServico
 from bancada.ordens.tests.test_fotos import imagem_enviada
+from bancada.tenants.models import Tenant
 
 
 @pytest.fixture(autouse=True)
@@ -135,3 +136,16 @@ def test_intruso_nao_imprime_documento_de_ordem_alheia(
 @pytest.mark.django_db
 def test_sem_autenticacao_nao_ha_documento(ordem: OrdemServico) -> None:
     assert APIClient().get(f"/api/ordens/{ordem.pk}/comprovante/").status_code == 401
+
+
+@pytest.mark.django_db
+def test_documentos_trazem_a_logo_da_assistencia(
+    tenant_com_logo: Tenant, ordem: OrdemServico
+) -> None:
+    assert 'class="logo"' in documentos.html_do_comprovante(ordem)
+    assert 'class="logo"' in documentos.html_do_recibo(ordem)
+
+
+@pytest.mark.django_db
+def test_documentos_sem_logo_continuam_iguais(ordem: OrdemServico) -> None:
+    assert 'class="logo"' not in documentos.html_do_comprovante(ordem)

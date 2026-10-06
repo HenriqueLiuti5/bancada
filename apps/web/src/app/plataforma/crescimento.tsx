@@ -1,4 +1,5 @@
 import { Colunas } from "@/componentes/Colunas";
+import { TrendUpIcon, UserPlusIcon, WalletIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Secao } from "@/componentes/ui/Secao";
 import {
@@ -17,10 +18,11 @@ const DIAS_DEPOIS_DA_SEGUNDA = 6;
 
 export function SecaoCrescimento({ crescimento }: { crescimento: Crescimento }) {
   return (
-    <Secao titulo="Crescimento" descricao="Cadastros e receita ao longo do tempo, até hoje.">
+    <Secao titulo="Crescimento" icone={TrendUpIcon} descricao="Cadastros e receita ao longo do tempo, até hoje.">
       <div className="grid items-start gap-6 lg:grid-cols-2">
         <Cartao
           titulo="Cadastros por semana"
+          icone={UserPlusIcon}
           descricao="Assistências novas nas últimas 12 semanas"
           semEspaco
         >
@@ -41,6 +43,7 @@ export function SecaoCrescimento({ crescimento }: { crescimento: Crescimento }) 
 
         <Cartao
           titulo="Recebido por mês"
+          icone={WalletIcon}
           descricao="Mensalidades pagas nos últimos 12 meses"
           semEspaco
         >

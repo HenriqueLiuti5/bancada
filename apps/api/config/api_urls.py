@@ -45,6 +45,7 @@ from bancada.tenants.views_convites import (
     ConvitePublicoView,
     ConviteViewSet,
 )
+from bancada.tenants.views_logo import ArquivoDaLogoView, LogoDaAssistenciaView
 
 router = DefaultRouter()
 router.register("clientes", ClienteViewSet, basename="cliente")
@@ -66,6 +67,7 @@ urlpatterns = [
     path("auth/email/confirmar/", ConfirmarEmailView.as_view(), name="confirmar-email"),
     path("auth/email/reenviar/", ReenviarConfirmacaoView.as_view(), name="reenviar-confirmacao"),
     path("assistencia/", AssistenciaView.as_view(), name="assistencia"),
+    path("assistencia/logo/", LogoDaAssistenciaView.as_view(), name="logo-da-assistencia"),
     path("lojas/", LojasView.as_view(), name="lojas"),
     path("lojas/<int:pk>/", LojaView.as_view(), name="loja"),
     path("equipe/", EquipeView.as_view(), name="equipe"),
@@ -79,6 +81,11 @@ urlpatterns = [
         "fotos/arquivo/<str:assinatura>/",
         transaction.non_atomic_requests(ArquivoDaFotoView.as_view()),
         name="arquivo-da-foto",
+    ),
+    path(
+        "logos/arquivo/<str:assinatura>/",
+        transaction.non_atomic_requests(ArquivoDaLogoView.as_view()),
+        name="arquivo-da-logo",
     ),
     path(
         "publico/os/<str:token>/",

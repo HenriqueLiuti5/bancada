@@ -1,7 +1,7 @@
 "use client";
 
-import { Eye, ShieldCheck } from "lucide-react";
 import { useActionState } from "react";
+import { EyeIcon, ShieldCheckIcon } from "@/componentes/icones";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, juntar } from "@/componentes/ui/estilos";
 import { verSenhaDoAparelho, type EstadoDaSenha } from "./acoes";
@@ -14,11 +14,11 @@ export function SenhaDoAparelho({ aparelho }: { aparelho: number }) {
   if (estado.revelada) {
     return (
       <div className="space-y-2">
-        <p className="rounded-lg border border-borda bg-realce px-3 py-2 font-mono text-base tracking-wider">
+        <p className="rounded-xl bg-realce px-3.5 py-2.5 font-mono text-base tracking-wider">
           {estado.senha || "Nenhuma senha cadastrada"}
         </p>
-        <p className="flex items-start gap-1.5 text-xs text-texto-suave">
-          <ShieldCheck size={13} strokeWidth={2} className="mt-px shrink-0" />
+        <p className="flex items-start gap-1.5 text-[13px] text-texto-suave sm:text-xs">
+          <ShieldCheckIcon size={14} className="mt-px shrink-0 text-sucesso" />
           Esta consulta ficou registrada na auditoria, com seu usuário e o horário.
         </p>
       </div>
@@ -29,10 +29,10 @@ export function SenhaDoAparelho({ aparelho }: { aparelho: number }) {
     <form action={acao} className="space-y-2">
       <input type="hidden" name="aparelho" value={aparelho} />
       <button type="submit" disabled={consultando} className={juntar(botao("secundario", "sm"), "w-full")}>
-        <Eye size={14} strokeWidth={2} />
+        <EyeIcon size={16} />
         {consultando ? "Consultando..." : "Revelar senha"}
       </button>
-      <p className="text-xs text-texto-apagado">Cada consulta fica registrada na auditoria.</p>
+      <p className="text-[13px] text-texto-apagado sm:text-xs">Cada consulta fica registrada na auditoria.</p>
       {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
     </form>
   );

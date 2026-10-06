@@ -1,11 +1,17 @@
-import { ChevronLeft, ChevronRight, ClipboardList, Plus, SearchX } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  ClipboardTextIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+} from "@/componentes/icones";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Segmento, Segmentos } from "@/componentes/ui/Segmentos";
 import { Selo } from "@/componentes/ui/Selo";
-import { botao } from "@/componentes/ui/estilos";
+import { botao, juntar } from "@/componentes/ui/estilos";
 import { ErroDaApi, chamarApi } from "@/lib/api";
 import { FUSO_HORARIO } from "@/lib/datas";
 import type { Catalogo, OrdemResumo, Pagina, Usuario } from "@/lib/tipos";
@@ -18,8 +24,7 @@ export const dynamic = "force-dynamic";
 const FILTROS = ["busca", "situacao", "status", "tecnico", "atrasadas", "ordem"] as const;
 const POR_PAGINA = 25;
 
-const COLUNAS =
-  "grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center gap-x-4 sm:grid-cols-[3.5rem_minmax(0,1fr)_8rem_5.5rem_10rem]";
+const COLUNAS = "sm:grid sm:grid-cols-[3.5rem_minmax(0,1fr)_8rem_5.5rem_10.5rem] sm:items-center sm:gap-x-4";
 
 type Parametros = Record<string, string | string[] | undefined>;
 
@@ -107,8 +112,12 @@ export default async function ListaDeOrdens({
         titulo="Ordens de serviço"
         descricao={pagina.count === 0 ? "Nenhuma ordem encontrada" : total}
         acoes={
-          <Link href="/ordens/nova" data-tour="nova-ordem" className={botao("primario")}>
-            <Plus size={15} strokeWidth={2} />
+          <Link
+            href="/ordens/nova"
+            data-tour="nova-ordem"
+            className={juntar(botao("primario"), "max-lg:hidden")}
+          >
+            <PlusIcon size={18} />
             Nova ordem
           </Link>
         }
@@ -167,12 +176,12 @@ export default async function ListaDeOrdens({
 
         <div
           data-tour="lista"
-          className="overflow-hidden rounded-xl border border-borda bg-superficie shadow-sutil"
+          className="overflow-hidden rounded-2xl border border-borda bg-superficie shadow-cartao"
         >
           {pagina.results.length === 0 ? (
             filtrando ? (
               <EstadoVazio
-                icone={<SearchX size={18} strokeWidth={1.75} />}
+                icone={MagnifyingGlassIcon}
                 titulo="Nenhuma ordem com esses filtros"
                 descricao="Tente outra busca ou limpe os filtros para ver todas as ordens."
                 acao={
@@ -183,12 +192,12 @@ export default async function ListaDeOrdens({
               />
             ) : (
               <EstadoVazio
-                icone={<ClipboardList size={18} strokeWidth={1.75} />}
+                icone={ClipboardTextIcon}
                 titulo="Nenhuma ordem por aqui ainda"
                 descricao="Abra a primeira ordem de serviço quando um aparelho chegar ao balcão."
                 acao={
                   <Link href="/ordens/nova" className={botao("primario", "sm")}>
-                    <Plus size={14} strokeWidth={2} />
+                    <PlusIcon size={16} />
                     Nova ordem
                   </Link>
                 }
@@ -197,13 +206,13 @@ export default async function ListaDeOrdens({
           ) : (
             <>
               <div
-                className={`${COLUNAS} border-b border-borda bg-realce px-5 py-2 text-xs font-medium text-texto-suave`}
+                className={`${COLUNAS} hidden border-b border-borda px-5 py-3 text-xs font-semibold text-texto-apagado`}
               >
                 <span>Nº</span>
                 <span>Aparelho e cliente</span>
-                <span className="hidden sm:block">Técnico</span>
-                <span className="hidden sm:block">Aberta</span>
-                <span className="text-right sm:text-left">Status</span>
+                <span>Técnico</span>
+                <span>Aberta</span>
+                <span>Status</span>
               </div>
 
               <ul className="divide-y divide-borda">
@@ -211,17 +220,21 @@ export default async function ListaDeOrdens({
                   <li key={ordem.id}>
                     <Link
                       href={`/ordens/${ordem.id}`}
-                      className={`${COLUNAS} px-5 py-3 transition-colors hover:bg-realce`}
+                      className={`${COLUNAS} grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-0.5 px-4 py-3.5 transition-colors duration-150 hover:bg-realce sm:px-5`}
                     >
-                      <span className="font-mono text-[13px] text-texto-suave">
+                      <span className="hidden text-[13px] font-semibold text-texto-apagado tabular-nums sm:block">
                         #{ordem.numero}
                       </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-medium">
+                      <span className="contents sm:block sm:min-w-0">
+                        <span className="block truncate text-[15px] font-semibold sm:text-sm">
                           {ordem.aparelho_descricao}
                         </span>
-                        <span className="block truncate text-[13px] text-texto-suave">
+                        <span className="col-span-2 block truncate text-sm text-texto-apagado sm:text-[13px]">
                           {ordem.cliente_nome} · {ordem.problema_relatado}
+                        </span>
+                        <span className="col-span-2 mt-1 block text-[13px] text-texto-apagado sm:hidden">
+                          #{ordem.numero} · {formatarData(ordem.criado_em)}
+                          {ordem.tecnico_nome && ` · ${ordem.tecnico_nome}`}
                         </span>
                       </span>
                       <span className="hidden truncate text-[13px] text-texto-suave sm:block">
@@ -230,7 +243,7 @@ export default async function ListaDeOrdens({
                       <span className="hidden text-[13px] text-texto-suave tabular-nums sm:block">
                         {formatarData(ordem.criado_em)}
                       </span>
-                      <span className="justify-self-end sm:justify-self-start">
+                      <span className="col-start-2 row-start-1 justify-self-end sm:col-start-auto sm:row-start-auto sm:justify-self-start">
                         <Selo status={ordem.status} rotulo={ordem.status_label} />
                       </span>
                     </Link>
@@ -239,8 +252,8 @@ export default async function ListaDeOrdens({
               </ul>
 
               {(pagina.previous || pagina.next) && (
-                <div className="flex items-center justify-between gap-4 border-t border-borda px-5 py-3">
-                  <p className="text-[13px] text-texto-suave tabular-nums">
+                <div className="flex items-center justify-between gap-4 border-t border-borda px-5 py-3.5">
+                  <p className="text-[13px] text-texto-apagado tabular-nums">
                     {primeira}–{ultima} de {pagina.count}
                   </p>
                   <div className="flex gap-2">
@@ -249,7 +262,7 @@ export default async function ListaDeOrdens({
                         href={paginaVizinha(consulta, numeroDaPagina - 1)}
                         className={botao("secundario", "sm")}
                       >
-                        <ChevronLeft size={14} strokeWidth={2} />
+                        <CaretLeftIcon size={14} />
                         Anterior
                       </Link>
                     )}
@@ -259,7 +272,7 @@ export default async function ListaDeOrdens({
                         className={botao("secundario", "sm")}
                       >
                         Próxima
-                        <ChevronRight size={14} strokeWidth={2} />
+                        <CaretRightIcon size={14} />
                       </Link>
                     )}
                   </div>

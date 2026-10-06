@@ -1,10 +1,10 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
 import { useActionState } from "react";
+import { InvoiceIcon, TrashIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Mensagem } from "@/componentes/ui/Mensagem";
-import { botao, campo, juntar } from "@/componentes/ui/estilos";
+import { botao, botaoDeIcone, campo, juntar } from "@/componentes/ui/estilos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
 import { emReais } from "@/lib/moeda";
 import type { CustoDoMes } from "@/lib/tipos";
@@ -14,18 +14,18 @@ const INICIAL: EstadoDoFormulario = {};
 
 function LinhaDoCusto({ custo }: { custo: CustoDoMes }) {
   return (
-    <li className="flex items-center justify-between gap-4 px-5 py-2">
-      <span className="min-w-0 truncate text-sm">{custo.descricao}</span>
+    <li className="flex items-center justify-between gap-4 px-5 py-2.5">
+      <span className="min-w-0 truncate text-sm font-medium">{custo.descricao}</span>
       <span className="flex shrink-0 items-center gap-1">
-        <span className="text-sm tabular-nums">{emReais(custo.valor)}</span>
+        <span className="text-sm font-semibold tabular-nums">{emReais(custo.valor)}</span>
         <form action={removerCusto}>
           <input type="hidden" name="id" value={custo.id} />
           <button
             type="submit"
             title="Remover custo lançado errado"
-            className={juntar(botao("fantasma", "sm"), "px-2")}
+            className={botaoDeIcone}
           >
-            <Trash2 size={14} strokeWidth={1.75} />
+            <TrashIcon size={16} />
             <span className="sr-only">Remover {custo.descricao}</span>
           </button>
         </form>
@@ -50,6 +50,7 @@ export function CustosDoMes({
   return (
     <Cartao
       titulo={`Custos de ${nome}`}
+      icone={InvoiceIcon}
       descricao="Servidor, domínio, e-mail e o que mais for pago no mês."
       semEspaco
     >
@@ -60,7 +61,7 @@ export function CustosDoMes({
           ))}
         </ul>
       ) : (
-        <p className="px-5 py-4 text-[13px] text-texto-suave">Nenhum custo lançado em {nome}.</p>
+        <p className="px-5 py-5 text-[13px] text-texto-apagado">Nenhum custo lançado em {nome}.</p>
       )}
 
       <form action={acao} className="space-y-3 border-t border-borda p-5">

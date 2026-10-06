@@ -1,3 +1,11 @@
+import {
+  CrownIcon,
+  HeadsetIcon,
+  ShieldCheckIcon,
+  UserPlusIcon,
+  UsersIcon,
+  WrenchIcon,
+} from "@/componentes/icones";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { chamarApi } from "@/lib/api";
@@ -11,10 +19,15 @@ import { NovoConvite } from "./novoConvite";
 export const dynamic = "force-dynamic";
 
 const PAPEIS = [
-  { nome: "Dono", descricao: "Faz tudo, inclusive gerenciar a equipe." },
-  { nome: "Técnico", descricao: "Trabalha as ordens, vê a senha de desbloqueio e pode apagar fotos." },
+  { nome: "Dono", icone: CrownIcon, descricao: "Faz tudo, inclusive gerenciar a equipe." },
+  {
+    nome: "Técnico",
+    icone: WrenchIcon,
+    descricao: "Trabalha as ordens, vê a senha de desbloqueio e pode apagar fotos.",
+  },
   {
     nome: "Atendente",
+    icone: HeadsetIcon,
     descricao: "Abre ordens e atende o cliente. Não vê a senha de desbloqueio nem apaga nada.",
   },
 ];
@@ -47,7 +60,7 @@ export default async function Equipe() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-6">
-          <Cartao tour="pessoas" titulo="Pessoas" semEspaco>
+          <Cartao tour="pessoas" titulo="Pessoas" icone={UsersIcon} semEspaco>
             <ul className="divide-y divide-borda">
               {pagina.results.map((membro) => (
                 <Membro key={membro.id} membro={membro} souEu={membro.id === usuario.id} />
@@ -61,6 +74,7 @@ export default async function Equipe() {
           <Cartao
             tour="convidar"
             titulo="Convidar pessoa"
+            icone={UserPlusIcon}
             descricao="Você informa o nome e o papel. A pessoa abre o link do convite e cria a própria senha."
           >
             <NovoConvite assistencia={assistencia} />
@@ -68,12 +82,15 @@ export default async function Equipe() {
         </div>
 
         <aside>
-          <Cartao tour="papeis" titulo="Papéis">
-            <dl className="space-y-3">
-              {PAPEIS.map((papel) => (
-                <div key={papel.nome} className="space-y-0.5">
-                  <dt className="text-[13px] font-medium">{papel.nome}</dt>
-                  <dd className="text-[13px] text-texto-suave">{papel.descricao}</dd>
+          <Cartao tour="papeis" titulo="Papéis" icone={ShieldCheckIcon}>
+            <dl className="space-y-4">
+              {PAPEIS.map(({ nome, icone: Icone, descricao }) => (
+                <div key={nome} className="flex gap-3">
+                  <Icone size={20} className="mt-px shrink-0 text-icone" />
+                  <div className="space-y-0.5">
+                    <dt className="text-sm font-semibold">{nome}</dt>
+                    <dd className="text-[13px] text-texto-apagado">{descricao}</dd>
+                  </div>
                 </div>
               ))}
             </dl>

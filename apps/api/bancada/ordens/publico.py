@@ -8,6 +8,7 @@ from django.utils import timezone
 from bancada.ordens.estados import ESTADOS_FINAIS, StatusOS
 from bancada.ordens.fotos import assinar
 from bancada.ordens.models import FotoOS, OrdemServico
+from bancada.tenants import logo
 
 DIAS_ATE_O_LINK_EXPIRAR = 90
 SEGUNDOS_DE_CACHE = 60
@@ -97,7 +98,9 @@ def montar(ordem: OrdemServico) -> dict[str, Any]:
         "cliente_primeiro_nome": ordem.cliente.nome.split()[0],
         "assistencia": {
             "nome": ordem.tenant.nome,
+            "loja": ordem.loja_para_o_cliente,
             "telefone": ordem.loja.telefone,
+            "logo": logo.para_exibir(ordem.tenant),
         },
         "aberta_em": ordem.criado_em.isoformat(),
         "prometida_para": ordem.prometida_para.isoformat() if ordem.prometida_para else None,

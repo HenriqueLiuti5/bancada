@@ -1,10 +1,10 @@
-import { Timer } from "lucide-react";
 import { BarrasHorizontais } from "@/componentes/BarrasHorizontais";
 import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
+import { FilePlusIcon, GaugeIcon, PackageIcon, StackIcon, TimerIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Secao } from "@/componentes/ui/Secao";
-import { PontoDeStatus } from "@/componentes/ui/Selo";
+import { IconeDeStatus } from "@/componentes/ui/Selo";
 import { emDias, emHoras } from "@/lib/formatos";
 import type { Painel } from "@/lib/tipos";
 import { Variacao } from "./variacao";
@@ -14,12 +14,13 @@ function TempoPorEtapa({ etapas }: { etapas: Painel["operacao"]["tempo_por_etapa
     <Cartao
       tour="etapas"
       titulo="Tempo em cada etapa"
+      icone={TimerIcon}
       descricao="Quanto uma ordem fica, em média, em cada etapa antes de seguir para a próxima."
       semEspaco
     >
       {etapas.length === 0 ? (
         <EstadoVazio
-          icone={<Timer size={18} strokeWidth={1.75} />}
+          icone={TimerIcon}
           titulo="Nenhuma etapa concluída no período"
           descricao="Quando as ordens mudarem de status, o tempo de cada etapa aparece aqui."
         />
@@ -30,7 +31,7 @@ function TempoPorEtapa({ etapas }: { etapas: Painel["operacao"]["tempo_por_etapa
           linhas={etapas.map((etapa) => ({
             chave: etapa.status,
             rotulo: etapa.rotulo,
-            marca: <PontoDeStatus status={etapa.status} />,
+            marca: <IconeDeStatus status={etapa.status} />,
             medida: etapa.horas,
             valor: emHoras(etapa.horas),
           }))}
@@ -45,6 +46,7 @@ function FilaPorStatus({ linhas }: { linhas: Painel["agora"]["por_status"] }) {
     <Cartao
       tour="fila"
       titulo="Fila por status"
+      icone={StackIcon}
       descricao="Quantas ordens estão em cada etapa agora"
       semEspaco
     >
@@ -53,7 +55,7 @@ function FilaPorStatus({ linhas }: { linhas: Painel["agora"]["por_status"] }) {
         linhas={linhas.map((linha) => ({
           chave: linha.status,
           rotulo: linha.rotulo,
-          marca: <PontoDeStatus status={linha.status} />,
+          marca: <IconeDeStatus status={linha.status} />,
           medida: linha.total,
           valor: String(linha.total),
           href: `/ordens?status=${linha.status}`,
@@ -68,15 +70,17 @@ export function SecaoOperacao({ painel }: { painel: Painel }) {
   const emNumero = (valor: number) => valor.toLocaleString("pt-BR");
 
   return (
-    <Secao titulo="Operação" descricao="O ritmo da bancada no período." tour="operacao">
+    <Secao titulo="Operação" icone={GaugeIcon} descricao="O ritmo da bancada no período." tour="operacao">
       <GradeDeIndicadores colunas={3}>
         <Indicador
           rotulo="Ordens abertas"
+          icone={FilePlusIcon}
           valor={emNumero(abertas.atual)}
           nota={<Variacao atual={abertas.atual} anterior={abertas.anterior} formatar={emNumero} />}
         />
         <Indicador
           rotulo="Ordens entregues"
+          icone={PackageIcon}
           valor={emNumero(entregues.atual)}
           nota={
             <Variacao atual={entregues.atual} anterior={entregues.anterior} formatar={emNumero} />
@@ -84,6 +88,7 @@ export function SecaoOperacao({ painel }: { painel: Painel }) {
         />
         <Indicador
           rotulo="Tempo médio de reparo"
+          icone={TimerIcon}
           valor={emDias(reparo.atual)}
           nota={<Variacao atual={reparo.atual} anterior={reparo.anterior} formatar={emDias} />}
         />

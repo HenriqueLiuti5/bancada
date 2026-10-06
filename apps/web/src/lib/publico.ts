@@ -1,3 +1,5 @@
+import type { Logo } from "@/lib/tipos";
+
 const BASE = process.env.API_INTERNAL_URL ?? "http://localhost:8000";
 
 export type EtapaPublica = { status: string; rotulo: string; em: string };
@@ -19,7 +21,7 @@ export type AcompanhamentoPublico = {
   encerrada: boolean;
   aparelho: string;
   cliente_primeiro_nome: string;
-  assistencia: { nome: string; telefone: string };
+  assistencia: { nome: string; loja: string; telefone: string; logo: Logo | null };
   aberta_em: string;
   prometida_para: string | null;
   entregue_em: string | null;
@@ -53,4 +55,8 @@ export async function buscarAcompanhamento(token: string): Promise<ResultadoPubl
   if (!resposta.ok) return { tipo: "indisponivel" };
 
   return { tipo: "ok", dados: (await resposta.json()) as AcompanhamentoPublico };
+}
+
+export function nomeParaOCliente(assistencia: AcompanhamentoPublico["assistencia"]): string {
+  return assistencia.loja ? `${assistencia.nome} · ${assistencia.loja}` : assistencia.nome;
 }

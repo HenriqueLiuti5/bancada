@@ -1,10 +1,10 @@
 "use client";
 
-import { CircleCheck, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useRef } from "react";
+import { CheckCircleIcon, TrashIcon, WalletIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Mensagem } from "@/componentes/ui/Mensagem";
-import { botao, campo, juntar, seletor } from "@/componentes/ui/estilos";
+import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
 import { FUSO_HORARIO } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import { FORMAS_DE_PAGAMENTO } from "@/lib/pagamentos";
@@ -24,12 +24,12 @@ function dataCurta(iso: string): string {
 
 function Linha({ rotulo, valor, detalhe }: { rotulo: string; valor: string; detalhe?: string }) {
   return (
-    <li className="flex items-center justify-between gap-4 px-5 py-2.5">
+    <li className="flex items-center justify-between gap-4 px-5 py-3">
       <span className="min-w-0">
-        <span className="block text-sm">{rotulo}</span>
-        {detalhe && <span className="text-xs text-texto-suave">{detalhe}</span>}
+        <span className="block text-sm font-medium">{rotulo}</span>
+        {detalhe && <span className="text-xs text-texto-apagado">{detalhe}</span>}
       </span>
-      <span className="shrink-0 text-sm tabular-nums">{valor}</span>
+      <span className="shrink-0 text-sm font-semibold tabular-nums">{valor}</span>
     </li>
   );
 }
@@ -48,13 +48,13 @@ function LinhaDoPagamento({
     .join(" · ");
 
   return (
-    <li className="flex items-center justify-between gap-4 px-5 py-2.5">
+    <li className="flex items-center justify-between gap-4 px-5 py-3">
       <span className="min-w-0">
-        <span className="block text-sm">{pagamento.forma_rotulo}</span>
-        <span className="text-xs text-texto-suave">{detalhe}</span>
+        <span className="block text-sm font-medium">{pagamento.forma_rotulo}</span>
+        <span className="text-xs text-texto-apagado">{detalhe}</span>
       </span>
       <span className="flex shrink-0 items-center gap-1">
-        <span className="text-sm tabular-nums">{emReais(pagamento.valor)}</span>
+        <span className="text-sm font-semibold tabular-nums">{emReais(pagamento.valor)}</span>
         {podeRemover && (
           <form action={removerPagamento}>
             <input type="hidden" name="id" value={ordem} />
@@ -62,9 +62,9 @@ function LinhaDoPagamento({
             <button
               type="submit"
               title="Remover pagamento lançado errado"
-              className={juntar(botao("fantasma", "sm"), "px-2")}
+              className={botaoDeIcone}
             >
-              <Trash2 size={14} strokeWidth={1.75} />
+              <TrashIcon size={16} />
               <span className="sr-only">Remover pagamento de {emReais(pagamento.valor)}</span>
             </button>
           </form>
@@ -86,7 +86,7 @@ function NovoRecebimento({ ordem }: { ordem: Ordem }) {
   return (
     <form ref={formulario} action={acao} className="space-y-3 border-t border-borda p-5">
       <input type="hidden" name="id" value={ordem.id} />
-      <p className="text-[13px] text-texto-suave">
+      <p className="text-[13px] text-texto-apagado">
         Quando o cliente pagar o que falta, registre aqui.
       </p>
       <div className="flex flex-wrap gap-2">
@@ -127,7 +127,7 @@ export function PagamentoDaOrdem({ ordem, podeRemover }: { ordem: Ordem; podeRem
   const saldo = Number(ordem.saldo_a_receber);
 
   return (
-    <Cartao tour="pagamento" titulo="Pagamento" semEspaco>
+    <Cartao tour="pagamento" titulo="Pagamento" icone={WalletIcon} semEspaco>
       <ul className="divide-y divide-borda">
         {temDesconto && (
           <>
@@ -146,19 +146,19 @@ export function PagamentoDaOrdem({ ordem, podeRemover }: { ordem: Ordem; podeRem
         ))}
       </ul>
 
-      <div className="space-y-1 border-t border-borda bg-realce px-5 py-2.5 text-sm">
-        <div className="flex items-center justify-between font-medium">
+      <div className="space-y-1 border-t border-borda bg-realce px-5 py-3.5 text-sm">
+        <div className="flex items-center justify-between font-bold">
           <span>Total pago</span>
           <span className="tabular-nums">{emReais(ordem.total_pago)}</span>
         </div>
         {saldo > 0 ? (
-          <div className="flex items-center justify-between font-medium">
+          <div className="flex items-center justify-between font-bold">
             <span>Falta receber</span>
             <span className="tabular-nums">{emReais(ordem.saldo_a_receber)}</span>
           </div>
         ) : (
-          <p className="flex items-center gap-1.5 text-[13px] text-texto-suave">
-            <CircleCheck size={14} strokeWidth={2} className="text-sucesso" />
+          <p className="flex items-center gap-1.5 text-[13px] font-medium text-sucesso">
+            <CheckCircleIcon size={16} />
             {Number(ordem.valor_cobrado) === 0 ? "Sem custo para o cliente" : "Quitado"}
           </p>
         )}
