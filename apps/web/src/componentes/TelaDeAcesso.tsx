@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { ClipboardTextIcon, DeviceMobileIcon, FileTextIcon } from "@/componentes/icones";
 import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
+import { buscarOfertaSeDisponivel, testeGratis } from "@/lib/oferta";
 
 const VANTAGENS = [
   { icone: ClipboardTextIcon, texto: "Abra a ordem de serviço no balcão em menos de um minuto." },
@@ -15,13 +17,18 @@ type Props = {
   children: React.ReactNode;
 };
 
-function PainelDaMarca() {
+async function PainelDaMarca() {
+  const oferta = await buscarOfertaSeDisponivel();
+
   return (
     <aside className="hidden bg-lateral text-lateral-texto lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:justify-between lg:p-12 xl:p-16">
-      <div className="flex items-center gap-3">
+      <Link
+        href="/"
+        className="flex w-fit items-center gap-3 rounded-full focus-visible:outline-lateral-anel"
+      >
         <Marca tamanho="md" />
         <NomeDaMarca className="text-xl" />
-      </div>
+      </Link>
 
       <div className="max-w-md space-y-10">
         <div className="space-y-4">
@@ -44,7 +51,9 @@ function PainelDaMarca() {
         </ul>
       </div>
 
-      <p className="text-sm text-lateral-texto-suave">30 dias grátis, sem cartão de crédito.</p>
+      <p className="text-sm text-lateral-texto-suave">
+        {testeGratis(oferta)}, sem cartão de crédito.
+      </p>
     </aside>
   );
 }
@@ -57,10 +66,10 @@ export function TelaDeAcesso({ titulo, descricao, rodape, larga = false, childre
       <main className="flex min-h-screen items-center justify-center px-5 py-12 sm:px-8">
         <div className={`w-full space-y-8 ${larga ? "max-w-md" : "max-w-sm"}`}>
           <header className="space-y-6">
-            <div className="flex items-center gap-3 lg:hidden">
+            <Link href="/" className="flex w-fit items-center gap-3 rounded-full lg:hidden">
               <Marca tamanho="md" />
               <NomeDaMarca className="text-xl" />
-            </div>
+            </Link>
             <div className="space-y-2">
               <h1 className="text-[28px] leading-tight font-bold tracking-tight">{titulo}</h1>
               {descricao && <p className="text-[15px] text-texto-apagado">{descricao}</p>}

@@ -5,7 +5,7 @@ customer follows the repair through a public link, without creating an account.
 
 ## Current status
 
-Phases 4A to 4E and 4G of the self-service launch are done; only publishing (4F) is left.
+Phases 4A to 4E, 4G and 4H of the self-service launch are done; only publishing (4F) is left.
 The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, photographs the device, prints the intake receipt the
 customer signs at the counter and moves the status along; the customer gets the link by email,
@@ -25,6 +25,15 @@ customers. The owner also sees the money that came in, by payment method, the di
 average ticket, the quote approval rate, what is still receivable and how much each technician
 delivered. Each count leads to the list already filtered. The list can be searched by customer,
 device, IMEI, phone or order number, and the filters live in the URL.
+
+Whoever opens the main address without being signed in lands on the landing page, which explains
+what Bancada does and leads to the free trial. It shows real screenshots of the system, presents
+each feature as a problem the shop recognizes, lists the single plan with the price read from the
+same setting used for billing, and answers the usual objections in a FAQ. It shows no customer
+numbers or testimonials until there are real customers. A demo at `/demonstracao` shows the page
+the end customer receives, with a sample order and buttons to see each stage of the repair. The
+landing page also has a link preview image for WhatsApp, structured data, `robots.txt` and
+`sitemap.xml`. Signed-in users still go straight to their orders.
 
 A new shop signs itself up: the owner enters the shop name, their own name, email, WhatsApp and
 password, accepts the terms and lands straight inside the system. To build the team, the owner
@@ -202,7 +211,8 @@ Available services:
 
 | Address | What it is |
 |---|---|
-| http://localhost:3000 | Web app (sign in with `marcos@central.test` / `bancada123`) |
+| http://localhost:3000 | Landing page when signed out; web app after signing in (`marcos@central.test` / `bancada123`) |
+| http://localhost:3000/demonstracao | Demo of the page the end customer sees |
 | http://localhost:3000/plataforma | Platform dashboard (sign in with `plataforma@bancada.local` / `bancada123`) |
 | http://localhost:8000/api/health/ | API health check |
 | http://localhost:8000/admin/ | Django admin |
@@ -240,6 +250,7 @@ make clean       # stops everything and deletes the local database
 ```
 apps/api                              Django backend, Celery and tests
 apps/web                              Next.js frontend
+apps/web/src/app/(inicio)             Landing page, its sections and the system screenshots
 apps/web/src/componentes/ui           Reusable UI pieces (button, field, card, badge...)
 apps/web/src/componentes/icones.tsx   Every icon in the system, in one place
 docs/                                 Project plan and architecture decision records

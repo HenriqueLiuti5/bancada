@@ -213,6 +213,13 @@
 }
 
 @layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+      interpolate-size: allow-keywords;
+    }
+  }
+
   body {
     background: var(--fundo);
     color: var(--texto);
@@ -242,6 +249,35 @@
   textarea::placeholder {
     color: var(--texto-apagado);
     opacity: 1;
+  }
+}
+
+@keyframes revelar {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .revelar {
+      animation: revelar linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 25%;
+    }
+  }
+
+  .pergunta::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      block-size 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      content-visibility 280ms allow-discrete;
+  }
+
+  .pergunta[open]::details-content {
+    block-size: auto;
   }
 }
 

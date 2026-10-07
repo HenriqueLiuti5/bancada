@@ -8,7 +8,7 @@ export function TextoLegal({ titulo, versao, children }: Props) {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
       <header className="mb-8 space-y-6">
-        <Link href="/login" className="inline-flex items-center gap-3 rounded-full">
+        <Link href="/" className="inline-flex items-center gap-3 rounded-full">
           <Marca />
           <NomeDaMarca />
         </Link>

@@ -31,3 +31,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0023](0023-painel-da-plataforma.md) | Painel da plataforma |
 | [0024](0024-identidade-visual-do-bancada.md) | Identidade visual do Bancada |
 | [0025](0025-logo-da-assistencia.md) | Logo da assistência para o cliente |
+| [0026](0026-pagina-inicial-e-demonstracao.md) | Página inicial e demonstração |

@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { NOME_DO_COOKIE, SESSAO_EXPIRADA } from "@/lib/sessao";
 
+const PAGINA_INICIAL = "/";
+
 const SEM_LOGIN = [
+  "/demonstracao",
   "/os",
   "/fotos",
   "/logos",
@@ -25,6 +28,10 @@ export function proxy(request: NextRequest) {
   const caminho = request.nextUrl.pathname;
   const token = request.cookies.get(NOME_DO_COOKIE)?.value;
 
+  if (caminho === PAGINA_INICIAL) {
+    return token ? NextResponse.redirect(new URL("/ordens", request.url)) : NextResponse.next();
+  }
+
   if (SEM_LOGIN.some((rota) => caminho.startsWith(rota))) {
     return NextResponse.next();
   }
@@ -42,5 +49,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|opengraph-image|robots.txt|sitemap.xml).*)",
+  ],
 };

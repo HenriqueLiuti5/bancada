@@ -7,6 +7,7 @@ import "./globals.css";
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.APP_PUBLIC_URL ?? "http://localhost:3000"),
   title: "Bancada",
   description: "Ordens de serviço para assistências técnicas de celular",
 };
@@ -17,7 +18,12 @@ export default async function RootLayout({
   const tema = lerTema((await cookies()).get(COOKIE_DO_TEMA)?.value);
 
   return (
-    <html lang="pt-BR" data-tema={tema} className={jakarta.variable}>
+    <html
+      lang="pt-BR"
+      data-tema={tema}
+      data-scroll-behavior="smooth"
+      className={jakarta.variable}
+    >
       <body className="min-h-screen bg-fundo text-texto">{children}</body>
     </html>
   );

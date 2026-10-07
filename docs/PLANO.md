@@ -78,7 +78,8 @@ o operador.
 | 4D | Pagamento na entrega e painel completo da loja | concluída |
 | 4E | Painel da plataforma, exclusivo do Henrique | concluída |
 | 4G | Revisão do design de todo o site | concluída |
-| 4F | Publicação: domínio, página inicial, termos, backup e monitoramento | |
+| 4H | Página inicial e demonstração da página do cliente | concluída |
+| 4F | Publicação: domínio, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 6 | WhatsApp, relatórios além do painel, estoque de peças | |
 
@@ -89,7 +90,8 @@ A Fase 4 termina quando uma assistência que nunca falou com a gente conseguir s
 montar a equipe, aprender a usar o sistema e assinar, tudo sozinha.
 
 A publicação, Fase 4F, é a última do lançamento: o sistema vai para o ar depois de todas as outras.
-A 4G, de design, entrou no plano depois da 4F, por isso tem a letra seguinte, mas vem antes dela.
+A 4G, de design, e a 4H, da página inicial, entraram no plano depois da 4F, por isso têm as letras
+seguintes, mas vêm antes dela.
 
 Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
 O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
@@ -219,8 +221,7 @@ acesso existir, cada pessoa passou a ter o horário de uso gravado, no máximo a
 
 ### 4G — Revisão do design
 
-Penúltima fase do lançamento: revisão do design de todo o site antes da publicação. O que muda é
-decidido no começo da fase.
+Revisão do design de todo o site antes da publicação. O que muda é decidido no começo da fase.
 
 Durante a fase, duas propostas foram descartadas: uma paleta escura, em grafite e verde-água, e
 outra creme e verde, com cara de papel. O pedido final foi um sistema branco, com botões verdes bem
@@ -256,6 +257,35 @@ Na entrega:
 
 Os detalhes e as alternativas descartadas estão na ADR 0024; os da logo, na ADR 0025.
 
+### 4H — Página inicial
+
+O endereço principal, para onde vão as mensagens enviadas às assistências, passa a explicar o que é
+o Bancada e a levar ao cadastro. A referência foram as técnicas da página da Inforos, não a
+aparência dela.
+
+Na entrega:
+
+- Página inicial em `/` para quem não está logado; quem está logado continua indo direto para as
+  ordens.
+- Título com o resultado que a assistência ganha, botão "Testar grátis" com "30 dias grátis, sem
+  cartão de crédito, sem instalar nada" logo abaixo e telas reais do sistema: a lista de ordens no
+  computador e a página do cliente no celular.
+- Recursos apresentados como dores resolvidas: o cliente perguntando se ficou pronto, a discussão
+  do arranhão, a senha anotada no papel e o dinheiro que entrou e o que falta receber.
+- Três fases em que a assistência se reconhece: sozinho no balcão, com técnico e atendente, mais de
+  uma loja.
+- Preço do plano único, lido da mesma configuração da cobrança, com tudo o que vem incluso e as
+  condições de pagamento e cancelamento.
+- Perguntas frequentes que respondem às objeções, botão do WhatsApp com mensagem pronta e chamada
+  final numa faixa preta.
+- Demonstração em `/demonstracao`: a página que o cliente final recebe, com uma ordem de exemplo, e
+  botões para ver cada etapa do conserto.
+- Título, descrição e imagem de prévia para buscadores e para o WhatsApp, `robots.txt` e
+  `sitemap.xml`.
+
+Nada de números de clientes nem depoimentos enquanto não houver clientes de verdade. A prova é o
+próprio sistema, nas telas e na demonstração (ADR 0026).
+
 ### 4F — Publicação
 
 - Domínio e HTTPS.
@@ -270,8 +300,12 @@ Os detalhes e as alternativas descartadas estão na ADR 0024; os da logo, na ADR
 - Validade e troca do token de login, que hoje não expira (ADR 0007).
 - Monitoramento de erros e de disponibilidade.
 - Asaas em produção.
-- Página inicial com o botão "Testar grátis", termos de uso e política de privacidade, deixando
-  claro que o Bancada é o operador dos dados dos clientes finais.
+- Texto definitivo dos termos de uso e da política de privacidade, deixando claro que o Bancada é
+  o operador dos dados dos clientes finais. A página inicial ficou pronta na 4H.
+- Prévia do link da página inicial conferida no WhatsApp, com o endereço público (ADR 0026).
+- Medição de visitas e cadastros vindos da página inicial, com aviso de cookies se a ferramenta
+  escolhida exigir.
+- Com o backup no ar, a resposta sobre segurança da página inicial passa a citá-lo.
 
 ### Decisões em aberto
 

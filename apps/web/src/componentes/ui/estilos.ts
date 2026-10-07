@@ -1,7 +1,7 @@
 import { twMerge } from "tailwind-merge";
 
 type Variante = "primario" | "secundario" | "fantasma" | "perigo";
-type Tamanho = "sm" | "md";
+type Tamanho = "sm" | "md" | "lg";
 
 const BASE_DO_BOTAO =
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-colors duration-150 select-none disabled:pointer-events-none disabled:opacity-50";
@@ -18,6 +18,7 @@ const VARIANTES: Record<Variante, string> = {
 const TAMANHOS: Record<Tamanho, string> = {
   sm: "h-9 px-3.5 text-sm sm:h-8 sm:px-3 sm:text-[13px]",
   md: "h-11 px-5 text-[15px] sm:h-10 sm:px-4 sm:text-sm",
+  lg: "h-12 px-6 text-base",
 };
 
 export function botao(variante: Variante = "secundario", tamanho: Tamanho = "md"): string {

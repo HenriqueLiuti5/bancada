@@ -1,6 +1,7 @@
 import type { Icon, IconProps } from "@phosphor-icons/react";
 import {
   AlarmIcon as Alarm,
+  ArrowRightIcon as ArrowRight,
   ArrowSquareOutIcon as ArrowSquareOut,
   ArrowsClockwiseIcon as ArrowsClockwise,
   ArrowsLeftRightIcon as ArrowsLeftRight,
@@ -63,6 +64,7 @@ import {
   PlusIcon as Plus,
   ProhibitIcon as Prohibit,
   PulseIcon as Pulse,
+  QrCodeIcon as QrCode,
   QuestionIcon as Question,
   ReceiptIcon as Receipt,
   RepeatIcon as Repeat,
@@ -110,6 +112,7 @@ function decorativo(Original: Icon): Icon {
 }
 
 export const AlarmIcon = decorativo(Alarm);
+export const ArrowRightIcon = decorativo(ArrowRight);
 export const ArrowSquareOutIcon = decorativo(ArrowSquareOut);
 export const ArrowsClockwiseIcon = decorativo(ArrowsClockwise);
 export const ArrowsLeftRightIcon = decorativo(ArrowsLeftRight);
@@ -172,6 +175,7 @@ export const PiggyBankIcon = decorativo(PiggyBank);
 export const PlusIcon = decorativo(Plus);
 export const ProhibitIcon = decorativo(Prohibit);
 export const PulseIcon = decorativo(Pulse);
+export const QrCodeIcon = decorativo(QrCode);
 export const QuestionIcon = decorativo(Question);
 export const ReceiptIcon = decorativo(Receipt);
 export const RepeatIcon = decorativo(Repeat);

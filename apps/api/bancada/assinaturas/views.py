@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -5,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from bancada.assinaturas import servicos
+from bancada.assinaturas import regras, servicos
 from bancada.assinaturas.models import Assinatura, EventoDoProvedor
 from bancada.assinaturas.provedor import (
     CABECALHO_DO_TOKEN_DO_WEBHOOK,
@@ -87,6 +88,19 @@ class CancelarAssinaturaView(ViewDaAssinatura):
         acesso_ate = assinatura.acesso_ate.strftime("%d/%m/%Y") if assinatura.acesso_ate else ""
         self._registrar(request, assinatura, Acao.ASSINATURA_CANCELADA, f"acesso até {acesso_ate}")
         return Response(detalhe_da_assinatura(assinatura, hoje))
+
+
+class OfertaView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes: list = []
+
+    def get(self, request: Request) -> Response:
+        return Response(
+            {
+                "valor_mensal": str(settings.VALOR_DA_ASSINATURA),
+                "dias_de_teste": regras.DIAS_DE_TESTE,
+            }
+        )
 
 
 class WebhookDoAsaasView(APIView):

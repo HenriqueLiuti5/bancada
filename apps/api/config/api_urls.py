@@ -6,6 +6,7 @@ from bancada.assinaturas.views import (
     AssinarView,
     AssinaturaView,
     CancelarAssinaturaView,
+    OfertaView,
     WebhookDoAsaasView,
 )
 from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
@@ -91,6 +92,11 @@ urlpatterns = [
         "publico/os/<str:token>/",
         transaction.non_atomic_requests(AcompanhamentoPublicoView.as_view()),
         name="acompanhamento-publico",
+    ),
+    path(
+        "publico/oferta/",
+        transaction.non_atomic_requests(OfertaView.as_view()),
+        name="oferta",
     ),
     path("assinatura/", AssinaturaView.as_view(), name="assinatura"),
     path("assinatura/assinar/", AssinarView.as_view(), name="assinar"),
