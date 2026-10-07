@@ -18,15 +18,21 @@ export function Variacao({
   anterior,
   formatar,
   emPontos = false,
+  dinheiro = false,
 }: {
   atual: number | null;
   anterior: number | null;
   formatar: (valor: number) => string;
   emPontos?: boolean;
+  dinheiro?: boolean;
 }) {
   if (anterior === null) return <span>sem dados no período anterior</span>;
 
-  const antes = `antes ${formatar(anterior)}`;
+  const antes = (
+    <>
+      antes <span className={dinheiro ? "text-dinheiro" : undefined}>{formatar(anterior)}</span>
+    </>
+  );
   if (atual === null) return <span>{antes}</span>;
   if (atual === anterior) return <span>igual ao período anterior</span>;
 
@@ -36,7 +42,8 @@ export function Variacao({
   return (
     <span>
       <span className="font-medium text-texto-suave">{comSinal(texto, atual > anterior)}</span>
-      {` · ${antes}`}
+      {" · "}
+      {antes}
     </span>
   );
 }

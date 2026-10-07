@@ -17,7 +17,7 @@ function LinhaDoCusto({ custo }: { custo: CustoDoMes }) {
     <li className="flex items-center justify-between gap-4 px-5 py-2.5">
       <span className="min-w-0 truncate text-sm font-medium">{custo.descricao}</span>
       <span className="flex shrink-0 items-center gap-1">
-        <span className="text-sm font-semibold tabular-nums">{emReais(custo.valor)}</span>
+        <span className="text-sm font-semibold text-dinheiro tabular-nums">{emReais(custo.valor)}</span>
         <form action={removerCusto}>
           <input type="hidden" name="id" value={custo.id} />
           <button

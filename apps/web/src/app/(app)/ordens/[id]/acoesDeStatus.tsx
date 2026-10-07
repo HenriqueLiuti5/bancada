@@ -27,7 +27,7 @@ function EscolhaDosItensAprovados({ itens }: { itens: ItemOrcamento[] }) {
             className={caixaDeMarcar}
           />
           <span className="min-w-0 flex-1 truncate">{item.descricao}</span>
-          <span className="font-medium tabular-nums text-texto-suave">{emReais(item.valor)}</span>
+          <span className="font-medium text-dinheiro tabular-nums">{emReais(item.valor)}</span>
         </label>
       ))}
 

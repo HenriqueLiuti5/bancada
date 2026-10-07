@@ -38,7 +38,7 @@ function Resumo({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 text-sm sm:text-[13px]">
       <dt className="text-texto-suave">{rotulo}</dt>
-      <dd className="tabular-nums">{valor}</dd>
+      <dd className="text-dinheiro tabular-nums">{valor}</dd>
     </div>
   );
 }
@@ -148,7 +148,9 @@ export function RegistroDaEntrega({ id, totalAprovado }: { id: number; totalApro
           className={juntar(campo, "tabular-nums")}
         />
         <span className="block text-[13px] text-texto-apagado sm:text-xs">
-          Total aprovado: {centavosEmReais(aprovado)}. Mude só se der desconto.
+          Total aprovado:{" "}
+          <span className="text-dinheiro tabular-nums">{centavosEmReais(aprovado)}</span>. Mude só se
+          der desconto.
         </span>
       </label>
 

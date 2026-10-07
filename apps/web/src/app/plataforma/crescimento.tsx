@@ -51,6 +51,7 @@ export function SecaoCrescimento({ crescimento }: { crescimento: Crescimento }) 
             titulo="Recebido por mês nos últimos 12 meses"
             nomeDoPeriodo="Mês"
             nomeDaMedida="Recebido"
+            dinheiro
             passoNoCelular={2}
             colunas={crescimento.recebido_por_mes.map((mes) => ({
               chave: mes.mes,

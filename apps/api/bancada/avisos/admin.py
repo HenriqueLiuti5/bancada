@@ -9,6 +9,7 @@ from bancada.avisos.models import AvisoDeStatus
 @admin.register(AvisoDeStatus)
 class AvisoDeStatusAdmin(admin.ModelAdmin):
     list_display = ["assunto", "destino", "enviado_em", "tentativas", "tenant", "criado_em"]
+    list_select_related = ["tenant"]
     list_filter = ["tenant", "enviado_em"]
     search_fields = ["destino", "assunto"]
     readonly_fields = [

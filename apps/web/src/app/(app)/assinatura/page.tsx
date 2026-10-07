@@ -1,6 +1,7 @@
 import { ArrowSquareOutIcon, ReceiptIcon, SealCheckIcon } from "@/componentes/icones";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
+import { Dinheiro } from "@/componentes/ui/Dinheiro";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
@@ -15,18 +16,28 @@ export const dynamic = "force-dynamic";
 
 const EM_ABERTO = new Set(["aberta", "vencida"]);
 
-function explicacaoDaAssinatura(assinatura: DetalheDaAssinatura): string {
-  const valor = emReais(assinatura.valor_mensal);
+function explicacaoDaAssinatura(assinatura: DetalheDaAssinatura): React.ReactNode {
+  const valor = <Dinheiro valor={assinatura.valor_mensal} />;
   const fimDoTeste = diaPorExtenso(assinatura.teste_termina_em);
   const primeiroVencimento = diaPorExtenso(assinatura.primeiro_vencimento);
 
   switch (assinatura.situacao) {
     case "teste":
-      return `Você está no teste grátis até ${fimDoTeste}. Assinando agora, nada é cobrado antes disso: a primeira mensalidade, de ${valor}, vence em ${primeiroVencimento}.`;
+      return (
+        <>
+          Você está no teste grátis até {fimDoTeste}. Assinando agora, nada é cobrado antes disso: a
+          primeira mensalidade, de {valor}, vence em {primeiroVencimento}.
+        </>
+      );
     case "ativa":
       return assinatura.em_teste
         ? `Assinatura feita. O teste grátis continua até ${fimDoTeste}, e a primeira mensalidade vence nesse dia.`
-        : `Tudo em dia. A mensalidade é de ${valor}, e o Asaas manda a fatura por e-mail antes de cada vencimento.`;
+        : (
+          <>
+            Tudo em dia. A mensalidade é de {valor}, e o Asaas manda a fatura por e-mail antes de
+            cada vencimento.
+          </>
+        );
     case "inadimplente":
       return `A mensalidade está atrasada. Pague até ${diaPorExtenso(assinatura.pagar_ate ?? assinatura.primeiro_vencimento)} para o Bancada não ficar só para consulta.`;
     case "suspensa":
@@ -68,7 +79,7 @@ function LinhaDaFatura({ fatura }: { fatura: Fatura }) {
   return (
     <li className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold tabular-nums">{emReais(fatura.valor)}</p>
+        <p className="text-sm font-semibold text-dinheiro tabular-nums">{emReais(fatura.valor)}</p>
         <p className="text-[13px] text-texto-apagado">
           Vence em {dataCurta(fatura.vencimento)}
           {pagamento}
@@ -132,7 +143,7 @@ export default async function PaginaDaAssinatura() {
             ) : (
               <>
                 <p className="text-[13px] text-texto-suave">
-                  {emReais(assinatura.valor_mensal)} por mês. Você paga por PIX, boleto ou cartão,
+                  <Dinheiro valor={assinatura.valor_mensal} /> por mês. Você paga por PIX, boleto ou cartão,
                   na página de pagamento do Asaas, e pode cancelar quando quiser.
                 </p>
                 <FormularioDeAssinatura

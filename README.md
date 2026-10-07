@@ -1,118 +1,124 @@
 # Bancada
 
-SaaS de ordens de serviço para assistências técnicas de celular. A assistência registra o
-aparelho e o defeito; o cliente final acompanha o reparo por um link público, sem precisar
-criar conta.
+Service order SaaS for phone repair shops. The shop registers the device and the fault; the end
+customer follows the repair through a public link, without creating an account.
 
-## Estado atual
+## Current status
 
-Fases 4A a 4E e 4G concluídas, do lançamento self-service; falta a publicação (4F).
-A assistência abre a ordem no balcão, buscando o cliente pelo nome ou telefone ou cadastrando
-cliente e aparelho na mesma tela, fotografa o aparelho, imprime o comprovante que o cliente assina
-no balcão e movimenta o status; o cliente recebe o link por e-mail, acompanha o reparo sem criar
-conta e, na entrega, recebe o recibo da garantia em PDF.
+Phases 4A to 4E and 4G of the self-service launch are done; only publishing (4F) is left.
+The shop opens the order at the counter, looking up the customer by name or phone or registering
+customer and device on the same screen, photographs the device, prints the intake receipt the
+customer signs at the counter and moves the status along; the customer gets the link by email,
+follows the repair without creating an account and, at pickup, receives the warranty receipt as a
+PDF.
 
-Na entrega, quem atende registra quanto cobrou e como o cliente pagou: PIX, dinheiro, débito ou
-crédito, divididos como for preciso. O valor já vem com o total aprovado e só muda se houver
-desconto. O que o cliente ficar devendo aparece como a receber na ordem, na lista e no painel, até
-ser pago. O recibo mostra o desconto, cada pagamento e o que falta.
+At pickup, whoever is at the counter records how much was charged and how the customer paid: PIX,
+cash, debit or credit card, split however needed. The amount comes pre-filled with the approved
+total and only changes if there is a discount. Whatever the customer still owes shows up as
+receivable on the order, in the list and on the dashboard, until it is paid. The receipt shows the
+discount, each payment and the balance due.
 
-O painel mostra como a loja está agora e como foi num período à escolha — hoje, 7 dias, este mês ou
-datas escolhidas —, comparado com o período anterior: ordens abertas e entregues, tempo de reparo,
-tempo parado em cada etapa, aparelhos e defeitos mais comuns e clientes que voltam. O dono vê também
-o dinheiro que entrou, por forma de pagamento, os descontos, o ticket médio, a taxa de aprovação de
-orçamentos, o que falta receber e quanto cada técnico entregou. Cada número de contagem leva à lista
-já filtrada. A lista tem busca por cliente, aparelho, IMEI, telefone ou número da OS, e os filtros
-vivem na URL.
+The dashboard shows how the shop is doing right now and how it did over a chosen period — today,
+7 days, this month or custom dates —, compared with the previous period: orders opened and
+delivered, repair time, time stuck in each stage, most common devices and faults, and returning
+customers. The owner also sees the money that came in, by payment method, the discounts, the
+average ticket, the quote approval rate, what is still receivable and how much each technician
+delivered. Each count leads to the list already filtered. The list can be searched by customer,
+device, IMEI, phone or order number, and the filters live in the URL.
 
-Uma assistência nova se cadastra sozinha: o dono informa o nome da assistência, o próprio nome,
-e-mail, WhatsApp e senha, aceita os termos e já cai dentro do sistema. Para montar a equipe, ele
-cria um convite só com nome e papel e manda o link pelo WhatsApp; quem recebe abre o link e cria a
-própria senha. Todo mundo entra pelo e-mail, e quem esquece a senha recebe um link para criar
-outra. O e-mail é confirmado por link, sem travar o uso.
+A new shop signs itself up: the owner enters the shop name, their own name, email, WhatsApp and
+password, accepts the terms and lands straight inside the system. To build the team, the owner
+creates an invite with just a name and a role and sends the link over WhatsApp; whoever receives it
+opens the link and creates their own password. Everyone signs in with their email, and whoever
+forgets their password gets a link to create a new one. The email is confirmed by link, without
+blocking use.
 
-Toda assistência nova ganha 30 dias grátis, sem informar forma de pagamento. Na última semana do
-teste o dono vê um aviso no topo das telas e recebe e-mail sete dias antes e na véspera. Ele assina
-na tela Assinatura informando só o CPF ou o CNPJ: a cobrança mensal é criada no Asaas, e a primeira
-mensalidade vence no último dia do teste, para ele não perder nenhum dia grátis. A cada mês ele
-paga por PIX, boleto ou cartão, na página de pagamento do Asaas, e pode cancelar pela própria tela.
-Quem não assina, atrasa a mensalidade mais de 7 dias ou cancela continua entrando e vendo tudo, mas
-o Bancada fica só para consulta até a assinatura ser regularizada. Os dados nunca são apagados.
+Every new shop gets 30 days free, with no payment method required. In the last week of the trial
+the owner sees a banner at the top of the screens and gets an email seven days before and on the
+day before it ends. The owner subscribes on the Assinatura (Subscription) screen by entering only
+their CPF or CNPJ (Brazilian individual or company tax ID): the monthly charge is created in Asaas,
+and the first payment is due on the last day of the trial, so no free day is lost. Each month the
+owner pays by PIX, boleto or card on the Asaas payment page, and can cancel from the same screen.
+Shops that do not subscribe, are more than 7 days late on a payment or cancel can still sign in and
+see everything, but Bancada becomes read-only until the subscription is back in good standing. Data
+is never deleted.
 
-Fora das assistências existe a conta da plataforma, a de quem administra o Bancada. Ela entra
-pela mesma tela de login e cai num painel só dela: o lucro do mês, com o que as assinaturas pagaram,
-as taxas do Asaas e os custos lançados à mão; a receita recorrente, a conversão do teste, as
-assinaturas novas e os cancelamentos; os cadastros por semana e a receita mês a mês; e a lista das
-assistências, com o contato do dono, as ordens do mês e o último acesso. Vêm primeiro na lista as
-que não abriram nenhuma ordem 3 dias depois do cadastro e as que estão há 14 dias sem ordem nova,
-com um botão que abre o WhatsApp do dono com a mensagem pronta. Cada cadastro novo chega também por
-e-mail. O painel lê todas as assistências por um caminho próprio, registrado em auditoria, e nunca
-mostra os clientes delas.
+Outside the shops there is the platform account, the one belonging to whoever runs Bancada. It
+signs in through the same login screen and lands on a dashboard of its own: the month's profit,
+with what subscriptions paid, the Asaas fees and costs entered by hand; recurring revenue, trial
+conversion, new subscriptions and cancellations; sign-ups per week and revenue month by month; and
+the list of shops, with the owner's contact, the month's orders and the last access. At the top of
+the list come the shops that opened no order 3 days after signing up and the ones that have gone 14
+days without a new order, with a button that opens the owner's WhatsApp with the message ready.
+Each new sign-up also arrives by email. The dashboard reads all shops through a dedicated path,
+recorded in the audit log, and never shows their customers.
 
-O visual é branco e limpo, com botões verdes arredondados e uma barra lateral preta, que pode ser
-recolhida para mostrar só os ícones. Cada menu, cartão, indicador e status tem um ícone de traço
-fino, sem fundo, e os status têm cor própria para serem achados de relance na lista. O sistema abre
-sempre claro; quem preferir escolhe no menu da conta o modo escuro, em cinza-escuro. No celular, a
-navegação fica numa barra embaixo da tela, como nos aplicativos. Na página que o cliente final abre,
-uma barra com ícones mostra em que etapa o reparo está, junto com a previsão de entrega e os botões
-para ligar ou chamar a loja no WhatsApp.
+The look is clean and white, with rounded green buttons and a black sidebar that can be collapsed
+to show only the icons. Every menu, card, indicator and status has a thin-stroke icon with no
+background, and statuses have their own color so they can be spotted at a glance in the list. The
+system always opens in light mode; whoever prefers can pick dark mode, in dark gray, from the
+account menu. On phones, navigation sits in a bar at the bottom of the screen, like in apps. On the
+page the end customer opens, a bar with icons shows which stage the repair is in, along with the
+estimated delivery date and buttons to call the shop or message it on WhatsApp.
 
-A assistência pode enviar a própria logo. Ela aparece para o cliente no topo da página de
-acompanhamento, na prévia do link no WhatsApp, nos e-mails, que agora têm versão em HTML, e no
-comprovante e no recibo. Quando a assistência tem mais de uma loja, o cliente vê também o nome da
-loja da ordem.
+The shop can upload its own logo. It appears to the customer at the top of the tracking page, in
+the WhatsApp link preview, in the emails, which now have an HTML version, and on the intake and
+pickup receipts. When the shop has more than one store, the customer also sees the name of the
+order's store.
 
-Quem entra pela primeira vez aprende sozinho. Na primeira visita a cada tela principal, um tour
-destaca os botões um de cada vez e diz o que cada um faz, mostrando só o que o papel da pessoa
-enxerga. O dono acompanha uma lista de primeiros passos que se marca sozinha conforme ele abre a
-primeira ordem, manda o link ao cliente, completa o endereço da loja e convida a equipe. O botão
-Ajuda, na barra lateral, reabre o tour da tela e leva ao WhatsApp de suporte.
+Whoever signs in for the first time learns on their own. On the first visit to each main screen, a
+tour highlights the buttons one at a time and says what each one does, showing only what the
+person's role can see. The owner follows a getting-started checklist that ticks itself off as they
+open the first order, send the link to the customer, complete the store address and invite the
+team. The Ajuda (Help) button in the sidebar reopens the screen's tour and leads to support on
+WhatsApp.
 
-Cada pessoa entra com o próprio e-mail e um papel — dono, técnico ou atendente. O dono gerencia a
-equipe e os dados da assistência que aparecem para o cliente; técnicos veem a senha de
-desbloqueio; atendentes abrem ordens e atendem, mas não veem a senha nem apagam nada. O status de uma ordem só muda pela máquina de estados, e o histórico não
-pode ser apagado pela API.
+Each person signs in with their own email and a role — owner, technician or front desk. The owner
+manages the team and the shop details the customer sees; technicians see the unlock code;
+front desk staff open orders and serve customers, but do not see the code or delete anything. An
+order's status only changes through the state machine, and the history cannot be deleted through
+the API.
 
-A senha de desbloqueio do aparelho é o dado mais sensível do sistema, e tem tratamento próprio:
-fica criptografada, só técnicos conseguem vê-la, toda consulta fica registrada em auditoria — as
-negadas também — e ela é apagada automaticamente sete dias depois da entrega, quando o aparelho
-não tem mais nenhuma ordem aberta.
+The device unlock code is the most sensitive data in the system and gets its own treatment: it is
+encrypted, only technicians can see it, every lookup is recorded in the audit log — denied ones
+too — and it is deleted automatically seven days after pickup, once the device has no open order
+left.
 
-O aviso ao cliente sai numa tarefa do Celery, disparada quando a ordem entra num status que
-interessa a ele: recebido, orçamento enviado, aguardando peça, pronto para retirada e entregue —
-este último com o recibo em anexo. No ambiente local o e-mail é impresso no log do worker
-(`make logs`), sem precisar de conta em lugar nenhum. Para enviar de verdade, preencha as
-variáveis `EMAIL_*` do `.env` e troque `DJANGO_EMAIL_BACKEND` por
+The customer notification goes out in a Celery task, triggered when the order enters a status the
+customer cares about: received, quote sent, waiting for parts, ready for pickup and delivered —
+the last one with the receipt attached. In the local environment the email is printed to the
+worker log (`make logs`), with no account needed anywhere. To send for real, fill in the `EMAIL_*`
+variables in `.env` and change `DJANGO_EMAIL_BACKEND` to
 `django.core.mail.backends.smtp.EmailBackend`.
 
-Um agendador (Celery Beat) cuida do que precisa acontecer sozinho: a purga das senhas às 3h30 e,
-a cada quinze minutos, uma varredura que reenvia avisos que se perderam — por exemplo, se o Redis
-estiver fora do ar no momento exato da mudança de status.
+A scheduler (Celery Beat) takes care of what has to happen on its own: purging unlock codes at
+3:30 AM and, every fifteen minutes, a sweep that resends notifications that got lost — for
+example, if Redis was down at the exact moment of the status change.
 
-As fotos ficam em armazenamento privado: não existe endereço fixo para elas. Cada página gera um
-link assinado que vale 15 minutos, e toda imagem enviada é reduzida e regravada, o que descarta os
-metadados da câmera — inclusive a localização de onde a foto foi tirada.
+Photos live in private storage: there is no fixed address for them. Each page generates a signed
+link valid for 15 minutes, and every uploaded image is resized and re-encoded, which strips the
+camera metadata — including the location where the photo was taken.
 
-Os documentos em PDF são gerados na hora, a partir de templates HTML, e levam um QR Code que abre
-a página de acompanhamento. O comprovante de entrada traz as fotos do aparelho; o recibo de
-entrega vai anexado ao e-mail que o cliente recebe quando retira o aparelho.
+PDF documents are generated on the fly from HTML templates and carry a QR code that opens the
+tracking page. The intake receipt includes the device photos; the pickup receipt is attached to
+the email the customer receives when collecting the device.
 
 ## Stack
 
-| Camada | Tecnologia |
+| Layer | Technology |
 |---|---|
 | Backend | Django 5 + Django REST Framework |
-| Banco | PostgreSQL 17 com pgvector |
-| Cache e fila | Redis |
-| Tarefas assíncronas | Celery e Celery Beat |
+| Database | PostgreSQL 17 with pgvector |
+| Cache and queue | Redis |
+| Background tasks | Celery and Celery Beat |
 | Frontend | Next.js 16 (App Router) + React 19 + TypeScript + Tailwind 4 |
-| Interface | Paleta própria em tokens de cor, claro por padrão com escuro opcional, fonte Plus Jakarta Sans, ícones Phosphor |
-| Ambiente | Docker Compose |
+| Interface | Custom palette in color tokens, light by default with optional dark mode, Plus Jakarta Sans font, Phosphor icons |
+| Environment | Docker Compose |
 | CI | GitHub Actions |
 
-## Como rodar
+## Running locally
 
-Pré-requisitos: Docker com o plugin Compose, Git e `make`.
+Prerequisites: Docker with the Compose plugin, Git and `make`.
 
 ```bash
 git clone https://github.com/HenriqueLiuti5/bancada.git
@@ -122,124 +128,127 @@ make up
 make semear
 ```
 
-O `make setup` cria o `.env` a partir do exemplo e gera uma chave de criptografia e um token de
-webhook próprios da máquina. Essa chave protege a senha de desbloqueio dos aparelhos, então **cada ambiente tem a
-sua** e ela nunca é versionada. Dados gravados com uma chave não podem ser lidos com outra.
+`make setup` creates `.env` from the example and generates an encryption key and a webhook token
+unique to the machine. That key protects the device unlock codes, so **each environment has its
+own** and it is never committed. Data written with one key cannot be read with another.
 
-O `make semear` cria uma assistência de exemplo com clientes, aparelhos, duas ordens de serviço e
-uma foto de demonstração em cada uma. Rodar de novo não duplica nada e renova o teste grátis da
-assistência de exemplo. Os usuários de demonstração
-usam a senha `bancada123` e existem apenas para uso local:
+`make semear` creates a sample shop with customers, devices, two service orders and a demo photo
+on each. Running it again duplicates nothing and renews the sample shop's free trial. The demo
+users share the password `bancada123` and exist for local use only:
 
-| E-mail para entrar | Papel |
+| Sign-in email | Role |
 |---|---|
-| `marcos@central.test` | dono — vê tudo, inclusive equipe e dados da assistência |
-| `joana@central.test` | técnica — vê a senha de desbloqueio e apaga fotos |
-| `carla@central.test` | atendente — abre ordens, não vê a senha nem apaga |
-| `plataforma@bancada.local` | conta da plataforma — vê o painel com os números de todas as assistências |
-| `admin` (usuário, não e-mail) | superusuário do painel administrativo do Django |
+| `marcos@central.test` | owner — sees everything, including the team and shop details |
+| `joana@central.test` | technician — sees the unlock code and deletes photos |
+| `carla@central.test` | front desk — opens orders, does not see the code or delete |
+| `plataforma@bancada.local` | platform account — sees the dashboard with numbers from every shop |
+| `admin` (username, not email) | superuser of the Django admin |
 
-Para o painel ter números para mostrar, `make semear-movimento` cria dois meses de ordens na
-assistência de exemplo, com pagamentos, descontos, valores a receber e uma segunda loja. Rodar de
-novo não duplica nada.
+To give the dashboard numbers to show, `make semear-movimento` creates two months of orders in the
+sample shop, with payments, discounts, receivables and a second store. Running it again duplicates
+nothing.
 
-Para o painel da plataforma ter o que mostrar, `make semear-plataforma` cria dez assistências
-fictícias em situações diferentes: em teste, assinadas, com pagamento atrasado, suspensas e
-canceladas, algumas sem nenhuma ordem e outras paradas, com faturas pagas e dois custos lançados.
-Rodar de novo não duplica nada. Como as assinaturas delas são inventadas, a consulta de hora em hora
-ao Asaas registra no log do worker um aviso para cada assinatura em andamento; é esperado.
+To give the platform dashboard something to show, `make semear-plataforma` creates ten fictional
+shops in different situations: on trial, subscribed, with late payment, suspended and cancelled,
+some with no orders and others gone quiet, with paid invoices and two costs entered. Running it
+again duplicates nothing. Since their subscriptions are made up, the hourly Asaas check logs a
+warning in the worker for each active subscription; that is expected.
 
-Fora do ambiente local, a conta da plataforma não vem do `make semear`. Crie a sua com
-`make conta-da-plataforma`, que pergunta nome, e-mail e senha. Ela não usa o "esqueci minha senha":
-para trocar a senha, rode `docker compose exec api python manage.py changepassword seu@email`.
+Outside the local environment, the platform account does not come from `make semear`. Create your
+own with `make conta-da-plataforma`, which asks for name, email and password. It does not use
+"forgot my password": to change the password, run
+`docker compose exec api python manage.py changepassword your@email`.
 
-Para testar o caminho de uma assistência nova, abra http://localhost:3000/cadastro. Os e-mails de
-confirmação, convite e recuperação de senha aparecem no log do worker (`make logs`), com o link
-completo para copiar.
+To try the path of a new shop, open http://localhost:3000/cadastro. The confirmation, invite and
+password recovery emails show up in the worker log (`make logs`), with the full link to copy.
 
-O botão "Fale com a gente" do menu Ajuda só aparece com o número de suporte preenchido no `.env`,
-com DDD, e depois de um `make up`:
+The "Fale com a gente" (Talk to us) button in the Ajuda (Help) menu only appears once the support
+number is filled in `.env`, with area code, and after a `make up`:
 
 ```bash
 WHATSAPP_DO_SUPORTE=11912345678
 ```
 
-A assinatura usa o ambiente de testes do Asaas, o Sandbox, onde nada é cobrado de verdade. A conta
-do Sandbox é separada da conta de produção: crie uma em https://sandbox.asaas.com, gere uma chave
-em Integrações → Chaves de API e cole no `.env` **entre aspas simples**. A chave começa com `$`, e
-sem as aspas o Docker Compose a troca por um texto vazio:
+Subscriptions use the Asaas test environment, the Sandbox, where nothing is actually charged. The
+Sandbox account is separate from the production account: create one at https://sandbox.asaas.com,
+generate a key under Integrações → Chaves de API (Integrations → API Keys) and paste it into `.env`
+**in single quotes**. The key starts with `$`, and without the quotes Docker Compose replaces it
+with an empty string:
 
 ```bash
 ASAAS_API_KEY='$aact_hmlg_...'
 ```
 
-Depois, `make up`. Sem a chave, o resto do sistema funciona normalmente; só o botão de assinar
-responde que a cobrança não está configurada.
+Then `make up`. Without the key, the rest of the system works normally; only the subscribe button
+replies that billing is not configured.
 
-Para testar um pagamento, assine pela tela Assinatura, abra a cobrança no painel do Sandbox e
-confirme o recebimento em dinheiro. O Bancada fica sabendo do pagamento de dois jeitos: pelo aviso
-que o Asaas manda (webhook), que só chega a um endereço público, e por uma consulta ao Asaas a cada
-hora. No ambiente local, para não esperar a hora cheia, rode `make sincronizar-cobrancas`.
+To test a payment, subscribe on the Assinatura (Subscription) screen, open the charge in the
+Sandbox dashboard and confirm it as received in cash. Bancada learns about the payment in two
+ways: through the notification Asaas sends (webhook), which only reaches a public address, and
+through an hourly check against Asaas. Locally, to avoid waiting for the top of the hour, run
+`make sincronizar-cobrancas`.
 
-As fotos enviadas ficam em `apps/api/media/`, que não vai para o controle de versão.
+Uploaded photos live in `apps/api/media/`, which is not under version control.
 
-Se `docker compose` não for reconhecido mas `docker-compose` existir, o plugin não está
-registrado. Isso resolve, sem precisar de administrador:
+If `docker compose` is not recognized but `docker-compose` exists, the plugin is not registered.
+This fixes it, without admin rights:
 
 ```bash
 mkdir -p ~/.docker/cli-plugins
 ln -sf "$(command -v docker-compose)" ~/.docker/cli-plugins/docker-compose
 ```
 
-Serviços disponíveis:
+Available services:
 
-| Endereço | O que é |
+| Address | What it is |
 |---|---|
-| http://localhost:3000 | Aplicação web (entre com `marcos@central.test` / `bancada123`) |
-| http://localhost:3000/plataforma | Painel da plataforma (entre com `plataforma@bancada.local` / `bancada123`) |
-| http://localhost:8000/api/health/ | Verificação de saúde da API |
-| http://localhost:8000/admin/ | Administração do Django |
-| http://localhost:3000/os/`token` | Acompanhamento público (o token aparece no detalhe da OS) |
+| http://localhost:3000 | Web app (sign in with `marcos@central.test` / `bancada123`) |
+| http://localhost:3000/plataforma | Platform dashboard (sign in with `plataforma@bancada.local` / `bancada123`) |
+| http://localhost:8000/api/health/ | API health check |
+| http://localhost:8000/admin/ | Django admin |
+| http://localhost:3000/os/`token` | Public tracking page (the token appears on the order detail) |
 | localhost:5433 | PostgreSQL |
 | localhost:6380 | Redis |
 
-As portas do banco e do Redis são 5433 e 6380 no host para não conflitar com instalações
-locais nas portas padrão. Dentro da rede do Docker os serviços continuam nas portas 5432 e
-6379. Para mudar, ajuste `POSTGRES_HOST_PORT` e `REDIS_HOST_PORT` no `.env`.
+The database and Redis ports are 5433 and 6380 on the host so they do not clash with local
+installs on the default ports. Inside the Docker network the services stay on ports 5432 and
+6379. To change them, set `POSTGRES_HOST_PORT` and `REDIS_HOST_PORT` in `.env`.
 
-## Comandos
+## Commands
 
 ```bash
-make help        # lista todos os comandos
-make setup       # cria o .env com uma chave de criptografia nova
-make up          # sobe os serviços, com o node_modules do frontend renovado
-make down        # derruba os serviços
-make logs        # acompanha os logs
-make reiniciar-worker  # o Celery não recarrega sozinho: rode depois de mudar uma tarefa
-make test        # roda os testes do backend
-make lint        # roda ruff e mypy
-make migrate     # aplica migrações
-make semear      # popula o banco com dados de demonstração
-make semear-movimento  # cria dois meses de ordens e pagamentos de exemplo para o painel
-make sincronizar-cobrancas  # busca no Asaas as faturas, sem esperar a consulta de hora em hora
-make semear-plataforma  # cria assistências fictícias para o painel da plataforma
-make conta-da-plataforma  # cria a sua conta da plataforma, que vê todas as assistências
-make superuser   # cria um administrador
-make clean       # derruba tudo e apaga o banco local
+make help        # lists every command
+make setup       # creates .env with a new encryption key
+make up          # starts the services, with the frontend node_modules refreshed
+make down        # stops the services
+make logs        # follows the logs
+make reiniciar-worker  # Celery does not reload on its own: run after changing a task
+make test        # runs the backend tests
+make lint        # runs ruff and mypy
+make migrate     # applies migrations
+make semear      # fills the database with demo data
+make semear-movimento  # creates two months of sample orders and payments for the dashboard
+make sincronizar-cobrancas  # fetches invoices from Asaas, without waiting for the hourly check
+make semear-plataforma  # creates fictional shops for the platform dashboard
+make conta-da-plataforma  # creates your platform account, which sees every shop
+make superuser   # creates an admin user
+make clean       # stops everything and deletes the local database
 ```
 
-## Estrutura
+## Structure
 
 ```
-apps/api                              Backend Django, Celery e testes
-apps/web                              Frontend Next.js
-apps/web/src/componentes/ui           Peças visuais reutilizáveis (botão, campo, cartão, selo...)
-apps/web/src/componentes/icones.tsx   Todos os ícones do sistema, num lugar só
-docs/                                 Plano do projeto e registros de decisão de arquitetura
-infra/                                Infraestrutura de produção (a partir da Fase 4F)
+apps/api                              Django backend, Celery and tests
+apps/web                              Next.js frontend
+apps/web/src/componentes/ui           Reusable UI pieces (button, field, card, badge...)
+apps/web/src/componentes/icones.tsx   Every icon in the system, in one place
+docs/                                 Project plan and architecture decision records
+infra/                                Production infrastructure (from Phase 4F on)
 ```
 
-## Documentação
+## Documentation
 
-- [Plano do projeto](docs/PLANO.md) — visão geral, domínio e roadmap
-- [Decisões de arquitetura](docs/adr/) — o porquê de cada escolha técnica
+The documentation in `docs/` is written in Portuguese.
+
+- [Project plan](docs/PLANO.md) — overview, domain and roadmap
+- [Architecture decisions](docs/adr/) — the reasoning behind each technical choice

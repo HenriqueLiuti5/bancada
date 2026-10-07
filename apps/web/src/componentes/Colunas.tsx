@@ -14,6 +14,7 @@ type Props = {
   nomeDoPeriodo: string;
   nomeDaMedida: string;
   passoNoCelular?: number;
+  dinheiro?: boolean;
 };
 
 const DISTANCIA_MINIMA_ENTRE_ROTULOS = 3;
@@ -49,7 +50,15 @@ function rotulos(colunas: Coluna[]): Map<number, Rotulo> {
   return mapa;
 }
 
-function Dica({ coluna, aDireita }: { coluna: Coluna; aDireita: boolean }) {
+function Dica({
+  coluna,
+  aDireita,
+  dinheiro,
+}: {
+  coluna: Coluna;
+  aDireita: boolean;
+  dinheiro: boolean;
+}) {
   return (
     <span
       className={juntar(
@@ -57,7 +66,14 @@ function Dica({ coluna, aDireita }: { coluna: Coluna; aDireita: boolean }) {
         aDireita ? "right-0" : "left-0",
       )}
     >
-      <span className="block text-[13px] font-semibold text-texto">{coluna.valor}</span>
+      <span
+        className={juntar(
+          "block text-[13px] font-semibold text-texto",
+          dinheiro && "text-dinheiro",
+        )}
+      >
+        {coluna.valor}
+      </span>
       <span className="block text-[11px] text-texto-suave">{coluna.descricao}</span>
     </span>
   );
@@ -68,11 +84,13 @@ function Barra({
   fracao,
   rotulo,
   aDireita,
+  dinheiro,
 }: {
   coluna: Coluna;
   fracao: number;
   rotulo?: Rotulo;
   aDireita: boolean;
+  dinheiro: boolean;
 }) {
   return (
     <li className="group relative flex h-full flex-1 items-end justify-center">
@@ -86,6 +104,7 @@ function Barra({
               className={juntar(
                 "absolute bottom-full left-1/2 mb-1 -translate-x-1/2 rounded-full bg-superficie px-1 text-[11px] font-semibold whitespace-nowrap text-texto-suave",
                 rotulo === "fora-do-celular" && "max-sm:hidden",
+                dinheiro && "text-dinheiro",
               )}
             >
               {coluna.valor}
@@ -93,12 +112,12 @@ function Barra({
           )}
         </span>
       )}
-      <Dica coluna={coluna} aDireita={aDireita} />
+      <Dica coluna={coluna} aDireita={aDireita} dinheiro={dinheiro} />
     </li>
   );
 }
 
-function Tabela({ colunas, nomeDoPeriodo, nomeDaMedida }: Omit<Props, "titulo">) {
+function Tabela({ colunas, nomeDoPeriodo, nomeDaMedida, dinheiro }: Omit<Props, "titulo">) {
   return (
     <details className="border-t border-borda">
       <summary className="cursor-pointer px-5 py-3 text-[13px] font-medium text-texto-apagado transition-colors select-none hover:text-texto">
@@ -119,7 +138,14 @@ function Tabela({ colunas, nomeDoPeriodo, nomeDaMedida }: Omit<Props, "titulo">)
           {colunas.map((coluna) => (
             <tr key={coluna.chave}>
               <td className="px-5 py-1.5">{coluna.descricao}</td>
-              <td className="px-5 py-1.5 text-right tabular-nums">{coluna.valor}</td>
+              <td
+                className={juntar(
+                  "px-5 py-1.5 text-right tabular-nums",
+                  dinheiro && "text-dinheiro",
+                )}
+              >
+                {coluna.valor}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -134,6 +160,7 @@ export function Colunas({
   nomeDoPeriodo,
   nomeDaMedida,
   passoNoCelular = 1,
+  dinheiro = false,
 }: Props) {
   const escala = Math.max(...colunas.map((coluna) => coluna.medida), 0);
   const rotuladas = rotulos(colunas);
@@ -151,6 +178,7 @@ export function Colunas({
               fracao={escala > 0 ? coluna.medida / escala : 0}
               rotulo={rotuladas.get(indice)}
               aDireita={indice >= colunas.length / 2}
+              dinheiro={dinheiro}
             />
           ))}
         </ol>
@@ -168,7 +196,12 @@ export function Colunas({
           ))}
         </ol>
       </div>
-      <Tabela colunas={colunas} nomeDoPeriodo={nomeDoPeriodo} nomeDaMedida={nomeDaMedida} />
+      <Tabela
+        colunas={colunas}
+        nomeDoPeriodo={nomeDoPeriodo}
+        nomeDaMedida={nomeDaMedida}
+        dinheiro={dinheiro}
+      />
     </figure>
   );
 }

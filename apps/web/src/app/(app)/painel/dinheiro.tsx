@@ -30,7 +30,7 @@ function Recebido({ dinheiro }: { dinheiro: Dinheiro }) {
         <WalletIcon size={22} className="shrink-0 text-icone" />
         <p className="text-sm font-medium text-texto-apagado">Recebido no período</p>
       </div>
-      <p className="mt-4 text-4xl leading-none font-bold tracking-tight tabular-nums sm:text-5xl">
+      <p className="mt-4 text-4xl leading-none font-bold tracking-tight text-dinheiro tabular-nums sm:text-5xl">
         {emReais(recebido.atual)}
       </p>
       <div className="mt-2 text-xs text-texto-apagado">
@@ -38,19 +38,21 @@ function Recebido({ dinheiro }: { dinheiro: Dinheiro }) {
           atual={Number(recebido.atual)}
           anterior={Number(recebido.anterior)}
           formatar={emReais}
+          dinheiro
         />
       </div>
 
       <div className="mt-6 rounded-xl bg-realce px-4 py-3">
         <p className="text-[13px] text-texto-apagado">
           Descontos dados:{" "}
-          <span className="font-bold text-texto">{emReais(descontos.atual)}</span>
+          <span className="font-bold text-dinheiro">{emReais(descontos.atual)}</span>
         </p>
         <div className="mt-1 text-xs text-texto-apagado">
           <Variacao
             atual={Number(descontos.atual)}
             anterior={Number(descontos.anterior)}
             formatar={emReais}
+            dinheiro
           />
         </div>
       </div>
@@ -74,6 +76,7 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
         <Cartao titulo="Por forma de pagamento" icone={MoneyIcon} semEspaco>
           <BarrasHorizontais
             empilhada
+            dinheiro
             larguraDoValor="w-auto"
             linhas={dinheiro.por_forma.map((linha) => ({
               chave: linha.forma,
@@ -90,6 +93,7 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
           rotulo="A receber"
           icone={HandCoinsIcon}
           valor={emReais(aReceber.valor)}
+          dinheiro
           nota={`${ordensAReceber} sem pagamento completo`}
           href={aReceber.ordens > 0 ? "/ordens?situacao=a_receber" : undefined}
         />
@@ -97,17 +101,20 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
           rotulo="Aprovado em aberto"
           icone={StampIcon}
           valor={emReais(dinheiro.aprovado_em_aberto)}
+          dinheiro
           nota="vai entrar quando as ordens abertas forem entregues"
         />
         <Indicador
           rotulo="Ticket médio"
           icone={ReceiptIcon}
           valor={ticket.atual === null ? "—" : emReais(ticket.atual)}
+          dinheiro={ticket.atual !== null}
           nota={
             <Variacao
               atual={numeroOuNulo(ticket.atual)}
               anterior={numeroOuNulo(ticket.anterior)}
               formatar={emReais}
+              dinheiro
             />
           }
         />

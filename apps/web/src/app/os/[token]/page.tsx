@@ -206,13 +206,13 @@ function Orcamento({ orcamento }: { orcamento: NonNullable<AcompanhamentoPublico
         {orcamento.itens.map((item, indice) => (
           <li key={indice} className="flex items-center justify-between gap-4 px-5 py-3.5 text-[15px]">
             <span className="font-medium">{item.descricao}</span>
-            <span className="shrink-0 font-semibold tabular-nums">{emReais(item.valor)}</span>
+            <span className="shrink-0 font-semibold text-dinheiro tabular-nums">{emReais(item.valor)}</span>
           </li>
         ))}
       </ul>
       <div className="flex items-center justify-between border-t border-borda bg-realce px-5 py-4 text-base font-bold">
         <span>Total</span>
-        <span className="tabular-nums">{emReais(orcamento.total)}</span>
+        <span className="text-dinheiro tabular-nums">{emReais(orcamento.total)}</span>
       </div>
     </Cartao>
   );

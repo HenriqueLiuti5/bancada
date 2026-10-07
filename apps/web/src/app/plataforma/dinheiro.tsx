@@ -1,5 +1,6 @@
 import { PiggyBankIcon, WalletIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
+import { Dinheiro } from "@/componentes/ui/Dinheiro";
 import { Secao } from "@/componentes/ui/Secao";
 import { juntar } from "@/componentes/ui/estilos";
 import { contagem } from "@/lib/formatos";
@@ -7,21 +8,21 @@ import { emReais } from "@/lib/moeda";
 import type { PainelDaPlataforma } from "@/lib/tipos";
 import { CustosDoMes } from "./custos";
 
-type Dinheiro = PainelDaPlataforma["dinheiro"];
+type DinheiroDoMes = PainelDaPlataforma["dinheiro"];
 
-function Linha({ rotulo, nota, valor }: { rotulo: string; nota?: string; valor: string }) {
+function Linha({ rotulo, nota, valor }: { rotulo: string; nota?: string; valor: React.ReactNode }) {
   return (
     <li className="flex items-baseline justify-between gap-4 py-2">
       <span className="min-w-0">
         <span className="block text-sm font-medium">{rotulo}</span>
         {nota && <span className="block text-xs text-texto-apagado">{nota}</span>}
       </span>
-      <span className="shrink-0 text-sm font-semibold tabular-nums">{valor}</span>
+      <span className="shrink-0 text-sm font-semibold">{valor}</span>
     </li>
   );
 }
 
-function Lucro({ dinheiro, nome }: { dinheiro: Dinheiro; nome: string }) {
+function Lucro({ dinheiro, nome }: { dinheiro: DinheiroDoMes; nome: string }) {
   const negativo = Number(dinheiro.lucro) < 0;
 
   return (
@@ -33,7 +34,7 @@ function Lucro({ dinheiro, nome }: { dinheiro: Dinheiro; nome: string }) {
       <p
         className={juntar(
           "mt-4 text-4xl leading-none font-bold tracking-tight tabular-nums sm:text-5xl",
-          negativo && "text-perigo",
+          negativo ? "text-perigo" : "text-dinheiro",
         )}
       >
         {emReais(dinheiro.lucro)}
@@ -43,10 +44,10 @@ function Lucro({ dinheiro, nome }: { dinheiro: Dinheiro; nome: string }) {
         <Linha
           rotulo="Recebido das assinaturas"
           nota={contagem(dinheiro.faturas_pagas, "fatura paga", "faturas pagas")}
-          valor={emReais(dinheiro.recebido)}
+          valor={<Dinheiro valor={dinheiro.recebido} />}
         />
-        <Linha rotulo="Taxas do Asaas" valor={`−${emReais(dinheiro.taxas)}`} />
-        <Linha rotulo="Custos do mês" valor={`−${emReais(dinheiro.custos)}`} />
+        <Linha rotulo="Taxas do Asaas" valor={<Dinheiro valor={dinheiro.taxas} saida />} />
+        <Linha rotulo="Custos do mês" valor={<Dinheiro valor={dinheiro.custos} saida />} />
       </ul>
     </Cartao>
   );
@@ -57,7 +58,7 @@ export function SecaoDinheiro({
   mes,
   nome,
 }: {
-  dinheiro: Dinheiro;
+  dinheiro: DinheiroDoMes;
   mes: string;
   nome: string;
 }) {

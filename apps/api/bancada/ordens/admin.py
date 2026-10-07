@@ -1,7 +1,6 @@
 from typing import Any
 
 from django.contrib import admin
-from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.html import format_html
@@ -60,13 +59,11 @@ class FotoOSInline(admin.TabularInline):
 class OrdemServicoAdmin(admin.ModelAdmin):
     form = OrdemServicoForm
     list_display = ["numero", "aparelho", "cliente", "status", "tecnico", "tenant", "criado_em"]
+    list_select_related = ["aparelho", "cliente", "tecnico", "tenant"]
     list_filter = ["tenant", "status", "loja"]
     search_fields = ["numero", "cliente__nome", "aparelho__marca", "aparelho__modelo"]
     readonly_fields = ["numero", "token_publico", "entregue_em", "criado_em", "atualizado_em"]
     inlines = [ItemOrcamentoInline, PagamentoInline, FotoOSInline, EventoOSInline]
-
-    def get_queryset(self, request: HttpRequest) -> QuerySet[OrdemServico]:
-        return super().get_queryset(request).select_related("cliente", "aparelho", "tenant")
 
     def save_model(self, request: HttpRequest, obj: OrdemServico, form: Any, change: bool) -> None:
         if not change:
@@ -94,6 +91,7 @@ class OrdemServicoAdmin(admin.ModelAdmin):
 @admin.register(EventoOS)
 class EventoOSAdmin(admin.ModelAdmin):
     list_display = ["ordem", "de_status", "para_status", "usuario", "criado_em"]
+    list_select_related = ["ordem__aparelho", "usuario"]
     list_filter = ["para_status"]
     readonly_fields = ["ordem", "de_status", "para_status", "usuario", "nota", "criado_em"]
 

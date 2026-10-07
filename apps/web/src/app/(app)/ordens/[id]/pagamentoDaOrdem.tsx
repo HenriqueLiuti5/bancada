@@ -29,7 +29,7 @@ function Linha({ rotulo, valor, detalhe }: { rotulo: string; valor: string; deta
         <span className="block text-sm font-medium">{rotulo}</span>
         {detalhe && <span className="text-xs text-texto-apagado">{detalhe}</span>}
       </span>
-      <span className="shrink-0 text-sm font-semibold tabular-nums">{valor}</span>
+      <span className="shrink-0 text-sm font-semibold text-dinheiro tabular-nums">{valor}</span>
     </li>
   );
 }
@@ -54,7 +54,9 @@ function LinhaDoPagamento({
         <span className="text-xs text-texto-apagado">{detalhe}</span>
       </span>
       <span className="flex shrink-0 items-center gap-1">
-        <span className="text-sm font-semibold tabular-nums">{emReais(pagamento.valor)}</span>
+        <span className="text-sm font-semibold text-dinheiro tabular-nums">
+          {emReais(pagamento.valor)}
+        </span>
         {podeRemover && (
           <form action={removerPagamento}>
             <input type="hidden" name="id" value={ordem} />
@@ -132,7 +134,7 @@ export function PagamentoDaOrdem({ ordem, podeRemover }: { ordem: Ordem; podeRem
         {temDesconto && (
           <>
             <Linha rotulo="Total aprovado" valor={emReais(ordem.total_aprovado)} />
-            <Linha rotulo="Desconto" valor={`-${emReais(ordem.desconto)}`} />
+            <Linha rotulo="Desconto" valor={`−${emReais(ordem.desconto)}`} />
           </>
         )}
         <Linha rotulo="Valor cobrado" valor={emReais(ordem.valor_cobrado)} />
@@ -149,12 +151,12 @@ export function PagamentoDaOrdem({ ordem, podeRemover }: { ordem: Ordem; podeRem
       <div className="space-y-1 border-t border-borda bg-realce px-5 py-3.5 text-sm">
         <div className="flex items-center justify-between font-bold">
           <span>Total pago</span>
-          <span className="tabular-nums">{emReais(ordem.total_pago)}</span>
+          <span className="text-dinheiro tabular-nums">{emReais(ordem.total_pago)}</span>
         </div>
         {saldo > 0 ? (
           <div className="flex items-center justify-between font-bold">
             <span>Falta receber</span>
-            <span className="tabular-nums">{emReais(ordem.saldo_a_receber)}</span>
+            <span className="text-dinheiro tabular-nums">{emReais(ordem.saldo_a_receber)}</span>
           </div>
         ) : (
           <p className="flex items-center gap-1.5 text-[13px] font-medium text-sucesso">

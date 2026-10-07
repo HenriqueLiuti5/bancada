@@ -14,6 +14,7 @@ type Props = {
   linhas: LinhaComBarra[];
   empilhada?: boolean;
   larguraDoValor?: string;
+  dinheiro?: boolean;
 };
 
 function Barra({ fracao }: { fracao: number }) {
@@ -47,10 +48,12 @@ function Valor({
   linha,
   vazia,
   largura,
+  dinheiro,
 }: {
   linha: LinhaComBarra;
   vazia: boolean;
   largura: string;
+  dinheiro: boolean;
 }) {
   return (
     <span
@@ -58,6 +61,7 @@ function Valor({
         "shrink-0 text-right text-sm tabular-nums",
         largura,
         vazia ? "text-texto-apagado" : "font-semibold",
+        dinheiro && "text-dinheiro",
       )}
     >
       {linha.valor}
@@ -69,10 +73,12 @@ function ConteudoEmLinha({
   linha,
   fracao,
   largura,
+  dinheiro,
 }: {
   linha: LinhaComBarra;
   fracao: number;
   largura: string;
+  dinheiro: boolean;
 }) {
   const vazia = linha.medida === 0;
   return (
@@ -83,7 +89,7 @@ function ConteudoEmLinha({
       <span className="hidden flex-1 items-center sm:flex" aria-hidden="true">
         <Barra fracao={fracao} />
       </span>
-      <Valor linha={linha} vazia={vazia} largura={largura} />
+      <Valor linha={linha} vazia={vazia} largura={largura} dinheiro={dinheiro} />
     </>
   );
 }
@@ -92,17 +98,19 @@ function ConteudoEmpilhado({
   linha,
   fracao,
   largura,
+  dinheiro,
 }: {
   linha: LinhaComBarra;
   fracao: number;
   largura: string;
+  dinheiro: boolean;
 }) {
   const vazia = linha.medida === 0;
   return (
     <span className="block w-full space-y-2">
       <span className="flex items-center justify-between gap-3">
         <Rotulo linha={linha} vazia={vazia} />
-        <Valor linha={linha} vazia={vazia} largura={largura} />
+        <Valor linha={linha} vazia={vazia} largura={largura} dinheiro={dinheiro} />
       </span>
       <span className="flex" aria-hidden="true">
         <Barra fracao={fracao} />
@@ -111,7 +119,12 @@ function ConteudoEmpilhado({
   );
 }
 
-export function BarrasHorizontais({ linhas, empilhada = false, larguraDoValor = "w-10" }: Props) {
+export function BarrasHorizontais({
+  linhas,
+  empilhada = false,
+  larguraDoValor = "w-10",
+  dinheiro = false,
+}: Props) {
   const maior = Math.max(...linhas.map((linha) => linha.medida), 0);
   const Conteudo = empilhada ? ConteudoEmpilhado : ConteudoEmLinha;
   const espaco = "flex items-center gap-4 rounded-xl px-3 py-2.5";
@@ -120,7 +133,9 @@ export function BarrasHorizontais({ linhas, empilhada = false, larguraDoValor = 
     <ul className="space-y-0.5 p-2">
       {linhas.map((linha) => {
         const fracao = maior > 0 ? linha.medida / maior : 0;
-        const conteudo = <Conteudo linha={linha} fracao={fracao} largura={larguraDoValor} />;
+        const conteudo = (
+          <Conteudo linha={linha} fracao={fracao} largura={larguraDoValor} dinheiro={dinheiro} />
+        );
         return (
           <li key={linha.chave}>
             {linha.href ? (

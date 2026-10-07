@@ -40,13 +40,11 @@ class EmailComImagens(EmailMultiAlternatives):
         alternativas.set_payload([*demais, relacionadas])
         return mensagem
 
-
 class LogoDoEmail(NamedTuple):
     imagem: MIMEImage
     cid: str
     largura: int
     altura: int
-
 
 def logo_do_email(tenant: Tenant) -> LogoDoEmail | None:
     medidas = logo.caber(tenant, LARGURA_MAXIMA_DA_LOGO_EM_PIXELS, ALTURA_MAXIMA_DA_LOGO_EM_PIXELS)

@@ -9,11 +9,20 @@ type Props = {
   nota?: React.ReactNode;
   href?: string;
   alerta?: boolean;
+  dinheiro?: boolean;
 };
 
 const CAIXA = "rounded-2xl border border-borda bg-superficie p-4 shadow-cartao sm:p-5";
 
-export function Indicador({ rotulo, valor, icone: Icone, nota, href, alerta = false }: Props) {
+export function Indicador({
+  rotulo,
+  valor,
+  icone: Icone,
+  nota,
+  href,
+  alerta = false,
+  dinheiro = false,
+}: Props) {
   const conteudo = (
     <>
       <div className="flex items-center justify-between gap-3">
@@ -29,6 +38,7 @@ export function Indicador({ rotulo, valor, icone: Icone, nota, href, alerta = fa
       <p
         className={juntar(
           "mt-1 text-[22px] leading-tight font-bold tracking-tight tabular-nums sm:text-[28px]",
+          dinheiro && "text-dinheiro",
           alerta && "text-perigo",
         )}
       >

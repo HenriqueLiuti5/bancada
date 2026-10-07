@@ -211,7 +211,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
                 rotulo={ordem.orcamento_aprovado ? "Aprovado" : "Orçamento"}
                 icone={ReceiptIcon}
               >
-                <span className="tabular-nums">
+                <span className="text-dinheiro tabular-nums">
                   {emReais(ordem.orcamento_aprovado ? ordem.total_aprovado : ordem.total_orcamento)}
                 </span>
               </Propriedade>

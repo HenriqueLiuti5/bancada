@@ -51,6 +51,7 @@
   --perigo-suave: #fef3f2;
   --aviso: #b54708;
   --sucesso: #15803d;
+  --dinheiro: #15803d;
 
   --status-novo: #175cd3;
   --status-andamento: #5925dc;
@@ -92,6 +93,7 @@
     --perigo-suave: #3b2a29;
     --aviso: #fdb022;
     --sucesso: #3fb950;
+    --dinheiro: #3fb950;
 
     --status-novo: #84caff;
     --status-andamento: #bdb4fe;
@@ -143,6 +145,7 @@
   --color-perigo-suave: var(--perigo-suave);
   --color-aviso: var(--aviso);
   --color-sucesso: var(--sucesso);
+  --color-dinheiro: var(--dinheiro);
 
   --color-status-novo: var(--status-novo);
   --color-status-andamento: var(--status-andamento);

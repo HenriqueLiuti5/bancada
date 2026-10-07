@@ -40,7 +40,9 @@ export function SecaoEquipe({ equipe }: { equipe: LinhaDaEquipe[] }) {
                     {linha.nome}
                   </td>
                   <td className="px-5 py-3 text-right tabular-nums">{linha.concluidas}</td>
-                  <td className="px-5 py-3 text-right font-semibold tabular-nums">{emReais(linha.recebido)}</td>
+                  <td className="px-5 py-3 text-right font-semibold text-dinheiro tabular-nums">
+                    {emReais(linha.recebido)}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -56,6 +56,7 @@ export function SecaoAssinaturas({
             rotulo="Receita recorrente"
             icone={RepeatIcon}
             valor={emReais(receita.valor)}
+            dinheiro
             nota={`${contagem(receita.assinaturas, "assinatura pagando", "assinaturas pagando")} por mês`}
           />
           <Indicador

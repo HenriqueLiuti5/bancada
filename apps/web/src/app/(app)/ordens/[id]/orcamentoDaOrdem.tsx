@@ -35,7 +35,7 @@ function LinhaDoItem({ ordem, item }: { ordem: Ordem; item: ItemOrcamento }) {
       <span className="flex shrink-0 items-center gap-1">
         <span
           className={juntar(
-            "text-sm font-semibold tabular-nums",
+            "text-sm font-semibold text-dinheiro tabular-nums",
             recusado && "text-texto-apagado line-through",
           )}
         >
@@ -146,7 +146,7 @@ export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
           </ul>
           <div className="flex items-center justify-between border-t border-borda bg-realce px-5 py-3.5 text-sm font-bold">
             <span>{ordem.orcamento_aprovado ? "Total aprovado" : "Total"}</span>
-            <span className="tabular-nums">
+            <span className="text-dinheiro tabular-nums">
               {emReais(ordem.orcamento_aprovado ? ordem.total_aprovado : ordem.total_orcamento)}
             </span>
           </div>
