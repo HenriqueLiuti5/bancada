@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from bancada.clientes.models import Aparelho, Cliente
-from bancada.core.telefones import telefone_brasileiro
+from bancada.core.telefones import so_digitos, telefone_brasileiro
 
 
 class AparelhoSerializer(serializers.ModelSerializer):
@@ -22,6 +22,14 @@ class AparelhoSerializer(serializers.ModelSerializer):
             "imei_mascarado",
             "senha_desbloqueio",
         ]
+
+    def validate_cliente(self, valor: Cliente) -> Cliente:
+        if self.instance is not None and valor != self.instance.cliente:
+            raise serializers.ValidationError("O aparelho não pode mudar de cliente.")
+        return valor
+
+    def validate_imei(self, valor: str) -> str:
+        return so_digitos(valor)
 
 
 class ClienteSerializer(serializers.ModelSerializer):

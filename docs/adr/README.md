@@ -32,3 +32,5 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0024](0024-identidade-visual-do-bancada.md) | Identidade visual do Bancada |
 | [0025](0025-logo-da-assistencia.md) | Logo da assistência para o cliente |
 | [0026](0026-pagina-inicial-e-demonstracao.md) | Página inicial e demonstração |
+| [0027](0027-correcao-do-cliente-e-do-aparelho.md) | Correção do cliente e do aparelho |
+| [0028](0028-prazo-prometido-no-dia-a-dia.md) | Prazo prometido no dia a dia |

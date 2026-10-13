@@ -32,8 +32,8 @@ def origem_do_pedido(request: Request) -> str | None:
     return endereco or None
 
 
-def registrar_acesso_a_senha(
-    request: Request, *, aparelho: Any, permitido: bool
+def _registrar_no_aparelho(
+    request: Request, *, aparelho: Any, acao: str
 ) -> RegistroDeAuditoria | None:
     usuario = request.user if isinstance(request.user, Usuario) else None
     tenant = usuario.tenant if usuario else None
@@ -43,9 +43,20 @@ def registrar_acesso_a_senha(
     return registrar(
         tenant=tenant,
         usuario=usuario,
-        acao=Acao.SENHA_VISTA if permitido else Acao.SENHA_NEGADA,
+        acao=acao,
         objeto="aparelho",
         objeto_id=aparelho.pk,
         detalhe=str(aparelho),
         origem=origem_do_pedido(request),
     )
+
+
+def registrar_acesso_a_senha(
+    request: Request, *, aparelho: Any, permitido: bool
+) -> RegistroDeAuditoria | None:
+    acao = Acao.SENHA_VISTA if permitido else Acao.SENHA_NEGADA
+    return _registrar_no_aparelho(request, aparelho=aparelho, acao=acao)
+
+
+def registrar_troca_de_senha(request: Request, *, aparelho: Any) -> RegistroDeAuditoria | None:
+    return _registrar_no_aparelho(request, aparelho=aparelho, acao=Acao.SENHA_ALTERADA)

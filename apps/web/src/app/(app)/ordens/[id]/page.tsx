@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CompartilharLink } from "@/componentes/CompartilharLink";
 import {
   ArrowsLeftRightIcon,
@@ -13,6 +14,7 @@ import {
   NotePencilIcon,
   PackageIcon,
   PasswordIcon,
+  PencilSimpleIcon,
   ReceiptIcon,
   UserIcon,
   WrenchIcon,
@@ -190,7 +192,20 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
             />
           </Cartao>
 
-          <Cartao titulo="Propriedades" icone={InfoIcon}>
+          <Cartao
+            titulo="Propriedades"
+            icone={InfoIcon}
+            acoes={
+              <Link
+                href={`/ordens/${ordem.id}/cliente`}
+                aria-label="Editar cliente e aparelho"
+                className={botao("fantasma", "sm")}
+              >
+                <PencilSimpleIcon size={15} />
+                Editar
+              </Link>
+            }
+          >
             <dl className="-my-2.5 divide-y divide-borda">
               <Propriedade rotulo="Cliente" icone={UserIcon}>
                 {ordem.cliente_nome}
@@ -220,7 +235,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
           <Cartao tour="senha" titulo="Senha de desbloqueio" icone={PasswordIcon}>
             {podeVerSenha(usuario) ? (
-              <SenhaDoAparelho aparelho={ordem.aparelho} />
+              <SenhaDoAparelho aparelho={ordem.aparelho} podeCorrigir={!ordem.encerrada} />
             ) : (
               <p className="text-sm text-texto-apagado sm:text-[13px]">
                 Só técnicos e o dono podem ver a senha de desbloqueio.

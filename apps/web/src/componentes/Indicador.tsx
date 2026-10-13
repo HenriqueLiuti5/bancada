@@ -67,6 +67,7 @@ const COLUNAS = {
   2: "grid-cols-2",
   3: "grid-cols-1 sm:grid-cols-3",
   4: "grid-cols-2 lg:grid-cols-4",
+  5: "grid-cols-2 sm:grid-cols-3 xl:grid-cols-5",
 };
 
 export function GradeDeIndicadores({
@@ -76,7 +77,7 @@ export function GradeDeIndicadores({
 }: {
   children: React.ReactNode;
   tour?: string;
-  colunas?: 2 | 3 | 4;
+  colunas?: 2 | 3 | 4 | 5;
 }) {
   return (
     <div data-tour={tour} className={`grid gap-3 sm:gap-4 ${COLUNAS[colunas]}`}>

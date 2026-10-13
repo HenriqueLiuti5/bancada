@@ -150,20 +150,22 @@ export type OrdemResumo = {
   numero: number;
   status: string;
   status_label: string;
+  encerrada: boolean;
   cliente_nome: string;
   aparelho_descricao: string;
   tecnico_nome: string | null;
   problema_relatado: string;
+  prometida_para: string | null;
   token_publico: string;
   criado_em: string;
 };
 
 export type Ordem = OrdemResumo & {
+  cliente: number;
   aparelho: number;
   tecnico: number | null;
   diagnostico: string;
   laudo: string;
-  prometida_para: string | null;
   garantia_ate: string | null;
   entregue_em: string | null;
   imei_mascarado: string;
@@ -206,6 +208,7 @@ export type Painel = {
   agora: {
     abertas: number;
     atrasadas: number;
+    para_hoje: number;
     aguardando_cliente: number;
     aguardando_peca: number;
     prontas: number;

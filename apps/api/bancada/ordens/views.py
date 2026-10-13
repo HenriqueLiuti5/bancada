@@ -118,6 +118,7 @@ class OrdemServicoViewSet(ViewSetDoTenant):
             problema_relatado=dados["problema_relatado"],
             aberta_por=usuario,
             tecnico=usuario,
+            prometida_para=dados.get("prometida_para"),
         )
         saida = OrdemServicoDetailSerializer(ordem, context=self.get_serializer_context())
         return Response(saida.data, status=status.HTTP_201_CREATED)

@@ -36,7 +36,7 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       alvo: "situacoes",
       titulo: "Abertas, atrasadas, encerradas",
       texto:
-        "Troque a visão da lista com um clique. Atrasadas são as ordens que passaram do prazo prometido ao cliente.",
+        "Troque a visão da lista com um clique. Atrasadas são as ordens que passaram do prazo prometido ao cliente; Para hoje, as que vencem hoje.",
     },
     {
       alvo: "busca",
@@ -73,9 +73,9 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
     },
     {
       alvo: "defeito",
-      titulo: "Defeito",
+      titulo: "Defeito e prazo",
       texto:
-        "Escreva o problema como o cliente contou. O texto sai no comprovante que ele assina no balcão.",
+        "Escreva o problema como o cliente contou e, se já combinou, a data de entrega. Os dois saem no comprovante que ele assina no balcão.",
     },
     {
       alvo: "abrir",
@@ -126,7 +126,7 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       papeis: DONO_E_TECNICO,
       titulo: "Senha de desbloqueio",
       texto:
-        "A senha só aparece quando você clica para ver, e cada consulta fica registrada. Ela é apagada sozinha sete dias depois da entrega.",
+        "A senha só aparece quando você clica para ver, e cada consulta fica registrada. Se ela estiver errada, corrija ali mesmo. Ela é apagada sozinha sete dias depois da entrega.",
     },
     {
       alvo: "historico",
@@ -146,7 +146,7 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       alvo: "indicadores",
       titulo: "Como a loja está agora",
       texto:
-        "O que está na bancada, o que passou do prazo, o que espera resposta do cliente e o que está pronto para retirada. Clique num número para ver essas ordens.",
+        "O que está na bancada, o que passou do prazo, o que vence hoje, o que espera resposta do cliente e o que está pronto para retirada. Clique num número para ver essas ordens.",
     },
     {
       alvo: "dinheiro",

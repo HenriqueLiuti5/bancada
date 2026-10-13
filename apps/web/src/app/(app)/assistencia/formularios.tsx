@@ -7,6 +7,7 @@ import { ImageSquareIcon } from "@/componentes/icones";
 import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { EscolhaDeImagem } from "@/componentes/ui/EscolhaDeImagem";
 import { Mensagem } from "@/componentes/ui/Mensagem";
+import { RodapeDoFormulario } from "@/componentes/ui/RodapeDoFormulario";
 import { botao, campo } from "@/componentes/ui/estilos";
 import { fotoPassaDoTamanho, TAMANHO_MAXIMO_DA_FOTO_EM_MB } from "@/lib/fotos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
@@ -15,18 +16,6 @@ import type { Assistencia, Loja } from "@/lib/tipos";
 import { alterarLogo, salvarAssistencia, salvarLoja, type EstadoDaLogo } from "./acoes";
 
 const INICIAL: EstadoDoFormulario = {};
-
-function Rodape({ estado, enviando }: { estado: EstadoDoFormulario; enviando: boolean }) {
-  return (
-    <div className="flex flex-wrap items-center gap-3 border-t border-borda pt-4">
-      <button type="submit" disabled={enviando} className={botao("primario")}>
-        {enviando ? "Salvando..." : "Salvar"}
-      </button>
-      {estado.ok && <Mensagem tipo="sucesso">{estado.ok}</Mensagem>}
-      {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
-    </div>
-  );
-}
 
 export function FormularioDaAssistencia({ assistencia }: { assistencia: Assistencia }) {
   const [estado, acao, enviando] = useActionState(salvarAssistencia, INICIAL);
@@ -67,7 +56,7 @@ export function FormularioDaAssistencia({ assistencia }: { assistencia: Assisten
           />
         </CampoRotulado>
       </div>
-      <Rodape estado={estado} enviando={enviando} />
+      <RodapeDoFormulario estado={estado} enviando={enviando} />
     </form>
   );
 }
@@ -116,7 +105,7 @@ export function FormularioDaLoja({ loja }: { loja: Loja }) {
           />
         </CampoRotulado>
       </div>
-      <Rodape estado={estado} enviando={enviando} />
+      <RodapeDoFormulario estado={estado} enviando={enviando} />
     </form>
   );
 }

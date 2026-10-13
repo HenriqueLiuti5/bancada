@@ -12,6 +12,7 @@ export type ValoresDosFiltros = {
   ordem: string;
   situacao: string;
   atrasadas: string;
+  para_hoje: string;
 };
 
 const ORDEM_PADRAO = "recentes";
@@ -47,6 +48,7 @@ export function Filtros({
     >
       {valores.situacao && <input type="hidden" name="situacao" value={valores.situacao} />}
       {valores.atrasadas && <input type="hidden" name="atrasadas" value={valores.atrasadas} />}
+      {valores.para_hoje && <input type="hidden" name="para_hoje" value={valores.para_hoje} />}
 
       <div className="relative min-w-0 flex-1 sm:basis-72">
         <MagnifyingGlassIcon

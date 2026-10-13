@@ -49,7 +49,7 @@ export function Abertura({ diasDeTeste }: { diasDeTeste: number }) {
         <div className="relative mx-auto mt-14 max-w-5xl sm:mt-16 lg:mt-20">
           <TelaDoComputador
             imagem={telaDasOrdens}
-            descricao="Lista de ordens de serviço do Bancada, com o aparelho, o cliente, o técnico e o status de cada conserto"
+            descricao="Lista de ordens de serviço do Bancada, com o aparelho, o cliente, o técnico, o prazo e o status de cada conserto"
             tamanhos="(min-width: 1024px) 1024px, 100vw"
             antecipar
             className="hidden md:block"

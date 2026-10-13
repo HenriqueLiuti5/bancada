@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 from django.utils import timezone
@@ -138,6 +139,7 @@ class OrdemServicoListSerializer(serializers.ModelSerializer):
     tecnico_nome = serializers.CharField(
         source="tecnico.nome_de_exibicao", read_only=True, default=None
     )
+    encerrada = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = OrdemServico
@@ -146,10 +148,12 @@ class OrdemServicoListSerializer(serializers.ModelSerializer):
             "numero",
             "status",
             "status_label",
+            "encerrada",
             "cliente_nome",
             "aparelho_descricao",
             "tecnico_nome",
             "problema_relatado",
+            "prometida_para",
             "token_publico",
             "criado_em",
         ]
@@ -173,11 +177,11 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     class Meta(OrdemServicoListSerializer.Meta):
         fields = [
             *OrdemServicoListSerializer.Meta.fields,
+            "cliente",
             "aparelho",
             "tecnico",
             "diagnostico",
             "laudo",
-            "prometida_para",
             "garantia_ate",
             "entregue_em",
             "imei_mascarado",
@@ -253,6 +257,12 @@ class AberturaOrdemSerializer(serializers.Serializer):
     )
     aparelho_novo = NovoAparelhoSerializer(required=False, allow_null=True)
     problema_relatado = serializers.CharField()
+    prometida_para = serializers.DateField(required=False, allow_null=True)
+
+    def validate_prometida_para(self, valor: date | None) -> date | None:
+        if valor is not None and valor < timezone.localdate():
+            raise serializers.ValidationError("O prazo não pode ser antes de hoje.")
+        return valor
 
     def _exigir_um_dos_dois(self, attrs: dict, existente: str, novo: str, rotulo: str) -> None:
         if bool(attrs.get(existente)) == bool(attrs.get(novo)):

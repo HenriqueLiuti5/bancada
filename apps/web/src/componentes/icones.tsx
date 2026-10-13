@@ -59,6 +59,7 @@ import {
   PaperPlaneTiltIcon as PaperPlaneTilt,
   PasswordIcon as Password,
   PauseCircleIcon as PauseCircle,
+  PencilSimpleIcon as PencilSimple,
   PhoneIcon as Phone,
   PiggyBankIcon as PiggyBank,
   PlusIcon as Plus,
@@ -170,6 +171,7 @@ export const PackageIcon = decorativo(Package);
 export const PaperPlaneTiltIcon = decorativo(PaperPlaneTilt);
 export const PasswordIcon = decorativo(Password);
 export const PauseCircleIcon = decorativo(PauseCircle);
+export const PencilSimpleIcon = decorativo(PencilSimple);
 export const PhoneIcon = decorativo(Phone);
 export const PiggyBankIcon = decorativo(PiggyBank);
 export const PlusIcon = decorativo(Plus);

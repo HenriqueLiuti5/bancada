@@ -5,7 +5,7 @@ import { ChatTextIcon, DeviceMobileIcon, UserIcon, type Icon } from "@/component
 import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Mensagem } from "@/componentes/ui/Mensagem";
-import { areaDeTexto, botao, seletor } from "@/componentes/ui/estilos";
+import { areaDeTexto, botao, campo, seletor } from "@/componentes/ui/estilos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
 import type { Cliente, Loja } from "@/lib/tipos";
 import { abrirOrdem } from "./acoes";
@@ -119,7 +119,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
             />
           </Secao>
 
-          <Secao icone={ChatTextIcon} titulo="Defeito" tour="defeito">
+          <Secao icone={ChatTextIcon} titulo="Defeito e prazo" tour="defeito">
             <CampoRotulado
               rotulo="Problema relatado"
               htmlFor="problema_relatado"
@@ -136,6 +136,22 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
                 className={areaDeTexto}
               />
             </CampoRotulado>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <CampoRotulado
+                rotulo="Prazo prometido"
+                htmlFor="prometida_para"
+                erro={erros.prometida_para}
+                dica="Opcional. A data combinada com o cliente sai no comprovante e no link de acompanhamento."
+              >
+                <input
+                  id="prometida_para"
+                  type="date"
+                  name="prometida_para"
+                  defaultValue={valores.prometida_para}
+                  className={campo}
+                />
+              </CampoRotulado>
+            </div>
           </Secao>
         </div>
 

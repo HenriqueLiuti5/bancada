@@ -161,6 +161,21 @@ def test_filtro_de_atrasadas_olha_a_data_prometida(api_tecnico: APIClient, cenar
 
 
 @pytest.mark.django_db
+def test_filtro_para_hoje_olha_a_data_prometida(api_tecnico: APIClient, cenario: dict) -> None:
+    hoje = timezone.localdate()
+    OrdemServico.objects.filter(pk=cenario["joao"].pk).update(prometida_para=hoje)
+    OrdemServico.objects.filter(pk=cenario["maria"].pk).update(
+        prometida_para=hoje + timedelta(days=1)
+    )
+
+    resposta = api_tecnico.get("/api/ordens/", {"para_hoje": "1"})
+
+    assert numeros(resposta) == [cenario["joao"].numero]
+    assert resposta.json()["results"][0]["prometida_para"] == hoje.isoformat()
+    assert resposta.json()["results"][0]["encerrada"] is False
+
+
+@pytest.mark.django_db
 def test_ordem_encerrada_nunca_conta_como_atrasada(api_tecnico: APIClient, cenario: dict) -> None:
     ontem = timezone.localdate() - timedelta(days=1)
     OrdemServico.objects.filter(pk=cenario["joao"].pk).update(prometida_para=ontem)

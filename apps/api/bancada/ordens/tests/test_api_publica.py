@@ -81,6 +81,30 @@ def test_mudanca_de_status_invalida_o_cache(ordem: OrdemServico) -> None:
 
 
 @pytest.mark.django_db
+def test_correcao_do_aparelho_invalida_o_cache(ordem: OrdemServico) -> None:
+    cliente_api = APIClient()
+    cliente_api.get(f"/api/publico/os/{ordem.token_publico}/")
+
+    ordem.aparelho.modelo = "Moto G84"
+    ordem.aparelho.save()
+
+    depois = cliente_api.get(f"/api/publico/os/{ordem.token_publico}/").json()
+    assert depois["aparelho"] == "Motorola Moto G84"
+
+
+@pytest.mark.django_db
+def test_correcao_do_cliente_invalida_o_cache(ordem: OrdemServico) -> None:
+    cliente_api = APIClient()
+    cliente_api.get(f"/api/publico/os/{ordem.token_publico}/")
+
+    ordem.cliente.nome = "Mariana Souza"
+    ordem.cliente.save()
+
+    depois = cliente_api.get(f"/api/publico/os/{ordem.token_publico}/").json()
+    assert depois["cliente_primeiro_nome"] == "Mariana"
+
+
+@pytest.mark.django_db
 def test_link_expira_depois_de_entregue(ordem: OrdemServico) -> None:
     for status in [
         StatusOS.EM_DIAGNOSTICO,

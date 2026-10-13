@@ -1,16 +1,22 @@
+from typing import cast
+
 from django.db.models import Q, QuerySet
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 
-from bancada.auditoria.registro import registrar_acesso_a_senha
+from bancada.auditoria.registro import registrar_acesso_a_senha, registrar_troca_de_senha
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.clientes.serializers import AparelhoSerializer, ClienteSerializer
-from bancada.core.api import ViewSetDoTenant
+from bancada.core.api import ViewSetDoTenant, usuario_obrigatorio
 from bancada.core.telefones import DIGITOS_MINIMOS_PARA_BUSCAR_TELEFONE, so_digitos
 from bancada.tenants.models import Usuario
 from bancada.tenants.permissoes import ApagarSoDonoOuTecnico
+
+SO_TECNICO_TROCA_A_SENHA = "Só técnicos e o dono podem trocar a senha de desbloqueio."
 
 
 class ClienteViewSet(ViewSetDoTenant):
@@ -42,6 +48,16 @@ class AparelhoViewSet(ViewSetDoTenant):
         if cliente:
             consulta = consulta.filter(cliente_id=cliente)
         return consulta
+
+    def perform_update(self, serializer: BaseSerializer) -> None:
+        troca_a_senha = "senha_desbloqueio" in serializer.validated_data
+        if troca_a_senha and not usuario_obrigatorio(self.request).e_tecnico:
+            raise PermissionDenied(SO_TECNICO_TROCA_A_SENHA)
+
+        senha_anterior = cast(Aparelho, serializer.instance).senha_desbloqueio
+        aparelho = serializer.save()
+        if troca_a_senha and aparelho.senha_desbloqueio != senha_anterior:
+            registrar_troca_de_senha(self.request, aparelho=aparelho)
 
     @action(detail=True, methods=["get"], url_path="senha")
     def senha(self, request: Request, pk: str | None = None) -> Response:

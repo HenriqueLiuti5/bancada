@@ -5,12 +5,15 @@ customer follows the repair through a public link, without creating an account.
 
 ## Current status
 
-Phases 4A to 4E, 4G and 4H of the self-service launch are done; only publishing (4F) is left.
-The shop opens the order at the counter, looking up the customer by name or phone or registering
-customer and device on the same screen, photographs the device, prints the intake receipt the
-customer signs at the counter and moves the status along; the customer gets the link by email,
-follows the repair without creating an account and, at pickup, receives the warranty receipt as a
-PDF.
+Phases 4A to 4E and 4G to 4I of the self-service launch are done; only publishing (4F) is left. The
+shop opens the order at the counter, looking up the customer by name or phone or registering
+customer and device on the same screen, along with the promised date, photographs the device, prints
+the intake receipt the customer signs at the counter and moves the status along; the customer gets
+the link by email, follows the repair without creating an account and, at pickup, receives the
+warranty receipt as a PDF. If something was typed wrong at the counter, anyone on the team fixes the
+customer's name, phone, email or CPF and the device's brand, model, color or IMEI from the order
+screen; the fix applies to all of that customer's orders and shows up on the tracking page right
+away.
 
 At pickup, whoever is at the counter records how much was charged and how the customer paid: PIX,
 cash, debit or credit card, split however needed. The amount comes pre-filled with the approved
@@ -23,8 +26,10 @@ The dashboard shows how the shop is doing right now and how it did over a chosen
 delivered, repair time, time stuck in each stage, most common devices and faults, and returning
 customers. The owner also sees the money that came in, by payment method, the discounts, the
 average ticket, the quote approval rate, what is still receivable and how much each technician
-delivered. Each count leads to the list already filtered. The list can be searched by customer,
-device, IMEI, phone or order number, and the filters live in the URL.
+delivered. Each count leads to the list already filtered. Right now covers what is on the bench,
+what is overdue, what is due today, what is waiting for the customer and what is ready for pickup.
+The list shows each order's deadline — today, tomorrow, the date or how many days overdue — and
+can be searched by customer, device, IMEI, phone or order number; the filters live in the URL.
 
 Whoever opens the main address without being signed in lands on the landing page, which explains
 what Bancada does and leads to the free trial. It shows real screenshots of the system, presents
@@ -91,7 +96,8 @@ the API.
 The device unlock code is the most sensitive data in the system and gets its own treatment: it is
 encrypted, only technicians can see it, every lookup is recorded in the audit log — denied ones
 too — and it is deleted automatically seven days after pickup, once the device has no open order
-left.
+left. While the order is open, technicians and the owner can correct it on the same card, and each
+change is recorded as well.
 
 The customer notification goes out in a Celery task, triggered when the order enters a status the
 customer cares about: received, quote sent, waiting for parts, ready for pickup and delivered —

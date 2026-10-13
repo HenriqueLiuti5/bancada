@@ -1,5 +1,12 @@
 import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
-import { AlarmIcon, HourglassIcon, PackageIcon, PulseIcon, WrenchIcon } from "@/componentes/icones";
+import {
+  AlarmIcon,
+  ClockCountdownIcon,
+  HourglassIcon,
+  PackageIcon,
+  PulseIcon,
+  WrenchIcon,
+} from "@/componentes/icones";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { Secao } from "@/componentes/ui/Secao";
@@ -56,7 +63,7 @@ async function buscarPainel(
 function Agora({ agora }: { agora: Painel["agora"] }) {
   return (
     <Secao titulo="Agora" icone={PulseIcon} descricao="Como a loja está neste momento, sem depender do período.">
-      <GradeDeIndicadores tour="indicadores">
+      <GradeDeIndicadores tour="indicadores" colunas={5}>
         <Indicador
           rotulo="Na bancada"
           icone={WrenchIcon}
@@ -71,6 +78,13 @@ function Agora({ agora }: { agora: Painel["agora"] }) {
           nota="passaram do prazo prometido"
           href="/ordens?atrasadas=1"
           alerta={agora.atrasadas > 0}
+        />
+        <Indicador
+          rotulo="Para hoje"
+          icone={ClockCountdownIcon}
+          valor={String(agora.para_hoje)}
+          nota="prazo prometido para hoje"
+          href="/ordens?para_hoje=1"
         />
         <Indicador
           rotulo="Esperando o cliente"

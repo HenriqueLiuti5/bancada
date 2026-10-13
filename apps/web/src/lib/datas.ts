@@ -8,7 +8,7 @@ function meioDoDia(iso: string): Date {
   return new Date(`${iso}T12:00:00`);
 }
 
-function diaEMes(iso: string): string {
+export function diaEMes(iso: string): string {
   return meioDoDia(iso).toLocaleDateString("pt-BR", {
     day: "numeric",
     month: "short",
@@ -69,6 +69,12 @@ export function diaEMesEmNumeros(iso: string): string {
     month: "2-digit",
     timeZone: FUSO_HORARIO,
   });
+}
+
+const MILISSEGUNDOS_POR_DIA = 86_400_000;
+
+export function diasEntre(de: string, ate: string): number {
+  return Math.round((meioDoDia(ate).getTime() - meioDoDia(de).getTime()) / MILISSEGUNDOS_POR_DIA);
 }
 
 export function somarDias(iso: string, dias: number): string {

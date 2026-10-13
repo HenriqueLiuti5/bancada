@@ -3,8 +3,20 @@ from typing import Any
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
+from bancada.clientes.models import Aparelho, Cliente
 from bancada.ordens import publico
 from bancada.ordens.models import EventoOS, FotoOS, ItemOrcamento
+
+
+@receiver(post_save, sender=Cliente)
+@receiver(post_save, sender=Aparelho)
+def limpar_cache_ao_corrigir_cadastro(
+    sender: type, instance: Cliente | Aparelho, created: bool, **kwargs: Any
+) -> None:
+    if created:
+        return
+    for token in instance.ordens.values_list("token_publico", flat=True):
+        publico.invalidar(token)
 
 
 @receiver(post_save, sender=EventoOS)

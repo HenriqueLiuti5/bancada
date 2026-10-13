@@ -113,6 +113,23 @@ def test_painel_conta_as_atrasadas_pela_data_prometida(
 
 
 @pytest.mark.django_db
+def test_painel_conta_as_que_vencem_hoje_sem_misturar_com_as_atrasadas(
+    api_tecnico: APIClient, tenant: Tenant, loja: Loja, cliente: Cliente, aparelho: Aparelho
+) -> None:
+    hoje = timezone.localdate()
+    for prazo in [hoje, hoje, hoje - timedelta(days=1), hoje + timedelta(days=1)]:
+        ordem = abrir(tenant, loja, cliente, aparelho)
+        OrdemServico.objects.filter(pk=ordem.pk).update(prometida_para=prazo)
+    entregue = levar_ate(abrir(tenant, loja, cliente, aparelho), StatusOS.ENTREGUE)
+    OrdemServico.objects.filter(pk=entregue.pk).update(prometida_para=hoje)
+
+    agora = painel(api_tecnico)["agora"]
+
+    assert agora["para_hoje"] == 2
+    assert agora["atrasadas"] == 1
+
+
+@pytest.mark.django_db
 def test_ordem_entregue_sai_da_bancada_e_conta_como_entregue_no_periodo(
     api_tecnico: APIClient, ordem: OrdemServico
 ) -> None:

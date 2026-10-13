@@ -58,6 +58,10 @@ def atrasadas() -> Q:
     return abertas() & Q(prometida_para__lt=timezone.localdate())
 
 
+def para_hoje() -> Q:
+    return abertas() & Q(prometida_para=timezone.localdate())
+
+
 def com_valor_pago(consulta: QuerySet[OrdemServico]) -> QuerySet[OrdemServico]:
     pago = (
         Pagamento.objects.filter(ordem=OuterRef("pk"))
@@ -89,6 +93,14 @@ def apenas_atrasadas(consulta: QuerySet[OrdemServico]) -> QuerySet[OrdemServico]
     return consulta.filter(atrasadas())
 
 
+def apenas_para_hoje(consulta: QuerySet[OrdemServico]) -> QuerySet[OrdemServico]:
+    return consulta.filter(para_hoje())
+
+
+def ligado(parametros: Mapping[str, str], chave: str) -> bool:
+    return parametros.get(chave) in {"1", "true", "sim"}
+
+
 def ordenar(consulta: QuerySet[OrdemServico], chave: str) -> QuerySet[OrdemServico]:
     return consulta.order_by(*ORDENACOES.get(chave, ORDENACOES[ORDENACAO_PADRAO]))
 
@@ -118,7 +130,10 @@ def filtrar(
     if loja.isdigit():
         consulta = consulta.filter(loja_id=int(loja))
 
-    if parametros.get("atrasadas") in {"1", "true", "sim"}:
+    if ligado(parametros, "atrasadas"):
         consulta = apenas_atrasadas(consulta)
+
+    if ligado(parametros, "para_hoje"):
+        consulta = apenas_para_hoje(consulta)
 
     return ordenar(consulta, parametros.get("ordem", ORDENACAO_PADRAO))

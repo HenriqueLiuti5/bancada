@@ -44,10 +44,12 @@ export async function abrirOrdem(
   const novoCliente = grupo(dados, "cliente_novo", CAMPOS_DO_CLIENTE_NOVO);
   const novoAparelho = grupo(dados, "aparelho_novo", CAMPOS_DO_APARELHO_NOVO);
   const problema_relatado = texto(dados, "problema_relatado");
+  const prometida_para = texto(dados, "prometida_para");
 
   const corpo = {
     loja: Number(texto(dados, "loja")),
     problema_relatado,
+    prometida_para: prometida_para || null,
     ...(clienteNovo
       ? { cliente_novo: novoCliente }
       : { cliente: Number(texto(dados, "cliente")) || null }),
@@ -62,6 +64,7 @@ export async function abrirOrdem(
   } catch (erro) {
     return estadoDeErro(erro, "Não foi possível abrir a ordem.", {
       problema_relatado,
+      prometida_para,
       ...paraDevolver("cliente_novo", novoCliente),
       ...paraDevolver("aparelho_novo", novoAparelho),
     });

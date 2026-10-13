@@ -3,7 +3,7 @@ from typing import Any
 
 from django.db.models import Count, F, Q, QuerySet, Sum
 
-from bancada.ordens.consultas import abertas, atrasadas, com_saldo_a_receber
+from bancada.ordens.consultas import abertas, atrasadas, com_saldo_a_receber, para_hoje
 from bancada.ordens.estados import StatusOS
 from bancada.ordens.models import ItemOrcamento, OrdemServico
 
@@ -12,6 +12,7 @@ def contagens(consulta: QuerySet[OrdemServico]) -> dict[str, int]:
     return consulta.aggregate(
         abertas=Count("id", filter=abertas()),
         atrasadas=Count("id", filter=atrasadas()),
+        para_hoje=Count("id", filter=para_hoje()),
         aguardando_cliente=Count("id", filter=Q(status=StatusOS.ORCAMENTO_ENVIADO)),
         aguardando_peca=Count("id", filter=Q(status=StatusOS.AGUARDANDO_PECA)),
         prontas=Count("id", filter=Q(status=StatusOS.PRONTO)),

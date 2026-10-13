@@ -7,6 +7,7 @@ import { lerReais } from "@/lib/moeda";
 export type EstadoTransicao = { erro?: string };
 export type EstadoDaFoto = { erro?: string; enviada?: boolean };
 export type EstadoDaSenha = { senha?: string; erro?: string; revelada?: boolean };
+export type EstadoDaCorrecaoDaSenha = { senha?: string; erro?: string };
 export type EstadoDosDetalhes = { erro?: string; salvo?: boolean };
 export type EstadoDoItem = { erro?: string; adicionado?: boolean };
 export type EstadoDaEntrega = { erro?: string };
@@ -114,6 +115,25 @@ export async function verSenhaDoAparelho(
   } catch (erro) {
     return { erro: mensagemDaApi(erro, "Não foi possível ver a senha de desbloqueio.") };
   }
+}
+
+export async function corrigirSenhaDoAparelho(
+  _anterior: EstadoDaCorrecaoDaSenha,
+  dados: FormData,
+): Promise<EstadoDaCorrecaoDaSenha> {
+  const aparelho = String(dados.get("aparelho"));
+  const senha = String(dados.get("senha_desbloqueio") ?? "").trim();
+
+  try {
+    await chamarApi(`/api/aparelhos/${aparelho}/`, {
+      metodo: "PATCH",
+      corpo: { senha_desbloqueio: senha },
+    });
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível corrigir a senha de desbloqueio.") };
+  }
+
+  return { senha };
 }
 
 export async function salvarDetalhes(

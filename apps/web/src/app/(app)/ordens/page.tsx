@@ -7,13 +7,14 @@ import {
   MagnifyingGlassIcon,
   PlusIcon,
 } from "@/componentes/icones";
+import { PrazoDaOrdem } from "@/componentes/PrazoDaOrdem";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Segmento, Segmentos } from "@/componentes/ui/Segmentos";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao, juntar } from "@/componentes/ui/estilos";
 import { ErroDaApi, chamarApi } from "@/lib/api";
-import { FUSO_HORARIO } from "@/lib/datas";
+import { hojeEmIso } from "@/lib/datas";
 import type { Catalogo, OrdemResumo, Pagina, Usuario } from "@/lib/tipos";
 import { PrimeirosPassos } from "../primeirosPassos";
 import { Tour } from "../tour";
@@ -21,10 +22,10 @@ import { Filtros, type ValoresDosFiltros } from "./filtros";
 
 export const dynamic = "force-dynamic";
 
-const FILTROS = ["busca", "situacao", "status", "tecnico", "atrasadas", "ordem"] as const;
+const FILTROS = ["busca", "situacao", "status", "tecnico", "atrasadas", "para_hoje", "ordem"] as const;
 const POR_PAGINA = 25;
 
-const COLUNAS = "sm:grid sm:grid-cols-[3.5rem_minmax(0,1fr)_8rem_5.5rem_10.5rem] sm:items-center sm:gap-x-4";
+const COLUNAS = "sm:grid sm:grid-cols-[3.5rem_minmax(0,1fr)_7.5rem_6.5rem_10.5rem] sm:items-center sm:gap-x-4";
 
 type Parametros = Record<string, string | string[] | undefined>;
 
@@ -68,14 +69,6 @@ async function buscarOrdens(consulta: URLSearchParams): Promise<Pagina<OrdemResu
   }
 }
 
-function formatarData(iso: string): string {
-  return new Date(iso).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    timeZone: FUSO_HORARIO,
-  });
-}
-
 export default async function ListaDeOrdens({
   searchParams,
 }: {
@@ -98,7 +91,10 @@ export default async function ListaDeOrdens({
     ordem: consulta.get("ordem") ?? "recentes",
     situacao: consulta.get("situacao") ?? "",
     atrasadas: consulta.get("atrasadas") ?? "",
+    para_hoje: consulta.get("para_hoje") ?? "",
   };
+  const semRecorte = { situacao: null, atrasadas: null, para_hoje: null };
+  const hoje = hojeEmIso();
 
   const filtrando = FILTROS.some((chave) => consulta.get(chave));
   const numeroDaPagina = Number(consulta.get("page") ?? "1");
@@ -129,31 +125,37 @@ export default async function ListaDeOrdens({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Segmentos tour="situacoes">
             <Segmento
-              href={comParametro(consulta, { situacao: null, atrasadas: null })}
-              ativo={!valores.situacao && !valores.atrasadas}
+              href={comParametro(consulta, semRecorte)}
+              ativo={!valores.situacao && !valores.atrasadas && !valores.para_hoje}
             >
               Todas
             </Segmento>
             <Segmento
-              href={comParametro(consulta, { situacao: "abertas", atrasadas: null })}
-              ativo={valores.situacao === "abertas" && !valores.atrasadas}
+              href={comParametro(consulta, { ...semRecorte, situacao: "abertas" })}
+              ativo={valores.situacao === "abertas" && !valores.atrasadas && !valores.para_hoje}
             >
               Abertas
             </Segmento>
             <Segmento
-              href={comParametro(consulta, { situacao: null, atrasadas: "1" })}
+              href={comParametro(consulta, { ...semRecorte, atrasadas: "1" })}
               ativo={valores.atrasadas === "1"}
             >
               Atrasadas
             </Segmento>
             <Segmento
-              href={comParametro(consulta, { situacao: "encerradas", atrasadas: null })}
+              href={comParametro(consulta, { ...semRecorte, para_hoje: "1" })}
+              ativo={valores.para_hoje === "1"}
+            >
+              Para hoje
+            </Segmento>
+            <Segmento
+              href={comParametro(consulta, { ...semRecorte, situacao: "encerradas" })}
               ativo={valores.situacao === "encerradas"}
             >
               Encerradas
             </Segmento>
             <Segmento
-              href={comParametro(consulta, { situacao: "a_receber", atrasadas: null })}
+              href={comParametro(consulta, { ...semRecorte, situacao: "a_receber" })}
               ativo={valores.situacao === "a_receber"}
             >
               A receber
@@ -211,7 +213,7 @@ export default async function ListaDeOrdens({
                 <span>Nº</span>
                 <span>Aparelho e cliente</span>
                 <span>Técnico</span>
-                <span>Aberta</span>
+                <span>Prazo</span>
                 <span>Status</span>
               </div>
 
@@ -232,16 +234,33 @@ export default async function ListaDeOrdens({
                         <span className="col-span-2 block truncate text-sm text-texto-apagado sm:text-[13px]">
                           {ordem.cliente_nome} · {ordem.problema_relatado}
                         </span>
-                        <span className="col-span-2 mt-1 block text-[13px] text-texto-apagado sm:hidden">
-                          #{ordem.numero} · {formatarData(ordem.criado_em)}
-                          {ordem.tecnico_nome && ` · ${ordem.tecnico_nome}`}
+                        <span className="col-span-2 mt-1 flex flex-wrap items-center gap-x-1.5 text-[13px] text-texto-apagado sm:hidden">
+                          <span>
+                            #{ordem.numero}
+                            {ordem.tecnico_nome && ` · ${ordem.tecnico_nome}`}
+                          </span>
+                          {ordem.prometida_para && !ordem.encerrada && (
+                            <>
+                              <span aria-hidden="true">·</span>
+                              <PrazoDaOrdem
+                                prazo={ordem.prometida_para}
+                                hoje={hoje}
+                                encerrada={ordem.encerrada}
+                                frase
+                              />
+                            </>
+                          )}
                         </span>
                       </span>
                       <span className="hidden truncate text-[13px] text-texto-suave sm:block">
                         {ordem.tecnico_nome ?? "—"}
                       </span>
                       <span className="hidden text-[13px] text-texto-suave tabular-nums sm:block">
-                        {formatarData(ordem.criado_em)}
+                        <PrazoDaOrdem
+                          prazo={ordem.prometida_para}
+                          hoje={hoje}
+                          encerrada={ordem.encerrada}
+                        />
                       </span>
                       <span className="col-start-2 row-start-1 justify-self-end sm:col-start-auto sm:row-start-auto sm:justify-self-start">
                         <Selo status={ordem.status} rotulo={ordem.status_label} />

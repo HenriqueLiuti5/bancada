@@ -1,6 +1,8 @@
+from datetime import timedelta
 from typing import Any
 
 import pytest
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from bancada.clientes.models import Aparelho, Cliente
@@ -127,6 +129,55 @@ def test_aparelho_existente_nao_vai_para_cliente_novo(
     assert resposta.status_code == 400
     assert "aparelho" in resposta.json()
     assert Cliente.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_prazo_combinado_no_balcao_ja_entra_na_ordem(
+    api_tecnico: APIClient, loja: Loja, cliente: Cliente, aparelho: Aparelho
+) -> None:
+    prazo = timezone.localdate() + timedelta(days=2)
+
+    resposta = abrir(
+        api_tecnico,
+        loja,
+        cliente=cliente.pk,
+        aparelho=aparelho.pk,
+        prometida_para=prazo.isoformat(),
+    )
+
+    assert resposta.status_code == 201
+    assert OrdemServico.objects.get().prometida_para == prazo
+
+
+@pytest.mark.django_db
+def test_abertura_sem_prazo_deixa_o_prazo_em_branco(
+    api_tecnico: APIClient, loja: Loja, cliente: Cliente, aparelho: Aparelho
+) -> None:
+    resposta = abrir(
+        api_tecnico, loja, cliente=cliente.pk, aparelho=aparelho.pk, prometida_para=None
+    )
+
+    assert resposta.status_code == 201
+    assert OrdemServico.objects.get().prometida_para is None
+
+
+@pytest.mark.django_db
+def test_prazo_antes_de_hoje_e_recusado(
+    api_tecnico: APIClient, loja: Loja, cliente: Cliente, aparelho: Aparelho
+) -> None:
+    ontem = timezone.localdate() - timedelta(days=1)
+
+    resposta = abrir(
+        api_tecnico,
+        loja,
+        cliente=cliente.pk,
+        aparelho=aparelho.pk,
+        prometida_para=ontem.isoformat(),
+    )
+
+    assert resposta.status_code == 400
+    assert resposta.json()["prometida_para"] == ["O prazo não pode ser antes de hoje."]
+    assert not OrdemServico.objects.exists()
 
 
 @pytest.mark.django_db

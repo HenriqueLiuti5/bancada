@@ -1,6 +1,7 @@
 import secrets
 from collections.abc import Collection, Sequence
 from dataclasses import dataclass
+from datetime import date
 from decimal import Decimal
 from typing import Any
 from uuid import uuid4
@@ -132,6 +133,7 @@ class OrdemServico(PertenceAoTenant):
         problema_relatado: str,
         aberta_por: Usuario | None = None,
         tecnico: Usuario | None = None,
+        prometida_para: date | None = None,
     ) -> "OrdemServico":
         ordem = cls.objects.create(
             tenant=tenant,
@@ -140,6 +142,7 @@ class OrdemServico(PertenceAoTenant):
             aparelho=aparelho,
             problema_relatado=problema_relatado,
             tecnico=tecnico,
+            prometida_para=prometida_para,
         )
         EventoOS.objects.create(
             ordem=ordem,

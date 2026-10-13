@@ -79,6 +79,7 @@ o operador.
 | 4E | Painel da plataforma, exclusivo do Henrique | concluída |
 | 4G | Revisão do design de todo o site | concluída |
 | 4H | Página inicial e demonstração da página do cliente | concluída |
+| 4I | Correção do cadastro e prazo prometido no dia a dia | concluída |
 | 4F | Publicação: domínio, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 6 | WhatsApp, relatórios além do painel, estoque de peças | |
@@ -90,8 +91,8 @@ A Fase 4 termina quando uma assistência que nunca falou com a gente conseguir s
 montar a equipe, aprender a usar o sistema e assinar, tudo sozinha.
 
 A publicação, Fase 4F, é a última do lançamento: o sistema vai para o ar depois de todas as outras.
-A 4G, de design, e a 4H, da página inicial, entraram no plano depois da 4F, por isso têm as letras
-seguintes, mas vêm antes dela.
+A 4G, de design, a 4H, da página inicial, e a 4I, da correção do cadastro e dos prazos, entraram
+no plano depois da 4F, por isso têm as letras seguintes, mas vêm antes dela.
 
 Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
 O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
@@ -285,6 +286,37 @@ Na entrega:
 
 Nada de números de clientes nem depoimentos enquanto não houver clientes de verdade. A prova é o
 próprio sistema, nas telas e na demonstração (ADR 0026).
+
+### 4I — Correção do cadastro e prazos
+
+A fase saiu da comparação com o InforOS, que tem telas de clientes e de equipamentos e abre com um
+bloco de prazos. A garantia com prazo padrão, também sugerida nessa comparação, o Henrique dispensou.
+
+**Correção do cliente e do aparelho.** Cliente e aparelho só eram cadastrados na abertura da ordem,
+e nenhuma tela corrigia o que fosse anotado errado. Com o e-mail digitado errado, os avisos se
+perdiam, e a assistência só consertava pedindo ao Henrique que mexesse no painel administrativo.
+Na entrega:
+
+- Botão "Editar" no cartão Propriedades da ordem, que leva à tela Cliente e aparelho: nome,
+  telefone, e-mail e CPF do cliente; marca, modelo, cor e IMEI do aparelho. Qualquer papel corrige.
+- A correção vale para todas as ordens do cliente, e a página de acompanhamento mostra o dado novo
+  na hora.
+- A senha de desbloqueio é corrigida no próprio cartão da senha, depois de revelada, só por técnico
+  e dono e só com a ordem aberta. Cada troca fica registrada na auditoria.
+- O IMEI corrigido fica só com os números, como na abertura, e o aparelho não muda de cliente.
+
+Trocar o cliente de uma ordem aberta no cliente errado ficou de fora (ADR 0027).
+
+**Prazo prometido.** O prazo só podia ser informado depois de abrir a ordem, então o comprovante
+saía sem a previsão; o painel só avisava quando a ordem já tinha atrasado; e a lista mostrava quando
+a ordem foi aberta, não quando precisa ficar pronta. Na entrega:
+
+- Campo "Prazo prometido" na abertura da ordem, opcional e nunca antes de hoje. Ele sai no
+  comprovante e na página de acompanhamento.
+- Indicador "Para hoje" no painel, ao lado de "Atrasadas", e o mesmo recorte na lista de ordens.
+- Coluna Prazo na lista, no lugar da data de abertura: "Hoje" com ícone laranja, "Ontem" ou "Há 3
+  dias" com ícone vermelho, e a data nos demais casos. Ordem encerrada ou sem prazo mostra um traço.
+- A imagem da lista na página inicial foi refeita com a coluna nova (ADR 0028).
 
 ### 4F — Publicação
 
