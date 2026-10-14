@@ -1,5 +1,7 @@
 import re
 
+from rest_framework import serializers
+
 PONTUACAO = re.compile(r"[\s./-]")
 FORMATO_DO_CPF = re.compile(r"^[0-9]{11}$")
 FORMATO_DO_CNPJ = re.compile(r"^[0-9A-Z]{12}[0-9]{2}$")
@@ -48,3 +50,23 @@ def cpf_ou_cnpj(valor: str) -> str | None:
     if FORMATO_DO_CNPJ.match(numero):
         return numero if _cnpj_valido(numero) else None
     return None
+
+
+def problema_do_documento(valor: str) -> str | None:
+    numero = PONTUACAO.sub("", valor).upper()
+    if cpf_ou_cnpj(numero) is not None:
+        return None
+    if FORMATO_DO_CPF.match(numero):
+        return "Esse CPF não confere: algum dígito foi digitado errado."
+    if FORMATO_DO_CNPJ.match(numero):
+        return "Esse CNPJ não confere: algum dígito foi digitado errado."
+    return f"CPF tem 11 dígitos e CNPJ tem 14, e esse número tem {len(numero)}. Confira."
+
+
+def conferir_documento_opcional(valor: str) -> str:
+    if not valor.strip():
+        return ""
+    problema = problema_do_documento(valor)
+    if problema is not None:
+        raise serializers.ValidationError(problema)
+    return PONTUACAO.sub("", valor).upper()

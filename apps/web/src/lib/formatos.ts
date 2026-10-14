@@ -26,3 +26,13 @@ export function haDias(dias: number): string {
   if (dias === 1) return "ontem";
   return `há ${dias} dias`;
 }
+
+export function formatarDocumento(valor: string): string {
+  if (/^\d{11}$/.test(valor)) {
+    return `${valor.slice(0, 3)}.${valor.slice(3, 6)}.${valor.slice(6, 9)}-${valor.slice(9)}`;
+  }
+  if (/^[0-9A-Z]{14}$/.test(valor)) {
+    return `${valor.slice(0, 2)}.${valor.slice(2, 5)}.${valor.slice(5, 8)}/${valor.slice(8, 12)}-${valor.slice(12)}`;
+  }
+  return valor;
+}

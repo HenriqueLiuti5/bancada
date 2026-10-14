@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from bancada.assinaturas.models import Assinatura
 from bancada.assinaturas.serializers import resumo_da_assinatura
-from bancada.core.telefones import telefone_brasileiro
+from bancada.core.telefones import conferir_telefone
 from bancada.tenants import logo
 from bancada.tenants.links import link_do_convite
 from bancada.tenants.models import Convite, Loja, Papel, Tenant, Usuario, normalizar_email
@@ -94,13 +94,6 @@ def _conferir_email_livre(valor: str) -> str:
     return endereco
 
 
-def _conferir_whatsapp(valor: str) -> str:
-    digitos = telefone_brasileiro(valor)
-    if digitos is None:
-        raise serializers.ValidationError("Informe o número com DDD, por exemplo (11) 91234-5678.")
-    return digitos
-
-
 class CadastroSerializer(serializers.Serializer):
     assistencia = serializers.CharField(max_length=120)
     nome = serializers.CharField(max_length=150)
@@ -113,7 +106,7 @@ class CadastroSerializer(serializers.Serializer):
         return _conferir_email_livre(valor)
 
     def validate_whatsapp(self, valor: str) -> str:
-        return _conferir_whatsapp(valor)
+        return conferir_telefone(valor)
 
     def validate_aceite_dos_termos(self, valor: bool) -> bool:
         if not valor:
@@ -242,7 +235,7 @@ class AssistenciaSerializer(serializers.ModelSerializer):
         return valor.strip()
 
     def validate_whatsapp(self, valor: str) -> str:
-        return _conferir_whatsapp(valor)
+        return conferir_telefone(valor)
 
 
 class EnvioDeLogoSerializer(serializers.Serializer):
@@ -255,4 +248,4 @@ class EdicaoDeLojaSerializer(serializers.ModelSerializer):
         fields = ["nome", "telefone", "endereco"]
 
     def validate_telefone(self, valor: str) -> str:
-        return _conferir_whatsapp(valor) if valor.strip() else ""
+        return conferir_telefone(valor) if valor.strip() else ""

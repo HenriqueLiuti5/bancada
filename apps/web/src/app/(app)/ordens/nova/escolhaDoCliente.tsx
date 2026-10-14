@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MagnifyingGlassIcon, UserPlusIcon } from "@/componentes/icones";
+import { CampoDeTelefone } from "@/componentes/ui/CampoDeTelefone";
 import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { botao, campo, juntar } from "@/componentes/ui/estilos";
 import { formatarTelefone } from "@/lib/telefone";
@@ -121,7 +122,7 @@ function CamposDoClienteNovo({ rascunho, erros, valores }: Pick<Props, "rascunho
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <input type="hidden" name="modo_cliente" value="novo" />
-      <CampoRotulado rotulo="Nome" htmlFor="cliente-nome" erro={erros["cliente_novo.nome"]}>
+      <CampoRotulado rotulo="Nome" htmlFor="cliente-nome" erro={erros["cliente_novo.nome"]} obrigatorio>
         <input
           id="cliente-nome"
           name="cliente_novo.nome"
@@ -131,23 +132,16 @@ function CamposDoClienteNovo({ rascunho, erros, valores }: Pick<Props, "rascunho
           className={campo}
         />
       </CampoRotulado>
-      <CampoRotulado
+      <CampoDeTelefone
         rotulo="Telefone / WhatsApp"
-        htmlFor="cliente-telefone"
+        id="cliente-telefone"
+        name="cliente_novo.telefone"
         erro={erros["cliente_novo.telefone"]}
-      >
-        <input
-          id="cliente-telefone"
-          name="cliente_novo.telefone"
-          type="tel"
-          inputMode="tel"
-          required
-          placeholder="(11) 91234-5678"
-          autoFocus={Boolean(nomeSugerido)}
-          defaultValue={valores["cliente_novo.telefone"] ?? telefoneSugerido}
-          className={campo}
-        />
-      </CampoRotulado>
+        valorInicial={valores["cliente_novo.telefone"] ?? telefoneSugerido}
+        autoFocus={Boolean(nomeSugerido)}
+        dica="Com DDD. Depois de digitar, confira o número que aparece aqui."
+        obrigatorio
+      />
       <CampoRotulado
         rotulo="E-mail"
         htmlFor="cliente-email"
@@ -163,10 +157,10 @@ function CamposDoClienteNovo({ rascunho, erros, valores }: Pick<Props, "rascunho
         />
       </CampoRotulado>
       <CampoRotulado
-        rotulo="CPF"
+        rotulo="CPF ou CNPJ"
         htmlFor="cliente-documento"
         erro={erros["cliente_novo.documento"]}
-        dica="Opcional."
+        dica="Opcional. Sai no comprovante."
       >
         <input
           id="cliente-documento"

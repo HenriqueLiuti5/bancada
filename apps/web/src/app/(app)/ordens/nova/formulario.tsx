@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { ChatTextIcon, DeviceMobileIcon, UserIcon, type Icon } from "@/componentes/icones";
-import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { AvisoDeObrigatorios, CampoRotulado, MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { areaDeTexto, botao, campo, seletor } from "@/componentes/ui/estilos";
@@ -25,12 +25,14 @@ function Secao({
   titulo,
   erro,
   tour,
+  obrigatoria = false,
   children,
 }: {
   icone: Icon;
   titulo: string;
   erro?: string;
   tour: string;
+  obrigatoria?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -40,7 +42,10 @@ function Secao({
     >
       <h2 className="flex items-center gap-3 text-base font-bold">
         <Icone size={22} className="shrink-0 text-icone" />
-        {titulo}
+        <span>
+          {titulo}
+          {obrigatoria && <MarcaDeObrigatorio />}
+        </span>
       </h2>
       {children}
       {erro && <p className="text-[13px] text-perigo sm:text-xs">{erro}</p>}
@@ -81,8 +86,10 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
     <form action={acao}>
       <Cartao>
         <div className="space-y-6">
+          <AvisoDeObrigatorios />
+
           {lojas.length > 1 ? (
-            <CampoRotulado rotulo="Loja" htmlFor="loja" erro={erros.loja}>
+            <CampoRotulado rotulo="Loja" htmlFor="loja" erro={erros.loja} obrigatorio>
               <select id="loja" name="loja" defaultValue={lojas[0]?.id ?? ""} className={seletor}>
                 {lojas.map((loja) => (
                   <option key={loja.id} value={loja.id}>
@@ -95,7 +102,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
             <input type="hidden" name="loja" value={lojas[0]?.id ?? ""} />
           )}
 
-          <Secao icone={UserIcon} titulo="Cliente" tour="cliente" erro={erros.cliente}>
+          <Secao icone={UserIcon} titulo="Cliente" tour="cliente" erro={erros.cliente} obrigatoria>
             <EscolhaDoCliente
               escolhido={cliente}
               novo={clienteNovo}
@@ -108,7 +115,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
             />
           </Secao>
 
-          <Secao icone={DeviceMobileIcon} titulo="Aparelho" tour="aparelho" erro={erros.aparelho}>
+          <Secao icone={DeviceMobileIcon} titulo="Aparelho" tour="aparelho" erro={erros.aparelho} obrigatoria>
             <EscolhaDoAparelho
               cliente={cliente}
               clienteNovo={clienteNovo}
@@ -124,6 +131,7 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
               rotulo="Problema relatado"
               htmlFor="problema_relatado"
               erro={erros.problema_relatado}
+              obrigatorio
               dica="Escreva como o cliente descreveu. Aparece no comprovante que ele assina."
             >
               <textarea

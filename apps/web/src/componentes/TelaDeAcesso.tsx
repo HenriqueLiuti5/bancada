@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { ClipboardTextIcon, DeviceMobileIcon, FileTextIcon } from "@/componentes/icones";
 import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
+import { link } from "@/componentes/ui/estilos";
 import { buscarOfertaSeDisponivel, testeGratis } from "@/lib/oferta";
+import { linkDoSuporteParaVisitantes } from "@/lib/suporte";
 
 const VANTAGENS = [
   { icone: ClipboardTextIcon, texto: "Abra a ordem de serviço no balcão em menos de um minuto." },
@@ -59,6 +61,8 @@ async function PainelDaMarca() {
 }
 
 export function TelaDeAcesso({ titulo, descricao, rodape, larga = false, children }: Props) {
+  const suporte = linkDoSuporteParaVisitantes("Olá! Preciso de ajuda para entrar no Bancada.");
+
   return (
     <div className="min-h-screen bg-superficie lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       <PainelDaMarca />
@@ -78,8 +82,18 @@ export function TelaDeAcesso({ titulo, descricao, rodape, larga = false, childre
 
           {children}
 
-          {rodape && (
-            <div className="border-t border-borda pt-6 text-sm text-texto-apagado">{rodape}</div>
+          {(rodape || suporte) && (
+            <div className="space-y-3 border-t border-borda pt-6 text-sm text-texto-apagado">
+              {rodape && <div>{rodape}</div>}
+              {suporte && (
+                <p>
+                  Precisa de ajuda?{" "}
+                  <a href={suporte} target="_blank" rel="noreferrer" className={link}>
+                    Fale com o suporte no WhatsApp
+                  </a>
+                </p>
+              )}
+            </div>
           )}
         </div>
       </main>

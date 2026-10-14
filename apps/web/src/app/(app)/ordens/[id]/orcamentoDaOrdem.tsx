@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import { InvoiceIcon, PlusIcon, ReceiptIcon, TrashIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
+import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
@@ -11,6 +12,8 @@ import type { ItemOrcamento, Ordem } from "@/lib/tipos";
 import { adicionarItem, apagarItem, type EstadoDoItem } from "./acoes";
 
 const INICIAL: EstadoDoItem = {};
+
+const ROTULO_DO_CAMPO = "block text-xs font-semibold text-texto-suave";
 
 function situacaoDoItem(item: ItemOrcamento, decidido: boolean): string {
   const tipo = item.tipo === "peca" ? "Peça" : "Serviço";
@@ -76,34 +79,42 @@ function NovoItem({ ordem }: { ordem: Ordem }) {
     <form ref={formulario} action={acao} className="space-y-3 border-t border-borda p-5">
       <input type="hidden" name="id" value={ordem.id} />
 
-      <div className="flex flex-wrap gap-2">
-        <select
-          name="tipo"
-          aria-label="Tipo do item"
-          defaultValue="peca"
-          className={juntar(seletor, "w-auto")}
-        >
-          <option value="peca">Peça</option>
-          <option value="servico">Serviço</option>
-        </select>
-        <input
-          ref={descricao}
-          name="descricao"
-          aria-label="Descrição"
-          placeholder="Ex.: Tela com moldura"
-          required
-          maxLength={180}
-          className={juntar(campo, "min-w-0 flex-1 basis-48")}
-        />
-        <input
-          name="valor"
-          aria-label="Valor em reais"
-          placeholder="R$ 0,00"
-          inputMode="decimal"
-          autoComplete="off"
-          required
-          className={juntar(campo, "w-32 tabular-nums")}
-        />
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="space-y-1">
+          <span className={ROTULO_DO_CAMPO}>Tipo</span>
+          <select name="tipo" defaultValue="peca" className={juntar(seletor, "w-auto")}>
+            <option value="peca">Peça</option>
+            <option value="servico">Serviço</option>
+          </select>
+        </label>
+        <label className="min-w-0 flex-1 basis-48 space-y-1">
+          <span className={ROTULO_DO_CAMPO}>
+            Descrição
+            <MarcaDeObrigatorio />
+          </span>
+          <input
+            ref={descricao}
+            name="descricao"
+            placeholder="Ex.: Tela com moldura"
+            required
+            maxLength={180}
+            className={campo}
+          />
+        </label>
+        <label className="w-32 space-y-1">
+          <span className={ROTULO_DO_CAMPO}>
+            Valor
+            <MarcaDeObrigatorio />
+          </span>
+          <input
+            name="valor"
+            placeholder="R$ 0,00"
+            inputMode="decimal"
+            autoComplete="off"
+            required
+            className={juntar(campo, "tabular-nums")}
+          />
+        </label>
         <button type="submit" disabled={adicionando} className={botao("secundario")}>
           <PlusIcon size={16} />
           {adicionando ? "Adicionando..." : "Adicionar"}
@@ -115,22 +126,11 @@ function NovoItem({ ordem }: { ordem: Ordem }) {
   );
 }
 
-export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
+export function ItensDoOrcamento({ ordem }: { ordem: Ordem }) {
   const vazio = ordem.itens.length === 0;
-  if (vazio && !ordem.orcamento_editavel) return null;
 
   return (
-    <Cartao
-      tour="orcamento"
-      titulo="Orçamento"
-      icone={ReceiptIcon}
-      descricao={
-        ordem.orcamento_editavel
-          ? "O cliente vê o orçamento quando você muda o status para Orçamento enviado. Depois disso, ele não muda mais."
-          : undefined
-      }
-      semEspaco
-    >
+    <>
       {vazio ? (
         <EstadoVazio
           icone={InvoiceIcon}
@@ -154,6 +154,26 @@ export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
       )}
 
       {ordem.orcamento_editavel && <NovoItem ordem={ordem} />}
+    </>
+  );
+}
+
+export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
+  if (ordem.itens.length === 0 && !ordem.orcamento_editavel) return null;
+
+  return (
+    <Cartao
+      tour="orcamento"
+      titulo="Orçamento"
+      icone={ReceiptIcon}
+      descricao={
+        ordem.orcamento_editavel
+          ? "O cliente vê o orçamento quando você o envia. Depois disso, ele não muda mais."
+          : undefined
+      }
+      semEspaco
+    >
+      <ItensDoOrcamento ordem={ordem} />
     </Cartao>
   );
 }

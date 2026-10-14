@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { EnvelopeSimpleIcon } from "@/componentes/icones";
-import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, juntar } from "@/componentes/ui/estilos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
@@ -30,7 +30,14 @@ export function FormularioEsqueciSenha() {
 
   return (
     <form action={acao} className="space-y-4">
-      <CampoRotulado rotulo="E-mail da sua conta" htmlFor="email" erro={estado.erros?.email}>
+      <AvisoDeObrigatorios />
+
+      <CampoRotulado
+        rotulo="E-mail da sua conta"
+        htmlFor="email"
+        erro={estado.erros?.email}
+        obrigatorio
+      >
         <input
           id="email"
           name="email"

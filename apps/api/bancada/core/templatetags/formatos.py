@@ -8,6 +8,8 @@ register = template.Library()
 
 DDD_MINIMO = 11
 DDD_MAXIMO = 99
+TAMANHO_DO_CPF = 11
+TAMANHO_DO_CNPJ = 14
 
 
 def _tem_ddd(digitos: str) -> bool:
@@ -25,6 +27,18 @@ def telefone(valor: str | None) -> str:
         return f"({digitos[:2]}) {digitos[2:6]}-{digitos[6:]}"
 
     return original
+
+
+@register.filter
+def documento(valor: str | None) -> str:
+    numero = str(valor or "")
+
+    if len(numero) == TAMANHO_DO_CPF and numero.isdigit():
+        return f"{numero[:3]}.{numero[3:6]}.{numero[6:9]}-{numero[9:]}"
+    if len(numero) == TAMANHO_DO_CNPJ and numero.isalnum():
+        return f"{numero[:2]}.{numero[2:5]}.{numero[5:8]}/{numero[8:12]}-{numero[12:]}"
+
+    return numero
 
 
 @register.filter

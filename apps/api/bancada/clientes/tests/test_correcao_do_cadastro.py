@@ -40,9 +40,31 @@ def test_correcao_com_telefone_sem_ddd_e_recusada(
     )
 
     assert resposta.status_code == 400
-    assert resposta.json()["telefone"] == ["Informe o telefone com DDD."]
+    assert resposta.json()["telefone"] == [
+        "O número está incompleto: tem 9 dígitos. Com o DDD, celular tem 11 dígitos e fixo tem 10."
+    ]
     cliente.refresh_from_db()
     assert cliente.telefone == "11999990000"
+
+
+@pytest.mark.django_db
+def test_correcao_confere_o_cpf_e_guarda_so_os_numeros(
+    api_atendente: APIClient, cliente: Cliente
+) -> None:
+    recusada = api_atendente.patch(
+        f"/api/clientes/{cliente.pk}/", {"documento": "529.982.247-24"}, format="json"
+    )
+    aceita = api_atendente.patch(
+        f"/api/clientes/{cliente.pk}/", {"documento": "529.982.247-25"}, format="json"
+    )
+
+    assert recusada.status_code == 400
+    assert recusada.json()["documento"] == [
+        "Esse CPF não confere: algum dígito foi digitado errado."
+    ]
+    assert aceita.status_code == 200
+    cliente.refresh_from_db()
+    assert cliente.documento == "52998224725"
 
 
 @pytest.mark.django_db

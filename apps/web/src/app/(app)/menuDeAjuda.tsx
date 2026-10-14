@@ -104,7 +104,7 @@ export function MenuDeAjuda({
               onClick={() => setAberto(false)}
               className={ITEM}
             >
-              <Rotulo icone={WhatsappLogoIcon}>Fale com a gente no WhatsApp</Rotulo>
+              <Rotulo icone={WhatsappLogoIcon}>Entrar em contato com suporte</Rotulo>
             </a>
           )}
         </div>

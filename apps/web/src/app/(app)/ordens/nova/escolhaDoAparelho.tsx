@@ -55,7 +55,7 @@ function descricao(aparelho: Aparelho): string {
 function CamposDoAparelhoNovo({ erros, valores }: Pick<Props, "erros" | "valores">) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      <CampoRotulado rotulo="Marca" htmlFor="aparelho-marca" erro={erros["aparelho_novo.marca"]}>
+      <CampoRotulado rotulo="Marca" htmlFor="aparelho-marca" erro={erros["aparelho_novo.marca"]} obrigatorio>
         <input
           id="aparelho-marca"
           name="aparelho_novo.marca"
@@ -65,7 +65,7 @@ function CamposDoAparelhoNovo({ erros, valores }: Pick<Props, "erros" | "valores
           className={campo}
         />
       </CampoRotulado>
-      <CampoRotulado rotulo="Modelo" htmlFor="aparelho-modelo" erro={erros["aparelho_novo.modelo"]}>
+      <CampoRotulado rotulo="Modelo" htmlFor="aparelho-modelo" erro={erros["aparelho_novo.modelo"]} obrigatorio>
         <input
           id="aparelho-modelo"
           name="aparelho_novo.modelo"

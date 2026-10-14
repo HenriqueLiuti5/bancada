@@ -19,16 +19,23 @@ import { NovoConvite } from "./novoConvite";
 export const dynamic = "force-dynamic";
 
 const PAPEIS = [
-  { nome: "Dono", icone: CrownIcon, descricao: "Faz tudo, inclusive gerenciar a equipe." },
+  {
+    nome: "Dono",
+    icone: CrownIcon,
+    descricao:
+      "Faz tudo. Só o dono vê os valores em dinheiro do painel e cuida da equipe, da assistência e da assinatura.",
+  },
   {
     nome: "Técnico",
     icone: WrenchIcon,
-    descricao: "Trabalha as ordens, vê a senha de desbloqueio e pode apagar fotos.",
+    descricao:
+      "Faz nas ordens tudo o que o atendente faz e, além disso, vê e corrige a senha de desbloqueio dos aparelhos e pode apagar fotos.",
   },
   {
     nome: "Atendente",
     icone: HeadsetIcon,
-    descricao: "Abre ordens e atende o cliente. Não vê a senha de desbloqueio nem apaga nada.",
+    descricao:
+      "Abre ordens, monta o orçamento, muda o status, tira fotos e registra a entrega. Não vê a senha de desbloqueio nem apaga fotos.",
   },
 ];
 

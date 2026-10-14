@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, juntar } from "@/componentes/ui/estilos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
@@ -18,8 +18,9 @@ export function FormularioDoConvite({ token, convite }: { token: string; convite
   return (
     <form action={acao} className="space-y-4">
       <input type="hidden" name="token" value={token} />
+      <AvisoDeObrigatorios />
 
-      <CampoRotulado rotulo="Seu nome" htmlFor="nome" erro={erros.nome}>
+      <CampoRotulado rotulo="Seu nome" htmlFor="nome" erro={erros.nome} obrigatorio>
         <input
           id="nome"
           name="nome"
@@ -35,6 +36,7 @@ export function FormularioDoConvite({ token, convite }: { token: string; convite
         htmlFor="email"
         erro={erros.email}
         dica="É com ele que você vai entrar no sistema."
+        obrigatorio
       >
         <input
           id="email"
@@ -53,6 +55,7 @@ export function FormularioDoConvite({ token, convite }: { token: string; convite
         htmlFor="senha"
         erro={erros.senha}
         dica="Pelo menos 8 caracteres, sem ser só números nem parecida com o seu e-mail."
+        obrigatorio
       >
         <input
           id="senha"

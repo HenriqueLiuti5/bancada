@@ -97,6 +97,48 @@ def test_telefone_sem_ddd_e_recusado(api_tecnico: APIClient, loja: Loja) -> None
 
 
 @pytest.mark.django_db
+def test_telefone_com_digitos_faltando_explica_o_erro(api_tecnico: APIClient, loja: Loja) -> None:
+    resposta = abrir(
+        api_tecnico,
+        loja,
+        cliente_novo={**CLIENTE_NOVO, "telefone": "99615"},
+        aparelho_novo=APARELHO_NOVO,
+    )
+
+    assert resposta.status_code == 400
+    assert resposta.json()["cliente_novo"]["telefone"] == [
+        "O número está incompleto: tem 5 dígitos. Com o DDD, celular tem 11 dígitos e fixo tem 10."
+    ]
+    assert not OrdemServico.objects.exists()
+
+
+@pytest.mark.django_db
+def test_cpf_que_nao_confere_e_recusado(api_tecnico: APIClient, loja: Loja) -> None:
+    resposta = abrir(
+        api_tecnico,
+        loja,
+        cliente_novo={**CLIENTE_NOVO, "documento": "529.982.247-24"},
+        aparelho_novo=APARELHO_NOVO,
+    )
+
+    assert resposta.status_code == 400
+    assert "documento" in resposta.json()["cliente_novo"]
+    assert not Cliente.objects.exists()
+
+
+@pytest.mark.django_db
+def test_cpf_e_cnpj_ficam_so_com_os_numeros(api_tecnico: APIClient, loja: Loja) -> None:
+    abrir(
+        api_tecnico,
+        loja,
+        cliente_novo={**CLIENTE_NOVO, "documento": "11.222.333/0001-81"},
+        aparelho_novo=APARELHO_NOVO,
+    )
+
+    assert Cliente.objects.get().documento == "11222333000181"
+
+
+@pytest.mark.django_db
 def test_precisa_de_cliente(api_tecnico: APIClient, loja: Loja) -> None:
     resposta = abrir(api_tecnico, loja, aparelho_novo=APARELHO_NOVO)
 

@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { CampoDeTelefone } from "@/componentes/ui/CampoDeTelefone";
+import {
+  AvisoDeObrigatorios,
+  CampoRotulado,
+  MarcaDeObrigatorio,
+} from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, caixaDeMarcar, campo, juntar, link } from "@/componentes/ui/estilos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
@@ -17,7 +22,14 @@ export function FormularioDeCadastro() {
 
   return (
     <form action={acao} className="space-y-4">
-      <CampoRotulado rotulo="Nome da assistência" htmlFor="assistencia" erro={erros.assistencia}>
+      <AvisoDeObrigatorios />
+
+      <CampoRotulado
+        rotulo="Nome da assistência"
+        htmlFor="assistencia"
+        erro={erros.assistencia}
+        obrigatorio
+      >
         <input
           id="assistencia"
           name="assistencia"
@@ -29,7 +41,7 @@ export function FormularioDeCadastro() {
         />
       </CampoRotulado>
 
-      <CampoRotulado rotulo="Seu nome" htmlFor="nome" erro={erros.nome}>
+      <CampoRotulado rotulo="Seu nome" htmlFor="nome" erro={erros.nome} obrigatorio>
         <input
           id="nome"
           name="nome"
@@ -45,6 +57,7 @@ export function FormularioDeCadastro() {
         htmlFor="email"
         erro={erros.email}
         dica="É com ele que você entra no sistema e recupera a senha."
+        obrigatorio
       >
         <input
           id="email"
@@ -57,30 +70,23 @@ export function FormularioDeCadastro() {
         />
       </CampoRotulado>
 
-      <CampoRotulado
+      <CampoDeTelefone
         rotulo="WhatsApp da assistência"
-        htmlFor="whatsapp"
+        id="whatsapp"
+        name="whatsapp"
         erro={erros.whatsapp}
+        valorInicial={valores.whatsapp}
+        autoComplete="tel"
         dica="Com DDD. Também aparece para os seus clientes como telefone da loja."
-      >
-        <input
-          id="whatsapp"
-          name="whatsapp"
-          type="tel"
-          required
-          inputMode="tel"
-          autoComplete="tel"
-          placeholder="(11) 91234-5678"
-          defaultValue={valores.whatsapp}
-          className={campo}
-        />
-      </CampoRotulado>
+        obrigatorio
+      />
 
       <CampoRotulado
         rotulo="Senha"
         htmlFor="senha"
         erro={erros.senha}
         dica="Pelo menos 8 caracteres, sem ser só números nem parecida com o seu e-mail."
+        obrigatorio
       >
         <input
           id="senha"
@@ -112,6 +118,7 @@ export function FormularioDeCadastro() {
               política de privacidade
             </Link>
             .
+            <MarcaDeObrigatorio />
           </span>
         </label>
         {erros.aceite_dos_termos && (

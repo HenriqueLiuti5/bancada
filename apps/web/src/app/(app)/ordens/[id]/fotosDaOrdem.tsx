@@ -9,7 +9,6 @@ import {
   TrashIcon,
   UploadSimpleIcon,
 } from "@/componentes/icones";
-import { Cartao } from "@/componentes/ui/Cartao";
 import { EscolhaDeImagem } from "@/componentes/ui/EscolhaDeImagem";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Mensagem } from "@/componentes/ui/Mensagem";
@@ -111,13 +110,10 @@ export function FotosDaOrdem({
   }, [estado]);
 
   return (
-    <Cartao
-      tour="fotos"
-      titulo="Fotos do aparelho"
-      icone={CameraIcon}
-      descricao="Aparecem no link do cliente, a menos que você as esconda."
-      semEspaco
-    >
+    <>
+      <p className="px-5 pt-4 text-[13px] text-texto-apagado">
+        As fotos aparecem no link do cliente, a menos que você as esconda.
+      </p>
       {fotos.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 p-5 sm:grid-cols-3">
           {fotos.map((foto) => (
@@ -165,7 +161,7 @@ export function FotosDaOrdem({
           />
           <button
             type="submit"
-            disabled={enviando}
+            disabled={enviando || !arquivo}
             className={juntar(botao("secundario"), "max-sm:w-full")}
           >
             <UploadSimpleIcon size={15} />
@@ -175,6 +171,6 @@ export function FotosDaOrdem({
 
         {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
       </form>
-    </Cartao>
+    </>
   );
 }

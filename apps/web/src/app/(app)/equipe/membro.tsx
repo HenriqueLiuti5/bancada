@@ -96,8 +96,9 @@ export function Membro({ membro, souEu }: { membro: MembroDaEquipe; souEu: boole
           <input
             name="senha"
             type="password"
+            required
             aria-label={`Nova senha de ${nome}`}
-            placeholder="Nova senha"
+            placeholder="Nova senha *"
             autoComplete="new-password"
             className={juntar(campo, "max-w-60 sm:h-9 sm:text-[13px]")}
           />

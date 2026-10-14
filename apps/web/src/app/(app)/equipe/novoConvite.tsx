@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { CompartilharLink } from "@/componentes/CompartilharLink";
 import { PaperPlaneTiltIcon } from "@/componentes/icones";
-import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, seletor } from "@/componentes/ui/estilos";
 import { mensagemDoConvite } from "@/lib/convites";
@@ -41,11 +41,12 @@ export function NovoConvite({ assistencia }: { assistencia: string }) {
 
   return (
     <form action={acao} onSubmit={() => setMostrarFormulario(false)} className="space-y-4">
+      <AvisoDeObrigatorios />
       <div className="grid gap-4 sm:grid-cols-2">
-        <CampoRotulado rotulo="Nome" htmlFor="nome" erro={erros.nome}>
+        <CampoRotulado rotulo="Nome" htmlFor="nome" erro={erros.nome} obrigatorio>
           <input id="nome" name="nome" required defaultValue={valores.nome} className={campo} />
         </CampoRotulado>
-        <CampoRotulado rotulo="Papel" htmlFor="papel" erro={erros.papel}>
+        <CampoRotulado rotulo="Papel" htmlFor="papel" erro={erros.papel} obrigatorio>
           <select
             id="papel"
             name="papel"

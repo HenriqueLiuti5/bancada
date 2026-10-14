@@ -5,8 +5,9 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from bancada.clientes.models import Aparelho, Cliente
+from bancada.core.cpf_cnpj import conferir_documento_opcional
 from bancada.core.formatos import em_reais
-from bancada.core.telefones import so_digitos, telefone_brasileiro
+from bancada.core.telefones import conferir_telefone, so_digitos
 from bancada.ordens.estados import TRANSICOES, StatusOS, pode_ir_de
 from bancada.ordens.fotos import MomentoDaFoto, assinar
 from bancada.ordens.models import (
@@ -160,6 +161,7 @@ class OrdemServicoListSerializer(serializers.ModelSerializer):
 
 
 class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
+    cliente_telefone = serializers.CharField(source="cliente.telefone", read_only=True)
     itens = ItemOrcamentoSerializer(many=True, read_only=True)
     eventos = EventoOSSerializer(many=True, read_only=True)
     fotos = FotoOSSerializer(many=True, read_only=True)
@@ -178,6 +180,7 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
         fields = [
             *OrdemServicoListSerializer.Meta.fields,
             "cliente",
+            "cliente_telefone",
             "aparelho",
             "tecnico",
             "diagnostico",
@@ -223,16 +226,16 @@ class NovoClienteSerializer(serializers.Serializer):
     nome = serializers.CharField(max_length=140)
     telefone = serializers.CharField(max_length=30)
     email = serializers.EmailField(required=False, allow_blank=True, default="")
-    documento = serializers.CharField(max_length=14, required=False, allow_blank=True, default="")
+    documento = serializers.CharField(max_length=24, required=False, allow_blank=True, default="")
 
     def validate_nome(self, valor: str) -> str:
         return valor.strip()
 
     def validate_telefone(self, valor: str) -> str:
-        digitos = telefone_brasileiro(valor)
-        if digitos is None:
-            raise serializers.ValidationError("Informe o telefone com DDD.")
-        return digitos
+        return conferir_telefone(valor)
+
+    def validate_documento(self, valor: str) -> str:
+        return conferir_documento_opcional(valor)
 
 
 class NovoAparelhoSerializer(serializers.Serializer):

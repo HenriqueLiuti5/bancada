@@ -70,7 +70,7 @@ export function CustosDoMes({
           <input
             name="descricao"
             aria-label="Descrição do custo"
-            placeholder="Ex.: domínio do site"
+            placeholder="Descrição *, ex.: domínio do site"
             maxLength={80}
             required
             defaultValue={valores.descricao}
@@ -79,7 +79,7 @@ export function CustosDoMes({
           <input
             name="valor"
             aria-label="Valor do custo"
-            placeholder="0,00"
+            placeholder="Valor *"
             inputMode="decimal"
             autoComplete="off"
             required

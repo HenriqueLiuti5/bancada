@@ -162,6 +162,7 @@ export type OrdemResumo = {
 
 export type Ordem = OrdemResumo & {
   cliente: number;
+  cliente_telefone: string;
   aparelho: number;
   tecnico: number | null;
   diagnostico: string;

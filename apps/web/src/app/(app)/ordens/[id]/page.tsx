@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { CompartilharLink } from "@/componentes/CompartilharLink";
 import {
-  ArrowsLeftRightIcon,
   CalendarDotsIcon,
-  ChatTextIcon,
+  CameraIcon,
   ClockCounterClockwiseIcon,
   DeviceMobileIcon,
   EnvelopeSimpleIcon,
@@ -12,7 +11,6 @@ import {
   InfoIcon,
   LinkSimpleIcon,
   NotePencilIcon,
-  PackageIcon,
   PasswordIcon,
   PencilSimpleIcon,
   ReceiptIcon,
@@ -23,20 +21,22 @@ import {
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { LinhaDoTempo } from "@/componentes/ui/LinhaDoTempo";
+import { SecaoRecolhivel } from "@/componentes/ui/SecaoRecolhivel";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { chamarApi } from "@/lib/api";
 import { FUSO_HORARIO } from "@/lib/datas";
+import { contagem } from "@/lib/formatos";
 import { emReais } from "@/lib/moeda";
 import type { Ordem, Usuario } from "@/lib/tipos";
 import { gerenciaEquipe, podeApagar, podeVerSenha, usuarioAtual } from "@/lib/usuario";
 import { registrarLinkCompartilhado } from "../../acoes";
 import { Tour } from "../../tour";
-import { AcoesDeStatus } from "./acoesDeStatus";
 import { DetalhesDoReparo } from "./detalhesDoReparo";
 import { FotosDaOrdem } from "./fotosDaOrdem";
 import { OrcamentoDaOrdem } from "./orcamentoDaOrdem";
 import { PagamentoDaOrdem } from "./pagamentoDaOrdem";
+import { ProximoPasso } from "./proximoPasso";
 import { SenhaDoAparelho } from "./senhaDoAparelho";
 
 export const dynamic = "force-dynamic";
@@ -93,7 +93,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
   const base = process.env.APP_PUBLIC_URL ?? "http://localhost:3000";
   const linkDoCliente = `${base}/os/${ordem.token_publico}`;
   const ultimoEvento = ordem.eventos.length - 1;
-  const podeEntregar = ordem.transicoes_possiveis.some((transicao) => transicao.valor === "entregue");
+  const orcamentoForaDoPasso = ordem.status !== "em_diagnostico" && ordem.itens.length > 0;
 
   return (
     <>
@@ -131,67 +131,76 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-6">
-          <Cartao titulo="Problema relatado" icone={ChatTextIcon}>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{ordem.problema_relatado}</p>
-          </Cartao>
+          <ProximoPasso ordem={ordem} linkDoCliente={linkDoCliente} />
 
-          <OrcamentoDaOrdem ordem={ordem} />
+          {orcamentoForaDoPasso && <OrcamentoDaOrdem ordem={ordem} />}
 
           <PagamentoDaOrdem ordem={ordem} podeRemover={gerenciaEquipe(usuario)} />
 
-          <Cartao titulo="Detalhes do reparo" icone={NotePencilIcon}>
-            <DetalhesDoReparo ordem={ordem} equipe={equipe} />
-          </Cartao>
+          <div className="space-y-3">
+            <div id="fotos" className="scroll-mt-20 lg:scroll-mt-6">
+              <SecaoRecolhivel
+                tour="fotos"
+                titulo="Fotos do aparelho"
+                icone={CameraIcon}
+                resumo={ordem.fotos.length > 0 ? contagem(ordem.fotos.length, "foto", "fotos") : undefined}
+                abertaDeInicio={ordem.status === "recebido"}
+              >
+                <FotosDaOrdem id={ordem.id} fotos={ordem.fotos} podeApagar={podeApagar(usuario)} />
+              </SecaoRecolhivel>
+            </div>
 
-          <FotosDaOrdem id={ordem.id} fotos={ordem.fotos} podeApagar={podeApagar(usuario)} />
+            <SecaoRecolhivel
+              tour="detalhes"
+              titulo="Anotações do reparo"
+              icone={NotePencilIcon}
+              resumo={ordem.tecnico_nome ? `Técnico: ${ordem.tecnico_nome}` : undefined}
+            >
+              <div className="p-5">
+                <DetalhesDoReparo ordem={ordem} equipe={equipe} />
+              </div>
+            </SecaoRecolhivel>
 
-          <Cartao
-            tour="historico"
-            titulo="Histórico"
-            icone={ClockCounterClockwiseIcon}
-            descricao="Cada mudança de status fica registrada e não pode ser apagada."
-          >
-            <LinhaDoTempo
-              etapas={ordem.eventos.map((evento, indice) => ({
-                chave: evento.id,
-                status: evento.para_status,
-                atual: indice === ultimoEvento,
-                titulo: evento.de_status ? (
-                  <>
-                    <span className="font-medium text-texto-apagado">{evento.de_label} → </span>
-                    {evento.para_label}
-                  </>
-                ) : (
-                  evento.para_label
-                ),
-                detalhes: [formatarMomento(evento.criado_em), evento.usuario, evento.nota]
-                  .filter(Boolean)
-                  .join(" · "),
-                complemento: evento.aviso && (
-                  <p className="flex items-center gap-1.5 pt-1 text-[13px] text-texto-apagado sm:text-xs">
-                    <EnvelopeSimpleIcon size={14} className="text-destaque" />
-                    Cliente avisado em {evento.aviso.destino}
-                  </p>
-                ),
-              }))}
-            />
-          </Cartao>
+            <SecaoRecolhivel
+              tour="historico"
+              titulo="Histórico"
+              icone={ClockCounterClockwiseIcon}
+              resumo={contagem(ordem.eventos.length, "registro", "registros")}
+            >
+              <div className="space-y-4 p-5">
+                <p className="text-[13px] text-texto-apagado">
+                  Cada mudança fica registrada com quem fez e quando, e não pode ser apagada.
+                </p>
+                <LinhaDoTempo
+                  etapas={ordem.eventos.map((evento, indice) => ({
+                    chave: evento.id,
+                    status: evento.para_status,
+                    atual: indice === ultimoEvento,
+                    titulo: evento.de_status ? (
+                      <>
+                        <span className="font-medium text-texto-apagado">{evento.de_label} → </span>
+                        {evento.para_label}
+                      </>
+                    ) : (
+                      evento.para_label
+                    ),
+                    detalhes: [formatarMomento(evento.criado_em), evento.usuario, evento.nota]
+                      .filter(Boolean)
+                      .join(" · "),
+                    complemento: evento.aviso && (
+                      <p className="flex items-center gap-1.5 pt-1 text-[13px] text-texto-apagado sm:text-xs">
+                        <EnvelopeSimpleIcon size={14} className="text-destaque" />
+                        Cliente avisado em {evento.aviso.destino}
+                      </p>
+                    ),
+                  }))}
+                />
+              </div>
+            </SecaoRecolhivel>
+          </div>
         </div>
 
-        <aside className="order-first space-y-6 lg:order-none">
-          <Cartao
-            tour="mudar-status"
-            titulo={podeEntregar ? "Entregar ao cliente" : "Mudar status"}
-            icone={podeEntregar ? PackageIcon : ArrowsLeftRightIcon}
-          >
-            <AcoesDeStatus
-              id={ordem.id}
-              transicoes={ordem.transicoes_possiveis}
-              itens={ordem.itens}
-              totalAprovado={ordem.total_aprovado}
-            />
-          </Cartao>
-
+        <aside className="space-y-6">
           <Cartao
             titulo="Propriedades"
             icone={InfoIcon}
@@ -206,7 +215,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
               </Link>
             }
           >
-            <dl className="-my-2.5 divide-y divide-borda">
+            <dl className="-mt-2.5 divide-y divide-borda">
               <Propriedade rotulo="Cliente" icone={UserIcon}>
                 {ordem.cliente_nome}
               </Propriedade>
@@ -230,17 +239,13 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
                   {emReais(ordem.orcamento_aprovado ? ordem.total_aprovado : ordem.total_orcamento)}
                 </span>
               </Propriedade>
+              <div className="space-y-1 pt-3">
+                <dt className="text-sm text-texto-apagado sm:text-[13px]">Problema relatado</dt>
+                <dd className="text-sm leading-relaxed whitespace-pre-wrap sm:text-[13px]">
+                  {ordem.problema_relatado}
+                </dd>
+              </div>
             </dl>
-          </Cartao>
-
-          <Cartao tour="senha" titulo="Senha de desbloqueio" icone={PasswordIcon}>
-            {podeVerSenha(usuario) ? (
-              <SenhaDoAparelho aparelho={ordem.aparelho} podeCorrigir={!ordem.encerrada} />
-            ) : (
-              <p className="text-sm text-texto-apagado sm:text-[13px]">
-                Só técnicos e o dono podem ver a senha de desbloqueio.
-              </p>
-            )}
           </Cartao>
 
           <Cartao
@@ -255,6 +260,16 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
               mensagem={`Olá, ${ordem.cliente_nome.split(" ")[0]}! Acompanhe o reparo do seu ${ordem.aparelho_descricao} por aqui: ${linkDoCliente}`}
               rotuloDaPrevia="Ver como o cliente vê"
             />
+          </Cartao>
+
+          <Cartao tour="senha" titulo="Senha de desbloqueio" icone={PasswordIcon}>
+            {podeVerSenha(usuario) ? (
+              <SenhaDoAparelho aparelho={ordem.aparelho} podeCorrigir={!ordem.encerrada} />
+            ) : (
+              <p className="text-sm text-texto-apagado sm:text-[13px]">
+                Só técnicos e o dono podem ver a senha de desbloqueio.
+              </p>
+            )}
           </Cartao>
         </aside>
       </div>

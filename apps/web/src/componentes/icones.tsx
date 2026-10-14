@@ -11,6 +11,7 @@ import {
   CalendarDotsIcon as CalendarDots,
   CameraIcon as Camera,
   CameraPlusIcon as CameraPlus,
+  CaretDownIcon as CaretDown,
   CaretLeftIcon as CaretLeft,
   CaretRightIcon as CaretRight,
   CaretUpDownIcon as CaretUpDown,
@@ -123,6 +124,7 @@ export const CalendarCheckIcon = decorativo(CalendarCheck);
 export const CalendarDotsIcon = decorativo(CalendarDots);
 export const CameraIcon = decorativo(Camera);
 export const CameraPlusIcon = decorativo(CameraPlus);
+export const CaretDownIcon = decorativo(CaretDown);
 export const CaretLeftIcon = decorativo(CaretLeft);
 export const CaretRightIcon = decorativo(CaretRight);
 export const CaretUpDownIcon = decorativo(CaretUpDown);

@@ -253,7 +253,7 @@
           <div class="miudos">
             {{ loja.nome }}{% if loja.endereco %} · {{ loja.endereco }}{% endif %}
             {% if loja.telefone %}<br />Telefone: {{ loja.telefone|telefone }}{% endif %}
-            {% if assistencia.documento %}<br />CNPJ {{ assistencia.documento }}{% endif %}
+            {% if assistencia.documento %}<br />CNPJ {{ assistencia.documento|documento }}{% endif %}
           </div>
         </div>
       </div>

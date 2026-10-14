@@ -6,6 +6,7 @@ type Props = {
   dica?: React.ReactNode;
   erro?: string;
   acessorio?: React.ReactNode;
+  obrigatorio?: boolean;
   children: React.ReactNode;
   className?: string;
 };
@@ -13,12 +14,29 @@ type Props = {
 const CAMPO_COM_ERRO =
   "[&_input]:border-perigo [&_select]:border-perigo [&_textarea]:border-perigo [&_input]:focus:border-perigo [&_select]:focus:border-perigo [&_textarea]:focus:border-perigo [&_input]:focus:ring-perigo/15 [&_select]:focus:ring-perigo/15 [&_textarea]:focus:ring-perigo/15";
 
+export function MarcaDeObrigatorio() {
+  return (
+    <span aria-hidden="true" className="ml-0.5 font-bold text-perigo">
+      *
+    </span>
+  );
+}
+
+export function AvisoDeObrigatorios({ className }: { className?: string }) {
+  return (
+    <p className={juntar("text-[13px] text-texto-apagado sm:text-xs", className)}>
+      Os campos com <span className="font-bold text-perigo">*</span> são obrigatórios.
+    </p>
+  );
+}
+
 export function CampoRotulado({
   rotulo,
   htmlFor,
   dica,
   erro,
   acessorio,
+  obrigatorio = false,
   children,
   className = "",
 }: Props) {
@@ -27,6 +45,7 @@ export function CampoRotulado({
       <div className="flex items-baseline justify-between gap-3">
         <label htmlFor={htmlFor} className="block text-sm font-semibold text-texto sm:text-[13px]">
           {rotulo}
+          {obrigatorio && <MarcaDeObrigatorio />}
         </label>
         {acessorio}
       </div>
@@ -39,7 +58,14 @@ export function CampoRotulado({
           {erro}
         </p>
       ) : (
-        dica && <p className="text-[13px] text-texto-apagado sm:text-xs">{dica}</p>
+        dica && (
+          <div
+            id={htmlFor ? `${htmlFor}-dica` : undefined}
+            className="text-[13px] text-texto-apagado sm:text-xs"
+          >
+            {dica}
+          </div>
+        )
       )}
     </div>
   );

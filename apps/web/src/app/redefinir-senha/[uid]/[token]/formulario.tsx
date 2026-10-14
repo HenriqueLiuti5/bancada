@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, juntar, link } from "@/componentes/ui/estilos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
@@ -17,12 +17,14 @@ export function FormularioDeNovaSenha({ uid, token }: { uid: string; token: stri
     <form action={acao} className="space-y-4">
       <input type="hidden" name="uid" value={uid} />
       <input type="hidden" name="token" value={token} />
+      <AvisoDeObrigatorios />
 
       <CampoRotulado
         rotulo="Nova senha"
         htmlFor="senha"
         erro={estado.erros?.senha}
         dica="Pelo menos 8 caracteres, sem ser só números nem parecida com o seu e-mail."
+        obrigatorio
       >
         <input
           id="senha"
@@ -35,7 +37,12 @@ export function FormularioDeNovaSenha({ uid, token }: { uid: string; token: stri
         />
       </CampoRotulado>
 
-      <CampoRotulado rotulo="Repita a nova senha" htmlFor="confirmacao" erro={estado.erros?.confirmacao}>
+      <CampoRotulado
+        rotulo="Repita a nova senha"
+        htmlFor="confirmacao"
+        erro={estado.erros?.confirmacao}
+        obrigatorio
+      >
         <input
           id="confirmacao"
           name="confirmacao"

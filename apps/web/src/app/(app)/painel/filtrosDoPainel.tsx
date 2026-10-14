@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Segmento, Segmentos } from "@/componentes/ui/Segmentos";
 import { botao, campo, juntar, seletor } from "@/componentes/ui/estilos";
 import { intervaloEscrito } from "@/lib/datas";
@@ -98,7 +99,10 @@ export function FiltrosDoPainel({
           <input type="hidden" name="periodo" value="personalizado" />
           {loja && <input type="hidden" name="loja" value={loja} />}
           <label className="space-y-1">
-            <span className="block text-xs text-texto-suave">De</span>
+            <span className="block text-xs text-texto-suave">
+              De
+              <MarcaDeObrigatorio />
+            </span>
             <input
               type="date"
               name="de"
@@ -108,7 +112,10 @@ export function FiltrosDoPainel({
             />
           </label>
           <label className="space-y-1">
-            <span className="block text-xs text-texto-suave">Até</span>
+            <span className="block text-xs text-texto-suave">
+              Até
+              <MarcaDeObrigatorio />
+            </span>
             <input
               type="date"
               name="ate"

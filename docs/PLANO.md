@@ -81,6 +81,7 @@ o operador.
 | 4H | Página inicial e demonstração da página do cliente | concluída |
 | 4I | Correção do cadastro e prazo prometido no dia a dia | concluída |
 | 4J | Revisão de segurança antes da publicação | concluída |
+| 4K | Conferência dos cadastros e tela da ordem guiada | concluída |
 | 4F | Publicação: domínio, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 6 | WhatsApp, relatórios além do painel, estoque de peças | |
@@ -92,9 +93,9 @@ A Fase 4 termina quando uma assistência que nunca falou com a gente conseguir s
 montar a equipe, aprender a usar o sistema e assinar, tudo sozinha.
 
 A publicação, Fase 4F, é a última do lançamento: o sistema vai para o ar depois de todas as outras.
-A 4G, de design, a 4H, da página inicial, a 4I, da correção do cadastro e dos prazos, e a 4J, da
-revisão de segurança, entraram no plano depois da 4F, por isso têm as letras seguintes, mas vêm antes
-dela.
+A 4G, de design, a 4H, da página inicial, a 4I, da correção do cadastro e dos prazos, a 4J, da
+revisão de segurança, e a 4K, da conferência dos cadastros e da tela da ordem, entraram no plano
+depois da 4F, por isso têm as letras seguintes, mas vêm antes dela.
 
 Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
 O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
@@ -339,6 +340,27 @@ Na entrega:
 - O Next foi atualizado para uma versão sem falhas conhecidas, e um workflow confere as
   dependências toda semana (ADR 0029).
 
+### 4K — Conferência dos cadastros e tela da ordem guiada
+
+A fase saiu de uma lista de pedidos do Henrique depois de usar o sistema: não deixar salvar um
+telefone errado, mostrar o que é obrigatório, deixar claro o que fazer em cada etapa da ordem e ter
+o WhatsApp dele à mão para dúvidas. Na entrega:
+
+- O telefone é conferido pelo DDD, pela quantidade de dígitos e pelo primeiro dígito, com uma
+  mensagem que diz o que está errado. Quando está certo, o campo mostra "Confira: (43) 99615-6781,
+  celular com DDD 43 (PR)". Vale para cliente, assistência e loja.
+- O CPF ou CNPJ do cliente, quando preenchido, tem os dígitos verificadores conferidos e sai formatado
+  no comprovante.
+- Asterisco vermelho nos campos obrigatórios, com a legenda no alto de cada formulário.
+- Na tela da ordem, o cartão "Próximo passo" diz o que fazer em palavras simples, com botões que
+  nomeiam a ação e a principal em verde. O orçamento é montado dentro dele, um botão manda o link, o
+  orçamento ou o aviso de pronto pelo WhatsApp do cliente, e fotos, anotações e histórico ficam em
+  seções recolhidas.
+- Botão do WhatsApp do suporte na página inicial, nas telas de entrar, cadastrar e recuperar a senha
+  e no menu Ajuda, como "Entrar em contato com suporte".
+- Perguntas frequentes e tela Assinatura com textos para leigos, explicando o que é o Asaas, e tela
+  Equipe com o que cada papel pode fazer (ADR 0030).
+
 ### 4F — Publicação
 
 - Domínio e HTTPS.
@@ -357,6 +379,7 @@ Na entrega:
 - Trava de instância única do Celery Beat (ADR 0013).
 - Monitoramento de erros e de disponibilidade.
 - Asaas em produção.
+- Número do WhatsApp do suporte configurado no servidor, fora do repositório (ADR 0030).
 - Texto definitivo dos termos de uso e da política de privacidade, deixando claro que o Bancada é
   o operador dos dados dos clientes finais. A página inicial ficou pronta na 4H.
 - Prévia do link da página inicial conferida no WhatsApp, com o endereço público (ADR 0026).

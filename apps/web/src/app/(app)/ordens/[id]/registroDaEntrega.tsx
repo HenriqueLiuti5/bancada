@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from "react";
 import { PlusIcon, XIcon } from "@/componentes/icones";
+import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
 import { centavosEmReais, centavosParaCampo, emCentavos } from "@/lib/moeda";
@@ -133,12 +134,11 @@ export function RegistroDaEntrega({ id, totalAprovado }: { id: number; totalApro
     <form action={acao} className="space-y-4">
       <input type="hidden" name="id" value={id} />
 
-      <p className="text-sm text-texto-suave sm:text-[13px]">
-        Para entregar, registre quanto foi cobrado e como o cliente pagou.
-      </p>
-
       <label className="block space-y-1.5">
-        <span className="text-sm font-semibold sm:text-[13px]">Valor cobrado</span>
+        <span className="text-sm font-semibold sm:text-[13px]">
+          Valor cobrado
+          <MarcaDeObrigatorio />
+        </span>
         <input
           name="valor_cobrado"
           inputMode="decimal"

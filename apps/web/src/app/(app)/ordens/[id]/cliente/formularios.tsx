@@ -1,11 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
-import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { CampoDeTelefone } from "@/componentes/ui/CampoDeTelefone";
+import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { RodapeDoFormulario } from "@/componentes/ui/RodapeDoFormulario";
 import { campo } from "@/componentes/ui/estilos";
+import { formatarDocumento } from "@/lib/formatos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
-import { formatarTelefone } from "@/lib/telefone";
 import type { Aparelho, Cliente } from "@/lib/tipos";
 import { salvarAparelho, salvarCliente } from "./acoes";
 
@@ -16,31 +17,28 @@ export function FormularioDoCliente({ ordem, cliente }: { ordem: number; cliente
   const erros = estado.erros ?? {};
   const valores = estado.valores ?? {
     nome: cliente.nome,
-    telefone: formatarTelefone(cliente.telefone),
+    telefone: cliente.telefone,
     email: cliente.email,
-    documento: cliente.documento,
+    documento: formatarDocumento(cliente.documento),
   };
 
   return (
     <form action={acao} className="space-y-4">
       <input type="hidden" name="ordem" value={ordem} />
       <input type="hidden" name="id" value={cliente.id} />
+      <AvisoDeObrigatorios />
       <div className="grid gap-4 sm:grid-cols-2">
-        <CampoRotulado rotulo="Nome" htmlFor="cliente-nome" erro={erros.nome}>
+        <CampoRotulado rotulo="Nome" htmlFor="cliente-nome" erro={erros.nome} obrigatorio>
           <input id="cliente-nome" name="nome" required defaultValue={valores.nome} className={campo} />
         </CampoRotulado>
-        <CampoRotulado rotulo="Telefone / WhatsApp" htmlFor="cliente-telefone" erro={erros.telefone}>
-          <input
-            id="cliente-telefone"
-            name="telefone"
-            type="tel"
-            inputMode="tel"
-            required
-            placeholder="(11) 91234-5678"
-            defaultValue={valores.telefone}
-            className={campo}
-          />
-        </CampoRotulado>
+        <CampoDeTelefone
+          rotulo="Telefone / WhatsApp"
+          id="cliente-telefone"
+          name="telefone"
+          erro={erros.telefone}
+          valorInicial={valores.telefone}
+          obrigatorio
+        />
         <CampoRotulado
           rotulo="E-mail"
           htmlFor="cliente-email"
@@ -55,7 +53,12 @@ export function FormularioDoCliente({ ordem, cliente }: { ordem: number; cliente
             className={campo}
           />
         </CampoRotulado>
-        <CampoRotulado rotulo="CPF" htmlFor="cliente-documento" erro={erros.documento} dica="Opcional.">
+        <CampoRotulado
+          rotulo="CPF ou CNPJ"
+          htmlFor="cliente-documento"
+          erro={erros.documento}
+          dica="Opcional. Sai no comprovante."
+        >
           <input
             id="cliente-documento"
             name="documento"
@@ -84,8 +87,9 @@ export function FormularioDoAparelho({ ordem, aparelho }: { ordem: number; apare
     <form action={acao} className="space-y-4">
       <input type="hidden" name="ordem" value={ordem} />
       <input type="hidden" name="id" value={aparelho.id} />
+      <AvisoDeObrigatorios />
       <div className="grid gap-4 sm:grid-cols-2">
-        <CampoRotulado rotulo="Marca" htmlFor="aparelho-marca" erro={erros.marca}>
+        <CampoRotulado rotulo="Marca" htmlFor="aparelho-marca" erro={erros.marca} obrigatorio>
           <input
             id="aparelho-marca"
             name="marca"
@@ -95,7 +99,7 @@ export function FormularioDoAparelho({ ordem, aparelho }: { ordem: number; apare
             className={campo}
           />
         </CampoRotulado>
-        <CampoRotulado rotulo="Modelo" htmlFor="aparelho-modelo" erro={erros.modelo}>
+        <CampoRotulado rotulo="Modelo" htmlFor="aparelho-modelo" erro={erros.modelo} obrigatorio>
           <input
             id="aparelho-modelo"
             name="modelo"

@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import { CheckCircleIcon, TrashIcon, WalletIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
+import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
 import { FUSO_HORARIO } from "@/lib/datas";
@@ -91,28 +92,32 @@ function NovoRecebimento({ ordem }: { ordem: Ordem }) {
       <p className="text-[13px] text-texto-apagado">
         Quando o cliente pagar o que falta, registre aqui.
       </p>
-      <div className="flex flex-wrap gap-2">
-        <select
-          name="forma"
-          aria-label="Forma de pagamento"
-          defaultValue="pix"
-          className={juntar(seletor, "w-auto")}
-        >
-          {FORMAS_DE_PAGAMENTO.map((forma) => (
-            <option key={forma.valor} value={forma.valor}>
-              {forma.rotulo}
-            </option>
-          ))}
-        </select>
-        <input
-          key={saldo}
-          name="valor"
-          aria-label="Valor pago"
-          inputMode="decimal"
-          autoComplete="off"
-          defaultValue={saldo}
-          className={juntar(campo, "w-32 tabular-nums")}
-        />
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="space-y-1">
+          <span className="block text-xs font-semibold text-texto-suave">Forma</span>
+          <select name="forma" defaultValue="pix" className={juntar(seletor, "w-auto")}>
+            {FORMAS_DE_PAGAMENTO.map((forma) => (
+              <option key={forma.valor} value={forma.valor}>
+                {forma.rotulo}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="w-32 space-y-1">
+          <span className="block text-xs font-semibold text-texto-suave">
+            Valor pago
+            <MarcaDeObrigatorio />
+          </span>
+          <input
+            key={saldo}
+            name="valor"
+            inputMode="decimal"
+            autoComplete="off"
+            required
+            defaultValue={saldo}
+            className={juntar(campo, "tabular-nums")}
+          />
+        </label>
         <button type="submit" disabled={enviando} className={botao("secundario")}>
           {enviando ? "Registrando..." : "Registrar pagamento"}
         </button>

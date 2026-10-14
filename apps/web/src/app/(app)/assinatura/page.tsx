@@ -34,8 +34,8 @@ function explicacaoDaAssinatura(assinatura: DetalheDaAssinatura): React.ReactNod
         ? `Assinatura feita. O teste grátis continua até ${fimDoTeste}, e a primeira mensalidade vence nesse dia.`
         : (
           <>
-            Tudo em dia. A mensalidade é de {valor}, e o Asaas manda a fatura por e-mail antes de
-            cada vencimento.
+            Tudo em dia. A mensalidade é de {valor}, e o Asaas, a empresa que faz a cobrança do
+            Bancada, manda a fatura por e-mail antes de cada vencimento.
           </>
         );
     case "inadimplente":
@@ -143,8 +143,9 @@ export default async function PaginaDaAssinatura() {
             ) : (
               <>
                 <p className="text-[13px] text-texto-suave">
-                  <Dinheiro valor={assinatura.valor_mensal} /> por mês. Você paga por PIX, boleto ou cartão,
-                  na página de pagamento do Asaas, e pode cancelar quando quiser.
+                  <Dinheiro valor={assinatura.valor_mensal} /> por mês. Todo mês chega uma fatura por
+                  e-mail, e você paga por PIX, boleto ou cartão. Quem manda a fatura é o Asaas, a
+                  empresa que faz a cobrança do Bancada. Dá para cancelar quando quiser.
                 </p>
                 <FormularioDeAssinatura
                   documento={assinatura.documento_do_pagador || assistencia.documento}

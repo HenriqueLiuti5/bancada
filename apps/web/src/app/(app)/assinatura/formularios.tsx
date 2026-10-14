@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo } from "@/componentes/ui/estilos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
@@ -19,12 +19,14 @@ export function FormularioDeAssinatura({ documento, valorMensal }: PropsDaAssina
 
   return (
     <form action={acao} className="space-y-4">
+      <AvisoDeObrigatorios />
       <CampoRotulado
         rotulo="CPF ou CNPJ de quem paga"
         htmlFor="documento"
         erro={erros.documento}
         dica="Sai na fatura. Pode ser o CNPJ da assistência ou o seu CPF."
         className="max-w-sm"
+        obrigatorio
       >
         <input
           id="documento"

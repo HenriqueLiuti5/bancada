@@ -4,7 +4,8 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { CabecalhoDaLoja } from "@/componentes/CabecalhoDaLoja";
 import { ImageSquareIcon } from "@/componentes/icones";
-import { CampoRotulado } from "@/componentes/ui/CampoRotulado";
+import { CampoDeTelefone } from "@/componentes/ui/CampoDeTelefone";
+import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { EscolhaDeImagem } from "@/componentes/ui/EscolhaDeImagem";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { RodapeDoFormulario } from "@/componentes/ui/RodapeDoFormulario";
@@ -27,8 +28,15 @@ export function FormularioDaAssistencia({ assistencia }: { assistencia: Assisten
 
   return (
     <form action={acao} className="space-y-4">
+      <AvisoDeObrigatorios />
       <div className="grid gap-4 sm:grid-cols-2">
-        <CampoRotulado rotulo="Nome da assistência" htmlFor="nome" erro={erros.nome} className="sm:col-span-2">
+        <CampoRotulado
+          rotulo="Nome da assistência"
+          htmlFor="nome"
+          erro={erros.nome}
+          className="sm:col-span-2"
+          obrigatorio
+        >
           <input id="nome" name="nome" required defaultValue={valores.nome} className={campo} />
         </CampoRotulado>
         <CampoRotulado
@@ -39,22 +47,15 @@ export function FormularioDaAssistencia({ assistencia }: { assistencia: Assisten
         >
           <input id="documento" name="documento" defaultValue={valores.documento} className={campo} />
         </CampoRotulado>
-        <CampoRotulado
+        <CampoDeTelefone
           rotulo="WhatsApp"
-          htmlFor="whatsapp"
+          id="whatsapp"
+          name="whatsapp"
           erro={erros.whatsapp}
+          valorInicial={valores.whatsapp}
           dica="É por ele que a equipe do Bancada fala com você."
-        >
-          <input
-            id="whatsapp"
-            name="whatsapp"
-            type="tel"
-            required
-            inputMode="tel"
-            defaultValue={valores.whatsapp}
-            className={campo}
-          />
-        </CampoRotulado>
+          obrigatorio
+        />
       </div>
       <RodapeDoFormulario estado={estado} enviando={enviando} />
     </form>
@@ -70,8 +71,9 @@ export function FormularioDaLoja({ loja }: { loja: Loja }) {
   return (
     <form action={acao} className="space-y-4">
       <input type="hidden" name="id" value={loja.id} />
+      <AvisoDeObrigatorios />
       <div className="grid gap-4 sm:grid-cols-2">
-        <CampoRotulado rotulo="Nome da loja" htmlFor={`${prefixo}-nome`} erro={erros.nome}>
+        <CampoRotulado rotulo="Nome da loja" htmlFor={`${prefixo}-nome`} erro={erros.nome} obrigatorio>
           <input
             id={`${prefixo}-nome`}
             name="nome"
@@ -80,20 +82,19 @@ export function FormularioDaLoja({ loja }: { loja: Loja }) {
             className={campo}
           />
         </CampoRotulado>
-        <CampoRotulado rotulo="Telefone" htmlFor={`${prefixo}-telefone`} erro={erros.telefone}>
-          <input
-            id={`${prefixo}-telefone`}
-            name="telefone"
-            type="tel"
-            inputMode="tel"
-            defaultValue={valores.telefone}
-            className={campo}
-          />
-        </CampoRotulado>
+        <CampoDeTelefone
+          rotulo="Telefone"
+          id={`${prefixo}-telefone`}
+          name="telefone"
+          erro={erros.telefone}
+          valorInicial={valores.telefone}
+          dica="Opcional. Sai no comprovante e no link do cliente."
+        />
         <CampoRotulado
           rotulo="Endereço"
           htmlFor={`${prefixo}-endereco`}
           erro={erros.endereco}
+          dica="Opcional. Sai no comprovante e no recibo."
           className="sm:col-span-2"
         >
           <input

@@ -14,7 +14,7 @@
         <div><dt>Telefone</dt><dd>{{ cliente.telefone|telefone }}</dd></div>
         {% if cliente.email %}<div><dt>E-mail</dt><dd>{{ cliente.email }}</dd></div>{% endif %}
         {% if cliente.documento %}
-          <div><dt>Documento</dt><dd>{{ cliente.documento }}</dd></div>
+          <div><dt>Documento</dt><dd>{{ cliente.documento|documento }}</dd></div>
         {% endif %}
       </dl>
     </div>

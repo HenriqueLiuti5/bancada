@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from bancada.core.formatos import em_reais
-from bancada.core.templatetags.formatos import telefone
+from bancada.core.templatetags.formatos import documento, telefone
 
 
 @pytest.mark.parametrize(
@@ -20,6 +20,21 @@ from bancada.core.templatetags.formatos import telefone
 )
 def test_telefone_ganha_formato_quando_da_para_reconhecer(entrada: str, esperado: str) -> None:
     assert telefone(entrada) == esperado
+
+
+@pytest.mark.parametrize(
+    ("entrada", "esperado"),
+    [
+        ("52998224725", "529.982.247-25"),
+        ("11222333000181", "11.222.333/0001-81"),
+        ("12ABC34501DE35", "12.ABC.345/01DE-35"),
+        ("12.345.678/0001-90", "12.345.678/0001-90"),
+        ("", ""),
+        (None, ""),
+    ],
+)
+def test_cpf_e_cnpj_ganham_pontuacao(entrada: str, esperado: str) -> None:
+    assert documento(entrada) == esperado
 
 
 @pytest.mark.parametrize(

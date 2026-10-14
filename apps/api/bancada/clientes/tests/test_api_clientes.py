@@ -32,7 +32,9 @@ def test_telefone_sem_ddd_e_recusado(api_tecnico: APIClient) -> None:
     )
 
     assert resposta.status_code == 400
-    assert resposta.json()["telefone"] == ["Informe o telefone com DDD."]
+    assert resposta.json()["telefone"] == [
+        "O número está incompleto: tem 9 dígitos. Com o DDD, celular tem 11 dígitos e fixo tem 10."
+    ]
 
 
 @pytest.mark.django_db

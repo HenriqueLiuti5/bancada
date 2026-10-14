@@ -55,7 +55,7 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       lado: "direita",
       titulo: "Ajuda",
       texto:
-        "Para ver este tour de novo ou falar com a gente pelo WhatsApp, use este botão. Quando estiver pronto, abra uma ordem em Nova ordem.",
+        "Para ver este tour de novo ou entrar em contato com o suporte pelo WhatsApp, use este botão. Quando estiver pronto, abra uma ordem em Nova ordem.",
     },
   ],
   "nova-ordem": [
@@ -86,10 +86,10 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
   ],
   ordem: [
     {
-      alvo: "mudar-status",
-      titulo: "Mudar status",
+      alvo: "proximo-passo",
+      titulo: "Próximo passo",
       texto:
-        "Cada botão leva a ordem para a próxima etapa, e só aparecem as etapas possíveis agora. O cliente é avisado nas que interessam a ele, como orçamento pronto e aparelho pronto para retirada. Na entrega, você registra quanto cobrou e como o cliente pagou.",
+        "Aqui aparece o que fazer agora nesta ordem, com o botão certo para cada etapa. O cliente é avisado nas que interessam a ele, como orçamento pronto e aparelho pronto para retirada. Na entrega, você registra quanto cobrou e como o cliente pagou.",
     },
     {
       alvo: "link-do-cliente",
@@ -119,7 +119,13 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       alvo: "fotos",
       titulo: "Fotos do aparelho",
       texto:
-        "Fotografe o aparelho na entrada. Riscos e trincas registrados evitam discussão na hora da entrega.",
+        "Fotografe o aparelho na entrada. Riscos e trincas registrados evitam discussão na hora da entrega. Clique no título para abrir ou fechar esta parte.",
+    },
+    {
+      alvo: "detalhes",
+      titulo: "Anotações do reparo",
+      texto:
+        "O técnico responsável, o prazo combinado, o diagnóstico, que só a equipe vê, e o laudo, que sai no recibo. Fica fechado até você precisar.",
     },
     {
       alvo: "senha",

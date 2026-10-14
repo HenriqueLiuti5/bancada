@@ -29,21 +29,26 @@ function perguntasFrequentes(diasDeTeste: number) {
         "Quantas você precisar, sem pagar a mais por isso. Cada pessoa entra com o próprio e-mail e um papel: dono, técnico ou atendente.",
     },
     {
-      pergunta: "Já uso papel, planilha ou outro sistema. Como começo?",
-      resposta:
-        "Comece pelas próximas ordens: cliente, aparelho e defeito entram numa tela só, ali no balcão. As ordens antigas podem terminar onde já estão.",
-    },
-    {
       pergunta: "Meus dados e os dos meus clientes ficam seguros?",
-      resposta:
-        "Cada assistência só enxerga os próprios dados, com uma trava no próprio banco de dados. A senha de desbloqueio fica criptografada e as fotos não têm endereço público: cada link vale por 15 minutos.",
+      resposta: [
+        "Sim. Cada assistência só vê as próprias ordens e os próprios clientes. As outras lojas que usam o Bancada não têm como ver os seus dados.",
+        "A senha de desbloqueio do aparelho fica guardada embaralhada. Só o dono e os técnicos conseguem ver, o sistema anota quem viu e quando, e ela se apaga sozinha 7 dias depois da entrega.",
+        "As fotos do aparelho não ficam soltas na internet. O link de cada foto só funciona por 15 minutos: se alguém repassar o link, depois disso ele não abre mais.",
+      ],
     },
     {
       pergunta: "Como eu pago e como cancelo?",
-      resposta:
-        "Por PIX, boleto ou cartão, todo mês, na página de pagamento do Asaas. Para cancelar, é um botão na tela Assinatura, sem multa e sem fidelidade.",
+      resposta: [
+        "Todo mês chega uma fatura no seu e-mail, e você escolhe pagar por PIX, boleto ou cartão de crédito.",
+        "Quem manda a fatura é o Asaas, a empresa que cuida da cobrança do Bancada, do mesmo jeito que a maquininha cuida dos pagamentos no seu balcão.",
+        "Para cancelar, é só apertar um botão na tela Assinatura. Não tem multa nem fidelidade, e você continua usando até o fim do mês que já pagou.",
+      ],
     },
   ];
+}
+
+function paragrafos(resposta: string | string[]): string[] {
+  return Array.isArray(resposta) ? resposta : [resposta];
 }
 
 type Props = { diasDeTeste: number; whatsapp: string | null };
@@ -89,9 +94,11 @@ export function Perguntas({ diasDeTeste, whatsapp }: Props) {
                   className="shrink-0 text-icone transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none"
                 />
               </summary>
-              <p className="pr-10 pb-5 text-[15px] leading-relaxed text-pretty text-texto-suave">
-                {resposta}
-              </p>
+              <div className="space-y-3 pr-10 pb-5 text-[15px] leading-relaxed text-pretty text-texto-suave">
+                {paragrafos(resposta).map((paragrafo) => (
+                  <p key={paragrafo}>{paragrafo}</p>
+                ))}
+              </div>
             </details>
           ))}
         </div>

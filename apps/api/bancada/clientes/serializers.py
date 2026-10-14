@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from bancada.clientes.models import Aparelho, Cliente
-from bancada.core.telefones import so_digitos, telefone_brasileiro
+from bancada.core.cpf_cnpj import conferir_documento_opcional
+from bancada.core.telefones import conferir_telefone, so_digitos
 
 
 class AparelhoSerializer(serializers.ModelSerializer):
@@ -34,13 +35,15 @@ class AparelhoSerializer(serializers.ModelSerializer):
 
 class ClienteSerializer(serializers.ModelSerializer):
     aparelhos = AparelhoSerializer(many=True, read_only=True)
+    telefone = serializers.CharField(max_length=30)
+    documento = serializers.CharField(max_length=24, required=False, allow_blank=True)
 
     class Meta:
         model = Cliente
         fields = ["id", "nome", "telefone", "email", "documento", "aparelhos"]
 
     def validate_telefone(self, valor: str) -> str:
-        digitos = telefone_brasileiro(valor)
-        if digitos is None:
-            raise serializers.ValidationError("Informe o telefone com DDD.")
-        return digitos
+        return conferir_telefone(valor)
+
+    def validate_documento(self, valor: str) -> str:
+        return conferir_documento_opcional(valor)

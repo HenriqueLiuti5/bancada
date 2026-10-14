@@ -83,3 +83,12 @@ def test_detalhe_lista_as_proximas_transicoes(api_tecnico: APIClient, ordem: Ord
     corpo = api_tecnico.get(f"/api/ordens/{ordem.pk}/").json()
 
     assert [t["valor"] for t in corpo["transicoes_possiveis"]] == [StatusOS.EM_DIAGNOSTICO]
+
+
+@pytest.mark.django_db
+def test_detalhe_traz_o_telefone_do_cliente_para_avisar_pelo_whatsapp(
+    api_tecnico: APIClient, ordem: OrdemServico
+) -> None:
+    resposta = api_tecnico.get(f"/api/ordens/{ordem.pk}/")
+
+    assert resposta.json()["cliente_telefone"] == ordem.cliente.telefone

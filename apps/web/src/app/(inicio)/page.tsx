@@ -9,6 +9,7 @@ import { Perguntas } from "./perguntas";
 import { Preco } from "./preco";
 import { Recursos } from "./recursos";
 import { Rodape } from "./rodape";
+import { WhatsAppFlutuante } from "./whatsAppFlutuante";
 
 const TITULO = "Bancada · Sistema de ordem de serviço para assistência técnica de celular";
 
@@ -62,6 +63,7 @@ export default async function PaginaInicial() {
         <ChamadaFinal diasDeTeste={oferta.dias_de_teste} />
       </main>
       <Rodape whatsapp={whatsapp} />
+      {whatsapp && <WhatsAppFlutuante link={whatsapp} />}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: dadosEstruturados(oferta) }}

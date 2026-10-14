@@ -1,6 +1,7 @@
 import pytest
+from rest_framework import serializers
 
-from bancada.core.cpf_cnpj import cpf_ou_cnpj
+from bancada.core.cpf_cnpj import conferir_documento_opcional, cpf_ou_cnpj, problema_do_documento
 
 
 @pytest.mark.parametrize(
@@ -32,3 +33,27 @@ def test_aceita_cpf_cnpj_e_cnpj_com_letras(digitado: str, esperado: str) -> None
 )
 def test_recusa_digito_errado_sequencia_repetida_e_formato_estranho(digitado: str) -> None:
     assert cpf_ou_cnpj(digitado) is None
+
+
+@pytest.mark.parametrize(
+    ("digitado", "trecho"),
+    [
+        ("529.982.247-24", "Esse CPF não confere"),
+        ("11.222.333/0001-82", "Esse CNPJ não confere"),
+        ("529.982.247", "e esse número tem 9."),
+    ],
+)
+def test_explica_por_que_o_documento_nao_confere(digitado: str, trecho: str) -> None:
+    problema = problema_do_documento(digitado)
+
+    assert problema is not None
+    assert trecho in problema
+
+
+def test_documento_opcional_aceita_vazio_e_guarda_sem_pontuacao() -> None:
+    assert conferir_documento_opcional("  ") == ""
+    assert conferir_documento_opcional("529.982.247-25") == "52998224725"
+    assert conferir_documento_opcional("11.222.333/0001-81") == "11222333000181"
+
+    with pytest.raises(serializers.ValidationError):
+        conferir_documento_opcional("123.456.789-00")

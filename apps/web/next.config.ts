@@ -19,7 +19,7 @@ const POLITICA_DE_CONTEUDO = [
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
-  devIndicators: { position: "bottom-right" },
+  devIndicators: { position: "bottom-left" },
   experimental: {
     serverActions: { bodySizeLimit: TAMANHO_MAXIMO_DO_ENVIO_DE_FOTO_EM_BYTES },
     proxyClientMaxBodySize: TAMANHO_MAXIMO_DO_ENVIO_DE_FOTO_EM_BYTES,
