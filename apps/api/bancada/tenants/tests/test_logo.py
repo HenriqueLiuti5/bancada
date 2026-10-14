@@ -14,6 +14,7 @@ from rest_framework.test import APIClient
 
 from bancada.assinaturas.models import Assinatura
 from bancada.auditoria.models import Acao, RegistroDeAuditoria
+from bancada.ordens import fotos
 from bancada.ordens.models import OrdemServico
 from bancada.tenants import logo
 from bancada.tenants.models import Loja, Papel, Tenant, Usuario
@@ -252,3 +253,16 @@ def test_nome_da_loja_so_aparece_quando_a_assistencia_tem_mais_de_uma(
     Loja.objects.create(tenant=tenant, nome="Filial Centro")
     cache.clear()
     assert APIClient().get(caminho).json()["assistencia"]["loja"] == "Matriz"
+
+
+@pytest.mark.django_db
+def test_logo_acima_do_limite_de_pixels_e_recusada(
+    api_dono: APIClient, tenant: Tenant, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(fotos, "PIXELS_NO_MAXIMO", 10_000)
+
+    resposta = enviar(api_dono, imagem(300, 100))
+
+    assert resposta.status_code == 400
+    tenant.refresh_from_db()
+    assert not tenant.logo

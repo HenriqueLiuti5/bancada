@@ -23,7 +23,7 @@ from bancada.ordens.estados import (
     TransicaoInvalida,
     pode_ir_de,
 )
-from bancada.ordens.fotos import MomentoDaFoto, normalizar
+from bancada.ordens.fotos import FOTOS_POR_ORDEM_NO_MAXIMO, FotoInvalida, MomentoDaFoto, normalizar
 from bancada.tenants.models import Loja, Tenant, Usuario
 
 
@@ -402,6 +402,12 @@ class FotoOS(PertenceAoTenant):
         enviada_por: Usuario | None = None,
     ) -> "FotoOS":
         normalizada = normalizar(enviado)
+        OrdemServico.objects.select_for_update().get(pk=ordem.pk)
+        if cls.objects.filter(ordem=ordem).count() >= FOTOS_POR_ORDEM_NO_MAXIMO:
+            raise FotoInvalida(
+                f"Esta ordem já tem {FOTOS_POR_ORDEM_NO_MAXIMO} fotos. "
+                "Apague uma antes de enviar outra."
+            )
         foto = cls(
             tenant=ordem.tenant,
             ordem=ordem,

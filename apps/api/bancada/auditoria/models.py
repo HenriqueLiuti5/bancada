@@ -12,6 +12,7 @@ class Acao(models.TextChoices):
     USUARIO_CRIADO = "usuario_criado", "Usuário criado"
     USUARIO_ALTERADO = "usuario_alterado", "Usuário alterado"
     SENHA_REDEFINIDA = "senha_redefinida", "Senha de acesso redefinida"
+    LOGIN_RECUSADO = "login_recusado", "Login recusado por senha errada"
     ASSISTENCIA_CRIADA = "assistencia_criada", "Assistência criada"
     ASSISTENCIA_ALTERADA = "assistencia_alterada", "Dados da assistência alterados"
     CONVITE_CRIADO = "convite_criado", "Convite para a equipe criado"

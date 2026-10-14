@@ -1,9 +1,14 @@
+import { cabecalhoDoVisitante } from "@/lib/visitante";
+
 const BASE = process.env.API_INTERNAL_URL ?? "http://localhost:8000";
 
 export async function repassarImagem(caminho: string, tipoPadrao: string): Promise<Response> {
   let resposta: Response;
   try {
-    resposta = await fetch(`${BASE}${caminho}`, { cache: "no-store" });
+    resposta = await fetch(`${BASE}${caminho}`, {
+      headers: await cabecalhoDoVisitante(),
+      cache: "no-store",
+    });
   } catch {
     return new Response(null, { status: 502 });
   }

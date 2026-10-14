@@ -3,6 +3,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from celery.schedules import crontab
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,9 +13,23 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "insecure-dev-key")
+CHAVE_DE_DESENVOLVIMENTO = "insecure-dev-key"
+CHAVES_DE_EXEMPLO = {CHAVE_DE_DESENVOLVIMENTO, "troque-esta-chave-em-producao"}
+TAMANHO_MINIMO_DA_CHAVE = 50
+
 DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
+if not DEBUG and (SECRET_KEY in CHAVES_DE_EXEMPLO or len(SECRET_KEY) < TAMANHO_MINIMO_DA_CHAVE):
+    raise ImproperlyConfigured(
+        f"Defina DJANGO_SECRET_KEY com uma chave própria de pelo menos {TAMANHO_MINIMO_DA_CHAVE} "
+        'caracteres. Para gerar uma: python -c "import secrets; print(secrets.token_urlsafe(50))"'
+    )
+SECRET_KEY = SECRET_KEY or CHAVE_DE_DESENVOLVIMENTO
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SILENCED_SYSTEM_CHECKS = ["security.W004", "security.W008"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -25,7 +40,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
-    "corsheaders",
     "bancada.core",
     "bancada.tenants",
     "bancada.clientes",
@@ -38,7 +52,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -146,9 +159,11 @@ REST_FRAMEWORK = {
         "bancada.core.autenticacao.TokenQueRegistraAcesso",
         "rest_framework.authentication.SessionAuthentication",
     ],
+    "NUM_PROXIES": 1,
     "DEFAULT_THROTTLE_RATES": {
         "acompanhamento_publico": os.environ.get("THROTTLE_PUBLICO", "60/min"),
         "arquivo_de_foto": os.environ.get("THROTTLE_FOTOS", "240/min"),
+        "envio_de_foto": os.environ.get("THROTTLE_ENVIO_DE_FOTO", "120/hour"),
         "arquivo_de_logo": os.environ.get("THROTTLE_LOGOS", "240/min"),
         "login": os.environ.get("THROTTLE_LOGIN", "20/min"),
         "cadastro": os.environ.get("THROTTLE_CADASTRO", "10/hour"),
@@ -165,9 +180,6 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
     ],
 }
-
-CORS_ALLOWED_ORIGINS = env_list("DJANGO_CORS_ALLOWED_ORIGINS", "http://localhost:3000")
-CORS_ALLOW_CREDENTIALS = True
 
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"

@@ -24,7 +24,7 @@ function esquecerSessao(): NextResponse {
   return resposta;
 }
 
-export function proxy(request: NextRequest) {
+function decidir(request: NextRequest): NextResponse {
   const caminho = request.nextUrl.pathname;
   const token = request.cookies.get(NOME_DO_COOKIE)?.value;
 
@@ -46,6 +46,14 @@ export function proxy(request: NextRequest) {
   }
 
   return NextResponse.next();
+}
+
+export function proxy(request: NextRequest) {
+  const resposta = decidir(request);
+  if (request.headers.get("x-forwarded-proto") === "https") {
+    resposta.headers.set("Strict-Transport-Security", "max-age=31536000");
+  }
+  return resposta;
 }
 
 export const config = {

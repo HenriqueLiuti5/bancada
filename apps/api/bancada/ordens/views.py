@@ -10,6 +10,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
+from rest_framework.throttling import UserRateThrottle
 
 from bancada.auditoria.models import Acao
 from bancada.auditoria.registro import origem_do_pedido, registrar
@@ -44,6 +45,10 @@ from bancada.ordens.serializers import (
 )
 from bancada.tenants.models import Papel, Usuario
 from bancada.tenants.permissoes import ApagarSoDonoOuTecnico, ApenasDono, papel_do_pedido
+
+
+class LimiteDeEnvioDeFotos(UserRateThrottle):
+    scope = "envio_de_foto"
 
 
 class OrcamentoTravado(APIException):
@@ -180,6 +185,7 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         methods=["post"],
         url_path="fotos",
         parser_classes=[MultiPartParser, FormParser],
+        throttle_classes=[LimiteDeEnvioDeFotos],
     )
     def enviar_foto(self, request: Request, pk: str | None = None) -> Response:
         entrada = EnvioDeFotoSerializer(data=request.data)

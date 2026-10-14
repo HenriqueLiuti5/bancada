@@ -34,3 +34,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0026](0026-pagina-inicial-e-demonstracao.md) | Página inicial e demonstração |
 | [0027](0027-correcao-do-cliente-e-do-aparelho.md) | Correção do cliente e do aparelho |
 | [0028](0028-prazo-prometido-no-dia-a-dia.md) | Prazo prometido no dia a dia |
+| [0029](0029-revisao-de-seguranca-antes-da-publicacao.md) | Revisão de segurança antes da publicação |

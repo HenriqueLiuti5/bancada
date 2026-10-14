@@ -11,6 +11,7 @@ from rest_framework.test import APIClient
 from bancada.core.rls import aplicar_tenant
 from bancada.ordens import fotos
 from bancada.ordens.models import FotoOS, OrdemServico
+from bancada.ordens.views import LimiteDeEnvioDeFotos
 from bancada.tenants.models import Tenant
 
 TIPOS = {"JPEG": "image/jpeg", "PNG": "image/png", "WEBP": "image/webp"}
@@ -222,3 +223,53 @@ def test_a_trava_do_banco_vale_para_as_fotos(tenant: Tenant, ordem: OrdemServico
     aplicar_tenant(-1)
 
     assert FotoOS.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_imagem_acima_do_limite_de_pixels_e_recusada(
+    api_tecnico: APIClient, ordem: OrdemServico, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(fotos, "PIXELS_NO_MAXIMO", 1_000_000)
+
+    resposta = enviar(api_tecnico, ordem, arquivo=imagem_enviada(1200, 1000, formato="PNG"))
+
+    assert resposta.status_code == 400
+    assert FotoOS.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_jpeg_de_camera_grande_e_lido_reduzido_e_aceito(
+    api_tecnico: APIClient, ordem: OrdemServico
+) -> None:
+    destino = io.BytesIO()
+    Image.new("L", (6400, 4800), 128).save(destino, format="JPEG")
+    arquivo = SimpleUploadedFile("camera.jpg", destino.getvalue(), content_type="image/jpeg")
+
+    resposta = enviar(api_tecnico, ordem, arquivo=arquivo)
+
+    assert resposta.status_code == 201
+    assert (resposta.json()["largura"], resposta.json()["altura"]) == (1600, 1200)
+
+
+@pytest.mark.django_db
+def test_ordem_tem_limite_de_fotos(
+    api_tecnico: APIClient, ordem: OrdemServico, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("bancada.ordens.models.FOTOS_POR_ORDEM_NO_MAXIMO", 2)
+
+    respostas = [enviar(api_tecnico, ordem) for _ in range(3)]
+
+    assert [resposta.status_code for resposta in respostas] == [201, 201, 400]
+    assert "Apague uma" in respostas[-1].json()["arquivo"][0]
+    assert FotoOS.objects.count() == 2
+
+
+@pytest.mark.django_db
+def test_envio_de_fotos_tem_limite_por_pessoa(
+    api_tecnico: APIClient, ordem: OrdemServico, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(LimiteDeEnvioDeFotos, "rate", "2/hour", raising=False)
+
+    respostas = [enviar(api_tecnico, ordem).status_code for _ in range(3)]
+
+    assert respostas == [201, 201, 429]

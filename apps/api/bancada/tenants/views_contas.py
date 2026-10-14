@@ -12,10 +12,11 @@ from rest_framework.views import APIView
 
 from bancada.auditoria.models import Acao
 from bancada.auditoria.registro import origem_do_pedido, registrar
+from bancada.core.autenticacao import token_vencido
 from bancada.plataforma.tasks import avisar_a_plataforma_do_cadastro
-from bancada.tenants import contas
+from bancada.tenants import contas, tentativas
 from bancada.tenants.links import usuario_da_confirmacao, usuario_da_recuperacao
-from bancada.tenants.models import Usuario
+from bancada.tenants.models import Usuario, normalizar_email
 from bancada.tenants.serializers import (
     CadastroSerializer,
     ConfirmacaoDeEmailSerializer,
@@ -32,6 +33,9 @@ EMAIL_JA_EM_USO = {"email": ["Já existe uma conta com esse e-mail."]}
 
 def abrir_sessao(usuario: Usuario) -> dict[str, Any]:
     token, _ = Token.objects.get_or_create(user=usuario)
+    if token_vencido(token):
+        token.delete()
+        token = Token.objects.create(user=usuario)
     return {"token": token.key, "usuario": UsuarioSerializer(usuario).data}
 
 
@@ -47,18 +51,37 @@ class LoginView(RotaPublicaLimitada):
     def post(self, request: Request) -> Response:
         entrada = LoginSerializer(data=request.data)
         entrada.is_valid(raise_exception=True)
+        email = normalizar_email(entrada.validated_data["email"])
 
-        conta = Usuario.pelo_email(entrada.validated_data["email"])
+        if tentativas.bloqueado(email):
+            return Response(
+                {"detail": tentativas.LOGIN_BLOQUEADO},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        conta = Usuario.pelo_email(email)
         usuario = (
             authenticate(username=conta.username, password=entrada.validated_data["password"])
             if conta
             else None
         )
         if usuario is None or not isinstance(usuario, Usuario):
+            tentativas.registrar_falha(email)
+            if conta is not None:
+                registrar(
+                    tenant=conta.tenant,
+                    usuario=conta,
+                    acao=Acao.LOGIN_RECUSADO,
+                    objeto="usuario",
+                    objeto_id=conta.pk,
+                    detalhe=conta.email,
+                    origem=origem_do_pedido(request),
+                )
             return Response(
                 {"detail": "E-mail ou senha inválidos."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        tentativas.esquecer_falhas(email)
         if usuario.tenant is None and not usuario.da_plataforma:
             return Response(
                 {"detail": "Seu usuário não está vinculado a nenhuma assistência."},

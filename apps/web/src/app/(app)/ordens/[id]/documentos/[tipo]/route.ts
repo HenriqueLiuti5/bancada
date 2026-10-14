@@ -1,4 +1,5 @@
 import { lerToken } from "@/lib/sessao";
+import { cabecalhoDoVisitante } from "@/lib/visitante";
 
 const BASE = process.env.API_INTERNAL_URL ?? "http://localhost:8000";
 const DOCUMENTOS = ["comprovante", "recibo"];
@@ -16,7 +17,7 @@ export async function GET(_pedido: Request, contexto: Contexto): Promise<Respons
   let resposta: Response;
   try {
     resposta = await fetch(`${BASE}/api/ordens/${id}/${tipo}/`, {
-      headers: { Authorization: `Token ${token}` },
+      headers: { Authorization: `Token ${token}`, ...(await cabecalhoDoVisitante()) },
       cache: "no-store",
     });
   } catch {

@@ -15,6 +15,9 @@ class MomentoDaFoto(models.TextChoices):
 
 MEGABYTE = 1024 * 1024
 TAMANHO_MAXIMO_EM_BYTES = 10 * MEGABYTE
+MEGAPIXEL = 1_000_000
+PIXELS_NO_MAXIMO = 25 * MEGAPIXEL
+FOTOS_POR_ORDEM_NO_MAXIMO = 30
 LADO_MAXIMO_EM_PIXELS = 1600
 QUALIDADE_DO_JPEG = 82
 FORMATOS_ACEITOS = frozenset({"JPEG", "PNG", "WEBP"})
@@ -32,6 +35,11 @@ class FotoNormalizada(NamedTuple):
     altura: int
 
 
+def cabe_na_memoria(original: Image.Image, lado: int) -> bool:
+    original.draft("RGB", (lado, lado))
+    return original.width * original.height <= PIXELS_NO_MAXIMO
+
+
 def normalizar(enviado: File) -> FotoNormalizada:
     if enviado.size > TAMANHO_MAXIMO_EM_BYTES:
         raise FotoInvalida(f"A imagem passa de {TAMANHO_MAXIMO_EM_BYTES // MEGABYTE} MB.")
@@ -40,6 +48,8 @@ def normalizar(enviado: File) -> FotoNormalizada:
         original = Image.open(cast(IO[bytes], enviado))
         if original.format not in FORMATOS_ACEITOS:
             raise FotoInvalida("Formato não aceito. Envie JPEG, PNG ou WebP.")
+        if not cabe_na_memoria(original, LADO_MAXIMO_EM_PIXELS):
+            raise FotoInvalida(f"A imagem passa de {PIXELS_NO_MAXIMO // MEGAPIXEL} megapixels.")
         visivel = ImageOps.exif_transpose(original).convert("RGB")
     except FotoInvalida:
         raise

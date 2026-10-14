@@ -56,6 +56,30 @@ def test_o_registro_guarda_a_origem_do_acesso(api_tecnico: APIClient, aparelho: 
     assert RegistroDeAuditoria.objects.get().origem == "192.0.2.10"
 
 
+@pytest.mark.django_db
+def test_a_origem_e_o_ultimo_endereco_repassado(api_tecnico: APIClient, aparelho: Aparelho) -> None:
+    api_tecnico.get(
+        f"/api/aparelhos/{aparelho.pk}/senha/",
+        REMOTE_ADDR="192.0.2.10",
+        HTTP_X_FORWARDED_FOR="203.0.113.9, 198.51.100.4",
+    )
+
+    assert RegistroDeAuditoria.objects.get().origem == "198.51.100.4"
+
+
+@pytest.mark.django_db
+def test_endereco_repassado_invalido_fica_com_o_direto(
+    api_tecnico: APIClient, aparelho: Aparelho
+) -> None:
+    api_tecnico.get(
+        f"/api/aparelhos/{aparelho.pk}/senha/",
+        REMOTE_ADDR="192.0.2.10",
+        HTTP_X_FORWARDED_FOR="nao-e-um-endereco",
+    )
+
+    assert RegistroDeAuditoria.objects.get().origem == "192.0.2.10"
+
+
 @pytest.mark.django_db(transaction=False)
 def test_a_trava_do_banco_vale_para_a_auditoria(tenant: Tenant, tecnico: Usuario) -> None:
     RegistroDeAuditoria.objects.create(

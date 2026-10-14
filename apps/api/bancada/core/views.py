@@ -16,7 +16,7 @@ class HealthView(APIView):
         healthy = all(check.ok for check in checks)
         payload = {
             "status": "ok" if healthy else "degraded",
-            "checks": {check.name: {"ok": check.ok, "detail": check.detail} for check in checks},
+            "checks": {check.name: {"ok": check.ok} for check in checks},
         }
         code = status.HTTP_200_OK if healthy else status.HTTP_503_SERVICE_UNAVAILABLE
         return Response(payload, status=code)

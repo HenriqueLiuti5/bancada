@@ -105,3 +105,8 @@ Security de todo o resto (ADR 0009), então uma assistência nunca enxerga o ras
 
 Marcar a hora do último acesso direto no aparelho, em vez de uma tabela de registros, guardaria
 apenas o último acesso — que é justamente a informação que menos importa numa investigação.
+
+## Atualização: a origem é o endereço do visitante
+
+A origem deixou de ser o `REMOTE_ADDR`, que era o endereço do container do Next, e passou a ser o
+último valor do `X-Forwarded-For` que o Next repassa (ADR 0029).

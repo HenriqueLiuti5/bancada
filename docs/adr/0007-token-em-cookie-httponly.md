@@ -53,3 +53,8 @@ lançando um sinal, e as ações tinham `try/catch` em volta da chamada à API: 
 como se fosse erro, e quem estava com a sessão vencida via "Não foi possível falar com o servidor"
 em vez de ir para o login. Todo `catch` passa por `mensagemDaApi`, que agora devolve esses sinais
 ao Next com `unstable_rethrow` antes de transformar qualquer coisa em mensagem.
+
+## Atualização: o token passou a vencer
+
+O token agora vale 30 dias a partir de quando foi criado, o mesmo prazo do cookie, e o login seguinte
+cria um token novo (ADR 0029). A revogação pelo `logout` continua igual.

@@ -1,4 +1,5 @@
 import type { Logo } from "@/lib/tipos";
+import { cabecalhoDoVisitante } from "@/lib/visitante";
 
 const BASE = process.env.API_INTERNAL_URL ?? "http://localhost:8000";
 
@@ -44,6 +45,7 @@ export async function buscarAcompanhamento(token: string): Promise<ResultadoPubl
   let resposta: Response;
   try {
     resposta = await fetch(`${BASE}/api/publico/os/${encodeURIComponent(token)}/`, {
+      headers: await cabecalhoDoVisitante(),
       cache: "no-store",
     });
   } catch {

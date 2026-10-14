@@ -1,3 +1,4 @@
+import ipaddress
 from typing import Any
 
 from rest_framework.request import Request
@@ -27,9 +28,17 @@ def registrar(
     )
 
 
+def _endereco_valido(valor: str) -> str | None:
+    try:
+        return str(ipaddress.ip_address(valor.strip()))
+    except ValueError:
+        return None
+
+
 def origem_do_pedido(request: Request) -> str | None:
-    endereco: Any = request.META.get("REMOTE_ADDR")
-    return endereco or None
+    encaminhado: str = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    direto: str = request.META.get("REMOTE_ADDR") or ""
+    return _endereco_valido(encaminhado.split(",")[-1]) or _endereco_valido(direto)
 
 
 def _registrar_no_aparelho(

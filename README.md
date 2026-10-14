@@ -91,7 +91,8 @@ Each person signs in with their own email and a role — owner, technician or fr
 manages the team and the shop details the customer sees; technicians see the unlock code;
 front desk staff open orders and serve customers, but do not see the code or delete anything. An
 order's status only changes through the state machine, and the history cannot be deleted through
-the API.
+the API. A session lasts 30 days. Ten wrong passwords lock that email out for an hour, and each
+wrong password for an existing account is recorded in the audit log.
 
 The device unlock code is the most sensitive data in the system and gets its own treatment: it is
 encrypted, only technicians can see it, every lookup is recorded in the audit log — denied ones
@@ -228,7 +229,9 @@ Available services:
 
 The database and Redis ports are 5433 and 6380 on the host so they do not clash with local
 installs on the default ports. Inside the Docker network the services stay on ports 5432 and
-6379. To change them, set `POSTGRES_HOST_PORT` and `REDIS_HOST_PORT` in `.env`.
+6379. To change them, set `POSTGRES_HOST_PORT` and `REDIS_HOST_PORT` in `.env`. Every port,
+including the site's and the API's, answers only on this computer (127.0.0.1), not on the local
+network.
 
 ## Commands
 

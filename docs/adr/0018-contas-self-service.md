@@ -134,3 +134,9 @@ continua existindo, resolve o funcionário que não consegue receber e-mail.
 Confirmar o e-mail antes de liberar o uso reduziria contas com e-mail digitado errado, mas colocaria
 uma barreira exatamente no primeiro minuto, que é quando a assistência decide se o sistema vale a
 pena.
+
+## Atualização: o último valor do cabeçalho e o bloqueio por e-mail
+
+O Next passou a repassar o último valor do `X-Forwarded-For`, e não o primeiro, que é escrito pelo
+próprio visitante, e o Django lê a mesma posição. Além do limite por endereço, um e-mail fica
+bloqueado por uma hora depois de 10 senhas erradas, venha de onde vier a tentativa (ADR 0029).

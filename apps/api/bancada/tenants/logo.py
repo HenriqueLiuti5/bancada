@@ -8,7 +8,14 @@ from django.core.signing import BadSignature, TimestampSigner
 from django.db import transaction
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from bancada.ordens.fotos import FORMATOS_ACEITOS, MEGABYTE, TAMANHO_MAXIMO_EM_BYTES
+from bancada.ordens.fotos import (
+    FORMATOS_ACEITOS,
+    MEGABYTE,
+    MEGAPIXEL,
+    PIXELS_NO_MAXIMO,
+    TAMANHO_MAXIMO_EM_BYTES,
+    cabe_na_memoria,
+)
 from bancada.tenants.models import Tenant
 
 LADO_MAXIMO_EM_PIXELS = 512
@@ -28,6 +35,8 @@ def normalizar(enviado: File) -> ContentFile:
         original = Image.open(cast(IO[bytes], enviado))
         if original.format not in FORMATOS_ACEITOS:
             raise LogoInvalida("Formato não aceito. Envie PNG, JPEG ou WebP.")
+        if not cabe_na_memoria(original, LADO_MAXIMO_EM_PIXELS):
+            raise LogoInvalida(f"A imagem passa de {PIXELS_NO_MAXIMO // MEGAPIXEL} megapixels.")
         visivel = ImageOps.exif_transpose(original).convert("RGBA")
     except LogoInvalida:
         raise

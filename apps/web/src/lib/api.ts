@@ -1,6 +1,6 @@
-import { headers } from "next/headers";
 import { redirect, unstable_rethrow } from "next/navigation";
 import { SESSAO_EXPIRADA, lerToken, limparTokenSePermitido } from "@/lib/sessao";
+import { cabecalhoDoVisitante } from "@/lib/visitante";
 
 const BASE = process.env.API_INTERNAL_URL ?? "http://localhost:8000";
 
@@ -50,18 +50,12 @@ export function mensagemDaApi(erro: unknown, alternativa: string): string {
   return primeiroTexto(corpo) ?? alternativa;
 }
 
-async function enderecoDoVisitante(): Promise<string | null> {
-  const recebidos = await headers();
-  const encaminhado = recebidos.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return encaminhado || recebidos.get("x-real-ip");
-}
-
 export async function chamarApi<T>(caminho: string, opcoes: Opcoes = {}): Promise<T> {
   const { metodo = "GET", corpo, autenticado = true } = opcoes;
-  const cabecalhos: Record<string, string> = { "Content-Type": "application/json" };
-
-  const visitante = await enderecoDoVisitante();
-  if (visitante) cabecalhos["X-Forwarded-For"] = visitante;
+  const cabecalhos: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(await cabecalhoDoVisitante()),
+  };
 
   if (autenticado) {
     const token = await lerToken();
@@ -85,7 +79,7 @@ export async function enviarArquivo<T>(caminho: string, dados: FormData): Promis
 
   const resposta = await fetch(`${BASE}${caminho}`, {
     method: "POST",
-    headers: { Authorization: `Token ${token}` },
+    headers: { Authorization: `Token ${token}`, ...(await cabecalhoDoVisitante()) },
     body: dados,
     cache: "no-store",
   });

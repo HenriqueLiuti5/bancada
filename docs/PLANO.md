@@ -80,6 +80,7 @@ o operador.
 | 4G | Revisão do design de todo o site | concluída |
 | 4H | Página inicial e demonstração da página do cliente | concluída |
 | 4I | Correção do cadastro e prazo prometido no dia a dia | concluída |
+| 4J | Revisão de segurança antes da publicação | concluída |
 | 4F | Publicação: domínio, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 6 | WhatsApp, relatórios além do painel, estoque de peças | |
@@ -91,8 +92,9 @@ A Fase 4 termina quando uma assistência que nunca falou com a gente conseguir s
 montar a equipe, aprender a usar o sistema e assinar, tudo sozinha.
 
 A publicação, Fase 4F, é a última do lançamento: o sistema vai para o ar depois de todas as outras.
-A 4G, de design, a 4H, da página inicial, e a 4I, da correção do cadastro e dos prazos, entraram
-no plano depois da 4F, por isso têm as letras seguintes, mas vêm antes dela.
+A 4G, de design, a 4H, da página inicial, a 4I, da correção do cadastro e dos prazos, e a 4J, da
+revisão de segurança, entraram no plano depois da 4F, por isso têm as letras seguintes, mas vêm antes
+dela.
 
 Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
 O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
@@ -318,18 +320,41 @@ a ordem foi aberta, não quando precisa ficar pronta. Na entrega:
   dias" com ícone vermelho, e a data nos demais casos. Ordem encerrada ou sem prazo mostra um traço.
 - A imagem da lista na página inicial foi refeita com a coluna nova (ADR 0028).
 
+### 4J — Revisão de segurança
+
+O sistema foi comparado com uma lista de 50 itens de segurança para projetos Django. A maior parte
+já estava coberta pelas fases anteriores; o que faltava e não dependia do servidor foi corrigido.
+Na entrega:
+
+- Fora do desenvolvimento, a API não sobe sem uma chave do Django própria e longa.
+- Dez senhas erradas bloqueiam o e-mail por uma hora, e cada senha errada fica na auditoria.
+- O token de login vence em 30 dias, como o cookie.
+- O Next repassa à API o endereço real de quem acessa em todas as rotas, e a API e a auditoria o
+  leem do mesmo jeito.
+- Imagens acima de 25 megapixels são recusadas antes de abrir, cada ordem aceita até 30 fotos e
+  cada pessoa envia até 120 por hora.
+- O Next manda os cabeçalhos de segurança do navegador e o HSTS quando o acesso é por HTTPS.
+- Saíram o pacote de CORS, o `PUT` de clientes e aparelhos e a mensagem de erro do health check, e
+  as portas locais respondem só no próprio computador.
+- O Next foi atualizado para uma versão sem falhas conhecidas, e um workflow confere as
+  dependências toda semana (ADR 0029).
+
 ### 4F — Publicação
 
 - Domínio e HTTPS.
 - Servidor com entrega contínua: o que passa na CI na `main` vai para produção.
-- Backup diário do banco, das fotos e das logos, com restauração testada.
+- Backup diário do banco, das fotos e das logos, com restauração testada. A chave de criptografia
+  fica guardada longe do backup (ADR 0029).
 - E-mail por provedor com domínio verificado (ADR 0011) e armazenamento das fotos em produção
   (ADR 0010).
-- Endereço de quem acessa lido corretamente atrás do proxy, na auditoria e nos limites de acesso
-  (ADRs 0013 e 0018). Hoje a página de acompanhamento e as rotas de fotos e de logos nem repassam
-  esse endereço à API, então os limites delas contam todos os visitantes como um só.
+- Proxy na frente do Next que acrescente o endereço real ao fim do `X-Forwarded-For`, ou que o
+  substitua, com API, banco e Redis fora da internet. O Next e a API já leem o último valor
+  (ADR 0029).
+- Painel administrativo do Django acessível só por túnel SSH, sem rota pública (ADR 0029).
+- Dois papéis no banco: um dono das tabelas, para as migrações, e outro só com leitura e escrita,
+  para a aplicação, sem permissão de criar bancos (ADR 0029).
+- Imagens de produção que não rodem como root.
 - Trava de instância única do Celery Beat (ADR 0013).
-- Validade e troca do token de login, que hoje não expira (ADR 0007).
 - Monitoramento de erros e de disponibilidade.
 - Asaas em produção.
 - Texto definitivo dos termos de uso e da política de privacidade, deixando claro que o Bancada é

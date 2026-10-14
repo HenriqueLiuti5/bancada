@@ -45,7 +45,7 @@ jobs:
       POSTGRES_APP_USER: bancada_app
       POSTGRES_APP_PASSWORD: bancada
       REDIS_URL: redis://localhost:6379/0
-      DJANGO_SECRET_KEY: chave-de-teste
+      DJANGO_SECRET_KEY: chave-de-teste-da-integracao-continua-com-mais-de-cinquenta-caracteres
       DJANGO_DEBUG: "0"
       BANCADA_ENCRYPTION_KEY: "_yZVy9WCAy0D0a-lmL_rbF6v-Aq1aUQhNa-oR5d2JIo="
 

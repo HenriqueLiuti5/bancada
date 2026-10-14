@@ -23,6 +23,7 @@ class ClienteViewSet(ViewSetDoTenant):
     serializer_class = ClienteSerializer
     queryset = Cliente.objects.prefetch_related("aparelhos")
     permission_classes = [*ViewSetDoTenant.permission_classes, ApagarSoDonoOuTecnico]
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_queryset(self) -> QuerySet[Cliente]:
         consulta = super().get_queryset()
@@ -41,6 +42,7 @@ class AparelhoViewSet(ViewSetDoTenant):
     serializer_class = AparelhoSerializer
     queryset = Aparelho.objects.select_related("cliente")
     permission_classes = [*ViewSetDoTenant.permission_classes, ApagarSoDonoOuTecnico]
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_queryset(self) -> QuerySet[Aparelho]:
         consulta = super().get_queryset()

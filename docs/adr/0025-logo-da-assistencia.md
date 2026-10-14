@@ -104,3 +104,8 @@ Bancada.
 
 **Mostrar sempre o nome da loja.** Descartado pelo motivo acima: "Matriz" não acrescenta nada para
 quem tem uma loja só.
+
+## Atualização: o endereço de quem pede
+
+As rotas de fotos e de logos passaram a repassar à API o endereço de quem pede, então o limite de
+240 por minuto conta cada visitante separadamente (ADR 0029).
