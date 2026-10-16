@@ -2,7 +2,6 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { InvoiceIcon, PlusIcon, ReceiptIcon, TrashIcon } from "@/componentes/icones";
-import { Cartao } from "@/componentes/ui/Cartao";
 import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Mensagem } from "@/componentes/ui/Mensagem";
@@ -159,21 +158,24 @@ export function ItensDoOrcamento({ ordem }: { ordem: Ordem }) {
 }
 
 export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
-  if (ordem.itens.length === 0 && !ordem.orcamento_editavel) return null;
+  if (ordem.itens.length === 0 && !ordem.orcamento_editavel) {
+    return (
+      <EstadoVazio
+        icone={ReceiptIcon}
+        titulo="Sem orçamento"
+        descricao="Esta ordem não teve peças nem serviços orçados."
+      />
+    );
+  }
 
   return (
-    <Cartao
-      tour="orcamento"
-      titulo="Orçamento"
-      icone={ReceiptIcon}
-      descricao={
-        ordem.orcamento_editavel
-          ? "O cliente vê o orçamento quando você o envia. Depois disso, ele não muda mais."
-          : undefined
-      }
-      semEspaco
-    >
+    <>
+      {ordem.orcamento_editavel && (
+        <p className="border-b border-borda px-5 py-3 text-[13px] text-texto-apagado">
+          O cliente vê o orçamento quando você o envia. Depois disso, ele não muda mais.
+        </p>
+      )}
       <ItensDoOrcamento ordem={ordem} />
-    </Cartao>
+    </>
   );
 }

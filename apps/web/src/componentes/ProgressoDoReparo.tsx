@@ -32,7 +32,7 @@ const STATUS_SEM_REPARO = ["reprovado", "devolvido_sem_reparo"];
 
 const COLUNAS: Record<number, string> = { 4: "grid-cols-4", 5: "grid-cols-5" };
 
-function caminhoDo(status: string): Passo[] {
+export function caminhoDo(status: string): Passo[] {
   return STATUS_SEM_REPARO.includes(status) ? CAMINHO_SEM_REPARO : CAMINHO_DO_REPARO;
 }
 

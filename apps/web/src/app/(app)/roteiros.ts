@@ -86,46 +86,22 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
   ],
   ordem: [
     {
-      alvo: "proximo-passo",
-      titulo: "Próximo passo",
+      alvo: "acoes",
+      titulo: "O que fazer agora",
       texto:
-        "Aqui aparece o que fazer agora nesta ordem, com o botão certo para cada etapa. O cliente é avisado nas que interessam a ele, como orçamento pronto e aparelho pronto para retirada. Na entrega, você registra quanto cobrou e como o cliente pagou.",
+        "A barra mostra em que etapa a ordem está, e os botões levam à seguinte. O cliente é avisado nas etapas que interessam a ele, como orçamento pronto e aparelho pronto para retirada. Na entrega, você registra quanto cobrou e como ele pagou.",
     },
     {
-      alvo: "link-do-cliente",
-      titulo: "Link do cliente",
+      alvo: "abas",
+      titulo: "Tudo da ordem em abas",
       texto:
-        "Mande este link pelo WhatsApp. O cliente acompanha o reparo, vê o orçamento e as fotos sem precisar criar conta.",
+        "No histórico fica o que aconteceu, com quem fez e quando. No orçamento, as peças, os serviços e o pagamento. Nas fotos, o estado em que o aparelho chegou. Nas anotações, o diagnóstico e o laudo.",
     },
     {
-      alvo: "documentos",
-      titulo: "Comprovante",
+      alvo: "ficha",
+      titulo: "Dados da ordem",
       texto:
-        "Imprima o comprovante de entrada para o cliente assinar no balcão. Quando o aparelho fica pronto, aparece aqui também o recibo com a garantia.",
-    },
-    {
-      alvo: "orcamento",
-      titulo: "Orçamento",
-      texto:
-        "Monte o orçamento item por item, com peças e serviços. Ele trava quando é enviado ao cliente, e na aprovação você desmarca o que ele recusou.",
-    },
-    {
-      alvo: "pagamento",
-      titulo: "Pagamento",
-      texto:
-        "O que foi cobrado e como o cliente pagou. Se ficou alguma parte para depois, registre aqui quando ele pagar o resto.",
-    },
-    {
-      alvo: "fotos",
-      titulo: "Fotos do aparelho",
-      texto:
-        "Fotografe o aparelho na entrada. Riscos e trincas registrados evitam discussão na hora da entrega. Clique no título para abrir ou fechar esta parte.",
-    },
-    {
-      alvo: "detalhes",
-      titulo: "Anotações do reparo",
-      texto:
-        "O técnico responsável, o prazo combinado, o diagnóstico, que só a equipe vê, e o laudo, que sai no recibo. Fica fechado até você precisar.",
+        "Cliente, aparelho e defeito à mão, com o WhatsApp do cliente. Técnico e prazo mudam aqui mesmo; para corrigir o cliente ou o aparelho, use Editar.",
     },
     {
       alvo: "senha",
@@ -135,10 +111,16 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
         "A senha só aparece quando você clica para ver, e cada consulta fica registrada. Se ela estiver errada, corrija ali mesmo. Ela é apagada sozinha sete dias depois da entrega.",
     },
     {
-      alvo: "historico",
-      titulo: "Histórico",
+      alvo: "link-do-cliente",
+      titulo: "Link do cliente",
       texto:
-        "Cada mudança de status fica registrada com quem fez e quando, e não pode ser apagada. É o que resolve qualquer dúvida depois.",
+        "O cliente acompanha o reparo, vê o orçamento e as fotos por este link, sem criar conta. Copie ou veja como ele aparece para o cliente.",
+    },
+    {
+      alvo: "documentos",
+      titulo: "Comprovante",
+      texto:
+        "Imprima o comprovante de entrada para o cliente assinar no balcão. Quando o aparelho fica pronto, aparece aqui também o recibo com a garantia.",
     },
   ],
   painel: [

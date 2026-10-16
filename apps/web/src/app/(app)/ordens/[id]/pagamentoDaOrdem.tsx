@@ -1,8 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState } from "react";
 import { CheckCircleIcon, TrashIcon, WalletIcon } from "@/componentes/icones";
-import { Cartao } from "@/componentes/ui/Cartao";
 import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
@@ -77,21 +76,20 @@ function LinhaDoPagamento({
   );
 }
 
-function NovoRecebimento({ ordem }: { ordem: Ordem }) {
+export function NovoRecebimento({
+  id,
+  saldo,
+  aoCancelar,
+}: {
+  id: number;
+  saldo: string;
+  aoCancelar: () => void;
+}) {
   const [estado, acao, enviando] = useActionState(receberPagamento, INICIAL);
-  const formulario = useRef<HTMLFormElement>(null);
-  const saldo = Number(ordem.saldo_a_receber).toFixed(2).replace(".", ",");
-
-  useEffect(() => {
-    if (estado.registrado) formulario.current?.reset();
-  }, [estado]);
 
   return (
-    <form ref={formulario} action={acao} className="space-y-3 border-t border-borda p-5">
-      <input type="hidden" name="id" value={ordem.id} />
-      <p className="text-[13px] text-texto-apagado">
-        Quando o cliente pagar o que falta, registre aqui.
-      </p>
+    <form action={acao} className="space-y-3">
+      <input type="hidden" name="id" value={id} />
       <div className="flex flex-wrap items-end gap-2">
         <label className="space-y-1">
           <span className="block text-xs font-semibold text-texto-suave">Forma</span>
@@ -109,20 +107,25 @@ function NovoRecebimento({ ordem }: { ordem: Ordem }) {
             <MarcaDeObrigatorio />
           </span>
           <input
-            key={saldo}
             name="valor"
             inputMode="decimal"
             autoComplete="off"
             required
-            defaultValue={saldo}
+            autoFocus
+            defaultValue={Number(saldo).toFixed(2).replace(".", ",")}
             className={juntar(campo, "tabular-nums")}
           />
         </label>
-        <button type="submit" disabled={enviando} className={botao("secundario")}>
-          {enviando ? "Registrando..." : "Registrar pagamento"}
-        </button>
       </div>
       {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
+      <div className="flex flex-wrap gap-2">
+        <button type="submit" disabled={enviando} className={juntar(botao("primario"), "max-sm:w-full")}>
+          {enviando ? "Registrando..." : "Registrar pagamento"}
+        </button>
+        <button type="button" onClick={aoCancelar} className={juntar(botao("fantasma"), "max-sm:w-full")}>
+          Cancelar
+        </button>
+      </div>
     </form>
   );
 }
@@ -134,7 +137,11 @@ export function PagamentoDaOrdem({ ordem, podeRemover }: { ordem: Ordem; podeRem
   const saldo = Number(ordem.saldo_a_receber);
 
   return (
-    <Cartao tour="pagamento" titulo="Pagamento" icone={WalletIcon} semEspaco>
+    <section className="border-t border-borda">
+      <h3 className="flex items-center gap-2 px-5 pt-4 pb-1 text-sm font-semibold">
+        <WalletIcon size={18} className="text-icone" />
+        Pagamento
+      </h3>
       <ul className="divide-y divide-borda">
         {temDesconto && (
           <>
@@ -170,8 +177,6 @@ export function PagamentoDaOrdem({ ordem, podeRemover }: { ordem: Ordem; podeRem
           </p>
         )}
       </div>
-
-      {saldo > 0 && <NovoRecebimento ordem={ordem} />}
-    </Cartao>
+    </section>
   );
 }

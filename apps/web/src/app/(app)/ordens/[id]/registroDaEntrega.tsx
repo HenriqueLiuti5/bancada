@@ -90,7 +90,15 @@ function LinhaDePagamento({
   );
 }
 
-export function RegistroDaEntrega({ id, totalAprovado }: { id: number; totalAprovado: string }) {
+export function RegistroDaEntrega({
+  id,
+  totalAprovado,
+  aoCancelar,
+}: {
+  id: number;
+  totalAprovado: string;
+  aoCancelar: () => void;
+}) {
   const [estado, acao, enviando] = useActionState(entregar, INICIAL);
   const aprovado = Math.round(Number(totalAprovado) * 100);
   const valorInicial = centavosParaCampo(aprovado);
@@ -196,13 +204,18 @@ export function RegistroDaEntrega({ id, totalAprovado }: { id: number; totalApro
       {problema && <Mensagem tipo="erro">{problema}</Mensagem>}
       {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
 
-      <button
-        type="submit"
-        disabled={enviando || problema !== null}
-        className={juntar(botao("primario"), "w-full")}
-      >
-        {enviando ? "Registrando..." : "Confirmar entrega"}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="submit"
+          disabled={enviando || problema !== null}
+          className={juntar(botao("primario"), "max-sm:w-full")}
+        >
+          {enviando ? "Registrando..." : "Confirmar entrega"}
+        </button>
+        <button type="button" onClick={aoCancelar} className={juntar(botao("fantasma"), "max-sm:w-full")}>
+          Cancelar
+        </button>
+      </div>
     </form>
   );
 }

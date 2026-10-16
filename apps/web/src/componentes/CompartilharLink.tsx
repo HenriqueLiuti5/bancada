@@ -8,14 +8,13 @@ export type MeioDeCompartilhamento = "whatsapp" | "copia";
 
 type Props = {
   url: string;
-  mensagem: string;
+  mensagem?: string;
   rotuloDaPrevia?: string;
   aoCompartilhar?: (meio: MeioDeCompartilhamento) => Promise<void>;
 };
 
 export function CompartilharLink({ url, mensagem, rotuloDaPrevia, aoCompartilhar }: Props) {
   const { copiado, copiar } = useCopiar();
-  const whatsapp = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
 
   function avisar(meio: MeioDeCompartilhamento) {
     void aoCompartilhar?.(meio).catch(() => undefined);
@@ -32,17 +31,19 @@ export function CompartilharLink({ url, mensagem, rotuloDaPrevia, aoCompartilhar
         {url}
       </p>
 
-      <div className="grid grid-cols-2 gap-2">
-        <a
-          href={whatsapp}
-          target="_blank"
-          rel="noreferrer"
-          onClick={() => avisar("whatsapp")}
-          className={botao("primario", "sm")}
-        >
-          <WhatsappLogoIcon size={15} />
-          WhatsApp
-        </a>
+      <div className={juntar("grid gap-2", mensagem ? "grid-cols-2" : "grid-cols-1")}>
+        {mensagem && (
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(mensagem)}`}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => avisar("whatsapp")}
+            className={botao("primario", "sm")}
+          >
+            <WhatsappLogoIcon size={15} />
+            WhatsApp
+          </a>
+        )}
         <button type="button" onClick={copiarLink} className={botao("secundario", "sm")}>
           {copiado ? <CheckIcon size={15} /> : <CopyIcon size={15} />}
           {copiado ? "Copiado" : "Copiar"}
@@ -52,7 +53,7 @@ export function CompartilharLink({ url, mensagem, rotuloDaPrevia, aoCompartilhar
             href={url}
             target="_blank"
             rel="noreferrer"
-            className={juntar(botao("fantasma", "sm"), "col-span-2")}
+            className={juntar(botao("fantasma", "sm"), mensagem && "col-span-2")}
           >
             <ArrowSquareOutIcon size={15} />
             {rotuloDaPrevia}

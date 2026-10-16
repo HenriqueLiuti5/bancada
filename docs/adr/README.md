@@ -36,3 +36,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0028](0028-prazo-prometido-no-dia-a-dia.md) | Prazo prometido no dia a dia |
 | [0029](0029-revisao-de-seguranca-antes-da-publicacao.md) | Revisão de segurança antes da publicação |
 | [0030](0030-conferencia-dos-cadastros-e-tela-da-ordem-guiada.md) | Conferência dos cadastros e tela da ordem guiada |
+| [0031](0031-tela-da-ordem-no-modelo-de-chamado.md) | Tela da ordem no modelo de chamado |

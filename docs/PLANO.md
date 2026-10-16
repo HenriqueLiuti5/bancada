@@ -82,6 +82,7 @@ o operador.
 | 4I | Correção do cadastro e prazo prometido no dia a dia | concluída |
 | 4J | Revisão de segurança antes da publicação | concluída |
 | 4K | Conferência dos cadastros e tela da ordem guiada | concluída |
+| 4L | Tela da ordem no modelo de chamado | concluída |
 | 4F | Publicação: domínio, termos, backup e monitoramento | |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 6 | WhatsApp, relatórios além do painel, estoque de peças | |
@@ -94,8 +95,9 @@ montar a equipe, aprender a usar o sistema e assinar, tudo sozinha.
 
 A publicação, Fase 4F, é a última do lançamento: o sistema vai para o ar depois de todas as outras.
 A 4G, de design, a 4H, da página inicial, a 4I, da correção do cadastro e dos prazos, a 4J, da
-revisão de segurança, e a 4K, da conferência dos cadastros e da tela da ordem, entraram no plano
-depois da 4F, por isso têm as letras seguintes, mas vêm antes dela.
+revisão de segurança, a 4K, da conferência dos cadastros e da tela da ordem, e a 4L, da tela da
+ordem no modelo de chamado, entraram no plano depois da 4F, por isso têm as letras seguintes, mas
+vêm antes dela.
 
 Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
 O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
@@ -360,6 +362,24 @@ o WhatsApp dele à mão para dúvidas. Na entrega:
   e no menu Ajuda, como "Entrar em contato com suporte".
 - Perguntas frequentes e tela Assinatura com textos para leigos, explicando o que é o Asaas, e tela
   Equipe com o que cada papel pode fazer (ADR 0030).
+
+### 4L — Tela da ordem no modelo de chamado
+
+A fase saiu do pedido de deixar a tela da ordem simples, inspirada em como o Milvus, sistema de
+chamados de TI, organiza o atendimento de um ticket: poucos botões para andar com o chamado, um
+histórico com tudo o que aconteceu e os dados ao lado. Na entrega:
+
+- Cartão de ação no alto, com uma barra fina de etapas, o que fazer em uma frase e os botões da
+  etapa, com o verde sempre primeiro. Aprovar um orçamento com mais de um item, aguardar uma peça,
+  entregar e receber o que faltava abrem um formulário curto no próprio cartão, com Confirmar e
+  Cancelar; as outras ações continuam em um clique.
+- Ficha "Dados da ordem" ao lado, ou logo abaixo do cartão no celular: cliente com WhatsApp,
+  aparelho, defeito, técnico e prazo, que mudam ali mesmo, senha e link do cliente.
+- Histórico, Orçamento, Fotos e Anotações em abas, abrindo na que a etapa pede.
+- Histórico no estilo do log de um chamado: o mais recente primeiro, com quem fez, a ação e a hora.
+  A abertura mostra o defeito, a entrega mostra o que foi pago, e os pagamentos posteriores ganham
+  linha própria.
+- Tour da tela refeito para as partes novas (ADR 0031).
 
 ### 4F — Publicação
 

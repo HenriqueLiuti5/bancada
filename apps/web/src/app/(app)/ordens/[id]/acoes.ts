@@ -8,7 +8,8 @@ export type EstadoTransicao = { erro?: string };
 export type EstadoDaFoto = { erro?: string; enviada?: boolean };
 export type EstadoDaSenha = { senha?: string; erro?: string; revelada?: boolean };
 export type EstadoDaCorrecaoDaSenha = { senha?: string; erro?: string };
-export type EstadoDosDetalhes = { erro?: string; salvo?: boolean };
+export type EstadoDasAnotacoes = { erro?: string; salvo?: boolean };
+export type EstadoDaFicha = { erro?: string; salvo?: boolean };
 export type EstadoDoItem = { erro?: string; adicionado?: boolean };
 export type EstadoDaEntrega = { erro?: string };
 export type EstadoDoRecebimento = { erro?: string; registrado?: boolean };
@@ -136,17 +137,12 @@ export async function corrigirSenhaDoAparelho(
   return { senha };
 }
 
-export async function salvarDetalhes(
-  _anterior: EstadoDosDetalhes,
+export async function salvarAnotacoes(
+  _anterior: EstadoDasAnotacoes,
   dados: FormData,
-): Promise<EstadoDosDetalhes> {
+): Promise<EstadoDasAnotacoes> {
   const id = String(dados.get("id"));
-  const tecnico = String(dados.get("tecnico") ?? "");
-  const prazo = String(dados.get("prometida_para") ?? "");
-
   const corpo = {
-    tecnico: tecnico ? Number(tecnico) : null,
-    prometida_para: prazo || null,
     diagnostico: String(dados.get("diagnostico") ?? ""),
     laudo: String(dados.get("laudo") ?? ""),
   };
@@ -154,10 +150,36 @@ export async function salvarDetalhes(
   try {
     await chamarApi(`/api/ordens/${id}/`, { metodo: "PATCH", corpo });
   } catch (erro) {
-    return { erro: mensagemDaApi(erro, "Não foi possível salvar os detalhes.") };
+    return { erro: mensagemDaApi(erro, "Não foi possível salvar as anotações.") };
   }
 
   revalidatePath(`/ordens/${id}`);
+  return { salvo: true };
+}
+
+function valorDaFicha(campo: string, digitado: string): number | string | null {
+  if (campo === "tecnico") return digitado ? Number(digitado) : null;
+  return digitado || null;
+}
+
+export async function salvarNaFicha(
+  _anterior: EstadoDaFicha,
+  dados: FormData,
+): Promise<EstadoDaFicha> {
+  const id = String(dados.get("id"));
+  const campo = String(dados.get("campo"));
+  if (campo !== "tecnico" && campo !== "prometida_para") return { erro: "Campo desconhecido." };
+
+  const valor = valorDaFicha(campo, String(dados.get("valor") ?? ""));
+
+  try {
+    await chamarApi(`/api/ordens/${id}/`, { metodo: "PATCH", corpo: { [campo]: valor } });
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível salvar.") };
+  }
+
+  revalidatePath(`/ordens/${id}`);
+  revalidatePath("/ordens");
   return { salvo: true };
 }
 

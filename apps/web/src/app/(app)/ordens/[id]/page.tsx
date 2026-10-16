@@ -1,43 +1,26 @@
-import Link from "next/link";
-import { CompartilharLink } from "@/componentes/CompartilharLink";
 import {
-  CalendarDotsIcon,
   CameraIcon,
   ClockCounterClockwiseIcon,
-  DeviceMobileIcon,
-  EnvelopeSimpleIcon,
   FileTextIcon,
-  HashIcon,
-  InfoIcon,
-  LinkSimpleIcon,
   NotePencilIcon,
-  PasswordIcon,
-  PencilSimpleIcon,
   ReceiptIcon,
-  UserIcon,
-  WrenchIcon,
-  type Icon,
 } from "@/componentes/icones";
+import { Abas } from "@/componentes/ui/Abas";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
-import { Cartao } from "@/componentes/ui/Cartao";
-import { LinhaDoTempo } from "@/componentes/ui/LinhaDoTempo";
-import { SecaoRecolhivel } from "@/componentes/ui/SecaoRecolhivel";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { chamarApi } from "@/lib/api";
-import { FUSO_HORARIO } from "@/lib/datas";
-import { contagem } from "@/lib/formatos";
-import { emReais } from "@/lib/moeda";
+import { FUSO_HORARIO, hojeEmIso } from "@/lib/datas";
 import type { Ordem, Usuario } from "@/lib/tipos";
 import { gerenciaEquipe, podeApagar, podeVerSenha, usuarioAtual } from "@/lib/usuario";
-import { registrarLinkCompartilhado } from "../../acoes";
 import { Tour } from "../../tour";
-import { DetalhesDoReparo } from "./detalhesDoReparo";
+import { AnotacoesDoReparo } from "./anotacoesDoReparo";
+import { FichaDaOrdem } from "./fichaDaOrdem";
 import { FotosDaOrdem } from "./fotosDaOrdem";
+import { HistoricoDaOrdem } from "./historicoDaOrdem";
 import { OrcamentoDaOrdem } from "./orcamentoDaOrdem";
 import { PagamentoDaOrdem } from "./pagamentoDaOrdem";
-import { ProximoPasso } from "./proximoPasso";
-import { SenhaDoAparelho } from "./senhaDoAparelho";
+import { PainelDaEtapa } from "./painelDaEtapa";
 
 export const dynamic = "force-dynamic";
 
@@ -53,33 +36,10 @@ function formatarMomento(iso: string): string {
   });
 }
 
-function formatarDia(iso: string): string {
-  return new Date(`${iso}T12:00:00`).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    timeZone: FUSO_HORARIO,
-  });
-}
-
-function Propriedade({
-  rotulo,
-  icone: Icone,
-  children,
-}: {
-  rotulo: string;
-  icone: Icon;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-4 py-2.5">
-      <dt className="flex items-center gap-2.5 text-sm text-texto-apagado sm:text-[13px]">
-        <Icone size={16} className="shrink-0" />
-        {rotulo}
-      </dt>
-      <dd className="min-w-0 truncate text-right text-sm font-semibold sm:text-[13px]">{children}</dd>
-    </div>
-  );
+function abaInicial(ordem: Ordem): string {
+  if (ordem.status === "recebido") return "fotos";
+  if (ordem.status === "em_diagnostico" || ordem.status === "orcamento_enviado") return "orcamento";
+  return "historico";
 }
 
 export default async function DetalheDaOrdem({ params }: { params: Promise<{ id: string }> }) {
@@ -92,8 +52,6 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
   const base = process.env.APP_PUBLIC_URL ?? "http://localhost:3000";
   const linkDoCliente = `${base}/os/${ordem.token_publico}`;
-  const ultimoEvento = ordem.eventos.length - 1;
-  const orcamentoForaDoPasso = ordem.status !== "em_diagnostico" && ordem.itens.length > 0;
 
   return (
     <>
@@ -129,149 +87,62 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="min-w-0 space-y-6">
-          <ProximoPasso ordem={ordem} linkDoCliente={linkDoCliente} />
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:grid-rows-[auto_1fr] lg:items-start">
+        <PainelDaEtapa
+          ordem={ordem}
+          linkDoCliente={linkDoCliente}
+          className="min-w-0 lg:col-start-1 lg:row-start-1"
+        />
 
-          {orcamentoForaDoPasso && <OrcamentoDaOrdem ordem={ordem} />}
+        <FichaDaOrdem
+          ordem={ordem}
+          equipe={equipe}
+          linkDoCliente={linkDoCliente}
+          podeVerSenha={podeVerSenha(usuario)}
+          hoje={hojeEmIso()}
+          className="lg:col-start-2 lg:row-span-2 lg:row-start-1"
+        />
 
-          <PagamentoDaOrdem ordem={ordem} podeRemover={gerenciaEquipe(usuario)} />
-
-          <div className="space-y-3">
-            <div id="fotos" className="scroll-mt-20 lg:scroll-mt-6">
-              <SecaoRecolhivel
-                tour="fotos"
-                titulo="Fotos do aparelho"
-                icone={CameraIcon}
-                resumo={ordem.fotos.length > 0 ? contagem(ordem.fotos.length, "foto", "fotos") : undefined}
-                abertaDeInicio={ordem.status === "recebido"}
-              >
+        <Abas
+          tour="abas"
+          inicial={abaInicial(ordem)}
+          className="min-w-0 lg:col-start-1 lg:row-start-2"
+          abas={[
+            {
+              id: "historico",
+              rotulo: "Histórico",
+              icone: <ClockCounterClockwiseIcon size={17} />,
+              conteudo: <HistoricoDaOrdem ordem={ordem} />,
+            },
+            {
+              id: "orcamento",
+              rotulo: "Orçamento",
+              icone: <ReceiptIcon size={17} />,
+              contagem: ordem.itens.length,
+              conteudo: (
+                <>
+                  <OrcamentoDaOrdem ordem={ordem} />
+                  <PagamentoDaOrdem ordem={ordem} podeRemover={gerenciaEquipe(usuario)} />
+                </>
+              ),
+            },
+            {
+              id: "fotos",
+              rotulo: "Fotos",
+              icone: <CameraIcon size={17} />,
+              contagem: ordem.fotos.length,
+              conteudo: (
                 <FotosDaOrdem id={ordem.id} fotos={ordem.fotos} podeApagar={podeApagar(usuario)} />
-              </SecaoRecolhivel>
-            </div>
-
-            <SecaoRecolhivel
-              tour="detalhes"
-              titulo="Anotações do reparo"
-              icone={NotePencilIcon}
-              resumo={ordem.tecnico_nome ? `Técnico: ${ordem.tecnico_nome}` : undefined}
-            >
-              <div className="p-5">
-                <DetalhesDoReparo ordem={ordem} equipe={equipe} />
-              </div>
-            </SecaoRecolhivel>
-
-            <SecaoRecolhivel
-              tour="historico"
-              titulo="Histórico"
-              icone={ClockCounterClockwiseIcon}
-              resumo={contagem(ordem.eventos.length, "registro", "registros")}
-            >
-              <div className="space-y-4 p-5">
-                <p className="text-[13px] text-texto-apagado">
-                  Cada mudança fica registrada com quem fez e quando, e não pode ser apagada.
-                </p>
-                <LinhaDoTempo
-                  etapas={ordem.eventos.map((evento, indice) => ({
-                    chave: evento.id,
-                    status: evento.para_status,
-                    atual: indice === ultimoEvento,
-                    titulo: evento.de_status ? (
-                      <>
-                        <span className="font-medium text-texto-apagado">{evento.de_label} → </span>
-                        {evento.para_label}
-                      </>
-                    ) : (
-                      evento.para_label
-                    ),
-                    detalhes: [formatarMomento(evento.criado_em), evento.usuario, evento.nota]
-                      .filter(Boolean)
-                      .join(" · "),
-                    complemento: evento.aviso && (
-                      <p className="flex items-center gap-1.5 pt-1 text-[13px] text-texto-apagado sm:text-xs">
-                        <EnvelopeSimpleIcon size={14} className="text-destaque" />
-                        Cliente avisado em {evento.aviso.destino}
-                      </p>
-                    ),
-                  }))}
-                />
-              </div>
-            </SecaoRecolhivel>
-          </div>
-        </div>
-
-        <aside className="space-y-6">
-          <Cartao
-            titulo="Propriedades"
-            icone={InfoIcon}
-            acoes={
-              <Link
-                href={`/ordens/${ordem.id}/cliente`}
-                aria-label="Editar cliente e aparelho"
-                className={botao("fantasma", "sm")}
-              >
-                <PencilSimpleIcon size={15} />
-                Editar
-              </Link>
-            }
-          >
-            <dl className="-mt-2.5 divide-y divide-borda">
-              <Propriedade rotulo="Cliente" icone={UserIcon}>
-                {ordem.cliente_nome}
-              </Propriedade>
-              <Propriedade rotulo="Aparelho" icone={DeviceMobileIcon}>
-                {ordem.aparelho_descricao}
-              </Propriedade>
-              <Propriedade rotulo="IMEI" icone={HashIcon}>
-                <span className="tabular-nums">{ordem.imei_mascarado || "—"}</span>
-              </Propriedade>
-              <Propriedade rotulo="Técnico" icone={WrenchIcon}>
-                {ordem.tecnico_nome ?? "—"}
-              </Propriedade>
-              <Propriedade rotulo="Prazo" icone={CalendarDotsIcon}>
-                {ordem.prometida_para ? formatarDia(ordem.prometida_para) : "—"}
-              </Propriedade>
-              <Propriedade
-                rotulo={ordem.orcamento_aprovado ? "Aprovado" : "Orçamento"}
-                icone={ReceiptIcon}
-              >
-                <span className="text-dinheiro tabular-nums">
-                  {emReais(ordem.orcamento_aprovado ? ordem.total_aprovado : ordem.total_orcamento)}
-                </span>
-              </Propriedade>
-              <div className="space-y-1 pt-3">
-                <dt className="text-sm text-texto-apagado sm:text-[13px]">Problema relatado</dt>
-                <dd className="text-sm leading-relaxed whitespace-pre-wrap sm:text-[13px]">
-                  {ordem.problema_relatado}
-                </dd>
-              </div>
-            </dl>
-          </Cartao>
-
-          <Cartao
-            tour="link-do-cliente"
-            titulo="Link do cliente"
-            icone={LinkSimpleIcon}
-            descricao="O cliente acompanha o reparo sem criar conta."
-          >
-            <CompartilharLink
-              url={linkDoCliente}
-              aoCompartilhar={registrarLinkCompartilhado.bind(null, ordem.id)}
-              mensagem={`Olá, ${ordem.cliente_nome.split(" ")[0]}! Acompanhe o reparo do seu ${ordem.aparelho_descricao} por aqui: ${linkDoCliente}`}
-              rotuloDaPrevia="Ver como o cliente vê"
-            />
-          </Cartao>
-
-          <Cartao tour="senha" titulo="Senha de desbloqueio" icone={PasswordIcon}>
-            {podeVerSenha(usuario) ? (
-              <SenhaDoAparelho aparelho={ordem.aparelho} podeCorrigir={!ordem.encerrada} />
-            ) : (
-              <p className="text-sm text-texto-apagado sm:text-[13px]">
-                Só técnicos e o dono podem ver a senha de desbloqueio.
-              </p>
-            )}
-          </Cartao>
-        </aside>
+              ),
+            },
+            {
+              id: "anotacoes",
+              rotulo: "Anotações",
+              icone: <NotePencilIcon size={17} />,
+              conteudo: <AnotacoesDoReparo ordem={ordem} />,
+            },
+          ]}
+        />
       </div>
 
       <Tour nome="ordem" />
