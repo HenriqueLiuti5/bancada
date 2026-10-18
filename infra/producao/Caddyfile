@@ -1,0 +1,11 @@
+# O Caddy pede e renova sozinho o certificado HTTPS do domínio, redireciona HTTP para HTTPS e
+# repassa tudo ao Next.
+#
+# No X-Forwarded-For que chega ao Next vai o endereço real de quem acessa, e não o que o visitante
+# escreveu no próprio pedido: o Caddy só aceita esse cabeçalho de proxies de confiança, e nenhum
+# está configurado. O Next e a API leem o último valor (ADR 0029).
+
+{$DOMINIO} {
+	encode zstd gzip
+	reverse_proxy web:3000
+}

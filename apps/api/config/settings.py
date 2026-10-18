@@ -1,9 +1,12 @@
 import os
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 from celery.schedules import crontab
 from django.core.exceptions import ImproperlyConfigured
+
+from config.monitoramento import iniciar_monitoramento
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -108,6 +111,7 @@ CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TASK_TIME_LIMIT = 300
 CELERY_TASK_SOFT_TIME_LIMIT = 270
 CELERY_TIMEZONE = "America/Sao_Paulo"
+CELERY_BEAT_SCHEDULER = "bancada.core.agendador:AgendadorComTrava"
 CELERY_BEAT_SCHEDULE = {
     "recuperar-avisos-perdidos": {
         "task": "avisos.recuperar_avisos_perdidos",
@@ -191,6 +195,26 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+S3_BUCKET = os.environ.get("S3_BUCKET", "")
+
+STORAGES: dict[str, dict[str, Any]] = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+if S3_BUCKET:
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "bucket_name": S3_BUCKET,
+            "endpoint_url": os.environ.get("S3_ENDPOINT_URL") or None,
+            "region_name": os.environ.get("S3_REGION") or None,
+            "access_key": os.environ.get("S3_ACCESS_KEY_ID", ""),
+            "secret_key": os.environ.get("S3_SECRET_ACCESS_KEY", ""),
+            "addressing_style": os.environ.get("S3_ADDRESSING_STYLE") or None,
+            "default_acl": None,
+        },
+    }
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGGING = {
@@ -212,3 +236,7 @@ LOGGING = {
 AUTH_USER_MODEL = "tenants.Usuario"
 
 BANCADA_ENCRYPTION_KEY = os.environ.get("BANCADA_ENCRYPTION_KEY", "")
+
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+if SENTRY_DSN:
+    iniciar_monitoramento(SENTRY_DSN)

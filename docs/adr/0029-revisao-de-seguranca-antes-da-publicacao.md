@@ -124,3 +124,9 @@ pessoa seguram o abuso até lá.
 **Auditoria das dependências dentro da CI.** Seria mais simples, mas um aviso publicado num domingo
 pararia a entrega de segunda, e, enquanto não houvesse versão corrigida, tudo ficaria parado. No
 workflow separado, a falha aparece no GitHub e chega por e-mail sem travar a entrega.
+
+## Atualização: o que ficou para a 4F
+
+O proxy que escreve o endereço real, o painel administrativo só por túnel SSH, os dois papéis no
+banco, as imagens sem root e o backup sem a chave de criptografia foram feitos na preparação do
+servidor de produção (ADR 0032). A CSP de produção foi conferida no navegador, sem bloqueios.

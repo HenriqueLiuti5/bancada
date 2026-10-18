@@ -83,7 +83,7 @@ o operador.
 | 4J | Revisão de segurança antes da publicação | concluída |
 | 4K | Conferência dos cadastros e tela da ordem guiada | concluída |
 | 4L | Tela da ordem no modelo de chamado | concluída |
-| 4F | Publicação: domínio, termos, backup e monitoramento | |
+| 4F | Publicação: domínio, termos, backup e monitoramento | em andamento |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 6 | WhatsApp, relatórios além do painel, estoque de peças | |
 
@@ -383,25 +383,40 @@ histórico com tudo o que aconteceu e os dados ao lado. Na entrega:
 
 ### 4F — Publicação
 
-- Domínio e HTTPS.
-- Servidor com entrega contínua: o que passa na CI na `main` vai para produção.
-- Backup diário do banco, das fotos e das logos, com restauração testada. A chave de criptografia
-  fica guardada longe do backup (ADR 0029).
-- E-mail por provedor com domínio verificado (ADR 0011) e armazenamento das fotos em produção
-  (ADR 0010).
-- Proxy na frente do Next que acrescente o endereço real ao fim do `X-Forwarded-For`, ou que o
-  substitua, com API, banco e Redis fora da internet. O Next e a API já leem o último valor
-  (ADR 0029).
-- Painel administrativo do Django acessível só por túnel SSH, sem rota pública (ADR 0029).
-- Dois papéis no banco: um dono das tabelas, para as migrações, e outro só com leitura e escrita,
-  para a aplicação, sem permissão de criar bancos (ADR 0029).
-- Imagens de produção que não rodem como root.
+O que não dependia de decisão ficou pronto na preparação do servidor de produção, em
+`infra/producao/` (ADR 0032):
+
+- Servidor inteiro descrito num Compose só, com o Caddy na frente: HTTPS automático e o endereço
+  real de quem acessa no `X-Forwarded-For`, com API, banco e Redis fora da internet.
+- Imagens de produção sem root: a API no gunicorn e o site no servidor `standalone` do Next.
+- Painel administrativo do Django acessível só por túnel SSH, sem rota pública.
+- Três papéis no banco: o superusuário cria o banco e faz o backup, o dono das tabelas roda as
+  migrações e a aplicação só lê e grava. A API não sobe com um papel que passe por cima do RLS.
 - Trava de instância única do Celery Beat (ADR 0013).
-- Monitoramento de erros e de disponibilidade.
+- Backup diário do banco, das fotos e das logos, restaurado num banco de teste a cada cópia e
+  criptografado no envio para fora do servidor, com a restauração testada de ponta a ponta. A chave
+  de criptografia fica longe do backup (ADR 0029).
+- Fotos e logos num armazenamento compatível com S3, quando configurado (ADR 0010).
+- Monitoramento de erros da API, das tarefas e do site, sem dados pessoais, e a rota `/saude` para
+  um serviço de disponibilidade.
+- CSP de produção conferida no navegador, sem bloqueios.
+- Rascunho dos termos de uso e da política de privacidade, deixando claro que o Bancada é o operador
+  dos dados dos clientes finais.
+- Job da CI que monta as imagens de produção e as roda como em produção.
+
+Falta, e depende de decisões ou de contratar serviços:
+
+- Domínio e HTTPS: registrar o domínio e apontá-lo para o servidor.
+- Servidor, e-mail por provedor com domínio verificado (ADR 0011), destino do backup e, se for o
+  caso, armazenamento das fotos e serviço de monitoramento.
 - Asaas em produção.
+- Preço e planos.
+- Texto definitivo dos termos de uso e da política de privacidade, revisado por um advogado, com os
+  dados de quem responde pelo Bancada. A revisão confirma também se é preciso guardar os registros
+  de acesso por 6 meses, como pede o Marco Civil da Internet para empresas.
 - Número do WhatsApp do suporte configurado no servidor, fora do repositório (ADR 0030).
-- Texto definitivo dos termos de uso e da política de privacidade, deixando claro que o Bancada é
-  o operador dos dados dos clientes finais. A página inicial ficou pronta na 4H.
+- Entrega contínua: publicar as imagens montadas pela CI num registro e fazer o servidor buscá-las.
+- Imagens novas da página inicial, com mais qualidade nas telas do sistema.
 - Prévia do link da página inicial conferida no WhatsApp, com o endereço público (ADR 0026).
 - Medição de visitas e cadastros vindos da página inicial, com aviso de cookies se a ferramenta
   escolhida exigir.

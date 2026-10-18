@@ -8,7 +8,8 @@ from bancada.tenants.tasks import (
     enviar_recuperacao_de_senha,
 )
 
-VERSAO_DOS_TERMOS = "2026-09-rascunho"
+# A mesma versão aparece nas páginas dos termos e da privacidade (web/src/lib/textosLegais.ts).
+VERSAO_DOS_TERMOS = "2026-10-rascunho"
 NOME_DA_PRIMEIRA_LOJA = "Matriz"
 
 

@@ -29,7 +29,9 @@ services:
       retries: 10
 
   api:
-    build: ./apps/api
+    build:
+      context: ./apps/api
+      target: desenvolvimento
     env_file: .env
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
@@ -43,7 +45,9 @@ services:
         condition: service_healthy
 
   worker:
-    build: ./apps/api
+    build:
+      context: ./apps/api
+      target: desenvolvimento
     env_file: .env
     command: celery -A config worker --loglevel=info
     volumes:
@@ -55,7 +59,9 @@ services:
         condition: service_healthy
 
   beat:
-    build: ./apps/api
+    build:
+      context: ./apps/api
+      target: desenvolvimento
     env_file: .env
     command: celery -A config beat --loglevel=info --schedule=/tmp/celerybeat-schedule
     volumes:
@@ -67,7 +73,9 @@ services:
         condition: service_healthy
 
   web:
-    build: ./apps/web
+    build:
+      context: ./apps/web
+      target: desenvolvimento
     environment:
       API_INTERNAL_URL: http://api:8000
       APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost:3000}

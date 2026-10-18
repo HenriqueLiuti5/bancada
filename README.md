@@ -5,8 +5,9 @@ customer follows the repair through a public link, without creating an account.
 
 ## Current status
 
-Phases 4A to 4E and 4G to 4I of the self-service launch are done; only publishing (4F) is left. The
-shop opens the order at the counter, looking up the customer by name or phone or registering
+Phases 4A to 4E and 4G to 4L of the self-service launch are done, and so is the server side of
+publishing (4F): the production setup in `infra/producao/` is ready and tested, and what is left
+depends on choosing the domain, the providers and the price. The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the
@@ -131,6 +132,7 @@ the email the customer receives when collecting the device.
 | Interface | Custom palette in color tokens, light by default with optional dark mode, Plus Jakarta Sans font, Phosphor icons |
 | Environment | Docker Compose |
 | CI | GitHub Actions |
+| Production | Docker Compose on a single server, with Caddy for HTTPS, gunicorn and the standalone Next server |
 
 ## Running locally
 
@@ -233,6 +235,32 @@ installs on the default ports. Inside the Docker network the services stay on po
 including the site's and the API's, answers only on this computer (127.0.0.1), not on the local
 network.
 
+## Production
+
+`infra/producao/` puts Bancada on a single Linux server with Docker: Caddy in front, with automatic
+HTTPS, then the Next server, the API on gunicorn, the Celery worker and scheduler, PostgreSQL, Redis
+and a backup service. Only ports 80 and 443 are open to the internet; the Django admin is reached
+through an SSH tunnel. The step-by-step guide, in Portuguese, is in
+[infra/producao/README.md](infra/producao/README.md).
+
+- **Database roles.** The tables belong to a role that only runs migrations; the API, worker and
+  scheduler use a role that can only read and write. The API refuses to start if its role is a
+  superuser, can bypass row-level security, owns tables or can create databases.
+- **Backup.** Every day the database, the photos and the logos are copied, the database copy is
+  restored into a scratch database to prove it comes back, and everything goes encrypted to
+  S3-compatible storage outside the server. A full restore from that storage alone was tested.
+- **Photos.** They stay on the server's disk unless `S3_BUCKET` is set, in which case they go to
+  private S3-compatible storage. Either way, the browser only sees our signed, short-lived links.
+- **Monitoring.** With `SENTRY_DSN` set, errors from the API, the Celery tasks and the Next server
+  go to Sentry or a compatible service, without cookies, headers, request bodies, query strings,
+  local variables or breadcrumbs. `/saude` reports whether the site, API, database and Redis are up.
+- **Scheduler lock.** Celery Beat only fires tasks while it holds a lock in Redis, so a second
+  scheduler started by mistake waits on standby.
+
+A CI job builds the production images and runs them the way production does: it creates the
+database roles, migrates as the table owner, seeds data and starts the API and the site with the
+application role, then takes a backup and restores it.
+
 ## Commands
 
 ```bash
@@ -263,7 +291,8 @@ apps/web/src/app/(inicio)             Landing page, its sections and the system 
 apps/web/src/componentes/ui           Reusable UI pieces (button, field, card, badge...)
 apps/web/src/componentes/icones.tsx   Every icon in the system, in one place
 docs/                                 Project plan and architecture decision records
-infra/                                Production infrastructure (from Phase 4F on)
+infra/postgres                        Database role for local development and CI
+infra/producao                        Production server: Compose, proxy, database roles and backup
 ```
 
 ## Documentation

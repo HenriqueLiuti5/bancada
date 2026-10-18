@@ -110,3 +110,8 @@ apenas o último acesso — que é justamente a informação que menos importa n
 
 A origem deixou de ser o `REMOTE_ADDR`, que era o endereço do container do Next, e passou a ser o
 último valor do `X-Forwarded-For` que o Next repassa (ADR 0029).
+
+## Atualização: a trava do agendador existe
+
+O Celery Beat passou a usar o `AgendadorComTrava`, que só dispara tarefas enquanto segura uma trava
+no Redis. Um segundo agendador no ar fica de reserva e assume se o primeiro parar (ADR 0032).

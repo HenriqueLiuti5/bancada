@@ -1,0 +1,211 @@
+# Produção do Bancada num servidor só. O passo a passo está em infra/producao/README.md.
+#
+# Só o proxy recebe conexões da internet, nas portas 80 e 443. Site, API, banco e Redis ficam na
+# rede interna, e a porta da API responde apenas no próprio servidor, para o painel
+# administrativo ser aberto por um túnel SSH.
+#
+# Os segredos vêm do arquivo .env desta pasta, e cada serviço recebe só os que usa: a aplicação
+# nunca vê a senha do dono das tabelas nem a do superusuário do banco.
+
+name: bancada-producao
+
+x-ambiente-da-api: &ambiente-da-api
+  POSTGRES_DB: ${POSTGRES_DB:-bancada}
+  POSTGRES_HOST: db
+  POSTGRES_PORT: "5432"
+  POSTGRES_APP_USER: ${POSTGRES_APP_USER:-bancada_app}
+  POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?Defina POSTGRES_APP_PASSWORD no .env}
+  REDIS_URL: redis://redis:6379/0
+  DJANGO_DEBUG: "0"
+  DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Defina DJANGO_SECRET_KEY no .env}
+  DJANGO_ALLOWED_HOSTS: api,localhost,127.0.0.1
+  BANCADA_ENCRYPTION_KEY: ${BANCADA_ENCRYPTION_KEY:?Defina BANCADA_ENCRYPTION_KEY no .env}
+  APP_PUBLIC_URL: https://${DOMINIO:?Defina DOMINIO no .env}
+  ASAAS_API_URL: ${ASAAS_API_URL:-https://api.asaas.com/v3}
+  ASAAS_API_KEY: ${ASAAS_API_KEY:-}
+  ASAAS_WEBHOOK_TOKEN: ${ASAAS_WEBHOOK_TOKEN:?Defina ASAAS_WEBHOOK_TOKEN no .env}
+  VALOR_DA_ASSINATURA: ${VALOR_DA_ASSINATURA:-59.90}
+  DJANGO_EMAIL_BACKEND: ${DJANGO_EMAIL_BACKEND:-django.core.mail.backends.smtp.EmailBackend}
+  DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-}
+  EMAIL_HOST: ${EMAIL_HOST:-}
+  EMAIL_PORT: ${EMAIL_PORT:-587}
+  EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+  EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+  EMAIL_USE_TLS: ${EMAIL_USE_TLS:-1}
+  S3_BUCKET: ${S3_BUCKET:-}
+  S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-}
+  S3_REGION: ${S3_REGION:-}
+  S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-}
+  S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
+  S3_ADDRESSING_STYLE: ${S3_ADDRESSING_STYLE:-}
+  SENTRY_DSN: ${SENTRY_DSN:-}
+  SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-producao}
+
+x-api: &api
+  image: ${IMAGEM_DA_API:-bancada-api:producao}
+  build:
+    context: ../../apps/api
+    target: producao
+    args:
+      VERSAO: ${VERSAO:-local}
+  environment: *ambiente-da-api
+  volumes:
+    - midia:/app/media
+  restart: unless-stopped
+
+x-depois-das-migracoes: &depois-das-migracoes
+  migracoes:
+    condition: service_completed_successfully
+  redis:
+    condition: service_healthy
+
+services:
+  proxy:
+    image: caddy:2.10-alpine
+    ports:
+      - "${PORTA_HTTP:-80}:80"
+      - "${PORTA_HTTPS:-443}:443"
+      - "${PORTA_HTTPS:-443}:443/udp"
+    environment:
+      DOMINIO: ${DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_dados:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    image: ${IMAGEM_DO_WEB:-bancada-web:producao}
+    build:
+      context: ../../apps/web
+      target: producao
+      args:
+        VERSAO: ${VERSAO:-local}
+    environment:
+      API_INTERNAL_URL: http://api:8000
+      APP_PUBLIC_URL: https://${DOMINIO}
+      WHATSAPP_DO_SUPORTE: ${WHATSAPP_DO_SUPORTE:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-producao}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/saude"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  migracoes:
+    <<: *api
+    environment:
+      <<: *ambiente-da-api
+      POSTGRES_APP_USER: ${POSTGRES_OWNER_USER:-bancada_dono}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_OWNER_PASSWORD:?Defina POSTGRES_OWNER_PASSWORD no .env}
+    command: python manage.py migrate --noinput
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    <<: *api
+    ports:
+      - "127.0.0.1:${PORTA_DO_ADMIN:-8000}:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/', timeout=5)
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on: *depois-das-migracoes
+
+  worker:
+    <<: *api
+    command: celery -A config worker --loglevel=info
+    depends_on: *depois-das-migracoes
+
+  beat:
+    <<: *api
+    command: celery -A config beat --loglevel=info --schedule=/tmp/agenda-do-beat
+    depends_on: *depois-das-migracoes
+
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bancada}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+      POSTGRES_OWNER_USER: ${POSTGRES_OWNER_USER:-bancada_dono}
+      POSTGRES_OWNER_PASSWORD: ${POSTGRES_OWNER_PASSWORD}
+      POSTGRES_APP_USER: ${POSTGRES_APP_USER:-bancada_app}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD}
+    volumes:
+      - banco:/var/lib/postgresql/data
+      - ./postgres/criar-papeis.sh:/docker-entrypoint-initdb.d/criar-papeis.sh:ro
+      - ./postgres/papeis.sql:/bancada/papeis.sql:ro
+    shm_size: 256mb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_dados:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  backup:
+    build: ./backup
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB:-bancada}
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      TZ: America/Sao_Paulo
+      HORA_DO_BACKUP: ${HORA_DO_BACKUP:-3}
+      BACKUP_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+      BACKUP_S3_REGION: ${BACKUP_S3_REGION:-}
+      BACKUP_S3_BUCKET: ${BACKUP_S3_BUCKET:-}
+      BACKUP_S3_ACCESS_KEY_ID: ${BACKUP_S3_ACCESS_KEY_ID:-}
+      BACKUP_S3_SECRET_ACCESS_KEY: ${BACKUP_S3_SECRET_ACCESS_KEY:-}
+      BACKUP_SENHA: ${BACKUP_SENHA:-}
+      AVISO_DO_BACKUP_URL: ${AVISO_DO_BACKUP_URL:-}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-}
+      S3_REGION: ${S3_REGION:-}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
+    volumes:
+      - backups:/backups
+      - midia:/midia
+    depends_on:
+      migracoes:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  banco:
+  redis_dados:
+  midia:
+  backups:
+  caddy_dados:
+  caddy_config:

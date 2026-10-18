@@ -1,0 +1,3 @@
+# Scripts que rodam dentro dos containers precisam de fim de linha do Linux, mesmo quando o
+# repositório é baixado no Windows.
+*.sh text eol=lf

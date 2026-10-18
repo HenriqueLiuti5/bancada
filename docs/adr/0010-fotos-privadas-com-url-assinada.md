@@ -103,3 +103,10 @@ da API, mais 1 MB de folga para o resto do formulário. O navegador recusa a fot
 antes de enviar, com a mesma mensagem que a API daria, porque um corpo acima do limite do Next
 derruba a tela em vez de voltar como um erro que dê para mostrar. O valor de 10 MB existe no Django e
 no Next, e os dois precisam mudar juntos.
+
+## Atualização: armazenamento compatível com S3
+
+Na 4F, as fotos e as logos podem ir para um armazenamento compatível com S3, privado, preenchendo
+`S3_BUCKET` e as credenciais no servidor. Sem isso, continuam no disco, num volume do Docker. O
+endereço continua sendo o nosso, assinado: a API busca o arquivo no armazenamento e o Next repassa,
+como antes (ADR 0032).

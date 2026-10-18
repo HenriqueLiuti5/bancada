@@ -18,7 +18,7 @@ export function TextoLegal({ titulo, versao, children }: Props) {
         </div>
       </header>
 
-      <div className="space-y-4 rounded-2xl border border-borda bg-superficie p-6 text-[15px] leading-relaxed text-texto-suave shadow-cartao sm:p-8 [&_h2]:pt-2 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-texto">
+      <div className="space-y-4 rounded-2xl border border-borda bg-superficie p-6 text-[15px] leading-relaxed text-texto-suave shadow-cartao sm:p-8 [&_h2]:pt-2 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-texto [&_li]:pl-1 [&_strong]:text-texto [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5">
         {children}
       </div>
 

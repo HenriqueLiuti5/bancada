@@ -13,6 +13,9 @@ dependencies = [
     "celery[redis]>=5.4",
     "redis>=5.0",
     "gunicorn>=23.0",
+    "whitenoise>=6.12",
+    "django-storages[s3]>=1.14.6",
+    "sentry-sdk>=2.72",
 ]
 
 [dependency-groups]
