@@ -86,12 +86,14 @@ o operador.
 | 4M | Testes automáticos do site | |
 | 4N | Troca do cliente da ordem e comentários internos no histórico | |
 | 4O | Lojas pela tela e fuso horário por assistência | |
-| 4P | Página inicial com telas novas | |
-| 4Q | Termos finais, privacidade e medição de visitas | |
-| 4R | Planos e preços | |
+| 4P | Estoque de peças | |
+| 4Q | Financeiro da loja | |
+| 4R | Página inicial com telas novas | |
+| 4S | Termos finais, privacidade e medição de visitas | |
+| 4T | Planos e preços | |
 | 4F | Publicação: domínio, termos, backup e monitoramento | em andamento |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
-| 6 | Estoque de peças e financeiro, WhatsApp automático, relatórios além do painel | |
+| 6 | WhatsApp automático e relatórios além do painel | |
 
 A Fase 1 termina quando uma assistência real conseguir abrir uma ordem de serviço e enviar o
 link ao cliente. Nada que não sirva a essa frase entra antes.
@@ -100,16 +102,16 @@ A Fase 4 termina quando uma assistência que nunca falou com a gente conseguir s
 montar a equipe, aprender a usar o sistema e assinar, tudo sozinha.
 
 A publicação, Fase 4F, é a última do lançamento: o sistema vai para o ar depois de todas as outras.
-As fases da 4G à 4R entraram no plano depois da 4F, por isso têm as letras seguintes, mas vêm antes
+As fases da 4G à 4T entraram no plano depois da 4F, por isso têm as letras seguintes, mas vêm antes
 dela.
 
-As da 4M à 4R saíram da revisão do que faltava, em 18 de outubro de 2026, e são feitas uma de cada
-vez, nessa ordem. Os testes vêm primeiro, porque protegem as telas que as fases seguintes mexem. A
-página inicial vem depois das mudanças nas telas, para mostrá-las prontas. Os planos ficam por
-último, decididos pelo Henrique com o sistema pronto.
+As da 4M à 4T saíram da revisão do que faltava, em 18 de outubro de 2026, e são feitas uma de cada
+vez, nessa ordem. Os testes vêm primeiro, porque protegem as telas que as fases seguintes mexem. O
+estoque e o financeiro entram antes do lançamento, para o Bancada chegar ao mercado com o que os
+concorrentes já oferecem. A página inicial vem depois das mudanças nas telas, para mostrá-las
+prontas. Os planos ficam por último, decididos pelo Henrique com o sistema pronto.
 
-Depois do lançamento, o estoque de peças e o financeiro, que os concorrentes têm, vêm primeiro. Em
-seguida vêm a inteligência artificial, da Fase 5, e o resto da Fase 6.
+Depois do lançamento vêm a inteligência artificial, da Fase 5, e a Fase 6.
 
 Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
 O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
@@ -421,27 +423,52 @@ nada abre as telas para ver se funcionam. Como as fases seguintes mexem nelas, o
   e dos avisos e as contas de "hoje" e "atrasada" passam a seguir o fuso dela. O Brasil tem quatro
   fusos, e uma assistência em Cuiabá ou em Manaus via as horas uma hora adiantadas.
 
-### 4P — Página inicial com telas novas
+### 4P — Estoque de peças
 
-Vem depois da 4N e da 4O, para mostrar as telas como vão ficar:
+Os sistemas concorrentes controlam as peças no mesmo lugar das ordens. O que entra é decidido no
+começo da fase, a partir do que eles oferecem. O ponto de partida:
+
+- Cadastro de peças e produtos, como telas, baterias e conectores, com custo, preço, quantidade e um
+  mínimo para avisar quando o estoque estiver baixo.
+- Entrada das peças compradas, com o fornecedor e o custo.
+- A peça usada num conserto sai do estoque pelo orçamento da ordem, e cada ordem mostra o lucro: o
+  que foi cobrado menos o custo das peças.
+- Venda de acessórios no balcão, como capas, películas e carregadores, se fizer sentido.
+
+### 4Q — Financeiro da loja
+
+Hoje o Bancada registra o que entra pelas ordens, na entrega, e o que ficou a receber (4D). O
+financeiro completa o caixa da loja. O que entra é decidido no começo da fase; o ponto de partida:
+
+- Despesas da loja, como aluguel, peças, salários e contas, com categoria e vencimento.
+- Contas a pagar e a receber num lugar só, com aviso do que está para vencer.
+- Caixa do dia: o que entrou, o que saiu e o saldo, por forma de pagamento.
+- Lucro do mês no painel: o que entrou menos as despesas e o custo das peças.
+
+A emissão de nota fiscal, que os concorrentes vendem à parte, também é decidida no começo da fase.
+
+### 4R — Página inicial com telas novas
+
+Vem depois das fases que mudam as telas, da 4N à 4Q, para mostrá-las como vão ficar:
 
 - Telas do sistema capturadas de novo em alta resolução, com dados de exemplo realistas, e servidas
   com mais qualidade, sem o borrado nas letras pequenas.
 - Celular e notebook desenhados em volta das telas, sem marca.
 - Fotos e imagens em PNG escolhidas pelo Henrique, onde couberem.
+- O estoque e o financeiro apresentados entre os recursos.
 
 Depoimentos só entram quando houver clientes reais que autorizem (ADR 0026).
 
-### 4Q — Termos, privacidade e medição de visitas
+### 4S — Termos, privacidade e medição de visitas
 
 - Texto final dos termos de uso e da política de privacidade, a partir do rascunho da ADR 0032. Ele
   identifica o Henrique pelo nome, com o e-mail, o WhatsApp do suporte e o horário de atendimento,
-  das 8h30 às 17h, sem CPF, endereço nem foro. Os pontos que ficaram entre colchetes são resolvidos
-  com escolhas simples, e os nomes dos provedores entram na publicação.
+  de segunda a sexta, das 8h30 às 17h, sem CPF, endereço nem foro. Os pontos que ficaram entre
+  colchetes são resolvidos com escolhas simples, e os nomes dos provedores entram na publicação.
 - Medição de visitas e de cadastros vindos da página inicial com o Umami, instalado no próprio
   servidor. Ele não usa cookies, o que dispensa o aviso de cookies.
 
-### 4R — Planos e preços
+### 4T — Planos e preços
 
 Perto da publicação, o Henrique revisa o sistema e decide os planos, os preços, o desconto do
 pagamento anual e se haverá um programa de fundadores. Em outubro de 2026, os sistemas feitos para
@@ -494,7 +521,7 @@ Falta, e depende de decisões ou de contratar serviços:
 
 Ficam para quando cada parte chegar:
 
-- Planos e preços, decididos pelo Henrique depois de revisar o sistema pronto (4R).
+- Planos e preços, decididos pelo Henrique depois de revisar o sistema pronto (4T).
 - Documentos que o Asaas exige para receber (CPF ou CNPJ) e emissão de nota fiscal.
 - Nome do domínio.
 - Provedores de servidor, e-mail, armazenamento e monitoramento.
