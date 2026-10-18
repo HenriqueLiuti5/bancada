@@ -83,9 +83,15 @@ o operador.
 | 4J | Revisão de segurança antes da publicação | concluída |
 | 4K | Conferência dos cadastros e tela da ordem guiada | concluída |
 | 4L | Tela da ordem no modelo de chamado | concluída |
+| 4M | Testes automáticos do site | |
+| 4N | Troca do cliente da ordem e comentários internos no histórico | |
+| 4O | Lojas pela tela e fuso horário por assistência | |
+| 4P | Página inicial com telas novas | |
+| 4Q | Termos finais, privacidade e medição de visitas | |
+| 4R | Planos e preços | |
 | 4F | Publicação: domínio, termos, backup e monitoramento | em andamento |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
-| 6 | WhatsApp, relatórios além do painel, estoque de peças | |
+| 6 | Estoque de peças e financeiro, WhatsApp automático, relatórios além do painel | |
 
 A Fase 1 termina quando uma assistência real conseguir abrir uma ordem de serviço e enviar o
 link ao cliente. Nada que não sirva a essa frase entra antes.
@@ -94,10 +100,16 @@ A Fase 4 termina quando uma assistência que nunca falou com a gente conseguir s
 montar a equipe, aprender a usar o sistema e assinar, tudo sozinha.
 
 A publicação, Fase 4F, é a última do lançamento: o sistema vai para o ar depois de todas as outras.
-A 4G, de design, a 4H, da página inicial, a 4I, da correção do cadastro e dos prazos, a 4J, da
-revisão de segurança, a 4K, da conferência dos cadastros e da tela da ordem, e a 4L, da tela da
-ordem no modelo de chamado, entraram no plano depois da 4F, por isso têm as letras seguintes, mas
-vêm antes dela.
+As fases da 4G à 4R entraram no plano depois da 4F, por isso têm as letras seguintes, mas vêm antes
+dela.
+
+As da 4M à 4R saíram da revisão do que faltava, em 18 de outubro de 2026, e são feitas uma de cada
+vez, nessa ordem. Os testes vêm primeiro, porque protegem as telas que as fases seguintes mexem. A
+página inicial vem depois das mudanças nas telas, para mostrá-las prontas. Os planos ficam por
+último, decididos pelo Henrique com o sistema pronto.
+
+Depois do lançamento, o estoque de peças e o financeiro, que os concorrentes têm, vêm primeiro. Em
+seguida vêm a inteligência artificial, da Fase 5, e o resto da Fase 6.
 
 Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
 O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
@@ -381,6 +393,66 @@ histórico com tudo o que aconteceu e os dados ao lado. Na entrega:
   linha própria.
 - Tour da tela refeito para as partes novas (ADR 0031).
 
+### 4M — Testes automáticos do site
+
+Até aqui só a API tem testes. O site passa pela verificação do código, dos tipos e da montagem, mas
+nada abre as telas para ver se funcionam. Como as fases seguintes mexem nelas, os testes vêm antes:
+
+- Testes que abrem o site num navegador de verdade e passam pelos caminhos principais: entrar, abrir
+  uma ordem com cliente novo, enviar foto, montar e aprovar o orçamento, entregar com pagamento e
+  abrir a página do cliente. Eles rodam na CI, sobre as imagens de produção.
+- Testes das funções do site que conferem e formatam dados, como telefone, CPF e CNPJ, datas e
+  dinheiro.
+- O aviso do `braces`, que só existe no desenvolvimento, conferido de novo (ADR 0029).
+
+### 4N — Troca do cliente da ordem e comentários internos
+
+- Trocar o cliente de uma ordem aberta no cliente errado, o caso da Maria Silva da ADR 0027: a ordem
+  passa para o cliente certo, e a troca fica no histórico e na auditoria.
+- Comentários internos no histórico da ordem: qualquer pessoa da equipe escreve uma anotação a
+  qualquer momento, sem mudar de etapa, e ela aparece no histórico com quem escreveu e a hora, como
+  num chamado (ADR 0031). Só a equipe vê; o cliente, não.
+
+### 4O — Lojas pela tela e fuso horário
+
+- Tela para o dono criar, editar e desativar lojas. Até aqui, a segunda loja só nascia pelo painel
+  administrativo, a pedido pelo WhatsApp (ADR 0026).
+- Fuso horário por assistência, escolhido na tela Assistência. Os horários das telas, dos documentos
+  e dos avisos e as contas de "hoje" e "atrasada" passam a seguir o fuso dela. O Brasil tem quatro
+  fusos, e uma assistência em Cuiabá ou em Manaus via as horas uma hora adiantadas.
+
+### 4P — Página inicial com telas novas
+
+Vem depois da 4N e da 4O, para mostrar as telas como vão ficar:
+
+- Telas do sistema capturadas de novo em alta resolução, com dados de exemplo realistas, e servidas
+  com mais qualidade, sem o borrado nas letras pequenas.
+- Celular e notebook desenhados em volta das telas, sem marca.
+- Fotos e imagens em PNG escolhidas pelo Henrique, onde couberem.
+
+Depoimentos só entram quando houver clientes reais que autorizem (ADR 0026).
+
+### 4Q — Termos, privacidade e medição de visitas
+
+- Texto final dos termos de uso e da política de privacidade, a partir do rascunho da ADR 0032. Ele
+  identifica o Henrique pelo nome, com o e-mail, o WhatsApp do suporte e o horário de atendimento,
+  das 8h30 às 17h, sem CPF, endereço nem foro. Os pontos que ficaram entre colchetes são resolvidos
+  com escolhas simples, e os nomes dos provedores entram na publicação.
+- Medição de visitas e de cadastros vindos da página inicial com o Umami, instalado no próprio
+  servidor. Ele não usa cookies, o que dispensa o aviso de cookies.
+
+### 4R — Planos e preços
+
+Perto da publicação, o Henrique revisa o sistema e decide os planos, os preços, o desconto do
+pagamento anual e se haverá um programa de fundadores. Em outubro de 2026, os sistemas feitos para
+assistência técnica cobravam de R$ 49 a R$ 489,90 por mês, pelo número de pessoas e de lojas, e os
+mais baratos já tinham estoque e financeiro.
+
+A proposta de partida é cobrar pelo tamanho da assistência, com todos os recursos em todos os
+planos: Solo, com 1 loja e até 2 pessoas; Equipe, com 1 loja e pessoas ilimitadas; e Rede, com mais
+de uma loja. A fase faz a escolha do plano na tela Assinatura, os limites de pessoas e de lojas, a
+troca de plano e os planos na página inicial.
+
 ### 4F — Publicação
 
 O que não dependia de decisão ficou pronto na preparação do servidor de produção, em
@@ -406,29 +478,23 @@ O que não dependia de decisão ficou pronto na preparação do servidor de prod
 
 Falta, e depende de decisões ou de contratar serviços:
 
+- Verificação em duas etapas na conta da plataforma, feita na véspera do lançamento para não
+  atrapalhar os testes até lá (ADR 0029).
 - Domínio e HTTPS: registrar o domínio e apontá-lo para o servidor.
 - Servidor, e-mail por provedor com domínio verificado (ADR 0011), destino do backup e, se for o
-  caso, armazenamento das fotos e serviço de monitoramento.
+  caso, armazenamento das fotos e serviço de monitoramento, com os nomes deles na política de
+  privacidade.
 - Asaas em produção.
-- Preço e planos.
-- Texto definitivo dos termos de uso e da política de privacidade, revisado por um advogado, com os
-  dados de quem responde pelo Bancada. A revisão confirma também se é preciso guardar os registros
-  de acesso por 6 meses, como pede o Marco Civil da Internet para empresas.
 - Número do WhatsApp do suporte configurado no servidor, fora do repositório (ADR 0030).
 - Entrega contínua: publicar as imagens montadas pela CI num registro e fazer o servidor buscá-las.
-- Imagens novas da página inicial, com mais qualidade nas telas do sistema.
 - Prévia do link da página inicial conferida no WhatsApp, com o endereço público (ADR 0026).
-- Medição de visitas e cadastros vindos da página inicial, com aviso de cookies se a ferramenta
-  escolhida exigir.
 - Com o backup no ar, a resposta sobre segurança da página inicial passa a citá-lo.
 
 ### Decisões em aberto
 
 Ficam para quando cada parte chegar:
 
-- Preço da assinatura e se haverá mais de um plano.
+- Planos e preços, decididos pelo Henrique depois de revisar o sistema pronto (4R).
 - Documentos que o Asaas exige para receber (CPF ou CNPJ) e emissão de nota fiscal.
 - Nome do domínio.
 - Provedores de servidor, e-mail, armazenamento e monitoramento.
-- Fuso horário por assistência. Hoje as telas, os documentos e o agendador usam o horário de
-  Brasília; uma assistência em Manaus veria as horas uma hora adiantadas.

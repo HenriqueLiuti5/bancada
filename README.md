@@ -6,8 +6,10 @@ customer follows the repair through a public link, without creating an account.
 ## Current status
 
 Phases 4A to 4E and 4G to 4L of the self-service launch are done, and so is the server side of
-publishing (4F): the production setup in `infra/producao/` is ready and tested, and what is left
-depends on choosing the domain, the providers and the price. The shop opens the order at the counter, looking up the customer by name or phone or registering
+publishing (4F): the production setup in `infra/producao/` is ready and tested. Before going live,
+phases 4M to 4R add browser tests, changing an order's customer, internal comments on the order
+history, a stores screen, per-shop time zones, refreshed landing page screenshots, the final terms
+with visit analytics and paid plans; see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the
