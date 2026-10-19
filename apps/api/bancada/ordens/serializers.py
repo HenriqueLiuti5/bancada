@@ -19,9 +19,12 @@ from bancada.ordens.models import (
     OrdemServico,
     Pagamento,
     Recebimento,
+    RegistroOS,
 )
 from bancada.ordens.painel import periodo as periodos
 from bancada.tenants.models import Loja
+
+TAMANHO_MAXIMO_DO_COMENTARIO = 2000
 
 
 class ItemOrcamentoSerializer(serializers.ModelSerializer):
@@ -133,6 +136,28 @@ class EventoOSSerializer(serializers.ModelSerializer):
         return StatusOS(obj.para_status).label
 
 
+class RegistroOSSerializer(serializers.ModelSerializer):
+    usuario = serializers.CharField(source="usuario.nome_de_exibicao", read_only=True, default=None)
+
+    class Meta:
+        model = RegistroOS
+        fields = ["id", "tipo", "usuario", "texto", "criado_em"]
+
+
+class ComentarioSerializer(serializers.ModelSerializer):
+    texto = serializers.CharField(
+        max_length=TAMANHO_MAXIMO_DO_COMENTARIO,
+        error_messages={
+            "blank": "Escreva o comentário antes de enviar.",
+            "max_length": "O comentário pode ter até 2.000 caracteres.",
+        },
+    )
+
+    class Meta:
+        model = RegistroOS
+        fields = ["texto"]
+
+
 class OrdemServicoListSerializer(serializers.ModelSerializer):
     cliente_nome = serializers.CharField(source="cliente.nome", read_only=True)
     aparelho_descricao = serializers.CharField(source="aparelho.__str__", read_only=True)
@@ -164,6 +189,7 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     cliente_telefone = serializers.CharField(source="cliente.telefone", read_only=True)
     itens = ItemOrcamentoSerializer(many=True, read_only=True)
     eventos = EventoOSSerializer(many=True, read_only=True)
+    registros = RegistroOSSerializer(many=True, read_only=True)
     fotos = FotoOSSerializer(many=True, read_only=True)
     transicoes_possiveis = serializers.SerializerMethodField()
     total_orcamento = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
@@ -171,6 +197,7 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     orcamento_editavel = serializers.BooleanField(read_only=True)
     orcamento_aprovado = serializers.BooleanField(read_only=True)
     imei_mascarado = serializers.CharField(source="aparelho.imei_mascarado", read_only=True)
+    aparelho_em_outras_ordens = serializers.BooleanField(read_only=True)
     pagamentos = PagamentoSerializer(many=True, read_only=True)
     desconto = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     total_pago = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
@@ -188,8 +215,10 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
             "garantia_ate",
             "entregue_em",
             "imei_mascarado",
+            "aparelho_em_outras_ordens",
             "itens",
             "eventos",
+            "registros",
             "fotos",
             "transicoes_possiveis",
             "total_orcamento",
@@ -288,6 +317,67 @@ class AberturaOrdemSerializer(serializers.Serializer):
         if aparelho is not None and (cliente is None or aparelho.cliente_id != cliente.id):
             raise serializers.ValidationError({"aparelho": "Não pertence a esse cliente."})
         return attrs
+
+
+class TrocaDeClienteSerializer(serializers.Serializer):
+    cliente = serializers.PrimaryKeyRelatedField(
+        queryset=Cliente.objects.all(), required=False, allow_null=True
+    )
+    cliente_novo = NovoClienteSerializer(required=False, allow_null=True)
+    aparelho = serializers.PrimaryKeyRelatedField(
+        queryset=Aparelho.objects.all(), required=False, allow_null=True
+    )
+    aparelho_novo = NovoAparelhoSerializer(required=False, allow_null=True)
+
+    def validate(self, attrs: dict) -> dict:
+        ordem: OrdemServico = self.context["ordem"]
+        tenant = self.context["tenant"]
+
+        if bool(attrs.get("cliente")) == bool(attrs.get("cliente_novo")):
+            raise serializers.ValidationError(
+                {"cliente": "Escolha o cliente certo ou cadastre um novo."}
+            )
+        for campo in ["cliente", "aparelho"]:
+            registro = attrs.get(campo)
+            if registro is not None and registro.tenant_id != tenant.id:
+                raise serializers.ValidationError({campo: "Não pertence à sua assistência."})
+
+        cliente = attrs.get("cliente")
+        if cliente is not None and cliente.pk == ordem.cliente_id:
+            raise serializers.ValidationError({"cliente": "A ordem já está com esse cliente."})
+
+        self._conferir_aparelho(attrs)
+        return attrs
+
+    def _conferir_aparelho(self, attrs: dict) -> None:
+        ordem: OrdemServico = self.context["ordem"]
+        aparelho, novo = attrs.get("aparelho"), attrs.get("aparelho_novo")
+
+        if aparelho and novo:
+            raise serializers.ValidationError(
+                {"aparelho": "Escolha um aparelho já cadastrado ou cadastre um novo."}
+            )
+
+        if not ordem.aparelho_em_outras_ordens:
+            if aparelho or novo:
+                raise serializers.ValidationError(
+                    {
+                        "aparelho": f"O {ordem.aparelho} só tem esta ordem e vai junto "
+                        "para o cliente certo."
+                    }
+                )
+            return
+
+        if not aparelho and not novo:
+            raise serializers.ValidationError(
+                {
+                    "aparelho": f"O {ordem.aparelho} tem outras ordens e continua com "
+                    f"{ordem.cliente.nome}. Escolha o aparelho do cliente certo ou cadastre outro."
+                }
+            )
+        cliente = attrs.get("cliente")
+        if aparelho is not None and (cliente is None or aparelho.cliente_id != cliente.id):
+            raise serializers.ValidationError({"aparelho": "Não pertence a esse cliente."})
 
 
 class TransicaoSerializer(serializers.Serializer):

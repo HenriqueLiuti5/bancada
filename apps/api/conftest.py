@@ -93,6 +93,17 @@ def api_tecnico(tecnico: Usuario) -> "APIClient":
 
 
 @pytest.fixture
+def api_atendente(atendente_do_tenant: Usuario) -> "APIClient":
+    from rest_framework.authtoken.models import Token
+    from rest_framework.test import APIClient
+
+    cliente_api = APIClient()
+    token, _ = Token.objects.get_or_create(user=atendente_do_tenant)
+    cliente_api.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+    return cliente_api
+
+
+@pytest.fixture
 def intruso(outro_tenant: Tenant) -> Usuario:
     return Usuario.objects.create_user(
         username="intruso",

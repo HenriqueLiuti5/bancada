@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from typing import Any
 
+from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from rest_framework import status
@@ -17,7 +18,7 @@ from bancada.auditoria.registro import origem_do_pedido, registrar
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
 from bancada.core.formatos import em_reais
-from bancada.ordens import consultas, documentos
+from bancada.ordens import consultas, documentos, publico
 from bancada.ordens.estados import StatusOS, TransicaoInvalida
 from bancada.ordens.fotos import FotoInvalida
 from bancada.ordens.models import (
@@ -27,10 +28,12 @@ from bancada.ordens.models import (
     Pagamento,
     PagamentoAcimaDoSaldo,
     Recebimento,
+    TipoDeRegistro,
 )
 from bancada.ordens.painel import numeros as numeros_do_painel
 from bancada.ordens.serializers import (
     AberturaOrdemSerializer,
+    ComentarioSerializer,
     CompartilhamentoDoLinkSerializer,
     EdicaoDaOrdemSerializer,
     EnvioDeFotoSerializer,
@@ -41,7 +44,9 @@ from bancada.ordens.serializers import (
     OrdemServicoListSerializer,
     PagamentoSerializer,
     RecebimentoSerializer,
+    RegistroOSSerializer,
     TransicaoSerializer,
+    TrocaDeClienteSerializer,
 )
 from bancada.tenants.models import Papel, Usuario
 from bancada.tenants.permissoes import ApagarSoDonoOuTecnico, ApenasDono, papel_do_pedido
@@ -59,6 +64,11 @@ class OrcamentoTravado(APIException):
 def exigir_orcamento_editavel(ordem: OrdemServico) -> None:
     if not ordem.orcamento_editavel:
         raise OrcamentoTravado
+
+
+class OrdemEncerrada(APIException):
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = "Esta ordem já foi encerrada e não troca mais de cliente."
 
 
 class OrdemServicoViewSet(ViewSetDoTenant):
@@ -93,6 +103,7 @@ class OrdemServicoViewSet(ViewSetDoTenant):
                 "itens",
                 "eventos__usuario",
                 "eventos__aviso",
+                "registros__usuario",
                 "fotos",
                 "pagamentos__registrado_por",
             )
@@ -268,6 +279,63 @@ class OrdemServicoViewSet(ViewSetDoTenant):
 
         ordem = self.get_queryset().get(pk=ordem.pk)
         saida = OrdemServicoDetailSerializer(ordem, context=self.get_serializer_context())
+        return Response(saida.data)
+
+    @action(detail=True, methods=["post"], url_path="comentarios")
+    def comentar(self, request: Request, pk: str | None = None) -> Response:
+        ordem = self.get_object()
+        entrada = ComentarioSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+
+        registro = entrada.save(
+            tenant_id=ordem.tenant_id,
+            ordem=ordem,
+            tipo=TipoDeRegistro.COMENTARIO,
+            usuario=request.user if isinstance(request.user, Usuario) else None,
+        )
+        return Response(RegistroOSSerializer(registro).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["post"], url_path="trocar-cliente")
+    def trocar_cliente(self, request: Request, pk: str | None = None) -> Response:
+        ordem = self.get_object()
+        if ordem.encerrada:
+            raise OrdemEncerrada
+
+        contexto = {**self.get_serializer_context(), "ordem": ordem}
+        entrada = TrocaDeClienteSerializer(data=request.data, context=contexto)
+        entrada.is_valid(raise_exception=True)
+
+        dados = entrada.validated_data
+        tenant = ordem.tenant
+        cliente = dados.get("cliente") or Cliente.objects.create(
+            tenant=tenant, **dados["cliente_novo"]
+        )
+        aparelho = dados.get("aparelho")
+        if dados.get("aparelho_novo"):
+            aparelho = Aparelho.objects.create(
+                tenant=tenant, cliente=cliente, **dados["aparelho_novo"]
+            )
+
+        anterior = ordem.cliente
+        link_antigo = ordem.token_publico
+        usuario = request.user if isinstance(request.user, Usuario) else None
+        ordem.trocar_cliente(cliente, aparelho, usuario=usuario)
+        transaction.on_commit(lambda: publico.invalidar(link_antigo))
+        registrar(
+            tenant=tenant,
+            usuario=usuario,
+            acao=Acao.CLIENTE_TROCADO,
+            objeto="ordem",
+            objeto_id=ordem.pk,
+            detalhe=(
+                f"OS #{ordem.numero}, de {anterior.nome} (id {anterior.pk}) "
+                f"para {cliente.nome} (id {cliente.pk})"
+            ),
+            origem=origem_do_pedido(request),
+        )
+
+        atualizada = self.get_queryset().get(pk=ordem.pk)
+        saida = OrdemServicoDetailSerializer(atualizada, context=self.get_serializer_context())
         return Response(saida.data)
 
 

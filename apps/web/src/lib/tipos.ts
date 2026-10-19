@@ -110,6 +110,14 @@ export type Evento = {
   criado_em: string;
 };
 
+export type RegistroDaOrdem = {
+  id: number;
+  tipo: "comentario" | "troca_de_cliente";
+  usuario: string | null;
+  texto: string;
+  criado_em: string;
+};
+
 export type ItemOrcamento = {
   id: number;
   tipo: string;
@@ -170,8 +178,10 @@ export type Ordem = OrdemResumo & {
   garantia_ate: string | null;
   entregue_em: string | null;
   imei_mascarado: string;
+  aparelho_em_outras_ordens: boolean;
   itens: ItemOrcamento[];
   eventos: Evento[];
+  registros: RegistroDaOrdem[];
   fotos: Foto[];
   transicoes_possiveis: Transicao[];
   total_orcamento: string;

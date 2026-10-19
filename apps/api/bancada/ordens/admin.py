@@ -7,7 +7,14 @@ from django.utils.html import format_html
 
 from bancada.ordens.forms import OrdemServicoForm
 from bancada.ordens.fotos import assinar
-from bancada.ordens.models import EventoOS, FotoOS, ItemOrcamento, OrdemServico, Pagamento
+from bancada.ordens.models import (
+    EventoOS,
+    FotoOS,
+    ItemOrcamento,
+    OrdemServico,
+    Pagamento,
+    RegistroOS,
+)
 from bancada.tenants.models import Usuario
 
 
@@ -32,6 +39,18 @@ class EventoOSInline(admin.TabularInline):
     extra = 0
     can_delete = False
     readonly_fields = ["de_status", "para_status", "usuario", "nota", "criado_em"]
+    ordering = ["criado_em"]
+
+    def has_add_permission(self, request: HttpRequest, obj: Any = None) -> bool:
+        return False
+
+
+class RegistroOSInline(admin.TabularInline):
+    model = RegistroOS
+    extra = 0
+    can_delete = False
+    fields = ["tipo", "texto", "usuario", "criado_em"]
+    readonly_fields = ["tipo", "texto", "usuario", "criado_em"]
     ordering = ["criado_em"]
 
     def has_add_permission(self, request: HttpRequest, obj: Any = None) -> bool:
@@ -63,7 +82,7 @@ class OrdemServicoAdmin(admin.ModelAdmin):
     list_filter = ["tenant", "status", "loja"]
     search_fields = ["numero", "cliente__nome", "aparelho__marca", "aparelho__modelo"]
     readonly_fields = ["numero", "token_publico", "entregue_em", "criado_em", "atualizado_em"]
-    inlines = [ItemOrcamentoInline, PagamentoInline, FotoOSInline, EventoOSInline]
+    inlines = [ItemOrcamentoInline, PagamentoInline, FotoOSInline, EventoOSInline, RegistroOSInline]
 
     def save_model(self, request: HttpRequest, obj: OrdemServico, form: Any, change: bool) -> None:
         if not change:

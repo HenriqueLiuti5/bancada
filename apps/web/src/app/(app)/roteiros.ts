@@ -95,13 +95,13 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       alvo: "abas",
       titulo: "Tudo da ordem em abas",
       texto:
-        "No histórico fica o que aconteceu, com quem fez e quando. No orçamento, as peças, os serviços e o pagamento. Nas fotos, o estado em que o aparelho chegou. Nas anotações, o diagnóstico e o laudo.",
+        "No histórico fica o que aconteceu, com quem fez e quando, e a equipe deixa comentários que o cliente não vê. No orçamento, as peças, os serviços e o pagamento. Nas fotos, o estado em que o aparelho chegou. Nas anotações, o diagnóstico e o laudo.",
     },
     {
       alvo: "ficha",
       titulo: "Dados da ordem",
       texto:
-        "Cliente, aparelho e defeito à mão, com o WhatsApp do cliente. Técnico e prazo mudam aqui mesmo; para corrigir o cliente ou o aparelho, use Editar.",
+        "Cliente, aparelho e defeito à mão, com o WhatsApp do cliente. Técnico e prazo mudam aqui mesmo; para corrigir o cliente ou o aparelho, ou para trocar o cliente da ordem, use Editar.",
     },
     {
       alvo: "senha",

@@ -13,6 +13,7 @@ export type EstadoDaFicha = { erro?: string; salvo?: boolean };
 export type EstadoDoItem = { erro?: string; adicionado?: boolean };
 export type EstadoDaEntrega = { erro?: string };
 export type EstadoDoRecebimento = { erro?: string; registrado?: boolean };
+export type EstadoDoComentario = { erro?: string; texto?: string };
 
 type PagamentoInformado = { forma: string; valor: string };
 
@@ -269,6 +270,24 @@ export async function receberPagamento(
   revalidatePath(`/ordens/${id}`);
   revalidatePath("/ordens");
   return { registrado: true };
+}
+
+export async function comentar(
+  _anterior: EstadoDoComentario,
+  dados: FormData,
+): Promise<EstadoDoComentario> {
+  const id = String(dados.get("id"));
+  const texto = String(dados.get("texto") ?? "").trim();
+  if (!texto) return { erro: "Escreva o comentário antes de enviar." };
+
+  try {
+    await chamarApi(`/api/ordens/${id}/comentarios/`, { metodo: "POST", corpo: { texto } });
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível enviar o comentário."), texto };
+  }
+
+  revalidatePath(`/ordens/${id}`);
+  return { texto: "" };
 }
 
 export async function removerPagamento(dados: FormData): Promise<void> {

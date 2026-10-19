@@ -1,6 +1,9 @@
-import { DeviceMobileIcon, UserIcon } from "@/componentes/icones";
+import Link from "next/link";
+import { DeviceMobileIcon, UserIcon, UserSwitchIcon } from "@/componentes/icones";
+import { Alerta } from "@/componentes/ui/Alerta";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
+import { botao } from "@/componentes/ui/estilos";
 import { chamarApi } from "@/lib/api";
 import type { Aparelho, Cliente, Ordem } from "@/lib/tipos";
 import { podeVerSenha, usuarioAtual } from "@/lib/usuario";
@@ -33,6 +36,22 @@ export default async function ClienteEAparelhoDaOrdem({
       />
 
       <div className="max-w-3xl space-y-6">
+        {!ordem.encerrada && (
+          <Alerta
+            tom="info"
+            icone={UserSwitchIcon}
+            titulo="A ordem foi aberta no cliente errado?"
+            acao={
+              <Link href={`/ordens/${ordem.id}/cliente/trocar`} className={botao("secundario", "sm")}>
+                Trocar o cliente
+              </Link>
+            }
+          >
+            Não corrija os dados aqui, porque a correção muda o cadastro dessa pessoa em todas as ordens
+            dela. Troque o cliente da ordem.
+          </Alerta>
+        )}
+
         <Cartao titulo="Cliente" icone={UserIcon}>
           <FormularioDoCliente ordem={ordem.id} cliente={cliente} />
         </Cartao>

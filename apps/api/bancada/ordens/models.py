@@ -216,6 +216,37 @@ class OrdemServico(PertenceAoTenant):
         )
 
     @transaction.atomic
+    def trocar_cliente(
+        self,
+        cliente: Cliente,
+        aparelho: Aparelho | None = None,
+        *,
+        usuario: Usuario | None = None,
+    ) -> "RegistroOS":
+        anterior = self.cliente
+        aparelho_anterior = self.aparelho
+        if aparelho is None:
+            aparelho = aparelho_anterior
+            aparelho.cliente = cliente
+            aparelho.save(update_fields=["cliente", "atualizado_em"])
+
+        self.cliente = cliente
+        self.aparelho = aparelho
+        self.token_publico = gerar_token_publico()
+        self.save(update_fields=["cliente", "aparelho", "token_publico", "atualizado_em"])
+
+        texto = f"De {anterior.nome} para {cliente.nome}."
+        if aparelho.pk != aparelho_anterior.pk:
+            texto += f" Aparelho trocado de {aparelho_anterior} para {aparelho}."
+        return RegistroOS.objects.create(
+            tenant_id=self.tenant_id,
+            ordem=self,
+            tipo=TipoDeRegistro.TROCA_DE_CLIENTE,
+            texto=texto,
+            usuario=usuario,
+        )
+
+    @transaction.atomic
     def receber(self, recebimento: Recebimento, *, usuario: Usuario | None = None) -> "Pagamento":
         travada = OrdemServico.objects.select_for_update().get(pk=self.pk)
         saldo = travada.saldo_a_receber
@@ -237,6 +268,11 @@ class OrdemServico(PertenceAoTenant):
     @property
     def encerrada(self) -> bool:
         return self.status in ESTADOS_FINAIS
+
+    @property
+    def aparelho_em_outras_ordens(self) -> bool:
+        outras = OrdemServico.objects.filter(aparelho_id=self.aparelho_id).exclude(pk=self.pk)
+        return outras.exists()
 
     @property
     def orcamento_editavel(self) -> bool:
@@ -355,6 +391,37 @@ class EventoOS(models.Model):
     def __str__(self) -> str:
         origem = self.de_status or "início"
         return f"OS #{self.ordem.numero}: {origem} → {self.para_status}"
+
+
+class TipoDeRegistro(models.TextChoices):
+    COMENTARIO = "comentario", "Comentário"
+    TROCA_DE_CLIENTE = "troca_de_cliente", "Troca de cliente"
+
+
+class RegistroOS(PertenceAoTenant):
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="registros")
+    tipo = models.CharField(
+        max_length=20,
+        choices=TipoDeRegistro.choices,
+        default=TipoDeRegistro.COMENTARIO,
+    )
+    texto = models.TextField()
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="registros_nas_ordens",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "registro no histórico"
+        verbose_name_plural = "registros no histórico"
+        ordering = ["criado_em", "pk"]
+        indexes = [models.Index(fields=["ordem", "criado_em"])]
+
+    def __str__(self) -> str:
+        return f"{self.get_tipo_display()} na OS #{self.ordem.numero}"
 
 
 def caminho_da_foto(instancia: "FotoOS", nome_enviado: str) -> str:

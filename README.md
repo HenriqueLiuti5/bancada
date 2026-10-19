@@ -5,12 +5,12 @@ customer follows the repair through a public link, without creating an account.
 
 ## Current status
 
-Phases 4A to 4E and 4G to 4M of the self-service launch are done, and so is the server side of
+Phases 4A to 4E and 4G to 4N of the self-service launch are done, and so is the server side of
 publishing (4F): the production setup in `infra/producao/` is ready and tested. Browser tests walk
 a new shop from sign-up through an order, from the counter to pickup, and on to the customer's
-tracking page, at desktop and phone sizes. Before going live, phases 4N to 4T add changing an
-order's customer, internal comments on the order history, a stores screen, per-shop time zones,
-parts stock, the shop's finances, refreshed landing page screenshots, the final terms with visit
+tracking page, at desktop and phone sizes, and move an order opened on the wrong customer to the
+right one. Before going live, phases 4O to 4T add a stores screen, per-shop time zones, parts
+stock, the shop's finances, refreshed landing page screenshots, the final terms with visit
 analytics and paid plans; see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
@@ -18,7 +18,12 @@ the link by email, follows the repair without creating an account and, at pickup
 warranty receipt as a PDF. If something was typed wrong at the counter, anyone on the team fixes the
 customer's name, phone, email or CPF and the device's brand, model, color or IMEI from the order
 screen; the fix applies to all of that customer's orders and shows up on the tracking page right
-away.
+away. When an open order was opened on the wrong customer, anyone on the team moves it to the right
+one, found in the search or registered on the spot. The device goes along when it has no other
+orders; otherwise it stays with the first customer and the right customer's device is picked or
+registered. The tracking link changes, so whoever got the old one can no longer open it, and the
+change is recorded in the order history and in the audit log. The team also leaves comments on the
+order history at any stage, without moving the order along; the customer never sees them.
 
 At pickup, whoever is at the counter records how much was charged and how the customer paid: PIX,
 cash, debit or credit card, split however needed. The amount comes pre-filled with the approved

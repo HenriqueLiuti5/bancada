@@ -1,18 +1,9 @@
 import pytest
-from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from bancada.auditoria.models import Acao, RegistroDeAuditoria
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.tenants.models import Tenant, Usuario
-
-
-@pytest.fixture
-def api_atendente(atendente_do_tenant: Usuario) -> APIClient:
-    cliente_api = APIClient()
-    token, _ = Token.objects.get_or_create(user=atendente_do_tenant)
-    cliente_api.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
-    return cliente_api
 
 
 @pytest.mark.django_db

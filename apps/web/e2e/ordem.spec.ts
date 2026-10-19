@@ -2,6 +2,8 @@ import type { Locator, Page } from "@playwright/test";
 import { diaDaquiA, donoNovo, expect, fotoDoAparelho, pularTour, test, type Dono } from "./apoio";
 
 const CLIENTE = { nome: "Maria Aparecida Souza", primeiroNome: "Maria", telefone: "11987654321" };
+const CLIENTE_ERRADA = { nome: "Mariana Silva", telefone: "11977776666" };
+const COMENTARIO = "Cliente pediu para ligar antes de trocar a tela.";
 const LEGENDA_DA_FOTO = "Tela trincada no canto";
 const ETAPAS = ["Recebido", "Em diagnóstico", "Orçamento enviado", "Aprovado", "Em reparo", "Pronto", "Entregue"];
 
@@ -51,6 +53,21 @@ async function avancar(page: Page, botao: string, etapa: string): Promise<void> 
 async function conferirFoto(foto: Locator): Promise<void> {
   await expect(foto).toBeVisible();
   await expect.poll(() => foto.evaluate((imagem: HTMLImageElement) => imagem.naturalWidth)).toBeGreaterThan(0);
+}
+
+async function irParaNovaOrdem(page: Page): Promise<void> {
+  await page.getByRole("link", { name: /Nova ordem/ }).filter({ visible: true }).first().click();
+  await expect(page).toHaveURL(/\/ordens\/nova$/);
+}
+
+async function abrirComOProblema(page: Page, problema: string): Promise<void> {
+  await page.getByRole("textbox", { name: "Problema relatado" }).fill(problema);
+  await page.getByRole("button", { name: "Abrir ordem de serviço" }).click();
+  await expect(page).toHaveURL(/\/ordens\/\d+$/);
+}
+
+function historicoDa(page: Page): Locator {
+  return page.getByRole("tabpanel", { name: /Histórico/ });
 }
 
 test("a assistência se cadastra, atende uma ordem do balcão à entrega e o cliente acompanha", async ({
@@ -185,5 +202,93 @@ test("a assistência se cadastra, atende uma ordem do balcão à entrega e o cli
 
     await page.goto("/ordens");
     await expect(page).toHaveURL(/\/login$/);
+  });
+});
+
+test("a equipe comenta na ordem e passa para a cliente certa a ordem aberta na cliente errada", async ({
+  page,
+}) => {
+  const dono = donoNovo();
+
+  await test.step("cria a conta e abre uma ordem para a Mariana", async () => {
+    await criarConta(page, dono);
+    await pularTour(page, "Boas-vindas ao Bancada");
+
+    await irParaNovaOrdem(page);
+    await pularTour(page, "Cliente");
+    await page.getByRole("button", { name: "Cadastrar cliente novo" }).click();
+    await page.getByRole("textbox", { name: "Nome", exact: true }).fill(CLIENTE_ERRADA.nome);
+    await page.getByRole("textbox", { name: "Telefone / WhatsApp" }).fill(CLIENTE_ERRADA.telefone);
+    await page.getByRole("textbox", { name: "Marca" }).fill("Apple");
+    await page.getByRole("textbox", { name: "Modelo" }).fill("iPhone 11");
+    await abrirComOProblema(page, "A bateria descarrega rápido.");
+    await pularTour(page, "O que fazer agora");
+  });
+
+  await test.step("abre outra ordem escolhendo a Mariana na busca, por engano", async () => {
+    await irParaNovaOrdem(page);
+    await page.getByRole("searchbox", { name: "Buscar cliente por nome ou telefone" }).fill("Mari");
+    await page.getByRole("button", { name: new RegExp(CLIENTE_ERRADA.nome) }).click();
+    await expect(page.getByRole("button", { name: /Apple iPhone 11/ })).toHaveAttribute("aria-pressed", "true");
+    await abrirComOProblema(page, "Caiu no chão e a tela trincou.");
+    await expect(page.getByRole("heading", { name: "Aparelho recebido" })).toBeVisible();
+  });
+
+  await test.step("comenta no histórico sem mudar de etapa", async () => {
+    await page.getByRole("tab", { name: /Histórico/ }).click();
+    const comentario = historicoDa(page).getByRole("textbox", { name: "Comentário" });
+    await comentario.fill(COMENTARIO);
+    await historicoDa(page).getByRole("button", { name: "Comentar" }).click();
+
+    await expect(historicoDa(page).getByRole("listitem").filter({ hasText: COMENTARIO })).toContainText(
+      `${dono.nome} comentou`,
+    );
+    await expect(comentario).toHaveValue("");
+    await expect(page.getByRole("heading", { name: "Aparelho recebido" })).toBeVisible();
+  });
+
+  let linkAntigo = "";
+
+  await test.step("troca a cliente, cadastrando a certa e o aparelho dela na hora", async () => {
+    linkAntigo = (await page.getByRole("link", { name: "Ver como o cliente vê" }).getAttribute("href")) ?? "";
+    await page.getByRole("link", { name: "Editar cliente e aparelho" }).click();
+    await expect(page.getByRole("heading", { name: "Cliente e aparelho" })).toBeVisible();
+    await page.getByRole("link", { name: "Trocar o cliente" }).click();
+
+    await expect(page.getByRole("heading", { name: "Trocar o cliente" })).toBeVisible();
+    await expect(page.getByText("Hoje a ordem está com")).toBeVisible();
+    await expect(
+      page.getByText(`O Apple iPhone 11 tem outras ordens e continua com ${CLIENTE_ERRADA.nome}.`),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Cadastrar cliente novo" }).click();
+    await page.getByRole("textbox", { name: "Nome", exact: true }).fill(CLIENTE.nome);
+    await page.getByRole("textbox", { name: "Telefone / WhatsApp" }).fill(CLIENTE.telefone);
+    await page.getByRole("textbox", { name: "Marca" }).fill("Samsung");
+    await page.getByRole("textbox", { name: "Modelo" }).fill("Galaxy A54");
+    await page.getByRole("button", { name: "Trocar o cliente" }).click();
+
+    await expect(page).toHaveURL(/\/ordens\/\d+$/);
+    await expect(page.getByText(`Samsung Galaxy A54 · ${CLIENTE.nome}`)).toBeVisible();
+  });
+
+  await test.step("o histórico mostra a troca, e só o link novo abre a página do cliente", async () => {
+    await page.getByRole("tab", { name: /Histórico/ }).click();
+    await expect(historicoDa(page).getByRole("listitem").filter({ hasText: "trocou o cliente" })).toContainText(
+      `De ${CLIENTE_ERRADA.nome} para ${CLIENTE.nome}. Aparelho trocado de Apple iPhone 11 para Samsung Galaxy A54.`,
+    );
+    await expect(historicoDa(page)).toContainText(COMENTARIO);
+
+    const linkNovo = (await page.getByRole("link", { name: "Ver como o cliente vê" }).getAttribute("href")) ?? "";
+    expect(linkNovo).not.toBe(linkAntigo);
+
+    await page.context().clearCookies();
+    await page.goto(new URL(linkAntigo).pathname);
+    await expect(page.getByRole("heading", { name: "Link não encontrado" })).toBeVisible();
+
+    await page.goto(new URL(linkNovo).pathname);
+    await expect(page.getByRole("heading", { name: `Olá, ${CLIENTE.primeiroNome}!` })).toBeVisible();
+    await expect(page.getByText("Aqui você acompanha o reparo do seu Samsung Galaxy A54.")).toBeVisible();
+    await expect(page.locator("body")).not.toContainText(COMENTARIO);
   });
 });

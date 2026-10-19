@@ -20,7 +20,7 @@ function aparelhoInicial(cliente: Cliente): string {
   return "";
 }
 
-function Secao({
+export function Secao({
   icone: Icone,
   titulo,
   erro,
@@ -31,7 +31,7 @@ function Secao({
   icone: Icon;
   titulo: string;
   erro?: string;
-  tour: string;
+  tour?: string;
   obrigatoria?: boolean;
   children: React.ReactNode;
 }) {

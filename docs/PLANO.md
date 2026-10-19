@@ -28,6 +28,7 @@ OrdemServico
   checklist de entrada, fotos, garantia, datas, token público
     ──< ItemOrcamento (peça ou serviço, valor, aprovado)
     ──< EventoOS (histórico imutável: quem, quando, de qual status para qual)
+    ──< RegistroOS (comentários da equipe e troca de cliente, também imutáveis)
 ```
 
 ### Estados de uma ordem de serviço
@@ -84,7 +85,7 @@ o operador.
 | 4K | Conferência dos cadastros e tela da ordem guiada | concluída |
 | 4L | Tela da ordem no modelo de chamado | concluída |
 | 4M | Testes automáticos do site | concluída |
-| 4N | Troca do cliente da ordem e comentários internos no histórico | |
+| 4N | Troca do cliente da ordem e comentários internos no histórico | concluída |
 | 4O | Lojas pela tela e fuso horário por assistência | |
 | 4P | Estoque de peças | |
 | 4Q | Financeiro da loja | |
@@ -414,11 +415,19 @@ os testes vieram antes. Na entrega:
 
 ### 4N — Troca do cliente da ordem e comentários internos
 
-- Trocar o cliente de uma ordem aberta no cliente errado, o caso da Maria Silva da ADR 0027: a ordem
-  passa para o cliente certo, e a troca fica no histórico e na auditoria.
-- Comentários internos no histórico da ordem: qualquer pessoa da equipe escreve uma anotação a
-  qualquer momento, sem mudar de etapa, e ela aparece no histórico com quem escreveu e a hora, como
-  num chamado (ADR 0031). Só a equipe vê; o cliente, não.
+A ordem aberta no cliente errado, o caso da Maria Silva da ADR 0027, não tinha conserto: corrigir os
+dados mudava o cadastro de outra pessoa. E o histórico no modelo de chamado da 4L ainda não aceitava
+anotações da equipe. Na entrega:
+
+- Troca do cliente de uma ordem aberta, pela tela Cliente e aparelho. O cliente certo vem da busca ou
+  é cadastrado na hora. O aparelho vai junto quando só tem aquela ordem; quando tem outras, fica com o
+  cliente errado, e a tela pede o aparelho do certo, já cadastrado ou novo.
+- A troca gera um link de acompanhamento novo, porque o antigo pode ter chegado à pessoa errada, e
+  fica no histórico, com quem fez e quando, e na auditoria.
+- Comentários no histórico: qualquer pessoa da equipe escreve, em qualquer etapa e sem mudar de
+  etapa, e o comentário aparece com quem escreveu e a hora. O cliente não vê, nem na página dele, nem
+  nos PDFs e nos e-mails.
+- Teste de navegador do comentário e da troca, no computador e no celular (ADR 0034).
 
 ### 4O — Lojas pela tela e fuso horário
 

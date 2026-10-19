@@ -21,6 +21,7 @@ type Props = {
   rascunho: string;
   erros: Record<string, string>;
   valores: Record<string, string>;
+  ignorar?: number;
   onEscolher: (cliente: Cliente) => void;
   onNovo: (termo: string) => void;
   onTrocar: () => void;
@@ -30,7 +31,7 @@ function pareceTelefone(texto: string): boolean {
   return texto.replace(/\D/g, "").length >= DIGITOS_QUE_INDICAM_TELEFONE;
 }
 
-function Busca({ onEscolher, onNovo }: Pick<Props, "onEscolher" | "onNovo">) {
+function Busca({ ignorar, onEscolher, onNovo }: Pick<Props, "ignorar" | "onEscolher" | "onNovo">) {
   const [termo, setTermo] = useState("");
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const procurado = termo.trim();
@@ -55,7 +56,7 @@ function Busca({ onEscolher, onNovo }: Pick<Props, "onEscolher" | "onNovo">) {
   }, [procurado]);
 
   const pronto = procurado.length >= MINIMO_PARA_BUSCAR && resultado?.termo === procurado;
-  const clientes = pronto ? resultado.clientes : [];
+  const clientes = pronto ? resultado.clientes.filter((cliente) => cliente.id !== ignorar) : [];
 
   return (
     <div className="space-y-3">
@@ -204,5 +205,5 @@ export function EscolhaDoCliente(props: Props) {
     );
   }
 
-  return <Busca onEscolher={props.onEscolher} onNovo={props.onNovo} />;
+  return <Busca ignorar={props.ignorar} onEscolher={props.onEscolher} onNovo={props.onNovo} />;
 }
