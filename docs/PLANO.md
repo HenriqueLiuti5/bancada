@@ -83,7 +83,7 @@ o operador.
 | 4J | Revisão de segurança antes da publicação | concluída |
 | 4K | Conferência dos cadastros e tela da ordem guiada | concluída |
 | 4L | Tela da ordem no modelo de chamado | concluída |
-| 4M | Testes automáticos do site | |
+| 4M | Testes automáticos do site | concluída |
 | 4N | Troca do cliente da ordem e comentários internos no histórico | |
 | 4O | Lojas pela tela e fuso horário por assistência | |
 | 4P | Estoque de peças | |
@@ -397,15 +397,20 @@ histórico com tudo o que aconteceu e os dados ao lado. Na entrega:
 
 ### 4M — Testes automáticos do site
 
-Até aqui só a API tem testes. O site passa pela verificação do código, dos tipos e da montagem, mas
-nada abre as telas para ver se funcionam. Como as fases seguintes mexem nelas, os testes vêm antes:
+Até aqui só a API tinha testes, e nada abria as telas do site. Como as fases seguintes mexem nelas,
+os testes vieram antes. Na entrega:
 
-- Testes que abrem o site num navegador de verdade e passam pelos caminhos principais: entrar, abrir
-  uma ordem com cliente novo, enviar foto, montar e aprovar o orçamento, entregar com pagamento e
-  abrir a página do cliente. Eles rodam na CI, sobre as imagens de produção.
-- Testes das funções do site que conferem e formatam dados, como telefone, CPF e CNPJ, datas e
-  dinheiro.
-- O aviso do `braces`, que só existe no desenvolvimento, conferido de novo (ADR 0029).
+- Testes que abrem o site num navegador de verdade e fazem o caminho de uma assistência nova: criar
+  a conta, sair e entrar, abrir uma ordem com cliente e aparelho novos, enviar foto, montar, enviar
+  e aprovar o orçamento, consertar, entregar com o pagamento dividido, baixar os PDFs e abrir a
+  página do cliente sem estar logado. Também abrem as páginas públicas e a demonstração. Rodam no
+  tamanho de computador e no de celular, e qualquer erro no console ou violação da CSP reprova.
+- Na CI, esses testes rodam sobre as imagens de produção, no mesmo job que já as subia como no
+  servidor.
+- Testes das funções do site que conferem e formatam dados: telefone, CPF e CNPJ, datas em qualquer
+  fuso do Brasil, dinheiro, WhatsApp e erros dos formulários. Outros três conferem que o site e a
+  API aceitam os mesmos DDDs, gravam a mesma versão dos termos e limitam a foto ao mesmo tamanho.
+- O aviso do `braces` conferido de novo: continua sem correção e só no desenvolvimento (ADR 0033).
 
 ### 4N — Troca do cliente da ordem e comentários internos
 

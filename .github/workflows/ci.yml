@@ -104,6 +104,9 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      - name: Unit tests
+        run: npm test
+
       - name: Build
         run: npm run build
 
@@ -202,6 +205,34 @@ jobs:
           curl -sf -o /dev/null http://localhost:3000/
           curl -sf -o /dev/null http://localhost:3000/demonstracao
           curl -sf -o /dev/null http://localhost:8000/static/admin/css/base.css
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Instalar o Playwright e o navegador
+        working-directory: apps/web
+        run: |
+          npm ci
+          npx playwright install --with-deps --only-shell chromium
+
+      - name: Testar o site no navegador
+        working-directory: apps/web
+        env:
+          ENDERECO_DO_SITE: http://localhost:3000
+        run: npx playwright test
+
+      - name: Guardar o relatório dos testes do navegador
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorio-do-playwright
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          retention-days: 7
 
       - name: Fazer um backup e restaurá-lo num banco de teste
         run: >-

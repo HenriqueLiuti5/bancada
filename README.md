@@ -5,12 +5,13 @@ customer follows the repair through a public link, without creating an account.
 
 ## Current status
 
-Phases 4A to 4E and 4G to 4L of the self-service launch are done, and so is the server side of
-publishing (4F): the production setup in `infra/producao/` is ready and tested. Before going live,
-phases 4M to 4T add browser tests, changing an order's customer, internal comments on the order
-history, a stores screen, per-shop time zones, parts stock, the shop's finances, refreshed landing
-page screenshots, the final terms with visit analytics and paid plans; see the
-[project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
+Phases 4A to 4E and 4G to 4M of the self-service launch are done, and so is the server side of
+publishing (4F): the production setup in `infra/producao/` is ready and tested. Browser tests walk
+a new shop from sign-up through an order, from the counter to pickup, and on to the customer's
+tracking page, at desktop and phone sizes. Before going live, phases 4N to 4T add changing an
+order's customer, internal comments on the order history, a stores screen, per-shop time zones,
+parts stock, the shop's finances, refreshed landing page screenshots, the final terms with visit
+analytics and paid plans; see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the
@@ -262,7 +263,7 @@ through an SSH tunnel. The step-by-step guide, in Portuguese, is in
 
 A CI job builds the production images and runs them the way production does: it creates the
 database roles, migrates as the table owner, seeds data and starts the API and the site with the
-application role, then takes a backup and restores it.
+application role, runs the browser tests against them, then takes a backup and restores it.
 
 ## Commands
 
@@ -285,11 +286,27 @@ make superuser   # creates an admin user
 make clean       # stops everything and deletes the local database
 ```
 
+The site's tests run on the machine itself, with Node 22 or newer, from `apps/web`:
+
+```bash
+cd apps/web
+npm ci                           # once, and again when the dependencies change
+npm test                         # tests the functions that check and format data
+npx playwright install chromium  # once
+npm run e2e                      # opens the site in a browser and walks the main paths
+```
+
+`npm run e2e` opens http://localhost:3000, so the services have to be up (`make up`). It fails on
+any error in the browser console, including Content Security Policy violations. Each run signs up
+two new shops, one per screen size, named "Assistência Teste" plus a code, in the local database.
+To test another address, set `ENDERECO_DO_SITE`.
+
 ## Structure
 
 ```
 apps/api                              Django backend, Celery and tests
 apps/web                              Next.js frontend
+apps/web/e2e                          Browser tests (Playwright)
 apps/web/src/app/(inicio)             Landing page, its sections and the system screenshots
 apps/web/src/componentes/ui           Reusable UI pieces (button, field, card, badge...)
 apps/web/src/componentes/icones.tsx   Every icon in the system, in one place

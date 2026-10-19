@@ -38,3 +38,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0030](0030-conferencia-dos-cadastros-e-tela-da-ordem-guiada.md) | Conferência dos cadastros e tela da ordem guiada |
 | [0031](0031-tela-da-ordem-no-modelo-de-chamado.md) | Tela da ordem no modelo de chamado |
 | [0032](0032-servidor-de-producao.md) | Servidor de produção |
+| [0033](0033-testes-automaticos-do-site.md) | Testes automáticos do site |
