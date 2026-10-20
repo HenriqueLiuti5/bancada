@@ -554,3 +554,18 @@ Ficam para quando cada parte chegar:
 - Documentos que o Asaas exige para receber (CPF ou CNPJ) e emissão de nota fiscal.
 - Nome do domínio.
 - Provedores de servidor, e-mail, armazenamento e monitoramento.
+
+### Defeitos conhecidos
+
+Notados na correção dos formulários, em 20 de outubro de 2026, e ainda sem correção:
+
+- Na aprovação sem nenhum item marcado, a recusa diz "Marque ao menos um item. Se o cliente recusou
+  tudo, use Reprovado.", mas o botão da tela se chama "O cliente recusou". O texto está em
+  `apps/api/bancada/ordens/serializers.py`.
+- Quando outra pessoa já mudou a etapa da ordem, quem tenta a mesma mudança vê a mensagem técnica da
+  API, com os nomes internos das etapas. Na entrega feita por duas pessoas ao mesmo tempo, a segunda
+  vê "Não é possível ir de 'entregue' para 'entregue'. A partir de 'entregue' só: nenhum." O texto
+  sai de `apps/api/bancada/ordens/estados.py`.
+
+O teste de navegador dos formulários (`apps/web/e2e/formularios.spec.ts`) procura o começo das duas
+mensagens e precisa mudar junto com elas.

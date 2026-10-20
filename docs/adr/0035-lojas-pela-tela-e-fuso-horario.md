@@ -176,5 +176,9 @@ recarregar a página, depois de cada recusa e depois de cada troca de papel ou d
 conferência foi rodada sem a sua correção, e o teste reprovou em todas. A peça que falta e as
 anotações ficaram sem teste, porque nenhuma recusa delas se provoca pela tela.
 
+Em 20 de outubro de 2026, as duas foram conferidas uma vez no navegador, parando a API na hora de
+salvar. Cada uma mostrou "Não foi possível falar com o servidor." com o texto ainda no campo, e o
+envio seguinte, com a API de volta, gravou o mesmo texto.
+
 Cada execução completa dos testes de navegador passa a criar oito assistências, quatro por tamanho
 de tela, ainda abaixo do limite de 10 cadastros por hora na CI.
