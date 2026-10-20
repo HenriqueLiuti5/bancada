@@ -22,7 +22,13 @@ const INICIAL: EstadoDaFoto = {};
 async function enviarSeCouber(anterior: EstadoDaFoto, dados: FormData): Promise<EstadoDaFoto> {
   const arquivo = dados.get("arquivo");
   if (arquivo instanceof File && fotoPassaDoTamanho(arquivo)) {
-    return { erro: `A imagem passa de ${TAMANHO_MAXIMO_DA_FOTO_EM_MB} MB.` };
+    return {
+      erro: `A imagem passa de ${TAMANHO_MAXIMO_DA_FOTO_EM_MB} MB.`,
+      valores: {
+        momento: String(dados.get("momento") ?? "entrada"),
+        legenda: String(dados.get("legenda") ?? ""),
+      },
+    };
   }
   return enviarFoto(anterior, dados);
 }
@@ -104,6 +110,7 @@ export function FotosDaOrdem({
   const [estado, acao, enviando] = useActionState(enviarSeCouber, INICIAL);
   const [arquivo, setArquivo] = useState("");
   const formulario = useRef<HTMLFormElement>(null);
+  const valores = estado.valores ?? {};
 
   useEffect(() => {
     if (estado.enviada) formulario.current?.reset();
@@ -144,10 +151,13 @@ export function FotosDaOrdem({
         />
 
         <div className="flex flex-wrap gap-2">
+          {/* O React limpa o formulário depois de cada envio e só lê o defaultValue de um select
+              quando ele nasce: a chave o recria com o momento que foi enviado. */}
           <select
+            key={valores.momento}
             name="momento"
             aria-label="Momento da foto"
-            defaultValue="entrada"
+            defaultValue={valores.momento ?? "entrada"}
             className={juntar(seletor, "w-auto")}
           >
             <option value="entrada">Na entrada</option>
@@ -156,6 +166,7 @@ export function FotosDaOrdem({
           <input
             name="legenda"
             aria-label="Legenda"
+            defaultValue={valores.legenda}
             placeholder="Legenda (opcional)"
             className={juntar(campo, "min-w-0 flex-1 basis-48")}
           />

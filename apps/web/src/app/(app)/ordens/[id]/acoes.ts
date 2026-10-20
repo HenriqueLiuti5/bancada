@@ -4,15 +4,19 @@ import { revalidatePath } from "next/cache";
 import { chamarApi, enviarArquivo, mensagemDaApi } from "@/lib/api";
 import { lerReais } from "@/lib/moeda";
 
-export type EstadoTransicao = { erro?: string };
-export type EstadoDaFoto = { erro?: string; enviada?: boolean };
+export type EstadoTransicao = { erro?: string; nota?: string; aprovados?: number[] };
+export type EstadoDaFoto = { erro?: string; enviada?: boolean; valores?: Record<string, string> };
 export type EstadoDaSenha = { senha?: string; erro?: string; revelada?: boolean };
 export type EstadoDaCorrecaoDaSenha = { senha?: string; erro?: string };
-export type EstadoDasAnotacoes = { erro?: string; salvo?: boolean };
+export type EstadoDasAnotacoes = { erro?: string; salvo?: boolean; valores?: Record<string, string> };
 export type EstadoDaFicha = { erro?: string; salvo?: boolean };
-export type EstadoDoItem = { erro?: string; adicionado?: boolean };
+export type EstadoDoItem = { erro?: string; adicionado?: boolean; valores?: Record<string, string> };
 export type EstadoDaEntrega = { erro?: string };
-export type EstadoDoRecebimento = { erro?: string; registrado?: boolean };
+export type EstadoDoRecebimento = {
+  erro?: string;
+  registrado?: boolean;
+  valores?: Record<string, string>;
+};
 export type EstadoDoComentario = { erro?: string; texto?: string };
 
 type PagamentoInformado = { forma: string; valor: string };
@@ -47,7 +51,11 @@ export async function transicionar(
       corpo: escolheuItens ? { status, nota, itens_aprovados: itensAprovados } : { status, nota },
     });
   } catch (erro) {
-    return { erro: mensagemDaApi(erro, "Não foi possível mudar o status.") };
+    return {
+      erro: mensagemDaApi(erro, "Não foi possível mudar o status."),
+      nota,
+      aprovados: escolheuItens ? itensAprovados : undefined,
+    };
   }
 
   revalidatePath(`/ordens/${id}`);
@@ -61,20 +69,24 @@ export async function enviarFoto(
 ): Promise<EstadoDaFoto> {
   const id = String(dados.get("id"));
   const arquivo = dados.get("arquivo");
+  const valores = {
+    momento: String(dados.get("momento") ?? "entrada"),
+    legenda: String(dados.get("legenda") ?? ""),
+  };
 
   if (!(arquivo instanceof File) || arquivo.size === 0) {
-    return { erro: "Escolha uma foto do aparelho." };
+    return { erro: "Escolha uma foto do aparelho.", valores };
   }
 
   const envio = new FormData();
   envio.set("arquivo", arquivo);
-  envio.set("momento", String(dados.get("momento") ?? "entrada"));
-  envio.set("legenda", String(dados.get("legenda") ?? ""));
+  envio.set("momento", valores.momento);
+  envio.set("legenda", valores.legenda);
 
   try {
     await enviarArquivo(`/api/ordens/${id}/fotos/`, envio);
   } catch (erro) {
-    return { erro: mensagemDaApi(erro, "Não foi possível enviar a foto.") };
+    return { erro: mensagemDaApi(erro, "Não foi possível enviar a foto."), valores };
   }
 
   revalidatePath(`/ordens/${id}`);
@@ -151,7 +163,7 @@ export async function salvarAnotacoes(
   try {
     await chamarApi(`/api/ordens/${id}/`, { metodo: "PATCH", corpo });
   } catch (erro) {
-    return { erro: mensagemDaApi(erro, "Não foi possível salvar as anotações.") };
+    return { erro: mensagemDaApi(erro, "Não foi possível salvar as anotações."), valores: corpo };
   }
 
   revalidatePath(`/ordens/${id}`);
@@ -189,21 +201,23 @@ export async function adicionarItem(
   dados: FormData,
 ): Promise<EstadoDoItem> {
   const id = String(dados.get("id"));
+  const tipo = String(dados.get("tipo") ?? "peca");
   const descricao = String(dados.get("descricao") ?? "").trim();
   const digitado = String(dados.get("valor") ?? "").trim();
   const valor = lerReais(digitado);
+  const valores = { tipo, descricao, valor: digitado };
 
-  if (!descricao) return { erro: "Descreva a peça ou o serviço." };
-  if (!digitado) return { erro: "Informe o valor." };
-  if (valor === null) return { erro: "Valor inválido. Escreva só o número, como 150,00." };
+  if (!descricao) return { erro: "Descreva a peça ou o serviço.", valores };
+  if (!digitado) return { erro: "Informe o valor.", valores };
+  if (valor === null) return { erro: "Valor inválido. Escreva só o número, como 150,00.", valores };
 
   try {
     await chamarApi(`/api/ordens/${id}/itens/`, {
       metodo: "POST",
-      corpo: { tipo: String(dados.get("tipo") ?? "peca"), descricao, valor },
+      corpo: { tipo, descricao, valor },
     });
   } catch (erro) {
-    return { erro: mensagemDaApi(erro, "Não foi possível adicionar o item.") };
+    return { erro: mensagemDaApi(erro, "Não foi possível adicionar o item."), valores };
   }
 
   revalidatePath(`/ordens/${id}`);
@@ -253,18 +267,21 @@ export async function receberPagamento(
   dados: FormData,
 ): Promise<EstadoDoRecebimento> {
   const id = String(dados.get("id"));
-  const valor = lerReais(String(dados.get("valor") ?? ""));
+  const forma = String(dados.get("forma") ?? "pix");
+  const digitado = String(dados.get("valor") ?? "");
+  const valor = lerReais(digitado);
+  const valores = { forma, valor: digitado };
   if (valor === null || Number(valor) === 0) {
-    return { erro: "Informe quanto o cliente pagou. Escreva só o número, como 150,00." };
+    return { erro: "Informe quanto o cliente pagou. Escreva só o número, como 150,00.", valores };
   }
 
   try {
     await chamarApi(`/api/ordens/${id}/pagamentos/`, {
       metodo: "POST",
-      corpo: { forma: String(dados.get("forma") ?? "pix"), valor },
+      corpo: { forma, valor },
     });
   } catch (erro) {
-    return { erro: mensagemDaApi(erro, "Não foi possível registrar o pagamento.") };
+    return { erro: mensagemDaApi(erro, "Não foi possível registrar o pagamento."), valores };
   }
 
   revalidatePath(`/ordens/${id}`);

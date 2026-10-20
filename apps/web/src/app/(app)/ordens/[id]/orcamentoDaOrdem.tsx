@@ -67,6 +67,7 @@ function NovoItem({ ordem }: { ordem: Ordem }) {
   const [estado, acao, adicionando] = useActionState(adicionarItem, INICIAL);
   const formulario = useRef<HTMLFormElement>(null);
   const descricao = useRef<HTMLInputElement>(null);
+  const valores = estado.valores ?? {};
 
   useEffect(() => {
     if (!estado.adicionado) return;
@@ -81,7 +82,14 @@ function NovoItem({ ordem }: { ordem: Ordem }) {
       <div className="flex flex-wrap items-end gap-2">
         <label className="space-y-1">
           <span className={ROTULO_DO_CAMPO}>Tipo</span>
-          <select name="tipo" defaultValue="peca" className={juntar(seletor, "w-auto")}>
+          {/* O React limpa o formulário depois de cada envio e só lê o defaultValue de um select
+              quando ele nasce: a chave o recria com o tipo que foi enviado. */}
+          <select
+            key={valores.tipo}
+            name="tipo"
+            defaultValue={valores.tipo ?? "peca"}
+            className={juntar(seletor, "w-auto")}
+          >
             <option value="peca">Peça</option>
             <option value="servico">Serviço</option>
           </select>
@@ -97,6 +105,7 @@ function NovoItem({ ordem }: { ordem: Ordem }) {
             placeholder="Ex.: Tela com moldura"
             required
             maxLength={180}
+            defaultValue={valores.descricao}
             className={campo}
           />
         </label>
@@ -111,6 +120,7 @@ function NovoItem({ ordem }: { ordem: Ordem }) {
             inputMode="decimal"
             autoComplete="off"
             required
+            defaultValue={valores.valor}
             className={juntar(campo, "tabular-nums")}
           />
         </label>

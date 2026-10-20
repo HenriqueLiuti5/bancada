@@ -10,8 +10,10 @@ publishing (4F): the production setup in `infra/producao/` is ready and tested. 
 a new shop from sign-up through an order, from the counter to pickup, and on to the customer's
 tracking page, at desktop and phone sizes. They also move an order opened on the wrong customer to
 the right one, and open an order in a second store, deactivate that store and switch the shop to
-another time zone. Before going live, phases 4P to 4T add parts stock, the shop's finances,
-refreshed landing page screenshots, the final terms with visit analytics and paid plans; see the
+another time zone. Another test has a submission refused in each form, from the team invite to a
+payment taken after pickup, and checks that the form keeps what was sent. Before going live, phases
+4P to 4T add parts stock, the shop's finances, refreshed landing page screenshots, the final terms
+with visit analytics and paid plans; see the
 [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
@@ -316,7 +318,7 @@ npm run e2e                      # opens the site in a browser and walks the mai
 
 `npm run e2e` opens http://localhost:3000, so the services have to be up (`make up`). It fails on
 any error in the browser console, including Content Security Policy violations. Each run signs up
-six new shops, three per screen size, named "Assistência Teste" plus a code, in the local database.
+eight new shops, four per screen size, named "Assistência Teste" plus a code, in the local database.
 Sign-up allows 10 shops per hour from the same address, so a second run within the hour hits that
 limit; `THROTTLE_CADASTRO=100/hour` in `.env` raises it on your machine. To test another address,
 set `ENDERECO_DO_SITE`.

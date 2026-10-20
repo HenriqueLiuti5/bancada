@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useState } from "react";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, juntar, seletor } from "@/componentes/ui/estilos";
 import type { Opcao } from "@/lib/tipos";
@@ -25,21 +25,20 @@ export function TecnicoDaOrdem({
   equipe: Opcao[];
 }) {
   const [estado, acao, salvando] = useActionState(salvarNaFicha, INICIAL);
-  const [valor, setValor] = useState(tecnico === null ? "" : String(tecnico));
-  const formulario = useRef<HTMLFormElement>(null);
+  const valor = tecnico === null ? "" : String(tecnico);
 
   return (
-    <form ref={formulario} action={acao} className="space-y-1.5">
+    <form action={acao} className="space-y-1.5">
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="campo" value="tecnico" />
+      {/* O React limpa o formulário depois de cada envio, e um select controlado volta para a
+          primeira opção. Solto, ele é recriado pela chave com o técnico que ficou gravado. */}
       <select
+        key={valor}
         name="valor"
         aria-label="Técnico responsável"
-        value={valor}
-        onChange={(evento) => {
-          setValor(evento.target.value);
-          formulario.current?.requestSubmit();
-        }}
+        defaultValue={valor}
+        onChange={(evento) => evento.currentTarget.form?.requestSubmit()}
         className={seletor}
       >
         <option value="">Ninguém ainda</option>

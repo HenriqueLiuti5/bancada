@@ -55,7 +55,15 @@ function Moldura({ children }: { children: React.ReactNode }) {
   return <div className="mt-5 rounded-xl border border-borda p-4 sm:p-5">{children}</div>;
 }
 
-function EscolhaDosItensAprovados({ itens }: { itens: ItemOrcamento[] }) {
+// O React limpa o formulário depois de cada envio. Depois de uma recusa, as caixas e a observação
+// voltam com o que foi enviado, para o envio seguinte não aprovar o que o cliente recusou.
+function EscolhaDosItensAprovados({
+  itens,
+  estado,
+}: {
+  itens: ItemOrcamento[];
+  estado: EstadoTransicao;
+}) {
   return (
     <fieldset className="space-y-3">
       <legend className="mb-1 text-sm font-semibold">O que o cliente aprovou?</legend>
@@ -67,7 +75,7 @@ function EscolhaDosItensAprovados({ itens }: { itens: ItemOrcamento[] }) {
             type="checkbox"
             name="itens_aprovados"
             value={item.id}
-            defaultChecked
+            defaultChecked={estado.aprovados?.includes(item.id) ?? true}
             className={caixaDeMarcar}
           />
           <span className="min-w-0 flex-1 truncate">{item.descricao}</span>
@@ -76,18 +84,25 @@ function EscolhaDosItensAprovados({ itens }: { itens: ItemOrcamento[] }) {
       ))}
 
       <p className="text-[13px] text-texto-apagado sm:text-xs">Desmarque o que o cliente recusou.</p>
-      <input name="nota" aria-label="Observação" placeholder="Observação (opcional)" className={campo} />
+      <input
+        name="nota"
+        aria-label="Observação"
+        placeholder="Observação (opcional)"
+        defaultValue={estado.nota}
+        className={campo}
+      />
     </fieldset>
   );
 }
 
-function PecaQueFalta() {
+function PecaQueFalta({ estado }: { estado: EstadoTransicao }) {
   return (
     <label className="block space-y-1.5">
       <span className="block text-sm font-semibold">Qual peça está faltando?</span>
       <input
         name="nota"
         autoFocus
+        defaultValue={estado.nota}
         placeholder="Ex.: tela original, chega na sexta"
         className={campo}
       />
@@ -143,7 +158,11 @@ export function AcoesDaEtapa({
       <Moldura>
         <form action={acao} className="space-y-4">
           <input type="hidden" name="id" value={id} />
-          {aprovacao ? <EscolhaDosItensAprovados itens={itens} /> : <PecaQueFalta />}
+          {aprovacao ? (
+            <EscolhaDosItensAprovados itens={itens} estado={estado} />
+          ) : (
+            <PecaQueFalta estado={estado} />
+          )}
           {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
           <div className="flex flex-wrap gap-2">
             <button

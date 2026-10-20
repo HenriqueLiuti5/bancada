@@ -79,6 +79,7 @@ export function NovoRecebimento({
   aoCancelar: () => void;
 }) {
   const [estado, acao, enviando] = useActionState(receberPagamento, INICIAL);
+  const valores = estado.valores ?? {};
 
   return (
     <form action={acao} className="space-y-3">
@@ -86,7 +87,14 @@ export function NovoRecebimento({
       <div className="flex flex-wrap items-end gap-2">
         <label className="space-y-1">
           <span className="block text-xs font-semibold text-texto-suave">Forma</span>
-          <select name="forma" defaultValue="pix" className={juntar(seletor, "w-auto")}>
+          {/* O React limpa o formulário depois de cada envio e só lê o defaultValue de um select
+              quando ele nasce: a chave o recria com a forma que foi enviada. */}
+          <select
+            key={valores.forma}
+            name="forma"
+            defaultValue={valores.forma ?? "pix"}
+            className={juntar(seletor, "w-auto")}
+          >
             {FORMAS_DE_PAGAMENTO.map((forma) => (
               <option key={forma.valor} value={forma.valor}>
                 {forma.rotulo}
@@ -105,7 +113,7 @@ export function NovoRecebimento({
             autoComplete="off"
             required
             autoFocus
-            defaultValue={Number(saldo).toFixed(2).replace(".", ",")}
+            defaultValue={valores.valor ?? Number(saldo).toFixed(2).replace(".", ",")}
             className={juntar(campo, "tabular-nums")}
           />
         </label>

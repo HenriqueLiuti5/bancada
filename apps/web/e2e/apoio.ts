@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { crc32, deflateSync } from "node:zlib";
-import { test as base, expect, type BrowserContext, type Page } from "@playwright/test";
+import { test as base, expect, type BrowserContext, type Locator, type Page } from "@playwright/test";
 
 // Todo teste falha se o navegador registrar um erro no console, inclusive uma violação da política
 // de segurança de conteúdo (CSP), ou uma exceção que a página não tratou.
@@ -69,6 +69,10 @@ export async function pularTour(page: Page, titulo: string): Promise<void> {
   await tour.getByRole("button", { name: "Pular o tour" }).click();
   await expect(tour).toBeHidden();
   await registrado;
+}
+
+export function cartao(page: Page, titulo: string): Locator {
+  return page.locator("section").filter({ has: page.getByRole("heading", { name: titulo, exact: true }) });
 }
 
 export function diaDaquiA(dias: number): string {

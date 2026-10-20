@@ -131,3 +131,50 @@ histórico. Desativar vale para todas e se desfaz.
 
 **Fuso por loja.** Atenderia uma rede com lojas em fusos diferentes, mas cada tela que junta lojas,
 como o painel e a lista, precisaria escolher um fuso. Fica para quando aparecer uma rede assim.
+
+## Atualização: os outros formulários, depois de salvar e depois de uma recusa
+
+Na entrega da fase ficaram anotados no plano três defeitos com a mesma causa da loja. Na tela Equipe
+e na ficha da ordem, o seletor do papel e o do técnico mostravam o valor antigo logo depois de
+salvar. No convite, no item do orçamento e no recebimento, o papel, o tipo e a forma deviam voltar ao
+valor inicial quando a API recusava o envio.
+
+O código do React 19.2 confirma o mecanismo. A limpeza do formulário é pedida antes de a ação rodar
+e acontece quando ela termina, com erro ou sem erro. O `<select>` volta para a opção marcada como
+padrão quando ele nasceu. Num seletor controlado, como era o do técnico, o React não marca nenhuma, e
+ele cai na primeira: por isso a ficha mostrava "Ninguém ainda". Campos de texto e caixas de marcar
+seguem o padrão que recebem a cada desenho, então só continuam com o que foi enviado quando a ação o
+devolve.
+
+Revendo todos os formulários do site, o mesmo defeito apareceu em outros pontos da tela da ordem.
+Na entrega, a linha paga em dinheiro voltava a mostrar PIX, embora o React guardasse "dinheiro", e
+um segundo Confirmar registrava PIX. Na aprovação, as caixas voltavam todas marcadas, e o envio
+seguinte aprovava o que o cliente tinha recusado. O momento da foto voltava para "Na entrada", e o
+valor recebido voltava ao saldo. O que fora digitado sumia: a descrição e o valor do item, a
+observação da entrega e da aprovação, a peça que falta e as anotações do reparo. Os outros
+formulários do site já devolviam o que foi enviado, menos as senhas, que não voltam para a tela.
+
+**Salvar ao escolher.** O papel na Equipe e o técnico na ficha são recriados pela chave com o valor
+gravado, e o do técnico deixou de ser controlado. Se a API recusa a troca, o seletor volta ao que está
+gravado, ao lado da mensagem de erro.
+
+**Formulários com botão.** A ação devolve o que foi enviado, como na abertura da ordem. O seletor é
+recriado com esse valor, e os campos de texto e as caixas de marcar começam com ele. Vale para o
+convite, a foto, o item do orçamento, a aprovação, a peça que falta, o recebimento e as anotações.
+Depois de um envio que dá certo, o item volta a Peça e a foto a "Na entrada", como antes.
+
+**A entrega.** O formulário da entrega guarda tudo no estado, e cada linha de pagamento tem o seu
+seletor. Uma chave por linha recriaria o seletor a cada troca de forma e tiraria o foco dele. Em vez
+disso, cada linha marca como padrão a forma escolhida, e a limpeza a mantém. A observação passou a
+ser controlada, como o resto do formulário.
+
+O teste de navegador novo, `e2e/formularios.spec.ts`, vai do convite de uma pessoa para a equipe ao
+último pagamento de uma ordem e provoca uma recusa em cada formulário: o convite com o e-mail do
+dono, a foto acima de 10 MB, o item com o valor "noventa", a aprovação sem nenhum item, a entrega de
+uma ordem que outra aba já entregou e o pagamento acima do que falta receber. Ele confere a tela sem
+recarregar a página, depois de cada recusa e depois de cada troca de papel ou de técnico. Cada
+conferência foi rodada sem a sua correção, e o teste reprovou em todas. A peça que falta e as
+anotações ficaram sem teste, porque nenhuma recusa delas se provoca pela tela.
+
+Cada execução completa dos testes de navegador passa a criar oito assistências, quatro por tamanho
+de tela, ainda abaixo do limite de 10 cadastros por hora na CI.

@@ -1,5 +1,5 @@
 import type { Locator, Page } from "@playwright/test";
-import { abrirComOProblema, criarConta, donoNovo, expect, pularTour, test } from "./apoio";
+import { abrirComOProblema, cartao, criarConta, donoNovo, expect, pularTour, test } from "./apoio";
 
 // Depois de "Matriz" na ordem alfabética, para não ser a loja que a abertura já traz escolhida.
 const LOJA = { nome: "Unidade Centro", endereco: "Rua XV de Novembro, 100" };
@@ -7,10 +7,6 @@ const PROBLEMA = "Não liga depois que molhou.";
 const BRASILIA = "America/Sao_Paulo";
 const MANAUS = "America/Manaus";
 const UM_MINUTO = 60_000;
-
-function cartao(page: Page, titulo: string): Locator {
-  return page.locator("section").filter({ has: page.getByRole("heading", { name: titulo, exact: true }) });
-}
 
 // As horas e minutos que a tela pode mostrar para um momento entre "de" e "ate", com um minuto de
 // folga para cada lado, porque o relógio pode virar o minuto no meio do passo.

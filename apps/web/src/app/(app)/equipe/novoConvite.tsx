@@ -47,7 +47,10 @@ export function NovoConvite({ assistencia }: { assistencia: string }) {
           <input id="nome" name="nome" required defaultValue={valores.nome} className={campo} />
         </CampoRotulado>
         <CampoRotulado rotulo="Papel" htmlFor="papel" erro={erros.papel} obrigatorio>
+          {/* O React limpa o formulário depois de cada envio e só lê o defaultValue de um select
+              quando ele nasce: a chave o recria com o papel que foi enviado. */}
           <select
+            key={valores.papel}
             id="papel"
             name="papel"
             defaultValue={valores.papel ?? "tecnico"}

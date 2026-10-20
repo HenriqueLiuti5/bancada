@@ -41,7 +41,10 @@ export function Membro({ membro, souEu }: { membro: MembroDaEquipe; souEu: boole
           ) : (
             <form action={alterar}>
               <input type="hidden" name="id" value={membro.id} />
+              {/* O React limpa o formulário depois de cada envio e só lê o defaultValue de um
+                  select quando ele nasce: a chave o recria com o papel que ficou gravado. */}
               <select
+                key={membro.papel}
                 name="papel"
                 aria-label={`Papel de ${nome}`}
                 defaultValue={membro.papel}

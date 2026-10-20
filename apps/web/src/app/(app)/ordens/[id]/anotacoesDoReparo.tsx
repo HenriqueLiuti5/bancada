@@ -11,6 +11,7 @@ const INICIAL: EstadoDasAnotacoes = {};
 
 export function AnotacoesDoReparo({ ordem }: { ordem: Ordem }) {
   const [estado, acao, salvando] = useActionState(salvarAnotacoes, INICIAL);
+  const valores = estado.valores ?? { diagnostico: ordem.diagnostico, laudo: ordem.laudo };
 
   return (
     <form action={acao} className="space-y-4 p-5">
@@ -25,7 +26,7 @@ export function AnotacoesDoReparo({ ordem }: { ordem: Ordem }) {
           id="diagnostico"
           name="diagnostico"
           rows={3}
-          defaultValue={ordem.diagnostico}
+          defaultValue={valores.diagnostico}
           className={areaDeTexto}
         />
       </CampoRotulado>
@@ -35,7 +36,7 @@ export function AnotacoesDoReparo({ ordem }: { ordem: Ordem }) {
         htmlFor="laudo"
         dica="Sai impresso no recibo de entrega."
       >
-        <textarea id="laudo" name="laudo" rows={3} defaultValue={ordem.laudo} className={areaDeTexto} />
+        <textarea id="laudo" name="laudo" rows={3} defaultValue={valores.laudo} className={areaDeTexto} />
       </CampoRotulado>
 
       <div className="flex flex-wrap items-center gap-3">

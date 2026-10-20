@@ -446,6 +446,12 @@ adiantadas. Na entrega:
 - Testes do fuso e das lojas na API, das datas em cada fuso no site e um teste de navegador que cria,
   usa e desativa uma loja e passa a assistência para o horário de Manaus (ADR 0035).
 
+Depois da entrega, a mesma correção chegou aos outros formulários. O papel, na tela Equipe, e o
+técnico, na ficha da ordem, passaram a mostrar o valor gravado logo depois de salvar. Depois de uma
+recusa, cada formulário continua com o que foi enviado, inclusive a forma de pagamento de cada linha
+da entrega e os itens desmarcados na aprovação, que antes voltavam ao valor inicial e saíam errados
+no envio seguinte (ADR 0035).
+
 ### 4P — Estoque de peças
 
 Os sistemas concorrentes controlam as peças no mesmo lugar das ordens. O que entra é decidido no
@@ -548,21 +554,3 @@ Ficam para quando cada parte chegar:
 - Documentos que o Asaas exige para receber (CPF ou CNPJ) e emissão de nota fiscal.
 - Nome do domínio.
 - Provedores de servidor, e-mail, armazenamento e monitoramento.
-
-### Defeitos conhecidos
-
-Achados na Fase 4O, em 19 de outubro de 2026, e ainda sem correção:
-
-- Tela Equipe: depois de trocar o papel de uma pessoa, o seletor volta a mostrar o papel antigo,
-  embora o novo tenha sido gravado. Recarregando a página, aparece o certo.
-- Ficha da ordem: depois de escolher o técnico, o seletor passa a mostrar "Ninguém ainda", embora o
-  técnico tenha sido gravado. Recarregando a página, aparece o certo.
-- Quando a API recusa o envio, devem voltar ao valor inicial o papel do novo convite (Técnico), o
-  tipo do item do orçamento (Peça) e a forma de pagamento do recebimento (PIX), e o envio seguinte
-  pode sair com o valor errado. Os três vêm do mesmo motivo, mas ainda não foram conferidos no
-  navegador.
-
-A causa é a mesma da loja na abertura de ordem, corrigida na 4O (ADR 0035): o React limpa o
-formulário depois de cada envio, e um `<select>` só lê o valor inicial quando é criado. A correção é
-recriar o seletor com o valor enviado, por uma `key`, e o teste de navegador conferir o seletor logo
-depois de salvar, sem recarregar a página.

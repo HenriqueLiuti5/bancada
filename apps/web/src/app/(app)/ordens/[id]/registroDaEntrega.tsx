@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { PlusIcon, XIcon } from "@/componentes/icones";
 import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
@@ -53,9 +53,21 @@ function LinhaDePagamento({
   aoMudar: (mudanca: Partial<Linha>) => void;
   aoRemover: () => void;
 }) {
+  const forma = useRef<HTMLSelectElement>(null);
+
+  // O React limpa o formulário depois de cada envio, e o select volta para a opção marcada como
+  // padrão. Num select controlado o React não marca nenhuma, e a linha mostraria PIX enquanto o
+  // estado guarda outra forma. Marcar a escolhida como padrão mantém a forma na tela e no envio.
+  useEffect(() => {
+    for (const opcao of forma.current?.options ?? []) {
+      opcao.defaultSelected = opcao.value === linha.forma;
+    }
+  }, [linha.forma]);
+
   return (
     <div className="flex items-center gap-2">
       <select
+        ref={forma}
         name="forma"
         aria-label="Forma de pagamento"
         value={linha.forma}
@@ -107,6 +119,7 @@ export function RegistroDaEntrega({
   const [linhas, setLinhas] = useState<Linha[]>(
     aprovado > 0 ? [{ chave: 0, forma: "pix", valor: valorInicial }] : [],
   );
+  const [nota, setNota] = useState("");
   const proximaChave = useRef(1);
 
   const cobradoEmCentavos = emCentavos(cobrado);
@@ -198,6 +211,8 @@ export function RegistroDaEntrega({
         name="nota"
         aria-label="Observação"
         placeholder="Observação (opcional)"
+        value={nota}
+        onChange={(evento) => setNota(evento.target.value)}
         className={campo}
       />
 
