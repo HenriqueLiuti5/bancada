@@ -548,3 +548,21 @@ Ficam para quando cada parte chegar:
 - Documentos que o Asaas exige para receber (CPF ou CNPJ) e emissão de nota fiscal.
 - Nome do domínio.
 - Provedores de servidor, e-mail, armazenamento e monitoramento.
+
+### Defeitos conhecidos
+
+Achados na Fase 4O, em 19 de outubro de 2026, e ainda sem correção:
+
+- Tela Equipe: depois de trocar o papel de uma pessoa, o seletor volta a mostrar o papel antigo,
+  embora o novo tenha sido gravado. Recarregando a página, aparece o certo.
+- Ficha da ordem: depois de escolher o técnico, o seletor passa a mostrar "Ninguém ainda", embora o
+  técnico tenha sido gravado. Recarregando a página, aparece o certo.
+- Quando a API recusa o envio, devem voltar ao valor inicial o papel do novo convite (Técnico), o
+  tipo do item do orçamento (Peça) e a forma de pagamento do recebimento (PIX), e o envio seguinte
+  pode sair com o valor errado. Os três vêm do mesmo motivo, mas ainda não foram conferidos no
+  navegador.
+
+A causa é a mesma da loja na abertura de ordem, corrigida na 4O (ADR 0035): o React limpa o
+formulário depois de cada envio, e um `<select>` só lê o valor inicial quando é criado. A correção é
+recriar o seletor com o valor enviado, por uma `key`, e o teste de navegador conferir o seletor logo
+depois de salvar, sem recarregar a página.
