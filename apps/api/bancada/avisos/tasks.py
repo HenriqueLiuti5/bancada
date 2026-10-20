@@ -117,7 +117,8 @@ def avisar_cliente(evento_id: int) -> str:
 
     aviso.tentativas += 1
     try:
-        montar_mensagem(ordem, modelo, aviso.assunto, contexto, destino).send()
+        with timezone.override(ordem.tenant.fuso_horario):
+            montar_mensagem(ordem, modelo, aviso.assunto, contexto, destino).send()
     except Exception as erro:
         aviso.erro = str(erro)[:500]
         aviso.save(update_fields=["tentativas", "erro", "atualizado_em"])

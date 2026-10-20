@@ -19,6 +19,15 @@ class ApenasDono(permissions.BasePermission):
         return papel_do_pedido(request) == Papel.DONO
 
 
+class AlterarSoDono(permissions.BasePermission):
+    message = ApenasDono.message
+
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return papel_do_pedido(request) == Papel.DONO
+
+
 class DonoOuTecnico(permissions.BasePermission):
     message = "Essa ação é restrita ao dono e aos técnicos."
 

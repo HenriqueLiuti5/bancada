@@ -3,11 +3,11 @@ import logging
 from celery import shared_task
 from django.conf import settings
 from django.db import transaction
-from django.utils import timezone
 
 from bancada.assinaturas import regras, servicos
 from bancada.assinaturas.models import Assinatura, SituacaoDaAssinatura
 from bancada.assinaturas.provedor import ErroNoProvedor, provedor_configurado
+from bancada.core.fuso import hoje_no_bancada
 from bancada.tenants.models import Papel, Usuario
 from bancada.tenants.tasks import REPETIR_SE_O_ENVIO_FALHAR, enviar
 
@@ -37,7 +37,7 @@ def avisar_fim_do_teste(assinatura_id: int) -> str:
     donos = Usuario.objects.filter(
         tenant=assinatura.tenant, papel=Papel.DONO, is_active=True
     ).exclude(email="")
-    quando = quando_termina((assinatura.teste_termina_em - timezone.localdate()).days)
+    quando = quando_termina((assinatura.teste_termina_em - hoje_no_bancada()).days)
 
     for dono in donos:
         enviar(
@@ -58,7 +58,7 @@ def avisar_fim_do_teste(assinatura_id: int) -> str:
 
 @shared_task(name="assinaturas.revisar_assinaturas")
 def revisar_assinaturas() -> int:
-    hoje = timezone.localdate()
+    hoje = hoje_no_bancada()
     mudaram = 0
 
     for assinatura in Assinatura.objects.exclude(situacao=SituacaoDaAssinatura.CANCELADA):
@@ -77,7 +77,7 @@ def revisar_assinaturas() -> int:
 
 @shared_task(name="assinaturas.sincronizar_cobrancas")
 def sincronizar_cobrancas() -> int:
-    hoje = timezone.localdate()
+    hoje = hoje_no_bancada()
     provedor = provedor_configurado()
     sincronizadas = 0
 

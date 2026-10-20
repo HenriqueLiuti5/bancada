@@ -19,7 +19,7 @@ const FASES = [
     icone: StorefrontIcon,
     titulo: "Mais de uma loja",
     texto:
-      "Cada ordem sabe de que loja é, o cliente vê o nome da loja certa e o painel separa os números. Peça pelo WhatsApp e cadastramos as outras lojas.",
+      "Cada ordem sabe de que loja é, o cliente vê o nome da loja certa e o painel separa os números. Você mesmo cadastra as outras lojas, na tela Assistência.",
   },
 ];
 

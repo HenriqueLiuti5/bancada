@@ -10,9 +10,15 @@ import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { chamarApi } from "@/lib/api";
-import { FUSO_HORARIO, hojeEmIso } from "@/lib/datas";
+import { diaEHora, hojeEmIso } from "@/lib/datas";
 import type { Ordem, Usuario } from "@/lib/tipos";
-import { gerenciaEquipe, podeApagar, podeVerSenha, usuarioAtual } from "@/lib/usuario";
+import {
+  fusoDaAssistencia,
+  gerenciaEquipe,
+  podeApagar,
+  podeVerSenha,
+  usuarioAtual,
+} from "@/lib/usuario";
 import { Tour } from "../../tour";
 import { AnotacoesDoReparo } from "./anotacoesDoReparo";
 import { FichaDaOrdem } from "./fichaDaOrdem";
@@ -25,16 +31,6 @@ import { PainelDaEtapa } from "./painelDaEtapa";
 export const dynamic = "force-dynamic";
 
 const STATUS_COM_RECIBO = ["pronto", "entregue", "devolvido_sem_reparo"];
-
-function formatarMomento(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: FUSO_HORARIO,
-  });
-}
 
 function abaInicial(ordem: Ordem): string {
   if (ordem.status === "recebido") return "fotos";
@@ -52,6 +48,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
 
   const base = process.env.APP_PUBLIC_URL ?? "http://localhost:3000";
   const linkDoCliente = `${base}/os/${ordem.token_publico}`;
+  const fuso = fusoDaAssistencia(usuario);
 
   return (
     <>
@@ -59,7 +56,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         voltar={{ href: "/ordens", rotulo: "Ordens de serviço" }}
         titulo={`OS #${ordem.numero}`}
         junto={<Selo status={ordem.status} rotulo={ordem.status_label} />}
-        descricao={`${ordem.aparelho_descricao} · ${ordem.cliente_nome} · aberta em ${formatarMomento(ordem.criado_em)}`}
+        descricao={`${ordem.aparelho_descricao} · ${ordem.cliente_nome} · aberta em ${diaEHora(ordem.criado_em, fuso)}`}
         acoes={
           <>
             <a
@@ -99,7 +96,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
           equipe={equipe}
           linkDoCliente={linkDoCliente}
           podeVerSenha={podeVerSenha(usuario)}
-          hoje={hojeEmIso()}
+          hoje={hojeEmIso(fuso)}
           className="lg:col-start-2 lg:row-span-2 lg:row-start-1"
         />
 
@@ -112,7 +109,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
               id: "historico",
               rotulo: "Histórico",
               icone: <ClockCounterClockwiseIcon size={17} />,
-              conteudo: <HistoricoDaOrdem ordem={ordem} />,
+              conteudo: <HistoricoDaOrdem ordem={ordem} fuso={fuso} />,
             },
             {
               id: "orcamento",
@@ -122,7 +119,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
               conteudo: (
                 <>
                   <OrcamentoDaOrdem ordem={ordem} />
-                  <PagamentoDaOrdem ordem={ordem} podeRemover={gerenciaEquipe(usuario)} />
+                  <PagamentoDaOrdem ordem={ordem} podeRemover={gerenciaEquipe(usuario)} fuso={fuso} />
                 </>
               ),
             },

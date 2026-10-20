@@ -20,26 +20,51 @@ from bancada.core.api import (
     tenant_obrigatorio,
 )
 from bancada.tenants.models import Loja, Papel, Usuario
-from bancada.tenants.permissoes import ApenasDono
+from bancada.tenants.permissoes import AlterarSoDono, ApenasDono
 from bancada.tenants.serializers import (
     AssistenciaSerializer,
     EdicaoDeLojaSerializer,
     EdicaoDeUsuarioSerializer,
     LojaSerializer,
+    NovaLojaSerializer,
     NovaSenhaSerializer,
     UsuarioDaEquipeSerializer,
     UsuarioSerializer,
 )
 
+PERMISSOES_DO_DONO = [
+    IsAuthenticated,
+    PertenceAUmaAssistencia,
+    AssinaturaPermiteEditar,
+    ApenasDono,
+]
+
 
 class LojasView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, AssinaturaPermiteEditar, AlterarSoDono]
 
     def get(self, request: Request) -> Response:
         usuario = request.user
         tenant = usuario.tenant if isinstance(usuario, Usuario) else None
         lojas = Loja.objects.filter(tenant=tenant)
         return Response(LojaSerializer(lojas, many=True).data)
+
+    def post(self, request: Request) -> Response:
+        tenant = tenant_obrigatorio(request)
+        entrada = NovaLojaSerializer(data=request.data, context={"tenant": tenant})
+        entrada.is_valid(raise_exception=True)
+        loja = entrada.save(tenant=tenant)
+
+        registrar(
+            tenant=tenant,
+            usuario=request.user if isinstance(request.user, Usuario) else None,
+            acao=Acao.LOJA_CRIADA,
+            objeto="loja",
+            objeto_id=loja.pk,
+            detalhe=loja.nome,
+            origem=origem_do_pedido(request),
+        )
+        return Response(LojaSerializer(loja).data, status=status.HTTP_201_CREATED)
 
 
 class EquipeView(APIView):
@@ -161,12 +186,7 @@ def _salvar_alteracoes(
 
 
 class AssistenciaView(APIView):
-    permission_classes = [
-        IsAuthenticated,
-        PertenceAUmaAssistencia,
-        AssinaturaPermiteEditar,
-        ApenasDono,
-    ]
+    permission_classes = PERMISSOES_DO_DONO
 
     def get(self, request: Request) -> Response:
         return Response(AssistenciaSerializer(tenant_obrigatorio(request)).data)
@@ -179,15 +199,23 @@ class AssistenciaView(APIView):
 
 
 class LojaView(APIView):
-    permission_classes = [
-        IsAuthenticated,
-        PertenceAUmaAssistencia,
-        AssinaturaPermiteEditar,
-        ApenasDono,
-    ]
+    permission_classes = PERMISSOES_DO_DONO
 
     def patch(self, request: Request, pk: int) -> Response:
-        loja = get_object_or_404(Loja, pk=pk, tenant=tenant_obrigatorio(request))
-        serializer = EdicaoDeLojaSerializer(loja, data=request.data, partial=True)
+        tenant = tenant_obrigatorio(request)
+        loja = get_object_or_404(Loja, pk=pk, tenant=tenant)
+        serializer = EdicaoDeLojaSerializer(
+            loja, data=request.data, partial=True, context={"tenant": tenant}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        desativando = loja.ativa and serializer.validated_data.get("ativa") is False
+        outras_ativas = Loja.objects.filter(tenant=tenant, ativa=True).exclude(pk=loja.pk)
+        if desativando and not outras_ativas.exists():
+            return Response(
+                {"detail": "A assistência precisa de pelo menos uma loja ativa."},
+                status=status.HTTP_409_CONFLICT,
+            )
+
         _salvar_alteracoes(request, loja, serializer, "loja")
         return Response(LojaSerializer(loja).data)

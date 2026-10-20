@@ -86,7 +86,7 @@ export function FiltrosDoPainel({
               <option value="">Todas as lojas</option>
               {lojas.map((opcao) => (
                 <option key={opcao.id} value={opcao.id}>
-                  {opcao.nome}
+                  {opcao.ativa ? opcao.nome : `${opcao.nome} (desativada)`}
                 </option>
               ))}
             </select>

@@ -5,22 +5,13 @@ import { CheckCircleIcon, TrashIcon, WalletIcon } from "@/componentes/icones";
 import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
-import { FUSO_HORARIO } from "@/lib/datas";
+import { dataDoMomento } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import { FORMAS_DE_PAGAMENTO } from "@/lib/pagamentos";
 import type { Ordem, Pagamento } from "@/lib/tipos";
 import { receberPagamento, removerPagamento, type EstadoDoRecebimento } from "./acoes";
 
 const INICIAL: EstadoDoRecebimento = {};
-
-function dataCurta(iso: string): string {
-  return new Date(iso).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: FUSO_HORARIO,
-  });
-}
 
 function Linha({ rotulo, valor, detalhe }: { rotulo: string; valor: string; detalhe?: string }) {
   return (
@@ -38,12 +29,14 @@ function LinhaDoPagamento({
   ordem,
   pagamento,
   podeRemover,
+  fuso,
 }: {
   ordem: number;
   pagamento: Pagamento;
   podeRemover: boolean;
+  fuso: string;
 }) {
-  const detalhe = [dataCurta(pagamento.recebido_em), pagamento.registrado_por]
+  const detalhe = [dataDoMomento(pagamento.recebido_em, fuso), pagamento.registrado_por]
     .filter(Boolean)
     .join(" · ");
 
@@ -130,7 +123,9 @@ export function NovoRecebimento({
   );
 }
 
-export function PagamentoDaOrdem({ ordem, podeRemover }: { ordem: Ordem; podeRemover: boolean }) {
+type Props = { ordem: Ordem; podeRemover: boolean; fuso: string };
+
+export function PagamentoDaOrdem({ ordem, podeRemover, fuso }: Props) {
   if (ordem.valor_cobrado === null) return null;
 
   const temDesconto = Number(ordem.desconto) > 0;
@@ -156,6 +151,7 @@ export function PagamentoDaOrdem({ ordem, podeRemover }: { ordem: Ordem; podeRem
             ordem={ordem.id}
             pagamento={pagamento}
             podeRemover={podeRemover}
+            fuso={fuso}
           />
         ))}
       </ul>

@@ -6,6 +6,7 @@ from celery import shared_task
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from bancada.tenants.links import link_de_confirmacao, link_de_recuperacao, link_do_convite
 from bancada.tenants.models import Convite, Usuario
@@ -98,17 +99,18 @@ def enviar_convite(convite_id: int) -> str:
         return CONVITE_INDISPONIVEL
 
     quem_convidou = convite.criado_por.nome_de_exibicao if convite.criado_por else ""
-    enviar(
-        convite.email,
-        f"Convite para a equipe da {convite.tenant.nome} no Bancada",
-        "contas/convite.txt",
-        {
-            "primeiro_nome": convite.nome.split()[0],
-            "quem_convidou": quem_convidou,
-            "assistencia": convite.tenant.nome,
-            "papel": convite.get_papel_display().lower(),
-            "link": link_do_convite(convite),
-            "expira_em": convite.expira_em,
-        },
-    )
+    with timezone.override(convite.tenant.fuso_horario):
+        enviar(
+            convite.email,
+            f"Convite para a equipe da {convite.tenant.nome} no Bancada",
+            "contas/convite.txt",
+            {
+                "primeiro_nome": convite.nome.split()[0],
+                "quem_convidou": quem_convidou,
+                "assistencia": convite.tenant.nome,
+                "papel": convite.get_papel_display().lower(),
+                "link": link_do_convite(convite),
+                "expira_em": convite.expira_em,
+            },
+        )
     return ENVIADO

@@ -1,7 +1,6 @@
 from typing import Any
 
 from django.db.models import ProtectedError, QuerySet
-from django.utils import timezone
 from rest_framework import permissions, status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
@@ -10,6 +9,7 @@ from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
 
 from bancada.assinaturas.regras import assistencia_pode_editar
+from bancada.core.fuso import hoje_no_bancada
 from bancada.core.rls import aplicar_tenant
 from bancada.tenants.models import Tenant, Usuario
 
@@ -58,7 +58,7 @@ class AssinaturaPermiteEditar(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         tenant = tenant_do_pedido(request)
-        return tenant is None or assistencia_pode_editar(tenant, timezone.localdate())
+        return tenant is None or assistencia_pode_editar(tenant, hoje_no_bancada())
 
 
 class ViewDoTenant(APIView):

@@ -6,6 +6,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
 
+from bancada.core.fuso import ativar_o_fuso_da
 from bancada.tenants.models import Usuario
 
 INTERVALO_ENTRE_REGISTROS_DE_ACESSO = timedelta(minutes=15)
@@ -32,4 +33,5 @@ class TokenQueRegistraAcesso(TokenAuthentication):
             raise AuthenticationFailed("Sua sessão expirou. Entre de novo.")
         if isinstance(usuario, Usuario):
             registrar_acesso(usuario)
+            ativar_o_fuso_da(usuario.tenant)
         return usuario, token

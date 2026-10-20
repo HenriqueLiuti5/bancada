@@ -53,6 +53,7 @@ import {
   LockSimpleIcon as LockSimple,
   MagnifyingGlassIcon as MagnifyingGlass,
   MapPinIcon as MapPin,
+  MapPinPlusIcon as MapPinPlus,
   MoneyIcon as Money,
   MonitorIcon as Monitor,
   MoonIcon as Moon,
@@ -168,6 +169,7 @@ export const ListChecksIcon = decorativo(ListChecks);
 export const LockSimpleIcon = decorativo(LockSimple);
 export const MagnifyingGlassIcon = decorativo(MagnifyingGlass);
 export const MapPinIcon = decorativo(MapPin);
+export const MapPinPlusIcon = decorativo(MapPinPlus);
 export const MoneyIcon = decorativo(Money);
 export const MonitorIcon = decorativo(Monitor);
 export const MoonIcon = decorativo(Moon);

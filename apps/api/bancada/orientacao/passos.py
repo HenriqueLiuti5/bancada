@@ -28,7 +28,7 @@ def mandou_o_link_ao_cliente(tenant: Tenant) -> bool:
 
 
 def completou_o_endereco_da_loja(tenant: Tenant) -> bool:
-    lojas = Loja.objects.filter(tenant=tenant)
+    lojas = Loja.objects.filter(tenant=tenant, ativa=True)
     return lojas.exists() and not lojas.filter(endereco="").exists()
 
 

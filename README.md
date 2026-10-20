@@ -5,13 +5,14 @@ customer follows the repair through a public link, without creating an account.
 
 ## Current status
 
-Phases 4A to 4E and 4G to 4N of the self-service launch are done, and so is the server side of
+Phases 4A to 4E and 4G to 4O of the self-service launch are done, and so is the server side of
 publishing (4F): the production setup in `infra/producao/` is ready and tested. Browser tests walk
 a new shop from sign-up through an order, from the counter to pickup, and on to the customer's
-tracking page, at desktop and phone sizes, and move an order opened on the wrong customer to the
-right one. Before going live, phases 4O to 4T add a stores screen, per-shop time zones, parts
-stock, the shop's finances, refreshed landing page screenshots, the final terms with visit
-analytics and paid plans; see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
+tracking page, at desktop and phone sizes. They also move an order opened on the wrong customer to
+the right one, and open an order in a second store, deactivate that store and switch the shop to
+another time zone. Before going live, phases 4P to 4T add parts stock, the shop's finances,
+refreshed landing page screenshots, the final terms with visit analytics and paid plans; see the
+[project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the
@@ -89,6 +90,18 @@ The shop can upload its own logo. It appears to the customer at the top of the t
 the WhatsApp link preview, in the emails, which now have an HTML version, and on the intake and
 pickup receipts. When the shop has more than one store, the customer also sees the name of the
 order's store.
+
+A shop with more than one address manages its stores on the Assistência (Shop) screen: the owner
+adds a store, edits its phone and address and deactivates one that closed. A deactivated store no
+longer shows up when opening an order, its orders carry on until pickup and the dashboard can still
+filter by it; reactivating undoes it. The order screen shows the order's store whenever the shop
+uses more than one.
+
+Each shop also has its own time zone, one of Brazil's four. Sign-up picks it from the WhatsApp area
+code, and the owner can change it on the same screen, which shows the current time in the chosen
+zone to check against. Times on the screens, in the PDFs and in the emails, along with what counts
+as today and overdue, follow the shop's time zone. The subscription stays on Brasília time, like
+the Asaas charges.
 
 Whoever signs in for the first time learns on their own. On the first visit to each main screen, a
 tour highlights the buttons one at a time and says what each one does, showing only what the
@@ -303,8 +316,10 @@ npm run e2e                      # opens the site in a browser and walks the mai
 
 `npm run e2e` opens http://localhost:3000, so the services have to be up (`make up`). It fails on
 any error in the browser console, including Content Security Policy violations. Each run signs up
-two new shops, one per screen size, named "Assistência Teste" plus a code, in the local database.
-To test another address, set `ENDERECO_DO_SITE`.
+six new shops, three per screen size, named "Assistência Teste" plus a code, in the local database.
+Sign-up allows 10 shops per hour from the same address, so a second run within the hour hits that
+limit; `THROTTLE_CADASTRO=100/hour` in `.env` raises it on your machine. To test another address,
+set `ENDERECO_DO_SITE`.
 
 ## Structure
 

@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { TAMANHO_MAXIMO_DA_FOTO_EM_MB, fotoPassaDoTamanho } from "@/lib/fotos";
+import { FUSOS_DO_BRASIL } from "@/lib/fusos";
 import { problemaDoTelefone } from "@/lib/telefone";
 import { VERSAO_DOS_TEXTOS_LEGAIS } from "@/lib/textosLegais";
 
@@ -31,6 +32,15 @@ function dddsDoSite(): number[] {
   return ddds;
 }
 
+function fusosDaApi(): string[] {
+  const bloco = /^class FusoHorario\(models\.TextChoices\):\n((?: {4}.+\n)+)/m.exec(
+    codigoDaApi("tenants/models.py"),
+  )?.[1];
+  if (!bloco) throw new Error("FusoHorario não aparece em apps/api/bancada/tenants/models.py");
+
+  return [...bloco.matchAll(/^ {4}\w+ = "([^"]+)"/gm)].map(([, valor]) => valor).sort();
+}
+
 function valorNaApi(caminho: string, padrao: RegExp): string {
   const encontrado = padrao.exec(codigoDaApi(caminho));
   if (!encontrado) throw new Error(`${padrao} não aparece em apps/api/bancada/${caminho}`);
@@ -41,6 +51,12 @@ describe("o site e a API combinam", () => {
   it("nos DDDs aceitos no telefone", () => {
     expect(dddsDoSite()).toHaveLength(67);
     expect(dddsDoSite()).toEqual(dddsDaApi());
+  });
+
+  it("nos fusos horários que a assistência escolhe", () => {
+    const doSite = FUSOS_DO_BRASIL.map((fuso) => fuso.valor).sort();
+    expect(doSite).toHaveLength(4);
+    expect(doSite).toEqual(fusosDaApi());
   });
 
   it("na versão dos termos gravada no cadastro", () => {

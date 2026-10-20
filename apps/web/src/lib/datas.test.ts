@@ -1,11 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   dataCurta,
+  dataDoMomento,
+  dataEHora,
+  diaEHora,
   diaEMes,
   diaEMesEmNumeros,
   diaPorExtenso,
   diasEntre,
   hojeEmIso,
+  hojePorExtenso,
+  horaEMinuto,
   intervaloEscrito,
   mesAbreviado,
   mesPorExtenso,
@@ -26,7 +31,7 @@ afterEach(() => {
 });
 
 describe("hojeEmIso", () => {
-  it("segue o dia de Brasília, não o do servidor", () => {
+  it("sem fuso, segue o dia de Brasília, não o do servidor", () => {
     vi.useFakeTimers();
 
     vi.setSystemTime(new Date("2026-10-18T02:59:00Z"));
@@ -35,6 +40,69 @@ describe("hojeEmIso", () => {
     vi.setSystemTime(new Date("2026-10-18T03:00:00Z"));
     expect(hojeEmIso()).toBe("2026-10-18");
   });
+});
+
+// 3h30 UTC do dia 20: meia-noite e meia em Brasília, quando em Manaus e no Acre ainda é dia 19.
+const MOMENTO = "2026-10-20T03:30:00Z";
+
+const NO_FUSO_DA_ASSISTENCIA = [
+  {
+    fuso: "America/Sao_Paulo",
+    hoje: "2026-10-20",
+    porExtenso: "Terça-feira, 20 de outubro",
+    diaEHora: "20/10, 00:30",
+    dataEHora: "20/10/2026, 00:30",
+    data: "20/10/2026",
+    hora: "00:30",
+  },
+  {
+    fuso: "America/Manaus",
+    hoje: "2026-10-19",
+    porExtenso: "Segunda-feira, 19 de outubro",
+    diaEHora: "19/10, 23:30",
+    dataEHora: "19/10/2026, 23:30",
+    data: "19/10/2026",
+    hora: "23:30",
+  },
+  {
+    fuso: "America/Rio_Branco",
+    hoje: "2026-10-19",
+    porExtenso: "Segunda-feira, 19 de outubro",
+    diaEHora: "19/10, 22:30",
+    dataEHora: "19/10/2026, 22:30",
+    data: "19/10/2026",
+    hora: "22:30",
+  },
+  {
+    fuso: "America/Noronha",
+    hoje: "2026-10-20",
+    porExtenso: "Terça-feira, 20 de outubro",
+    diaEHora: "20/10, 01:30",
+    dataEHora: "20/10/2026, 01:30",
+    data: "20/10/2026",
+    hora: "01:30",
+  },
+];
+
+describe("horas no fuso da assistência", () => {
+  it.each(NO_FUSO_DA_ASSISTENCIA)(
+    "seguem $fuso, com o servidor e o navegador em qualquer fuso",
+    (esperado) => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(MOMENTO));
+
+      for (const fusoDoProcesso of FUSOS) {
+        process.env.TZ = fusoDoProcesso;
+
+        expect(hojeEmIso(esperado.fuso)).toBe(esperado.hoje);
+        expect(hojePorExtenso(esperado.fuso)).toBe(esperado.porExtenso);
+        expect(diaEHora(MOMENTO, esperado.fuso)).toBe(esperado.diaEHora);
+        expect(dataEHora(MOMENTO, esperado.fuso)).toBe(esperado.dataEHora);
+        expect(dataDoMomento(MOMENTO, esperado.fuso)).toBe(esperado.data);
+        expect(horaEMinuto(new Date(MOMENTO), esperado.fuso)).toBe(esperado.hora);
+      }
+    },
+  );
 });
 
 describe("datas escritas", () => {

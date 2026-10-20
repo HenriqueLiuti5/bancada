@@ -13,7 +13,7 @@ import { Cartao } from "@/componentes/ui/Cartao";
 import { LinhaDoTempo } from "@/componentes/ui/LinhaDoTempo";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
-import { FUSO_HORARIO, diaPorExtenso, hojeEmIso } from "@/lib/datas";
+import { dataEHora, diaPorExtenso, hojeEmIso } from "@/lib/datas";
 import { enderecoDaFoto } from "@/lib/fotos";
 import { emReais } from "@/lib/moeda";
 import { nomeParaOCliente, type AcompanhamentoPublico, type FotoPublica } from "@/lib/publico";
@@ -32,17 +32,6 @@ const STATUS_COM_PREVISAO = [
 const STATUS_COM_CONTATO_NO_TOPO = ["orcamento_enviado", "pronto"];
 
 const DIGITOS_DE_CELULAR = 11;
-
-function formatarMomento(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: FUSO_HORARIO,
-  });
-}
 
 function Foto({ foto }: { foto: FotoPublica }) {
   return (
@@ -66,7 +55,7 @@ function Foto({ foto }: { foto: FotoPublica }) {
 function Situacao({ dados }: { dados: AcompanhamentoPublico }) {
   const previsao =
     dados.prometida_para &&
-    dados.prometida_para >= hojeEmIso() &&
+    dados.prometida_para >= hojeEmIso(dados.assistencia.fuso_horario) &&
     STATUS_COM_PREVISAO.includes(dados.status)
       ? dados.prometida_para
       : null;
@@ -186,6 +175,7 @@ type Props = { dados: AcompanhamentoPublico; demonstracao?: boolean };
 
 export function Acompanhamento({ dados, demonstracao = false }: Props) {
   const ultima = dados.linha_do_tempo.length - 1;
+  const fuso = dados.assistencia.fuso_horario;
   const contatoNoTopo = STATUS_COM_CONTATO_NO_TOPO.includes(dados.status);
   const contato = (
     <Contato dados={dados} chamada={chamadaDoContato(dados.status)} demonstracao={demonstracao} />
@@ -231,7 +221,7 @@ export function Acompanhamento({ dados, demonstracao = false }: Props) {
             chave: `${etapa.status}-${etapa.em}`,
             status: etapa.status,
             titulo: etapa.rotulo,
-            detalhes: formatarMomento(etapa.em),
+            detalhes: dataEHora(etapa.em, fuso),
             atual: indice === ultima,
           }))}
         />
@@ -240,7 +230,7 @@ export function Acompanhamento({ dados, demonstracao = false }: Props) {
       {!contatoNoTopo && contato}
 
       <footer className="pt-2 text-center text-[13px] text-texto-apagado">
-        Aberta em {formatarMomento(dados.aberta_em)}
+        Aberta em {dataEHora(dados.aberta_em, fuso)}
       </footer>
     </main>
   );

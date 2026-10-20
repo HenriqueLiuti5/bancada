@@ -10,7 +10,7 @@ import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { chamarApi } from "@/lib/api";
 import type { Convite, MembroDaEquipe, Pagina } from "@/lib/tipos";
-import { gerenciaEquipe, usuarioAtual } from "@/lib/usuario";
+import { fusoDaAssistencia, gerenciaEquipe, usuarioAtual } from "@/lib/usuario";
 import { Tour } from "../tour";
 import { ConvitePendente } from "./convitePendente";
 import { Membro } from "./membro";
@@ -73,7 +73,12 @@ export default async function Equipe() {
                 <Membro key={membro.id} membro={membro} souEu={membro.id === usuario.id} />
               ))}
               {convites.map((convite) => (
-                <ConvitePendente key={convite.id} convite={convite} assistencia={assistencia} />
+                <ConvitePendente
+                  key={convite.id}
+                  convite={convite}
+                  assistencia={assistencia}
+                  fuso={fusoDaAssistencia(usuario)}
+                />
               ))}
             </ul>
           </Cartao>

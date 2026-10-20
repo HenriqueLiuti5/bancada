@@ -1,22 +1,78 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useFormStatus } from "react-dom";
 import { CabecalhoDaLoja } from "@/componentes/CabecalhoDaLoja";
-import { ImageSquareIcon } from "@/componentes/icones";
+import { CheckCircleIcon, ImageSquareIcon } from "@/componentes/icones";
 import { CampoDeTelefone } from "@/componentes/ui/CampoDeTelefone";
 import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { EscolhaDeImagem } from "@/componentes/ui/EscolhaDeImagem";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { RodapeDoFormulario } from "@/componentes/ui/RodapeDoFormulario";
-import { botao, campo } from "@/componentes/ui/estilos";
+import { botao, campo, seletor } from "@/componentes/ui/estilos";
+import { horaEMinuto } from "@/lib/datas";
 import { fotoPassaDoTamanho, TAMANHO_MAXIMO_DA_FOTO_EM_MB } from "@/lib/fotos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
+import { FUSOS_DO_BRASIL } from "@/lib/fusos";
 import { formatarTelefone } from "@/lib/telefone";
-import type { Assistencia, Loja } from "@/lib/tipos";
-import { alterarLogo, salvarAssistencia, salvarLoja, type EstadoDaLogo } from "./acoes";
+import type { Assistencia } from "@/lib/tipos";
+import { alterarLogo, salvarAssistencia, type EstadoDaLogo } from "./acoes";
 
 const INICIAL: EstadoDoFormulario = {};
+
+const UM_MINUTO = 60_000;
+
+function minutoAtual(): number {
+  return Math.floor(Date.now() / UM_MINUTO);
+}
+
+function acompanharORelogio(avisar: () => void): () => void {
+  const relogio = window.setInterval(avisar, 1_000);
+  return () => window.clearInterval(relogio);
+}
+
+// A hora só é escrita no navegador. A do servidor pode estar num minuto e a do navegador no
+// seguinte, e o React acusaria a diferença ao ligar a página.
+function CampoDoFuso({ valorInicial, erro }: { valorInicial: string; erro?: string }) {
+  const [fuso, setFuso] = useState(valorInicial);
+  const minuto = useSyncExternalStore(acompanharORelogio, minutoAtual, () => null);
+  const agora = minuto === null ? null : horaEMinuto(new Date(minuto * UM_MINUTO), fuso);
+
+  return (
+    <CampoRotulado
+      rotulo="Fuso horário"
+      htmlFor="fuso_horario"
+      erro={erro}
+      className="sm:col-span-2"
+      obrigatorio
+      dica={
+        agora ? (
+          <span className="flex items-start gap-1.5 text-texto-suave">
+            <CheckCircleIcon size={15} weight="fill" className="mt-px shrink-0 text-sucesso" />
+            <span>Confira: agora são {agora} nesse fuso.</span>
+          </span>
+        ) : (
+          "As horas das telas, dos documentos e dos avisos seguem esse fuso."
+        )
+      }
+    >
+      <select
+        id="fuso_horario"
+        name="fuso_horario"
+        defaultValue={valorInicial}
+        onChange={(evento) => setFuso(evento.target.value)}
+        aria-describedby={erro ? "fuso_horario-erro" : "fuso_horario-dica"}
+        className={seletor}
+      >
+        {FUSOS_DO_BRASIL.map((opcao) => (
+          <option key={opcao.valor} value={opcao.valor}>
+            {opcao.rotulo}
+          </option>
+        ))}
+      </select>
+    </CampoRotulado>
+  );
+}
 
 export function FormularioDaAssistencia({ assistencia }: { assistencia: Assistencia }) {
   const [estado, acao, enviando] = useActionState(salvarAssistencia, INICIAL);
@@ -56,55 +112,13 @@ export function FormularioDaAssistencia({ assistencia }: { assistencia: Assisten
           dica="É por ele que a equipe do Bancada fala com você."
           obrigatorio
         />
-      </div>
-      <RodapeDoFormulario estado={estado} enviando={enviando} />
-    </form>
-  );
-}
-
-export function FormularioDaLoja({ loja }: { loja: Loja }) {
-  const [estado, acao, enviando] = useActionState(salvarLoja, INICIAL);
-  const erros = estado.erros ?? {};
-  const valores = estado.valores ?? { ...loja, telefone: formatarTelefone(loja.telefone) };
-  const prefixo = `loja-${loja.id}`;
-
-  return (
-    <form action={acao} className="space-y-4">
-      <input type="hidden" name="id" value={loja.id} />
-      <AvisoDeObrigatorios />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <CampoRotulado rotulo="Nome da loja" htmlFor={`${prefixo}-nome`} erro={erros.nome} obrigatorio>
-          <input
-            id={`${prefixo}-nome`}
-            name="nome"
-            required
-            defaultValue={valores.nome}
-            className={campo}
-          />
-        </CampoRotulado>
-        <CampoDeTelefone
-          rotulo="Telefone"
-          id={`${prefixo}-telefone`}
-          name="telefone"
-          erro={erros.telefone}
-          valorInicial={valores.telefone}
-          dica="Opcional. Sai no comprovante e no link do cliente."
+        {/* O React limpa o formulário depois de cada envio e só lê o defaultValue de um select
+            quando ele nasce: a chave o recria com o fuso que foi enviado. */}
+        <CampoDoFuso
+          key={valores.fuso_horario}
+          valorInicial={valores.fuso_horario}
+          erro={erros.fuso_horario}
         />
-        <CampoRotulado
-          rotulo="Endereço"
-          htmlFor={`${prefixo}-endereco`}
-          erro={erros.endereco}
-          dica="Opcional. Sai no comprovante e no recibo."
-          className="sm:col-span-2"
-        >
-          <input
-            id={`${prefixo}-endereco`}
-            name="endereco"
-            autoComplete="street-address"
-            defaultValue={valores.endereco}
-            className={campo}
-          />
-        </CampoRotulado>
       </div>
       <RodapeDoFormulario estado={estado} enviando={enviando} />
     </form>

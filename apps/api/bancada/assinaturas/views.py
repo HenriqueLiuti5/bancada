@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
@@ -23,6 +22,7 @@ from bancada.core.api import (
     tenant_obrigatorio,
     usuario_obrigatorio,
 )
+from bancada.core.fuso import hoje_no_bancada
 from bancada.tenants.permissoes import ApenasDono
 
 
@@ -44,14 +44,14 @@ class ViewDaAssinatura(ViewDoTenant):
 class AssinaturaView(ViewDaAssinatura):
     def get(self, request: Request) -> Response:
         assinatura = Assinatura.objects.get(tenant=tenant_obrigatorio(request))
-        return Response(detalhe_da_assinatura(assinatura, timezone.localdate()))
+        return Response(detalhe_da_assinatura(assinatura, hoje_no_bancada()))
 
 
 class AssinarView(ViewDaAssinatura):
     def post(self, request: Request) -> Response:
         entrada = AssinarSerializer(data=request.data)
         entrada.is_valid(raise_exception=True)
-        hoje = timezone.localdate()
+        hoje = hoje_no_bancada()
 
         try:
             assinatura = servicos.assinar(
@@ -76,7 +76,7 @@ class AssinarView(ViewDaAssinatura):
 
 class CancelarAssinaturaView(ViewDaAssinatura):
     def post(self, request: Request) -> Response:
-        hoje = timezone.localdate()
+        hoje = hoje_no_bancada()
 
         try:
             assinatura = servicos.cancelar(tenant_obrigatorio(request), hoje=hoje)
@@ -116,5 +116,5 @@ class WebhookDoAsaasView(APIView):
         _, novo = EventoDoProvedor.objects.get_or_create(
             id_no_provedor=evento.id, defaults={"tipo": evento.tipo, "conteudo": corpo}
         )
-        resultado = servicos.processar_evento(evento, timezone.localdate()) if novo else "repetido"
+        resultado = servicos.processar_evento(evento, hoje_no_bancada()) if novo else "repetido"
         return Response({"resultado": resultado})

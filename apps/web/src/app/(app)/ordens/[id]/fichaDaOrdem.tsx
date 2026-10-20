@@ -6,6 +6,7 @@ import {
   DeviceMobileIcon,
   InfoIcon,
   LinkSimpleIcon,
+  MapPinIcon,
   PasswordIcon,
   PencilSimpleIcon,
   UserIcon,
@@ -111,6 +112,12 @@ export function FichaDaOrdem({ ordem, equipe, linkDoCliente, podeVerSenha, hoje,
         <Dado rotulo="Defeito relatado" icone={ChatTextIcon}>
           <p className="leading-relaxed whitespace-pre-wrap">{ordem.problema_relatado}</p>
         </Dado>
+
+        {ordem.loja_nome && (
+          <Dado rotulo="Loja" icone={MapPinIcon}>
+            <p>{ordem.loja_nome}</p>
+          </Dado>
+        )}
 
         <Dado rotulo="Técnico" icone={WrenchIcon}>
           <TecnicoDaOrdem id={ordem.id} tecnico={ordem.tecnico} equipe={pessoas} />

@@ -101,6 +101,7 @@ def montar(ordem: OrdemServico) -> dict[str, Any]:
             "loja": ordem.loja_para_o_cliente,
             "telefone": ordem.loja.telefone,
             "logo": logo.para_exibir(ordem.tenant),
+            "fuso_horario": ordem.tenant.fuso_horario,
         },
         "aberta_em": ordem.criado_em.isoformat(),
         "prometida_para": ordem.prometida_para.isoformat() if ordem.prometida_para else None,

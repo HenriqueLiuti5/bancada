@@ -7,7 +7,7 @@ import { FormularioDeAbertura } from "./formulario";
 export const dynamic = "force-dynamic";
 
 export default async function NovaOrdem() {
-  const lojas = await chamarApi<Loja[]>("/api/lojas/");
+  const lojas = (await chamarApi<Loja[]>("/api/lojas/")).filter((loja) => loja.ativa);
 
   return (
     <div className="max-w-2xl">

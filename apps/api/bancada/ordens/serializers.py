@@ -187,6 +187,7 @@ class OrdemServicoListSerializer(serializers.ModelSerializer):
 
 class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     cliente_telefone = serializers.CharField(source="cliente.telefone", read_only=True)
+    loja_nome = serializers.CharField(source="loja_para_o_cliente", read_only=True)
     itens = ItemOrcamentoSerializer(many=True, read_only=True)
     eventos = EventoOSSerializer(many=True, read_only=True)
     registros = RegistroOSSerializer(many=True, read_only=True)
@@ -206,6 +207,7 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     class Meta(OrdemServicoListSerializer.Meta):
         fields = [
             *OrdemServicoListSerializer.Meta.fields,
+            "loja_nome",
             "cliente",
             "cliente_telefone",
             "aparelho",
@@ -311,6 +313,11 @@ class AberturaOrdemSerializer(serializers.Serializer):
             registro = attrs.get(campo)
             if registro is not None and registro.tenant_id != tenant.id:
                 raise serializers.ValidationError({campo: "Não pertence à sua assistência."})
+
+        if not attrs["loja"].ativa:
+            raise serializers.ValidationError(
+                {"loja": "Esta loja foi desativada. Escolha uma loja ativa."}
+            )
 
         aparelho = attrs.get("aparelho")
         cliente = attrs.get("cliente")

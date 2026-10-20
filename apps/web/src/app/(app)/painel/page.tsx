@@ -11,8 +11,9 @@ import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { Secao } from "@/componentes/ui/Secao";
 import { ErroDaApi, chamarApi, mensagemDaApi } from "@/lib/api";
-import { FUSO_HORARIO } from "@/lib/datas";
+import { hojePorExtenso } from "@/lib/datas";
 import type { Loja, Painel } from "@/lib/tipos";
+import { fusoDaAssistencia, usuarioAtual } from "@/lib/usuario";
 import { PrimeirosPassos } from "../primeirosPassos";
 import { Tour } from "../tour";
 import { SecaoAtendimento } from "./atendimento";
@@ -26,16 +27,6 @@ export const dynamic = "force-dynamic";
 const PARAMETROS = ["periodo", "de", "ate", "loja"] as const;
 
 type Parametros = Record<string, string | string[] | undefined>;
-
-function hojeEscrito(): string {
-  const texto = new Date().toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    timeZone: FUSO_HORARIO,
-  });
-  return texto.charAt(0).toUpperCase() + texto.slice(1);
-}
 
 function lerParametros(recebidos: Parametros): URLSearchParams {
   const consulta = new URLSearchParams();
@@ -111,15 +102,16 @@ export default async function PainelDaLoja({
   searchParams: Promise<Parametros>;
 }) {
   const consulta = lerParametros(await searchParams);
-  const [{ painel, erro }, lojas] = await Promise.all([
+  const [{ painel, erro }, lojas, usuario] = await Promise.all([
     buscarPainel(consulta),
     chamarApi<Loja[]>("/api/lojas/"),
+    usuarioAtual(),
   ]);
   const loja = erro ? "" : (consulta.get("loja") ?? "");
 
   return (
     <>
-      <CabecalhoDaPagina titulo="Painel" descricao={hojeEscrito()} />
+      <CabecalhoDaPagina titulo="Painel" descricao={hojePorExtenso(fusoDaAssistencia(usuario))} />
 
       <PrimeirosPassos />
 

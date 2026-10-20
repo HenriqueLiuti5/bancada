@@ -39,6 +39,24 @@ export function donoNovo(): Dono {
   };
 }
 
+export async function criarConta(page: Page, dono: Dono): Promise<void> {
+  await page.goto("/cadastro");
+  await page.getByLabel("Nome da assistência").fill(dono.assistencia);
+  await page.getByLabel("Seu nome").fill(dono.nome);
+  await page.getByLabel("E-mail").fill(dono.email);
+  await page.getByLabel("WhatsApp da assistência").fill("43996156781");
+  await page.getByLabel("Senha").fill(dono.senha);
+  await page.getByRole("checkbox", { name: /Li e aceito os termos de uso/ }).check();
+  await page.getByRole("button", { name: "Criar conta grátis" }).click();
+  await expect(page).toHaveURL(/\/ordens$/);
+}
+
+export async function abrirComOProblema(page: Page, problema: string): Promise<void> {
+  await page.getByRole("textbox", { name: "Problema relatado" }).fill(problema);
+  await page.getByRole("button", { name: "Abrir ordem de serviço" }).click();
+  await expect(page).toHaveURL(/\/ordens\/\d+$/);
+}
+
 // O tour abre sozinho na primeira visita a cada tela e toma o foco da página. Fechá-lo antes de
 // continuar evita que ele roube o que está sendo digitado, e esperar o registro garante que ele
 // não volte na próxima visita.

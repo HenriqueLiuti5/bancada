@@ -1,10 +1,12 @@
 import io
+from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import timezone
 from PIL import Image
 
 from bancada.clientes.models import Aparelho, Cliente
@@ -159,6 +161,12 @@ def celery_no_mesmo_processo(settings: Any) -> None:
 @pytest.fixture(autouse=True)
 def limites_de_requisicao_zerados() -> None:
     cache.clear()
+
+
+@pytest.fixture(autouse=True)
+def fuso_padrao_ao_terminar() -> Iterator[None]:
+    yield
+    timezone.deactivate()
 
 
 @pytest.fixture

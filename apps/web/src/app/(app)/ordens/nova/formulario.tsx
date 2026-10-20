@@ -90,7 +90,15 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
 
           {lojas.length > 1 ? (
             <CampoRotulado rotulo="Loja" htmlFor="loja" erro={erros.loja} obrigatorio>
-              <select id="loja" name="loja" defaultValue={lojas[0]?.id ?? ""} className={seletor}>
+              {/* O React limpa o formulário depois de cada envio e só lê o defaultValue de um
+                  select quando ele nasce: a chave o recria com a loja que foi enviada. */}
+              <select
+                key={valores.loja}
+                id="loja"
+                name="loja"
+                defaultValue={valores.loja ?? lojas[0]?.id ?? ""}
+                className={seletor}
+              >
                 {lojas.map((loja) => (
                   <option key={loja.id} value={loja.id}>
                     {loja.nome}
@@ -99,7 +107,10 @@ export function FormularioDeAbertura({ lojas }: { lojas: Loja[] }) {
               </select>
             </CampoRotulado>
           ) : (
-            <input type="hidden" name="loja" value={lojas[0]?.id ?? ""} />
+            <>
+              <input type="hidden" name="loja" value={lojas[0]?.id ?? ""} />
+              {erros.loja && <Mensagem tipo="erro">{erros.loja}</Mensagem>}
+            </>
           )}
 
           <Secao icone={UserIcon} titulo="Cliente" tour="cliente" erro={erros.cliente} obrigatoria>

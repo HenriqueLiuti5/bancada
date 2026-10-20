@@ -22,7 +22,13 @@ export type AcompanhamentoPublico = {
   encerrada: boolean;
   aparelho: string;
   cliente_primeiro_nome: string;
-  assistencia: { nome: string; loja: string; telefone: string; logo: Logo | null };
+  assistencia: {
+    nome: string;
+    loja: string;
+    telefone: string;
+    logo: Logo | null;
+    fuso_horario: string;
+  };
   aberta_em: string;
   prometida_para: string | null;
   entregue_em: string | null;

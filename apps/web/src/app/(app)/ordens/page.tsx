@@ -16,6 +16,7 @@ import { botao, juntar } from "@/componentes/ui/estilos";
 import { ErroDaApi, chamarApi } from "@/lib/api";
 import { hojeEmIso } from "@/lib/datas";
 import type { Catalogo, OrdemResumo, Pagina, Usuario } from "@/lib/tipos";
+import { fusoDaAssistencia, usuarioAtual } from "@/lib/usuario";
 import { PrimeirosPassos } from "../primeirosPassos";
 import { Tour } from "../tour";
 import { Filtros, type ValoresDosFiltros } from "./filtros";
@@ -76,10 +77,11 @@ export default async function ListaDeOrdens({
 }) {
   const consulta = lerParametros(await searchParams);
 
-  const [pagina, equipe, catalogo] = await Promise.all([
+  const [pagina, equipe, catalogo, usuario] = await Promise.all([
     buscarOrdens(consulta),
     chamarApi<Usuario[]>("/api/equipe/"),
     chamarApi<Catalogo>("/api/ordens/catalogo/"),
+    usuarioAtual(),
   ]);
 
   if (pagina === null) redirect(paginaVizinha(consulta, 1));
@@ -94,7 +96,7 @@ export default async function ListaDeOrdens({
     para_hoje: consulta.get("para_hoje") ?? "",
   };
   const semRecorte = { situacao: null, atrasadas: null, para_hoje: null };
-  const hoje = hojeEmIso();
+  const hoje = hojeEmIso(fusoDaAssistencia(usuario));
 
   const filtrando = FILTROS.some((chave) => consulta.get(chave));
   const numeroDaPagina = Number(consulta.get("page") ?? "1");

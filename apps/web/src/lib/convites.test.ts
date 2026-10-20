@@ -21,8 +21,9 @@ describe("convites", () => {
     );
   });
 
-  it("dizem até quando valem, no dia de Brasília", () => {
-    expect(validadeDoConvite(CONVITE)).toBe("vale até 24/10");
-    expect(validadeDoConvite({ ...CONVITE, expirado: true })).toBe("expirou em 24/10");
+  it("dizem até quando valem, no dia da assistência", () => {
+    expect(validadeDoConvite(CONVITE, "America/Sao_Paulo")).toBe("vale até 24/10");
+    expect(validadeDoConvite({ ...CONVITE, expirado: true }, "America/Sao_Paulo")).toBe("expirou em 24/10");
+    expect(validadeDoConvite(CONVITE, "America/Noronha")).toBe("vale até 25/10");
   });
 });

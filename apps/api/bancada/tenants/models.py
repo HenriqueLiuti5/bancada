@@ -23,11 +23,24 @@ def caminho_da_logo(instancia: "Tenant", nome_enviado: str) -> str:
     return f"logos/{instancia.pk}/{uuid4().hex}.png"
 
 
+class FusoHorario(models.TextChoices):
+    BRASILIA = "America/Sao_Paulo", "Horário de Brasília"
+    AMAZONAS = "America/Manaus", "Amazonas, Mato Grosso, Mato Grosso do Sul, Rondônia e Roraima"
+    ACRE = "America/Rio_Branco", "Acre e oeste do Amazonas"
+    NORONHA = "America/Noronha", "Fernando de Noronha"
+
+
 class Tenant(Carimbado):
     nome = models.CharField(max_length=120)
     slug = models.SlugField(max_length=140, unique=True)
     documento = models.CharField(max_length=18, blank=True)
     whatsapp = models.CharField(max_length=20, blank=True)
+    fuso_horario = models.CharField(
+        "fuso horário",
+        max_length=40,
+        choices=FusoHorario.choices,
+        default=FusoHorario.BRASILIA,
+    )
     logo = models.ImageField(
         upload_to=caminho_da_logo,
         width_field="logo_largura",
@@ -50,7 +63,8 @@ class Tenant(Carimbado):
 
     @property
     def tem_varias_lojas(self) -> bool:
-        return self.lojas.count() > 1
+        em_uso = self.lojas.filter(models.Q(ativa=True) | models.Q(ordens__isnull=False))
+        return em_uso.distinct().count() > 1
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.slug:
@@ -70,6 +84,7 @@ class Loja(Carimbado):
     nome = models.CharField(max_length=120)
     telefone = models.CharField(max_length=20, blank=True)
     endereco = models.CharField(max_length=255, blank=True)
+    ativa = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "loja"

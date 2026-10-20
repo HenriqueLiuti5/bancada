@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 
+from bancada.core.fuso import fuso_pelo_telefone
 from bancada.tenants.models import Convite, Loja, Papel, Tenant, Usuario, normalizar_email
 from bancada.tenants.tasks import (
     enviar_confirmacao_de_email,
@@ -36,6 +37,7 @@ def criar_assistencia(
     tenant = Tenant.objects.create(
         nome=nome_da_assistencia.strip(),
         whatsapp=whatsapp,
+        fuso_horario=fuso_pelo_telefone(whatsapp),
         termos_aceitos_em=timezone.now(),
         versao_dos_termos=VERSAO_DOS_TERMOS,
     )

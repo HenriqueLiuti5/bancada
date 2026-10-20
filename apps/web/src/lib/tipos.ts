@@ -1,4 +1,4 @@
-export type Tenant = { id: number; nome: string; slug: string };
+export type Tenant = { id: number; nome: string; slug: string; fuso_horario: string };
 
 export type Usuario = {
   id: number;
@@ -60,6 +60,7 @@ export type Assistencia = {
   nome: string;
   documento: string;
   whatsapp: string;
+  fuso_horario: string;
   logo: Logo | null;
 };
 
@@ -74,7 +75,7 @@ export type MembroDaEquipe = {
   last_login: string | null;
 };
 
-export type Loja = { id: number; nome: string; telefone: string; endereco: string };
+export type Loja = { id: number; nome: string; telefone: string; endereco: string; ativa: boolean };
 
 export type Aparelho = {
   id: number;
@@ -169,6 +170,7 @@ export type OrdemResumo = {
 };
 
 export type Ordem = OrdemResumo & {
+  loja_nome: string;
   cliente: number;
   cliente_telefone: string;
   aparelho: number;

@@ -7,7 +7,7 @@ import {
 } from "@/componentes/icones";
 import { Avatar } from "@/componentes/ui/Avatar";
 import { CirculoDeStatus, IconeDeStatus } from "@/componentes/ui/Selo";
-import { FUSO_HORARIO } from "@/lib/datas";
+import { diaEHora } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import type { Evento, Ordem, Pagamento, RegistroDaOrdem } from "@/lib/tipos";
 import { NovoComentario } from "./novoComentario";
@@ -16,16 +16,6 @@ type Entrada =
   | { tipo: "evento"; momento: string; evento: Evento; pagamentos: Pagamento[] }
   | { tipo: "pagamento"; momento: string; pagamento: Pagamento }
   | { tipo: "registro"; momento: string; registro: RegistroDaOrdem };
-
-function momentoEscrito(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: FUSO_HORARIO,
-  });
-}
 
 function entradasDa(ordem: Ordem): Entrada[] {
   const naEntrega = (pagamento: Pagamento) => pagamento.recebido_em === ordem.entregue_em;
@@ -79,13 +69,13 @@ function Texto({ children }: { children: React.ReactNode }) {
 function Linha({
   autor,
   marcador,
-  momento,
+  quando,
   acao,
   children,
 }: {
   autor: string | null;
   marcador: React.ReactNode;
-  momento: string;
+  quando: string;
   acao: React.ReactNode;
   children?: React.ReactNode;
 }) {
@@ -95,7 +85,7 @@ function Linha({
       <div className="min-w-0 flex-1 space-y-2 pt-1.5">
         <p className="text-sm leading-relaxed">
           <strong className="font-semibold">{autor ?? "A equipe"}</strong> {acao}
-          <span className="text-texto-apagado"> · {momentoEscrito(momento)}</span>
+          <span className="text-texto-apagado"> · {quando}</span>
         </p>
         {children}
       </div>
@@ -107,10 +97,12 @@ function LinhaDoEvento({
   evento,
   pagamentos,
   problema,
+  quando,
 }: {
   evento: Evento;
   pagamentos: Pagamento[];
   problema: string;
+  quando: string;
 }) {
   const abertura = !evento.de_status;
   const nota = abertura ? problema : evento.nota;
@@ -130,7 +122,7 @@ function LinhaDoEvento({
     <Linha
       autor={evento.usuario}
       marcador={<CirculoDeStatus status={evento.para_status} className="size-9" />}
-      momento={evento.criado_em}
+      quando={quando}
       acao={acao}
     >
       {nota && <Texto>{nota}</Texto>}
@@ -149,12 +141,12 @@ function LinhaDoEvento({
   );
 }
 
-function LinhaDoPagamento({ pagamento }: { pagamento: Pagamento }) {
+function LinhaDoPagamento({ pagamento, quando }: { pagamento: Pagamento; quando: string }) {
   return (
     <Linha
       autor={pagamento.registrado_por}
       marcador={<Marcador icone={WalletIcon} />}
-      momento={pagamento.recebido_em}
+      quando={quando}
       acao={
         <>
           registrou um pagamento de <Valores pagamentos={[pagamento]} />
@@ -164,14 +156,14 @@ function LinhaDoPagamento({ pagamento }: { pagamento: Pagamento }) {
   );
 }
 
-function LinhaDoRegistro({ registro }: { registro: RegistroDaOrdem }) {
+function LinhaDoRegistro({ registro, quando }: { registro: RegistroDaOrdem; quando: string }) {
   const comentario = registro.tipo === "comentario";
 
   return (
     <Linha
       autor={registro.usuario}
       marcador={<Marcador icone={comentario ? ChatCircleTextIcon : UserSwitchIcon} />}
-      momento={registro.criado_em}
+      quando={quando}
       acao={comentario ? "comentou" : "trocou o cliente"}
     >
       <Texto>{registro.texto}</Texto>
@@ -179,12 +171,28 @@ function LinhaDoRegistro({ registro }: { registro: RegistroDaOrdem }) {
   );
 }
 
-function LinhaDaEntrada({ entrada, problema }: { entrada: Entrada; problema: string }) {
+function LinhaDaEntrada({
+  entrada,
+  problema,
+  fuso,
+}: {
+  entrada: Entrada;
+  problema: string;
+  fuso: string;
+}) {
+  const quando = diaEHora(entrada.momento, fuso);
   if (entrada.tipo === "evento") {
-    return <LinhaDoEvento evento={entrada.evento} pagamentos={entrada.pagamentos} problema={problema} />;
+    return (
+      <LinhaDoEvento
+        evento={entrada.evento}
+        pagamentos={entrada.pagamentos}
+        problema={problema}
+        quando={quando}
+      />
+    );
   }
-  if (entrada.tipo === "pagamento") return <LinhaDoPagamento pagamento={entrada.pagamento} />;
-  return <LinhaDoRegistro registro={entrada.registro} />;
+  if (entrada.tipo === "pagamento") return <LinhaDoPagamento pagamento={entrada.pagamento} quando={quando} />;
+  return <LinhaDoRegistro registro={entrada.registro} quando={quando} />;
 }
 
 function chaveDa(entrada: Entrada): string {
@@ -193,13 +201,18 @@ function chaveDa(entrada: Entrada): string {
   return `registro-${entrada.registro.id}`;
 }
 
-export function HistoricoDaOrdem({ ordem }: { ordem: Ordem }) {
+export function HistoricoDaOrdem({ ordem, fuso }: { ordem: Ordem; fuso: string }) {
   return (
     <>
       <NovoComentario id={ordem.id} />
       <ol className="divide-y divide-borda">
         {entradasDa(ordem).map((entrada) => (
-          <LinhaDaEntrada key={chaveDa(entrada)} entrada={entrada} problema={ordem.problema_relatado} />
+          <LinhaDaEntrada
+            key={chaveDa(entrada)}
+            entrada={entrada}
+            problema={ordem.problema_relatado}
+            fuso={fuso}
+          />
         ))}
       </ol>
       <p className="border-t border-borda px-5 py-3 text-[13px] text-texto-apagado sm:text-xs">

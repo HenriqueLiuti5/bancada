@@ -2,11 +2,11 @@ from typing import Any
 
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as ErroDeValidacaoDoDjango
-from django.utils import timezone
 from rest_framework import serializers
 
 from bancada.assinaturas.models import Assinatura
 from bancada.assinaturas.serializers import resumo_da_assinatura
+from bancada.core.fuso import hoje_no_bancada
 from bancada.core.telefones import conferir_telefone
 from bancada.tenants import logo
 from bancada.tenants.links import link_do_convite
@@ -18,13 +18,13 @@ TAMANHO_MAXIMO_DO_EMAIL = 150
 class TenantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tenant
-        fields = ["id", "nome", "slug"]
+        fields = ["id", "nome", "slug", "fuso_horario"]
 
 
 class LojaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Loja
-        fields = ["id", "nome", "telefone", "endereco"]
+        fields = ["id", "nome", "telefone", "endereco", "ativa"]
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -63,7 +63,7 @@ class EuSerializer(UsuarioSerializer):
         assinatura = Assinatura.objects.filter(tenant_id=usuario.tenant_id).first()
         if assinatura is None:
             return None
-        return resumo_da_assinatura(assinatura, timezone.localdate())
+        return resumo_da_assinatura(assinatura, hoje_no_bancada())
 
 
 class LoginSerializer(serializers.Serializer):
@@ -225,8 +225,13 @@ class AssistenciaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tenant
-        fields = ["nome", "documento", "whatsapp", "logo"]
-        extra_kwargs = {"whatsapp": {"allow_blank": False}}
+        fields = ["nome", "documento", "whatsapp", "fuso_horario", "logo"]
+        extra_kwargs = {
+            "whatsapp": {"allow_blank": False},
+            "fuso_horario": {
+                "error_messages": {"invalid_choice": "Escolha um dos fusos horários do Brasil."}
+            },
+        }
 
     def get_logo(self, tenant: Tenant) -> dict[str, Any] | None:
         return logo.para_exibir(tenant)
@@ -245,7 +250,21 @@ class EnvioDeLogoSerializer(serializers.Serializer):
 class EdicaoDeLojaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Loja
-        fields = ["nome", "telefone", "endereco"]
+        fields = ["nome", "telefone", "endereco", "ativa"]
+
+    def validate_nome(self, valor: str) -> str:
+        nome = valor.strip()
+        mesmo_nome = Loja.objects.filter(tenant=self.context["tenant"], nome__iexact=nome)
+        if self.instance is not None:
+            mesmo_nome = mesmo_nome.exclude(pk=self.instance.pk)
+        if mesmo_nome.exists():
+            raise serializers.ValidationError("Já existe uma loja com esse nome.")
+        return nome
 
     def validate_telefone(self, valor: str) -> str:
         return conferir_telefone(valor) if valor.strip() else ""
+
+
+class NovaLojaSerializer(EdicaoDeLojaSerializer):
+    class Meta(EdicaoDeLojaSerializer.Meta):
+        fields = ["nome", "telefone", "endereco"]

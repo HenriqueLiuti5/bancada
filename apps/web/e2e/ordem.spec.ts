@@ -1,23 +1,21 @@
 import type { Locator, Page } from "@playwright/test";
-import { diaDaquiA, donoNovo, expect, fotoDoAparelho, pularTour, test, type Dono } from "./apoio";
+import {
+  abrirComOProblema,
+  criarConta,
+  diaDaquiA,
+  donoNovo,
+  expect,
+  fotoDoAparelho,
+  pularTour,
+  test,
+  type Dono,
+} from "./apoio";
 
 const CLIENTE = { nome: "Maria Aparecida Souza", primeiroNome: "Maria", telefone: "11987654321" };
 const CLIENTE_ERRADA = { nome: "Mariana Silva", telefone: "11977776666" };
 const COMENTARIO = "Cliente pediu para ligar antes de trocar a tela.";
 const LEGENDA_DA_FOTO = "Tela trincada no canto";
 const ETAPAS = ["Recebido", "Em diagnóstico", "Orçamento enviado", "Aprovado", "Em reparo", "Pronto", "Entregue"];
-
-async function criarConta(page: Page, dono: Dono): Promise<void> {
-  await page.goto("/cadastro");
-  await page.getByLabel("Nome da assistência").fill(dono.assistencia);
-  await page.getByLabel("Seu nome").fill(dono.nome);
-  await page.getByLabel("E-mail").fill(dono.email);
-  await page.getByLabel("WhatsApp da assistência").fill("43996156781");
-  await page.getByLabel("Senha").fill(dono.senha);
-  await page.getByRole("checkbox", { name: /Li e aceito os termos de uso/ }).check();
-  await page.getByRole("button", { name: "Criar conta grátis" }).click();
-  await expect(page).toHaveURL(/\/ordens$/);
-}
 
 async function sair(page: Page, dono: Dono): Promise<void> {
   await page
@@ -58,12 +56,6 @@ async function conferirFoto(foto: Locator): Promise<void> {
 async function irParaNovaOrdem(page: Page): Promise<void> {
   await page.getByRole("link", { name: /Nova ordem/ }).filter({ visible: true }).first().click();
   await expect(page).toHaveURL(/\/ordens\/nova$/);
-}
-
-async function abrirComOProblema(page: Page, problema: string): Promise<void> {
-  await page.getByRole("textbox", { name: "Problema relatado" }).fill(problema);
-  await page.getByRole("button", { name: "Abrir ordem de serviço" }).click();
-  await expect(page).toHaveURL(/\/ordens\/\d+$/);
 }
 
 function historicoDa(page: Page): Locator {

@@ -24,11 +24,12 @@ export async function abrirOrdem(
   dados: FormData,
 ): Promise<EstadoDoFormulario> {
   const { corpo: clienteEAparelho, valores } = lerClienteEAparelho(dados);
+  const loja = texto(dados, "loja");
   const problema_relatado = texto(dados, "problema_relatado");
   const prometida_para = texto(dados, "prometida_para");
 
   const corpo = {
-    loja: Number(texto(dados, "loja")),
+    loja: Number(loja),
     problema_relatado,
     prometida_para: prometida_para || null,
     ...clienteEAparelho,
@@ -39,6 +40,7 @@ export async function abrirOrdem(
     criada = await chamarApi<Ordem>("/api/ordens/", { metodo: "POST", corpo });
   } catch (erro) {
     return estadoDeErro(erro, "Não foi possível abrir a ordem.", {
+      loja,
       problema_relatado,
       prometida_para,
       ...valores,

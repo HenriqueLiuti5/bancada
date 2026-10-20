@@ -1,7 +1,53 @@
+// Brasília é o fuso do Bancada e o de quem ainda não tem assistência: a página inicial, a
+// demonstração e o painel da plataforma. As telas da assistência usam o fuso escolhido por ela.
 export const FUSO_HORARIO = "America/Sao_Paulo";
 
-export function hojeEmIso(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: FUSO_HORARIO });
+export function hojeEmIso(fuso: string = FUSO_HORARIO): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone: fuso });
+}
+
+export function diaEHora(iso: string, fuso: string): string {
+  return new Date(iso).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: fuso,
+  });
+}
+
+export function dataEHora(iso: string, fuso: string): string {
+  return new Date(iso).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: fuso,
+  });
+}
+
+export function dataDoMomento(iso: string, fuso: string): string {
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: fuso,
+  });
+}
+
+export function horaEMinuto(momento: Date, fuso: string): string {
+  return momento.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso });
+}
+
+export function hojePorExtenso(fuso: string): string {
+  const texto = new Date().toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: fuso,
+  });
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 function meioDoDia(iso: string): Date {

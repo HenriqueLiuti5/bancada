@@ -11,8 +11,8 @@ class LojaInline(admin.TabularInline):
 
 @admin.register(Tenant)
 class TenantAdmin(admin.ModelAdmin):
-    list_display = ["nome", "documento", "whatsapp", "ativo", "criado_em"]
-    list_filter = ["ativo"]
+    list_display = ["nome", "documento", "whatsapp", "fuso_horario", "ativo", "criado_em"]
+    list_filter = ["ativo", "fuso_horario"]
     search_fields = ["nome", "documento", "whatsapp"]
     prepopulated_fields = {"slug": ("nome",)}
     readonly_fields = ["logo", "termos_aceitos_em", "versao_dos_termos"]
@@ -21,8 +21,8 @@ class TenantAdmin(admin.ModelAdmin):
 
 @admin.register(Loja)
 class LojaAdmin(admin.ModelAdmin):
-    list_display = ["nome", "tenant", "telefone"]
-    list_filter = ["tenant"]
+    list_display = ["nome", "tenant", "telefone", "ativa"]
+    list_filter = ["tenant", "ativa"]
     search_fields = ["nome"]
 
 

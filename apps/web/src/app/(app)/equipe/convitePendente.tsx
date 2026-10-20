@@ -10,7 +10,9 @@ import { mensagemDoConvite, validadeDoConvite } from "@/lib/convites";
 import type { Convite } from "@/lib/tipos";
 import { cancelarConvite } from "./acoes";
 
-export function ConvitePendente({ convite, assistencia }: { convite: Convite; assistencia: string }) {
+type Props = { convite: Convite; assistencia: string; fuso: string };
+
+export function ConvitePendente({ convite, assistencia, fuso }: Props) {
   const { copiado, copiar } = useCopiar();
   const [cancelando, iniciarCancelamento] = useTransition();
   const whatsapp = `https://wa.me/?text=${encodeURIComponent(mensagemDoConvite(convite, assistencia))}`;
@@ -28,7 +30,7 @@ export function ConvitePendente({ convite, assistencia }: { convite: Convite; as
           />
         </p>
         <p className="truncate text-sm text-texto-apagado sm:text-[13px]">
-          {convite.papel_rotulo} · {validadeDoConvite(convite)}
+          {convite.papel_rotulo} · {validadeDoConvite(convite, fuso)}
           {convite.email && ` · ${convite.email}`}
         </p>
       </div>

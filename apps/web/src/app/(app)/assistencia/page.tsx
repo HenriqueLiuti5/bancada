@@ -1,10 +1,11 @@
-import { ImageSquareIcon, MapPinIcon, StorefrontIcon } from "@/componentes/icones";
+import { ImageSquareIcon, MapPinPlusIcon, ProhibitIcon, StorefrontIcon } from "@/componentes/icones";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { chamarApi } from "@/lib/api";
 import type { Assistencia, Loja } from "@/lib/tipos";
 import { gerenciaEquipe, usuarioAtual } from "@/lib/usuario";
-import { FormularioDaAssistencia, FormularioDaLogo, FormularioDaLoja } from "./formularios";
+import { FormularioDaAssistencia, FormularioDaLogo } from "./formularios";
+import { CartaoDaLoja, LojaDesativada, NovaLoja } from "./lojas";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,8 @@ export default async function PaginaDaAssistencia() {
     chamarApi<Assistencia>("/api/assistencia/"),
     chamarApi<Loja[]>("/api/lojas/"),
   ]);
+  const ativas = lojas.filter((loja) => loja.ativa);
+  const desativadas = lojas.filter((loja) => !loja.ativa);
 
   return (
     <>
@@ -45,16 +48,37 @@ export default async function PaginaDaAssistencia() {
           <FormularioDaLogo assistencia={assistencia} />
         </Cartao>
 
-        {lojas.map((loja) => (
-          <Cartao
+        {ativas.map((loja) => (
+          <CartaoDaLoja
             key={loja.id}
+            loja={loja}
             titulo={lojas.length > 1 ? loja.nome : "Loja"}
-            icone={MapPinIcon}
-            descricao="Telefone e endereço aparecem para o cliente."
-          >
-            <FormularioDaLoja loja={loja} />
-          </Cartao>
+            podeDesativar={ativas.length > 1}
+          />
         ))}
+
+        {desativadas.length > 0 && (
+          <Cartao
+            titulo="Lojas desativadas"
+            icone={ProhibitIcon}
+            descricao="Não aparecem na abertura de ordens. As ordens que já estavam nelas seguem até a entrega."
+            semEspaco
+          >
+            <ul className="divide-y divide-borda">
+              {desativadas.map((loja) => (
+                <LojaDesativada key={loja.id} loja={loja} />
+              ))}
+            </ul>
+          </Cartao>
+        )}
+
+        <Cartao
+          titulo="Nova loja"
+          icone={MapPinPlusIcon}
+          descricao="Para quem atende em mais de um endereço. Cada ordem fica com a loja onde foi aberta, o cliente vê o nome dessa loja e o painel separa os números de cada uma."
+        >
+          <NovaLoja />
+        </Cartao>
       </div>
     </>
   );

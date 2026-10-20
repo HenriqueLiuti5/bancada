@@ -86,7 +86,7 @@ o operador.
 | 4L | Tela da ordem no modelo de chamado | concluída |
 | 4M | Testes automáticos do site | concluída |
 | 4N | Troca do cliente da ordem e comentários internos no histórico | concluída |
-| 4O | Lojas pela tela e fuso horário por assistência | |
+| 4O | Lojas pela tela e fuso horário por assistência | concluída |
 | 4P | Estoque de peças | |
 | 4Q | Financeiro da loja | |
 | 4R | Página inicial com telas novas | |
@@ -431,11 +431,20 @@ anotações da equipe. Na entrega:
 
 ### 4O — Lojas pela tela e fuso horário
 
-- Tela para o dono criar, editar e desativar lojas. Até aqui, a segunda loja só nascia pelo painel
-  administrativo, a pedido pelo WhatsApp (ADR 0026).
-- Fuso horário por assistência, escolhido na tela Assistência. Os horários das telas, dos documentos
-  e dos avisos e as contas de "hoje" e "atrasada" passam a seguir o fuso dela. O Brasil tem quatro
-  fusos, e uma assistência em Cuiabá ou em Manaus via as horas uma hora adiantadas.
+Até aqui, a segunda loja só nascia pelo painel administrativo, a pedido pelo WhatsApp (ADR 0026), e
+todas as horas eram as de Brasília: uma assistência em Cuiabá ou em Manaus via as horas uma hora
+adiantadas. Na entrega:
+
+- Fuso horário por assistência, entre os quatro do Brasil, deduzido do DDD do WhatsApp no cadastro e
+  trocado na tela Assistência, que mostra a hora de agora no fuso escolhido. As horas das telas, dos
+  documentos e dos e-mails e as contas de "hoje" e "atrasada" seguem o fuso da assistência. A
+  assinatura continua no horário de Brasília, como as cobranças do Asaas.
+- O dono cria, edita, desativa e reativa lojas na tela Assistência. A loja desativada some da
+  abertura de ordens, as ordens dela seguem até a entrega, e o painel continua filtrando por ela.
+- A ficha da ordem mostra a loja quando a assistência usa mais de uma, e a loja escolhida na abertura
+  não volta mais para a primeira da lista quando a API recusa o envio.
+- Testes do fuso e das lojas na API, das datas em cada fuso no site e um teste de navegador que cria,
+  usa e desativa uma loja e passa a assistência para o horário de Manaus (ADR 0035).
 
 ### 4P — Estoque de peças
 

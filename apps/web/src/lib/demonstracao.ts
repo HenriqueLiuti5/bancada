@@ -1,4 +1,4 @@
-import { hojeEmIso, somarDias } from "@/lib/datas";
+import { FUSO_HORARIO, hojeEmIso, somarDias } from "@/lib/datas";
 import type { AcompanhamentoPublico } from "@/lib/publico";
 
 export const ETAPAS_DA_DEMONSTRACAO = [
@@ -89,7 +89,13 @@ export function acompanhamentoDeExemplo(etapa: EtapaDaDemonstracao): Acompanhame
     encerrada: etapa === "entregue",
     aparelho: "Samsung Galaxy A54",
     cliente_primeiro_nome: "Ana",
-    assistencia: { nome: "Sua Assistência", loja: "", telefone: "11999999999", logo: null },
+    assistencia: {
+      nome: "Sua Assistência",
+      loja: "",
+      telefone: "11999999999",
+      logo: null,
+      fuso_horario: FUSO_HORARIO,
+    },
     aberta_em: momento(0),
     prometida_para: somarDias(hojeEmIso(), 2),
     entregue_em: etapa === "entregue" ? momento(atual.horas) : null,
