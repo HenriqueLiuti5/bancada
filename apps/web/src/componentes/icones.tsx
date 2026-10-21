@@ -15,6 +15,7 @@ import {
   CaretLeftIcon as CaretLeft,
   CaretRightIcon as CaretRight,
   CaretUpDownIcon as CaretUpDown,
+  CashRegisterIcon as CashRegister,
   ChartPieSliceIcon as ChartPieSlice,
   ChatCircleTextIcon as ChatCircleText,
   ChatTextIcon as ChatText,
@@ -87,6 +88,7 @@ import {
   ThumbsUpIcon as ThumbsUp,
   TimerIcon as Timer,
   TrashIcon as Trash,
+  TrayArrowDownIcon as TrayArrowDown,
   TrayIcon as Tray,
   TrendDownIcon as TrendDown,
   TrendUpIcon as TrendUp,
@@ -131,6 +133,7 @@ export const CaretDownIcon = decorativo(CaretDown);
 export const CaretLeftIcon = decorativo(CaretLeft);
 export const CaretRightIcon = decorativo(CaretRight);
 export const CaretUpDownIcon = decorativo(CaretUpDown);
+export const CashRegisterIcon = decorativo(CashRegister);
 export const ChartPieSliceIcon = decorativo(ChartPieSlice);
 export const ChatCircleTextIcon = decorativo(ChatCircleText);
 export const ChatTextIcon = decorativo(ChatText);
@@ -203,6 +206,7 @@ export const TargetIcon = decorativo(Target);
 export const ThumbsUpIcon = decorativo(ThumbsUp);
 export const TimerIcon = decorativo(Timer);
 export const TrashIcon = decorativo(Trash);
+export const TrayArrowDownIcon = decorativo(TrayArrowDown);
 export const TrayIcon = decorativo(Tray);
 export const TrendDownIcon = decorativo(TrendDown);
 export const TrendUpIcon = decorativo(TrendUp);

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "bancada.tenants",
     "bancada.clientes",
     "bancada.ordens",
+    "bancada.estoque",
     "bancada.avisos",
     "bancada.auditoria",
     "bancada.orientacao",

@@ -8,6 +8,7 @@ from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.cpf_cnpj import conferir_documento_opcional
 from bancada.core.formatos import em_reais
 from bancada.core.telefones import conferir_telefone, so_digitos
+from bancada.estoque.models import Produto
 from bancada.ordens.estados import TRANSICOES, StatusOS, pode_ir_de
 from bancada.ordens.fotos import MomentoDaFoto, assinar
 from bancada.ordens.models import (
@@ -20,6 +21,7 @@ from bancada.ordens.models import (
     Pagamento,
     Recebimento,
     RegistroOS,
+    TipoItem,
 )
 from bancada.ordens.painel import periodo as periodos
 from bancada.tenants.models import Loja
@@ -28,16 +30,70 @@ TAMANHO_MAXIMO_DO_COMENTARIO = 2000
 
 
 class ItemOrcamentoSerializer(serializers.ModelSerializer):
+    produto = serializers.PrimaryKeyRelatedField(
+        queryset=Produto.objects.all(), required=False, allow_null=True
+    )
+    custo = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        min_value=Decimal("0"),
+        required=False,
+        allow_null=True,
+        error_messages={"min_value": "O custo não pode ser negativo."},
+    )
+    custo_do_item = serializers.DecimalField(
+        max_digits=10, decimal_places=2, read_only=True, allow_null=True
+    )
+
     class Meta:
         model = ItemOrcamento
-        fields = ["id", "tipo", "descricao", "valor", "aprovado"]
+        fields = [
+            "id",
+            "tipo",
+            "descricao",
+            "valor",
+            "aprovado",
+            "produto",
+            "custo",
+            "custo_do_item",
+        ]
         read_only_fields = ["aprovado"]
         extra_kwargs = {
+            "descricao": {"required": False, "allow_blank": True},
             "valor": {
+                "required": False,
                 "min_value": Decimal("0"),
                 "error_messages": {"min_value": "O valor não pode ser negativo."},
-            }
+            },
         }
+
+    def validate_produto(self, produto: Produto | None) -> Produto | None:
+        if produto is None:
+            return None
+        if produto.tenant_id != self.context["ordem"].tenant_id:
+            raise serializers.ValidationError("Não pertence à sua assistência.")
+        if not produto.ativo:
+            raise serializers.ValidationError("Este produto foi desativado no estoque.")
+        return produto
+
+    # A peça escolhida no estoque entra com o nome e o preço de venda do produto, que a equipe pode
+    # mudar, e o custo vem do estoque. O item digitado à mão precisa de descrição e valor.
+    def validate(self, attrs: dict) -> dict:
+        attrs["descricao"] = attrs.get("descricao", "").strip()
+        produto = attrs.get("produto")
+        if produto is not None:
+            attrs["tipo"] = TipoItem.PECA
+            attrs["custo"] = None
+            attrs["descricao"] = attrs["descricao"] or produto.nome
+            if attrs.get("valor") is None:
+                attrs["valor"] = produto.preco
+            return attrs
+
+        if not attrs["descricao"]:
+            raise serializers.ValidationError({"descricao": "Descreva a peça ou o serviço."})
+        if attrs.get("valor") is None:
+            raise serializers.ValidationError({"valor": "Informe o valor."})
+        return attrs
 
 
 class PagamentoSerializer(serializers.ModelSerializer):
@@ -203,10 +259,14 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
     desconto = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     total_pago = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     saldo_a_receber = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    custo_dos_itens = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    lucro = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    pecas_sem_custo = serializers.IntegerField(read_only=True)
 
     class Meta(OrdemServicoListSerializer.Meta):
         fields = [
             *OrdemServicoListSerializer.Meta.fields,
+            "loja",
             "loja_nome",
             "cliente",
             "cliente_telefone",
@@ -232,6 +292,9 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
             "pagamentos",
             "total_pago",
             "saldo_a_receber",
+            "custo_dos_itens",
+            "lucro",
+            "pecas_sem_custo",
         ]
 
     def get_transicoes_possiveis(self, obj: OrdemServico) -> list[dict[str, str]]:

@@ -1,4 +1,4 @@
-export type NomeDoTour = "ordens" | "nova-ordem" | "ordem" | "painel" | "equipe";
+export type NomeDoTour = "ordens" | "nova-ordem" | "ordem" | "painel" | "equipe" | "estoque";
 
 export type Lado = "baixo" | "cima" | "direita" | "esquerda";
 
@@ -134,14 +134,14 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       alvo: "indicadores",
       titulo: "Como a loja está agora",
       texto:
-        "O que está na bancada, o que passou do prazo, o que vence hoje, o que espera resposta do cliente e o que está pronto para retirada. Clique num número para ver essas ordens.",
+        "O que está na bancada, o que passou do prazo, o que vence hoje, o que espera resposta do cliente, o que está pronto para retirada e o que precisa repor no estoque. Clique num número para ver a lista.",
     },
     {
       alvo: "dinheiro",
       papeis: ["dono"],
       titulo: "Dinheiro",
       texto:
-        "Quanto entrou no caixa, separado por PIX, dinheiro e cartão, os descontos dados e o que os clientes ainda devem. Só quem é dono vê esta parte.",
+        "Quanto entrou no caixa pelas ordens e pelas vendas no balcão, separado por PIX, dinheiro e cartão, os descontos dados e o que os clientes ainda devem. Só quem é dono vê esta parte.",
     },
     {
       alvo: "operacao",
@@ -186,6 +186,32 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       titulo: "Papéis",
       texto:
         "O que cada papel pode fazer. Na dúvida, comece com atendente: ele abre ordens e atende, mas não vê a senha dos aparelhos.",
+    },
+  ],
+  estoque: [
+    {
+      alvo: "abas-do-estoque",
+      titulo: "Estoque e vendas",
+      texto:
+        "Aqui ficam as peças e os acessórios da loja e as vendas feitas no balcão. A peça usada num conserto sai do estoque sozinha quando o cliente aprova o orçamento.",
+    },
+    {
+      alvo: "cadastrar-produto",
+      titulo: "Cadastrar produto",
+      texto:
+        "Cada produto tem custo, preço de venda e um mínimo. Quando a quantidade fica abaixo do mínimo, ele aparece em Para repor, aqui e no painel.",
+    },
+    {
+      alvo: "nova-venda",
+      titulo: "Venda no balcão",
+      texto:
+        "Capas, películas e carregadores vendidos no balcão: escolha os produtos e a forma de pagamento. O estoque baixa e o valor entra no painel.",
+    },
+    {
+      alvo: "lista-do-estoque",
+      titulo: "Os produtos",
+      texto:
+        "Clique num produto para registrar a compra que chegou, corrigir a contagem ou ver tudo o que entrou e saiu, com quem fez e quando.",
     },
   ],
 };

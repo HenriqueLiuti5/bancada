@@ -10,6 +10,7 @@ from bancada.assinaturas.views import (
     WebhookDoAsaasView,
 )
 from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
+from bancada.estoque.views import ProdutoViewSet, VendaViewSet
 from bancada.ordens.views import (
     FotoViewSet,
     ItemOrcamentoViewSet,
@@ -55,6 +56,8 @@ router.register("ordens", OrdemServicoViewSet, basename="ordem")
 router.register("fotos", FotoViewSet, basename="foto")
 router.register("itens", ItemOrcamentoViewSet, basename="item")
 router.register("pagamentos", PagamentoViewSet, basename="pagamento")
+router.register("produtos", ProdutoViewSet, basename="produto")
+router.register("vendas", VendaViewSet, basename="venda")
 router.register("usuarios", UsuarioViewSet, basename="usuario")
 router.register("convites", ConviteViewSet, basename="convite")
 

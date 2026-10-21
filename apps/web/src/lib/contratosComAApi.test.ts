@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { ROTEIROS } from "@/app/(app)/roteiros";
 import { TAMANHO_MAXIMO_DA_FOTO_EM_MB, fotoPassaDoTamanho } from "@/lib/fotos";
 import { FUSOS_DO_BRASIL } from "@/lib/fusos";
 import { problemaDoTelefone } from "@/lib/telefone";
@@ -41,6 +42,12 @@ function fusosDaApi(): string[] {
   return [...bloco.matchAll(/^ {4}\w+ = "([^"]+)"/gm)].map(([, valor]) => valor).sort();
 }
 
+function toursDaApi(): string[] {
+  const lista = /^TOURS = \[(.+)\]$/m.exec(codigoDaApi("orientacao/serializers.py"))?.[1];
+  if (!lista) throw new Error("TOURS não aparece em apps/api/bancada/orientacao/serializers.py");
+  return [...lista.matchAll(/"([^"]+)"/g)].map(([, nome]) => nome).sort();
+}
+
 function valorNaApi(caminho: string, padrao: RegExp): string {
   const encontrado = padrao.exec(codigoDaApi(caminho));
   if (!encontrado) throw new Error(`${padrao} não aparece em apps/api/bancada/${caminho}`);
@@ -57,6 +64,10 @@ describe("o site e a API combinam", () => {
     const doSite = FUSOS_DO_BRASIL.map((fuso) => fuso.valor).sort();
     expect(doSite).toHaveLength(4);
     expect(doSite).toEqual(fusosDaApi());
+  });
+
+  it("nos tours que a API deixa marcar como vistos", () => {
+    expect(Object.keys(ROTEIROS).sort()).toEqual(toursDaApi());
   });
 
   it("na versão dos termos gravada no cadastro", () => {

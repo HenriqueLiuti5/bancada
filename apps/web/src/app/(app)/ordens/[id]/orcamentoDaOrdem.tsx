@@ -1,23 +1,30 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { InvoiceIcon, PlusIcon, ReceiptIcon, TrashIcon } from "@/componentes/icones";
 import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
-import { emReais } from "@/lib/moeda";
-import type { ItemOrcamento, Ordem } from "@/lib/tipos";
+import { useOpcaoPadrao } from "@/componentes/useOpcaoPadrao";
+import { quantidadeNaLoja, rotuloDoProduto } from "@/lib/estoque";
+import { contagem } from "@/lib/formatos";
+import { emReais, reaisParaCampo } from "@/lib/moeda";
+import type { EscolhaDeProdutos, ItemOrcamento, Ordem, ProdutoParaEscolher } from "@/lib/tipos";
 import { adicionarItem, apagarItem, type EstadoDoItem } from "./acoes";
 
 const INICIAL: EstadoDoItem = {};
 
 const ROTULO_DO_CAMPO = "block text-xs font-semibold text-texto-suave";
 
+const ETAPAS_SEM_LUCRO = ["reprovado", "devolvido_sem_reparo"];
+
 function situacaoDoItem(item: ItemOrcamento, decidido: boolean): string {
-  const tipo = item.tipo === "peca" ? "Peça" : "Serviço";
-  if (!decidido) return tipo;
-  return `${tipo} · ${item.aprovado ? "aprovado" : "recusado"}`;
+  const partes = [item.tipo === "peca" ? "Peça" : "Serviço"];
+  if (item.produto !== null) partes.push("do estoque");
+  if (decidido) partes.push(item.aprovado ? "aprovado" : "recusado");
+  if (item.custo_do_item !== null) partes.push(`custo ${emReais(item.custo_do_item)}`);
+  return partes.join(" · ");
 }
 
 function LinhaDoItem({ ordem, item }: { ordem: Ordem; item: ItemOrcamento }) {
@@ -63,31 +70,108 @@ function LinhaDoItem({ ordem, item }: { ordem: Ordem; item: ItemOrcamento }) {
   );
 }
 
-function NovoItem({ ordem }: { ordem: Ordem }) {
+type Campos = { produto: string; tipo: string; descricao: string; valor: string; custo: string };
+
+const SEM_NADA: Campos = { produto: "", tipo: "peca", descricao: "", valor: "", custo: "" };
+
+function DicaDaPeca({ produto, quantidade }: { produto: ProdutoParaEscolher; quantidade: number }) {
+  if (quantidade <= 0) {
+    return (
+      <p className="text-[13px] text-texto-apagado sm:text-xs">
+        Sem estoque nesta loja. Se o cliente aprovar, a peça fica faltando e aparece em Para repor.
+      </p>
+    );
+  }
+  return (
+    <p className="text-[13px] text-texto-apagado sm:text-xs">
+      Sai do estoque quando o cliente aprovar. Custo {emReais(produto.custo)}, {quantidade} nesta
+      loja.
+    </p>
+  );
+}
+
+// Os campos são controlados para a peça escolhida preencher a descrição e o valor. Depois de uma
+// recusa eles continuam com o que foi enviado, e depois de um envio que dá certo voltam a zero.
+function NovoItem({ ordem, escolha }: { ordem: Ordem; escolha: EscolhaDeProdutos | null }) {
   const [estado, acao, adicionando] = useActionState(adicionarItem, INICIAL);
-  const formulario = useRef<HTMLFormElement>(null);
+  const [campos, setCampos] = useState<Campos>(SEM_NADA);
+  const [visto, setVisto] = useState(estado);
   const descricao = useRef<HTMLInputElement>(null);
-  const valores = estado.valores ?? {};
+  const seletorDoProduto = useOpcaoPadrao(campos.produto);
+  const seletorDoTipo = useOpcaoPadrao(campos.tipo);
+
+  if (estado !== visto) {
+    setVisto(estado);
+    if (estado.adicionado) setCampos(SEM_NADA);
+  }
 
   useEffect(() => {
-    if (!estado.adicionado) return;
-    formulario.current?.reset();
-    descricao.current?.focus();
+    if (estado.adicionado) descricao.current?.focus();
   }, [estado]);
 
+  const produtos = escolha?.produtos ?? [];
+  const variasLojas = escolha?.varias_lojas ?? false;
+  const escolhido = produtos.find((produto) => String(produto.id) === campos.produto);
+  const pecas = produtos.filter((produto) => produto.tipo === "peca");
+  const acessorios = produtos.filter((produto) => produto.tipo === "acessorio");
+
+  function mudar(mudanca: Partial<Campos>) {
+    setCampos((atuais) => ({ ...atuais, ...mudanca }));
+  }
+
+  function escolherProduto(id: string) {
+    const produto = produtos.find((outro) => String(outro.id) === id);
+    if (!produto) {
+      mudar({ produto: "", descricao: "", valor: "" });
+      return;
+    }
+    mudar({
+      produto: id,
+      tipo: "peca",
+      descricao: produto.nome,
+      valor: reaisParaCampo(produto.preco),
+      custo: "",
+    });
+  }
+
+  function opcoes(lista: ProdutoParaEscolher[]) {
+    return lista.map((produto) => (
+      <option key={produto.id} value={produto.id}>
+        {rotuloDoProduto(produto, quantidadeNaLoja(produto, ordem.loja, variasLojas))}
+      </option>
+    ));
+  }
+
   return (
-    <form ref={formulario} action={acao} className="space-y-3 border-t border-borda p-5">
+    <form action={acao} className="space-y-3 border-t border-borda p-5">
       <input type="hidden" name="id" value={ordem.id} />
+
+      {produtos.length > 0 && (
+        <label className="block space-y-1">
+          <span className={ROTULO_DO_CAMPO}>Peça do estoque</span>
+          <select
+            ref={seletorDoProduto}
+            name="produto"
+            value={campos.produto}
+            onChange={(evento) => escolherProduto(evento.target.value)}
+            className={seletor}
+          >
+            <option value="">Nenhuma, vou digitar</option>
+            {pecas.length > 0 && <optgroup label="Peças">{opcoes(pecas)}</optgroup>}
+            {acessorios.length > 0 && <optgroup label="Acessórios">{opcoes(acessorios)}</optgroup>}
+          </select>
+        </label>
+      )}
 
       <div className="flex flex-wrap items-end gap-2">
         <label className="space-y-1">
           <span className={ROTULO_DO_CAMPO}>Tipo</span>
-          {/* O React limpa o formulário depois de cada envio e só lê o defaultValue de um select
-              quando ele nasce: a chave o recria com o tipo que foi enviado. */}
           <select
-            key={valores.tipo}
+            ref={seletorDoTipo}
             name="tipo"
-            defaultValue={valores.tipo ?? "peca"}
+            value={campos.tipo}
+            disabled={Boolean(escolhido)}
+            onChange={(evento) => mudar({ tipo: evento.target.value })}
             className={juntar(seletor, "w-auto")}
           >
             <option value="peca">Peça</option>
@@ -105,7 +189,8 @@ function NovoItem({ ordem }: { ordem: Ordem }) {
             placeholder="Ex.: Tela com moldura"
             required
             maxLength={180}
-            defaultValue={valores.descricao}
+            value={campos.descricao}
+            onChange={(evento) => mudar({ descricao: evento.target.value })}
             className={campo}
           />
         </label>
@@ -120,22 +205,78 @@ function NovoItem({ ordem }: { ordem: Ordem }) {
             inputMode="decimal"
             autoComplete="off"
             required
-            defaultValue={valores.valor}
+            value={campos.valor}
+            onChange={(evento) => mudar({ valor: evento.target.value })}
             className={juntar(campo, "tabular-nums")}
           />
         </label>
+        {!escolhido && (
+          <label className="w-28 space-y-1">
+            <span className={ROTULO_DO_CAMPO}>Custo</span>
+            <input
+              name="custo"
+              placeholder="Opcional"
+              inputMode="decimal"
+              autoComplete="off"
+              value={campos.custo}
+              onChange={(evento) => mudar({ custo: evento.target.value })}
+              className={juntar(campo, "tabular-nums")}
+            />
+          </label>
+        )}
         <button type="submit" disabled={adicionando} className={botao("secundario")}>
           <PlusIcon size={16} />
           {adicionando ? "Adicionando..." : "Adicionar"}
         </button>
       </div>
 
+      {escolhido && (
+        <DicaDaPeca
+          produto={escolhido}
+          quantidade={quantidadeNaLoja(escolhido, ordem.loja, variasLojas)}
+        />
+      )}
       {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
     </form>
   );
 }
 
-export function ItensDoOrcamento({ ordem }: { ordem: Ordem }) {
+function LucroDaOrdem({ ordem }: { ordem: Ordem }) {
+  const entregue = ordem.valor_cobrado !== null;
+
+  return (
+    <div className="space-y-1.5 border-t border-borda px-5 py-3 text-[13px]">
+      <dl className="space-y-1">
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-texto-apagado">Custo das peças</dt>
+          <dd className="tabular-nums">{emReais(ordem.custo_dos_itens)}</dd>
+        </div>
+        <div className="flex items-center justify-between gap-4 font-semibold">
+          <dt>{entregue ? "Lucro" : "Lucro previsto"}</dt>
+          <dd className="text-dinheiro tabular-nums">{emReais(ordem.lucro)}</dd>
+        </div>
+      </dl>
+      {ordem.pecas_sem_custo > 0 && (
+        <p className="text-xs text-texto-apagado">
+          Falta o custo de {contagem(ordem.pecas_sem_custo, "peça digitada", "peças digitadas")}, e
+          o lucro real é menor que esse.
+        </p>
+      )}
+    </div>
+  );
+}
+
+type Props = { ordem: Ordem; escolha: EscolhaDeProdutos | null };
+
+// O lucro aparece quando a equipe já anota custos nesta ordem: com a peça do estoque ou com o custo
+// digitado no item. Sem nenhum custo, ele só repetiria o total.
+function mostraOLucro(ordem: Ordem): boolean {
+  if (ETAPAS_SEM_LUCRO.includes(ordem.status)) return false;
+  const contam = ordem.itens.filter((item) => !ordem.orcamento_aprovado || item.aprovado);
+  return contam.some((item) => item.custo_do_item !== null);
+}
+
+export function ItensDoOrcamento({ ordem, escolha }: Props) {
   const vazio = ordem.itens.length === 0;
 
   return (
@@ -159,15 +300,16 @@ export function ItensDoOrcamento({ ordem }: { ordem: Ordem }) {
               {emReais(ordem.orcamento_aprovado ? ordem.total_aprovado : ordem.total_orcamento)}
             </span>
           </div>
+          {mostraOLucro(ordem) && <LucroDaOrdem ordem={ordem} />}
         </>
       )}
 
-      {ordem.orcamento_editavel && <NovoItem ordem={ordem} />}
+      {ordem.orcamento_editavel && <NovoItem ordem={ordem} escolha={escolha} />}
     </>
   );
 }
 
-export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
+export function OrcamentoDaOrdem({ ordem, escolha }: Props) {
   if (ordem.itens.length === 0 && !ordem.orcamento_editavel) {
     return (
       <EstadoVazio
@@ -185,7 +327,7 @@ export function OrcamentoDaOrdem({ ordem }: { ordem: Ordem }) {
           O cliente vê o orçamento quando você o envia. Depois disso, ele não muda mais.
         </p>
       )}
-      <ItensDoOrcamento ordem={ordem} />
+      <ItensDoOrcamento ordem={ordem} escolha={escolha} />
     </>
   );
 }

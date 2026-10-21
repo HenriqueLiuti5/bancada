@@ -125,6 +125,9 @@ export type ItemOrcamento = {
   descricao: string;
   valor: string;
   aprovado: boolean;
+  produto: number | null;
+  custo: string | null;
+  custo_do_item: string | null;
 };
 
 export type Pagamento = {
@@ -170,6 +173,7 @@ export type OrdemResumo = {
 };
 
 export type Ordem = OrdemResumo & {
+  loja: number;
   loja_nome: string;
   cliente: number;
   cliente_telefone: string;
@@ -195,6 +199,92 @@ export type Ordem = OrdemResumo & {
   pagamentos: Pagamento[];
   total_pago: string;
   saldo_a_receber: string;
+  custo_dos_itens: string;
+  lucro: string;
+  pecas_sem_custo: number;
+};
+
+export type QuantidadeNaLoja = { loja: number; nome: string; ativa: boolean; quantidade: number };
+
+export type Produto = {
+  id: number;
+  nome: string;
+  tipo: "peca" | "acessorio";
+  tipo_rotulo: string;
+  codigo: string;
+  custo: string;
+  preco: string;
+  minimo: number;
+  ativo: boolean;
+  quantidade: number;
+  para_repor: boolean;
+  por_loja: QuantidadeNaLoja[];
+};
+
+export type MovimentoDeEstoque = {
+  id: number;
+  tipo: string;
+  tipo_rotulo: string;
+  quantidade: number;
+  loja: number;
+  loja_nome: string;
+  custo_unitario: string | null;
+  fornecedor: string;
+  observacao: string;
+  ordem: number | null;
+  ordem_numero: number | null;
+  venda: number | null;
+  venda_numero: number | null;
+  usuario: string | null;
+  criado_em: string;
+};
+
+export type ProdutoParaEscolher = {
+  id: number;
+  nome: string;
+  tipo: "peca" | "acessorio";
+  codigo: string;
+  custo: string;
+  preco: string;
+  quantidade: number;
+  por_loja: Record<string, number>;
+};
+
+export type EscolhaDeProdutos = { varias_lojas: boolean; produtos: ProdutoParaEscolher[] };
+
+export type VendaResumo = {
+  id: number;
+  numero: number;
+  loja: number;
+  loja_nome: string;
+  vendida_por: string | null;
+  valor_cobrado: string;
+  resumo: string;
+  formas: string;
+  desfeita: boolean;
+  criado_em: string;
+};
+
+export type ItemDaVenda = {
+  id: number;
+  produto: number;
+  descricao: string;
+  quantidade: number;
+  preco: string;
+  custo: string;
+  subtotal: string;
+};
+
+export type Venda = VendaResumo & {
+  total: string;
+  desconto: string;
+  custo: string;
+  lucro: string;
+  observacao: string;
+  desfeita_em: string | null;
+  desfeita_por: string | null;
+  itens: ItemDaVenda[];
+  pagamentos: { id: number; forma: string; forma_rotulo: string; valor: string }[];
 };
 
 export type LinhaDeStatus = { status: string; rotulo: string; total: number };
@@ -227,6 +317,7 @@ export type Painel = {
     prontas: number;
     por_status: LinhaDeStatus[];
   };
+  estoque: { para_repor: number };
   operacao: {
     abertas: Comparacao<number>;
     entregues: Comparacao<number>;
@@ -245,6 +336,7 @@ export type Painel = {
   dinheiro?: {
     recebido: Comparacao<string>;
     por_forma: ValorPorForma[];
+    balcao: { recebido: Comparacao<string>; vendas: number };
     descontos: Comparacao<string>;
     ticket_medio: Comparacao<string | null>;
     taxa_de_aprovacao: Comparacao<number | null>;

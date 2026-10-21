@@ -41,3 +41,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0033](0033-testes-automaticos-do-site.md) | Testes automáticos do site |
 | [0034](0034-troca-do-cliente-e-comentarios-no-historico.md) | Troca do cliente da ordem e comentários no histórico |
 | [0035](0035-lojas-pela-tela-e-fuso-horario.md) | Lojas pela tela e fuso horário por assistência |
+| [0036](0036-estoque-de-pecas-e-venda-no-balcao.md) | Estoque de peças e venda no balcão |

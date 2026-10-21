@@ -7,6 +7,7 @@ import { MenuDaConta } from "@/componentes/MenuDaConta";
 import {
   ClipboardTextIcon,
   CreditCardIcon,
+  PackageIcon,
   PlusIcon,
   SidebarSimpleIcon,
   SquaresFourIcon,
@@ -24,6 +25,7 @@ type Item = { href: string; rotulo: string; curto: string; icone: Icon; soDono?:
 const ITENS: Item[] = [
   { href: "/painel", rotulo: "Painel", curto: "Painel", icone: SquaresFourIcon },
   { href: "/ordens", rotulo: "Ordens de serviço", curto: "Ordens", icone: ClipboardTextIcon },
+  { href: "/estoque", rotulo: "Estoque e vendas", curto: "Estoque", icone: PackageIcon },
   { href: "/equipe", rotulo: "Equipe", curto: "Equipe", icone: UsersIcon, soDono: true },
   { href: "/assistencia", rotulo: "Assistência", curto: "Assistência", icone: StorefrontIcon, soDono: true },
   { href: "/assinatura", rotulo: "Assinatura", curto: "Assinatura", icone: CreditCardIcon, soDono: true },
@@ -34,6 +36,7 @@ const COLUNAS_DA_BARRA_INFERIOR: Record<number, string> = {
   3: "grid-cols-3",
   4: "grid-cols-4",
   5: "grid-cols-5",
+  6: "grid-cols-6",
 };
 
 const BOTAO_DA_LATERAL =

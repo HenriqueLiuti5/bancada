@@ -22,7 +22,7 @@ function numeroOuNulo(valor: string | null): number | null {
 }
 
 function Recebido({ dinheiro }: { dinheiro: Dinheiro }) {
-  const { recebido, descontos } = dinheiro;
+  const { recebido, descontos, balcao } = dinheiro;
 
   return (
     <Cartao>
@@ -42,18 +42,29 @@ function Recebido({ dinheiro }: { dinheiro: Dinheiro }) {
         />
       </div>
 
-      <div className="mt-6 rounded-xl bg-realce px-4 py-3">
-        <p className="text-[13px] text-texto-apagado">
-          Descontos dados:{" "}
-          <span className="font-bold text-dinheiro">{emReais(descontos.atual)}</span>
-        </p>
-        <div className="mt-1 text-xs text-texto-apagado">
-          <Variacao
-            atual={Number(descontos.atual)}
-            anterior={Number(descontos.anterior)}
-            formatar={emReais}
-            dinheiro
-          />
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-xl bg-realce px-4 py-3">
+          <p className="text-[13px] text-texto-apagado">
+            Vendas no balcão:{" "}
+            <span className="font-bold text-dinheiro">{emReais(balcao.recebido.atual)}</span>
+          </p>
+          <div className="mt-1 text-xs text-texto-apagado">
+            {contagem(balcao.vendas, "venda", "vendas")} no período, já somadas ao recebido
+          </div>
+        </div>
+        <div className="rounded-xl bg-realce px-4 py-3">
+          <p className="text-[13px] text-texto-apagado">
+            Descontos dados:{" "}
+            <span className="font-bold text-dinheiro">{emReais(descontos.atual)}</span>
+          </p>
+          <div className="mt-1 text-xs text-texto-apagado">
+            <Variacao
+              atual={Number(descontos.atual)}
+              anterior={Number(descontos.anterior)}
+              formatar={emReais}
+              dinheiro
+            />
+          </div>
         </div>
       </div>
     </Cartao>
@@ -67,7 +78,7 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
   return (
     <Secao
       titulo="Dinheiro"
-      descricao="O que entrou no caixa no período. Só quem é dono vê esta parte."
+      descricao="O que entrou no caixa no período, pelas ordens e pelo balcão. Só quem é dono vê esta parte."
       tour="dinheiro"
       icone={WalletIcon}
     >

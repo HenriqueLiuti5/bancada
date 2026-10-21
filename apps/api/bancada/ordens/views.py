@@ -2,7 +2,7 @@ from collections.abc import Callable
 from typing import Any
 
 from django.db import transaction
-from django.db.models import QuerySet
+from django.db.models import Prefetch, QuerySet
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import action
@@ -18,6 +18,7 @@ from bancada.auditoria.registro import origem_do_pedido, registrar
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
 from bancada.core.formatos import em_reais
+from bancada.estoque.models import Produto, Venda
 from bancada.ordens import consultas, documentos, publico
 from bancada.ordens.estados import StatusOS, TransicaoInvalida
 from bancada.ordens.fotos import FotoInvalida
@@ -100,7 +101,7 @@ class OrdemServicoViewSet(ViewSetDoTenant):
 
         if self.action != "list":
             return consulta.prefetch_related(
-                "itens",
+                Prefetch("itens", queryset=ItemOrcamento.objects.select_related("produto")),
                 "eventos__usuario",
                 "eventos__aviso",
                 "registros__usuario",
@@ -147,12 +148,16 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         escolhas = filtro.validated_data
 
         base = OrdemServico.objects.filter(tenant=tenant)
+        vendas = Venda.objects.filter(tenant=tenant)
         if "loja" in escolhas:
             base = base.filter(loja=escolhas["loja"])
+            vendas = vendas.filter(loja=escolhas["loja"])
 
         return Response(
             numeros_do_painel(
                 base,
+                vendas=vendas,
+                produtos=Produto.objects.filter(tenant=tenant),
                 chave=escolhas["periodo"],
                 atual=escolhas["atual"],
                 anterior=escolhas["anterior"],
@@ -222,7 +227,7 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         ordem = self.get_object()
         exigir_orcamento_editavel(ordem)
 
-        entrada = ItemOrcamentoSerializer(data=request.data)
+        entrada = ItemOrcamentoSerializer(data=request.data, context={"ordem": ordem})
         entrada.is_valid(raise_exception=True)
         item = entrada.save(ordem=ordem)
         return Response(ItemOrcamentoSerializer(item).data, status=status.HTTP_201_CREATED)

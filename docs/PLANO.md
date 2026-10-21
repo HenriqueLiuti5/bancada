@@ -87,7 +87,7 @@ o operador.
 | 4M | Testes automáticos do site | concluída |
 | 4N | Troca do cliente da ordem e comentários internos no histórico | concluída |
 | 4O | Lojas pela tela e fuso horário por assistência | concluída |
-| 4P | Estoque de peças | |
+| 4P | Estoque de peças e venda no balcão | concluída |
 | 4Q | Financeiro da loja | |
 | 4R | Página inicial com telas novas | |
 | 4S | Termos finais, privacidade e medição de visitas | |
@@ -452,17 +452,31 @@ recusa, cada formulário continua com o que foi enviado, inclusive a forma de pa
 da entrega e os itens desmarcados na aprovação, que antes voltavam ao valor inicial e saíam errados
 no envio seguinte (ADR 0035).
 
-### 4P — Estoque de peças
+### 4P — Estoque de peças e venda no balcão
 
-Os sistemas concorrentes controlam as peças no mesmo lugar das ordens. O que entra é decidido no
-começo da fase, a partir do que eles oferecem. O ponto de partida:
+Os sistemas concorrentes controlam as peças no mesmo lugar das ordens, e os mais baratos já vendiam
+no balcão. No começo da fase, o Henrique decidiu que a venda no balcão entra, que cada loja tem o seu
+estoque, que a peça sai na aprovação do orçamento e que toda a equipe cuida do estoque e vê custo e
+lucro. Na entrega:
 
-- Cadastro de peças e produtos, como telas, baterias e conectores, com custo, preço, quantidade e um
-  mínimo para avisar quando o estoque estiver baixo.
-- Entrada das peças compradas, com o fornecedor e o custo.
-- A peça usada num conserto sai do estoque pelo orçamento da ordem, e cada ordem mostra o lucro: o
-  que foi cobrado menos o custo das peças.
-- Venda de acessórios no balcão, como capas, películas e carregadores, se fizer sentido.
+- Cadastro de peças e acessórios, com código opcional para o leitor de código de barras, custo,
+  preço de venda e estoque mínimo. A quantidade é a soma das movimentações, cada uma com quem fez e
+  quando: estoque inicial, entrada de compra com fornecedor e custo, peça usada em ordem, venda,
+  venda desfeita, correção da contagem e transferência entre lojas. O custo é a média do que a loja
+  pagou.
+- A peça do estoque entra no orçamento com o nome e o preço, e sai da loja da ordem quando o cliente
+  aprova. Sem a peça, o estoque fica negativo e o produto entra em Para repor. A ordem mostra o custo
+  das peças e o lucro, com o custo guardado na entrega.
+- Venda no balcão com os produtos, o desconto e as formas de pagamento divididas, mostrando custo e
+  lucro. Só o dono desfaz uma venda, e os produtos voltam ao estoque.
+- No painel, as vendas somam ao recebido, e o indicador Para repor aparece para toda a equipe.
+- A mudança de etapa da ordem trava a ordem, e dois pedidos ao mesmo tempo não aprovam nem entregam
+  a mesma ordem duas vezes.
+- Testes da API, das contas da venda no site e um teste de navegador do caminho inteiro, no
+  computador e no celular (ADR 0036).
+
+Ficaram de fora os aparelhos à venda controlados pelo IMEI, a importação da nota do fornecedor, o
+recibo da venda em PDF, o aviso de estoque baixo por e-mail e o fiado no balcão.
 
 ### 4Q — Financeiro da loja
 
@@ -484,7 +498,8 @@ Vem depois das fases que mudam as telas, da 4N à 4Q, para mostrá-las como vão
   com mais qualidade, sem o borrado nas letras pequenas.
 - Celular e notebook desenhados em volta das telas, sem marca.
 - Fotos e imagens em PNG escolhidas pelo Henrique, onde couberem.
-- O estoque e o financeiro apresentados entre os recursos.
+- O estoque e o financeiro apresentados entre os recursos, com produtos e vendas de exemplo no
+  `semear` para as telas.
 
 Depoimentos só entram quando houver clientes reais que autorizem (ADR 0026).
 

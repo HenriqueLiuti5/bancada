@@ -4,6 +4,7 @@ from typing import Any
 
 from django.db.models import QuerySet
 
+from bancada.estoque.models import Produto, Venda, para_repor
 from bancada.ordens.models import OrdemServico
 from bancada.ordens.painel import agora, atendimento, dinheiro, equipe, operacao
 from bancada.ordens.painel.periodo import Periodo
@@ -51,12 +52,31 @@ def _atendimento(consulta: QuerySet[OrdemServico], atual: Periodo) -> dict[str, 
     }
 
 
+def _recebido(consulta: QuerySet[OrdemServico], vendas: QuerySet[Venda], periodo: Periodo) -> str:
+    return str(dinheiro.recebido(consulta, periodo) + dinheiro.recebido_no_balcao(vendas, periodo))
+
+
+# O recebido soma o que entrou pelas ordens e pelas vendas no balcão. O balcão também aparece à
+# parte, para o dono ver quanto dele veio das vendas de acessórios.
 def _dinheiro(
-    consulta: QuerySet[OrdemServico], atual: Periodo, anterior: Periodo
+    consulta: QuerySet[OrdemServico],
+    vendas: QuerySet[Venda],
+    atual: Periodo,
+    anterior: Periodo,
 ) -> dict[str, Any]:
     return {
-        "recebido": comparar(dinheiro.recebido, consulta, atual, anterior),
-        "por_forma": dinheiro.recebido_por_forma(consulta, atual),
+        "recebido": {
+            "atual": _recebido(consulta, vendas, atual),
+            "anterior": _recebido(consulta, vendas, anterior),
+        },
+        "por_forma": dinheiro.recebido_por_forma(consulta, vendas, atual),
+        "balcao": {
+            "recebido": {
+                "atual": str(dinheiro.recebido_no_balcao(vendas, atual)),
+                "anterior": str(dinheiro.recebido_no_balcao(vendas, anterior)),
+            },
+            "vendas": dinheiro.vendas_no_balcao(vendas, atual),
+        },
         "descontos": comparar(dinheiro.descontos, consulta, atual, anterior),
         "ticket_medio": comparar(dinheiro.ticket_medio, consulta, atual, anterior),
         "taxa_de_aprovacao": comparar(dinheiro.taxa_de_aprovacao, consulta, atual, anterior),
@@ -68,6 +88,8 @@ def _dinheiro(
 def numeros(
     consulta: QuerySet[OrdemServico],
     *,
+    vendas: QuerySet[Venda],
+    produtos: QuerySet[Produto],
     chave: str,
     atual: Periodo,
     anterior: Periodo,
@@ -76,10 +98,11 @@ def numeros(
     resposta: dict[str, Any] = {
         "periodo": {"chave": chave, **atual.em_texto(), "anterior": anterior.em_texto()},
         "agora": agora.numeros(consulta),
+        "estoque": {"para_repor": para_repor(produtos).count()},
         "operacao": _operacao(consulta, atual, anterior),
         "atendimento": _atendimento(consulta, atual),
     }
     if com_dinheiro:
-        resposta["dinheiro"] = _dinheiro(consulta, atual, anterior)
+        resposta["dinheiro"] = _dinheiro(consulta, vendas, atual, anterior)
         resposta["equipe"] = equipe.por_tecnico(consulta, atual)
     return resposta

@@ -163,7 +163,13 @@ class OrdemServico(PertenceAoTenant):
         itens_aprovados: Collection[int] | None = None,
         cobranca: Cobranca | None = None,
     ) -> "EventoOS":
-        anterior = self.status
+        # A trava faz quem chega depois esperar e ler a etapa nova, e uma ordem não é aprovada nem
+        # entregue duas vezes: o estoque e os pagamentos seguem cada mudança de etapa.
+        anterior = (
+            OrdemServico.objects.select_for_update()
+            .values_list("status", flat=True)
+            .get(pk=self.pk)
+        )
         if not pode_ir_de(anterior, novo_status):
             raise TransicaoInvalida(anterior, novo_status)
 
@@ -312,6 +318,33 @@ class OrdemServico(PertenceAoTenant):
             return Decimal("0.00")
         return self.total_aprovado - self.valor_cobrado
 
+    def _itens_do_lucro(self) -> list["ItemOrcamento"]:
+        itens = list(self.itens.all())
+        if self.orcamento_aprovado:
+            return [item for item in itens if item.aprovado]
+        return itens
+
+    @property
+    def custo_dos_itens(self) -> Decimal:
+        custos = (item.custo_do_item for item in self._itens_do_lucro())
+        return sum((custo for custo in custos if custo is not None), Decimal("0.00"))
+
+    @property
+    def pecas_sem_custo(self) -> int:
+        return sum(
+            1
+            for item in self._itens_do_lucro()
+            if item.tipo == TipoItem.PECA and item.custo_do_item is None
+        )
+
+    @property
+    def lucro(self) -> Decimal:
+        if self.valor_cobrado is not None:
+            receita = self.valor_cobrado
+        else:
+            receita = sum((item.valor for item in self._itens_do_lucro()), Decimal("0.00"))
+        return receita - self.custo_dos_itens
+
 
 class TipoItem(models.TextChoices):
     PECA = "peca", "Peça"
@@ -324,6 +357,14 @@ class ItemOrcamento(Carimbado):
     descricao = models.CharField(max_length=180)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     aprovado = models.BooleanField(default=False)
+    produto = models.ForeignKey(
+        "estoque.Produto",
+        on_delete=models.RESTRICT,
+        related_name="itens_de_orcamento",
+        null=True,
+        blank=True,
+    )
+    custo = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     class Meta:
         verbose_name = "item do orçamento"
@@ -332,6 +373,16 @@ class ItemOrcamento(Carimbado):
 
     def __str__(self) -> str:
         return f"{self.descricao} — R$ {self.valor}"
+
+    # A peça do estoque usa o custo do produto até a entrega, quando ele fica guardado no item. Um
+    # item digitado à mão tem o custo que a equipe informou, se informou.
+    @property
+    def custo_do_item(self) -> Decimal | None:
+        if self.custo is not None:
+            return self.custo
+        if self.produto is not None:
+            return self.produto.custo
+        return None
 
 
 class Pagamento(PertenceAoTenant):

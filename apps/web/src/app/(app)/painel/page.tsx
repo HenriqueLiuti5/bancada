@@ -5,6 +5,7 @@ import {
   HourglassIcon,
   PackageIcon,
   PulseIcon,
+  TrayArrowDownIcon,
   WrenchIcon,
 } from "@/componentes/icones";
 import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
@@ -51,10 +52,10 @@ async function buscarPainel(
   }
 }
 
-function Agora({ agora }: { agora: Painel["agora"] }) {
+function Agora({ agora, estoque }: { agora: Painel["agora"]; estoque: Painel["estoque"] }) {
   return (
     <Secao titulo="Agora" icone={PulseIcon} descricao="Como a loja está neste momento, sem depender do período.">
-      <GradeDeIndicadores tour="indicadores" colunas={5}>
+      <GradeDeIndicadores tour="indicadores" colunas={6}>
         <Indicador
           rotulo="Na bancada"
           icone={WrenchIcon}
@@ -91,6 +92,14 @@ function Agora({ agora }: { agora: Painel["agora"] }) {
           nota="ocupando a prateleira"
           href="/ordens?status=pronto"
         />
+        <Indicador
+          rotulo="Para repor"
+          icone={TrayArrowDownIcon}
+          valor={String(estoque.para_repor)}
+          nota="produtos abaixo do mínimo"
+          href="/estoque?situacao=repor"
+          alerta={estoque.para_repor > 0}
+        />
       </GradeDeIndicadores>
     </Secao>
   );
@@ -121,7 +130,7 @@ export default async function PainelDaLoja({
           {erro && <Mensagem tipo="erro">{erro}</Mensagem>}
         </div>
 
-        <Agora agora={painel.agora} />
+        <Agora agora={painel.agora} estoque={painel.estoque} />
         {painel.dinheiro && <SecaoDinheiro dinheiro={painel.dinheiro} />}
         <SecaoOperacao painel={painel} />
         {painel.equipe && <SecaoEquipe equipe={painel.equipe} />}

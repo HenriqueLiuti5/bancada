@@ -1,17 +1,15 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
-import { PlusIcon, XIcon } from "@/componentes/icones";
+import { useActionState, useRef, useState } from "react";
+import { LinhaDePagamento, type LinhaPaga as Linha } from "@/componentes/LinhaDePagamento";
+import { PlusIcon } from "@/componentes/icones";
 import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
-import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
+import { botao, campo, juntar } from "@/componentes/ui/estilos";
 import { centavosEmReais, centavosParaCampo, emCentavos } from "@/lib/moeda";
-import { FORMAS_DE_PAGAMENTO } from "@/lib/pagamentos";
 import { entregar, type EstadoDaEntrega } from "./acoes";
 
 const INICIAL: EstadoDaEntrega = {};
-
-type Linha = { chave: number; forma: string; valor: string };
 
 function linhaSemValor(linha: Linha): boolean {
   const centavos = emCentavos(linha.valor);
@@ -40,64 +38,6 @@ function Resumo({ rotulo, valor }: { rotulo: string; valor: string }) {
     <div className="flex items-baseline justify-between gap-3 text-sm sm:text-[13px]">
       <dt className="text-texto-suave">{rotulo}</dt>
       <dd className="text-dinheiro tabular-nums">{valor}</dd>
-    </div>
-  );
-}
-
-function LinhaDePagamento({
-  linha,
-  aoMudar,
-  aoRemover,
-}: {
-  linha: Linha;
-  aoMudar: (mudanca: Partial<Linha>) => void;
-  aoRemover: () => void;
-}) {
-  const forma = useRef<HTMLSelectElement>(null);
-
-  // O React limpa o formulário depois de cada envio, e o select volta para a opção marcada como
-  // padrão. Num select controlado o React não marca nenhuma, e a linha mostraria PIX enquanto o
-  // estado guarda outra forma. Marcar a escolhida como padrão mantém a forma na tela e no envio.
-  useEffect(() => {
-    for (const opcao of forma.current?.options ?? []) {
-      opcao.defaultSelected = opcao.value === linha.forma;
-    }
-  }, [linha.forma]);
-
-  return (
-    <div className="flex items-center gap-2">
-      <select
-        ref={forma}
-        name="forma"
-        aria-label="Forma de pagamento"
-        value={linha.forma}
-        onChange={(evento) => aoMudar({ forma: evento.target.value })}
-        className={juntar(seletor, "w-28 shrink-0")}
-      >
-        {FORMAS_DE_PAGAMENTO.map((forma) => (
-          <option key={forma.valor} value={forma.valor}>
-            {forma.rotulo}
-          </option>
-        ))}
-      </select>
-      <input
-        name="valor_pago"
-        aria-label="Valor pago nessa forma"
-        inputMode="decimal"
-        autoComplete="off"
-        value={linha.valor}
-        onChange={(evento) => aoMudar({ valor: evento.target.value })}
-        className={juntar(campo, "min-w-0 flex-1 tabular-nums")}
-      />
-      <button
-        type="button"
-        onClick={aoRemover}
-        title="Tirar esta forma"
-        className={botaoDeIcone}
-      >
-        <XIcon size={16} />
-        <span className="sr-only">Tirar esta forma de pagamento</span>
-      </button>
     </div>
   );
 }

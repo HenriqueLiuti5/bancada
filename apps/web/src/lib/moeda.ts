@@ -28,6 +28,10 @@ export function centavosParaCampo(centavos: number): string {
   return (centavos / 100).toFixed(2).replace(".", ",");
 }
 
+export function reaisParaCampo(valor: string): string {
+  return centavosParaCampo(Math.round(Number(valor) * 100));
+}
+
 export function centavosEmReais(centavos: number): string {
   return emReais(centavos / 100);
 }

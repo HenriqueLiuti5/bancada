@@ -11,7 +11,7 @@ import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { chamarApi } from "@/lib/api";
 import { diaEHora, hojeEmIso } from "@/lib/datas";
-import type { Ordem, Usuario } from "@/lib/tipos";
+import type { EscolhaDeProdutos, Ordem, Usuario } from "@/lib/tipos";
 import {
   fusoDaAssistencia,
   gerenciaEquipe,
@@ -45,6 +45,10 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
     chamarApi<Usuario[]>("/api/equipe/"),
     usuarioAtual(),
   ]);
+
+  const escolha = ordem.orcamento_editavel
+    ? await chamarApi<EscolhaDeProdutos>("/api/produtos/escolha/")
+    : null;
 
   const base = process.env.APP_PUBLIC_URL ?? "http://localhost:3000";
   const linkDoCliente = `${base}/os/${ordem.token_publico}`;
@@ -118,7 +122,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
               contagem: ordem.itens.length,
               conteudo: (
                 <>
-                  <OrcamentoDaOrdem ordem={ordem} />
+                  <OrcamentoDaOrdem ordem={ordem} escolha={escolha} />
                   <PagamentoDaOrdem ordem={ordem} podeRemover={gerenciaEquipe(usuario)} fuso={fuso} />
                 </>
               ),

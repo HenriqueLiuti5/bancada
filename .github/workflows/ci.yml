@@ -181,12 +181,15 @@ jobs:
           -e DJANGO_DEBUG=1 -e POSTGRES_APP_USER=bancada_app -e POSTGRES_APP_PASSWORD=aplicacao
           bancada-api python manage.py semear
 
+      # Os testes de navegador cadastram dez assistências por execução, o limite de uma hora. O
+      # limite maior deixa espaço para uma nova tentativa de um teste (ADR 0036).
       - name: Subir a API com o papel da aplicação
         run: >-
           docker run -d --name api --network host
           -e POSTGRES_DB -e POSTGRES_HOST -e POSTGRES_PORT -e REDIS_URL
           -e DJANGO_SECRET_KEY -e DJANGO_DEBUG -e DJANGO_ALLOWED_HOSTS -e BANCADA_ENCRYPTION_KEY
           -e POSTGRES_APP_USER=bancada_app -e POSTGRES_APP_PASSWORD=aplicacao
+          -e THROTTLE_CADASTRO=30/hour
           bancada-api
 
       - name: Subir o site

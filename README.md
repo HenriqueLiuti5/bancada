@@ -5,15 +5,16 @@ customer follows the repair through a public link, without creating an account.
 
 ## Current status
 
-Phases 4A to 4E and 4G to 4O of the self-service launch are done, and so is the server side of
+Phases 4A to 4E and 4G to 4P of the self-service launch are done, and so is the server side of
 publishing (4F): the production setup in `infra/producao/` is ready and tested. Browser tests walk
 a new shop from sign-up through an order, from the counter to pickup, and on to the customer's
 tracking page, at desktop and phone sizes. They also move an order opened on the wrong customer to
 the right one, and open an order in a second store, deactivate that store and switch the shop to
 another time zone. Another test has a submission refused in each form, from the team invite to a
-payment taken after pickup, and checks that the form keeps what was sent. Before going live, phases
-4P to 4T add parts stock, the shop's finances, refreshed landing page screenshots, the final terms
-with visit analytics and paid plans; see the
+payment taken after pickup, and checks that the form keeps what was sent. The stock test registers
+a part and an accessory, uses the part in an approved quote, sells accessories at the counter and
+checks what needs restocking. Before going live, phases 4Q to 4T add the shop's finances, refreshed
+landing page screenshots, the final terms with visit analytics and paid plans; see the
 [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
@@ -37,10 +38,11 @@ discount, each payment and the balance due.
 The dashboard shows how the shop is doing right now and how it did over a chosen period — today,
 7 days, this month or custom dates —, compared with the previous period: orders opened and
 delivered, repair time, time stuck in each stage, most common devices and faults, and returning
-customers. The owner also sees the money that came in, by payment method, the discounts, the
-average ticket, the quote approval rate, what is still receivable and how much each technician
-delivered. Each count leads to the list already filtered. Right now covers what is on the bench,
-what is overdue, what is due today, what is waiting for the customer and what is ready for pickup.
+customers. The owner also sees the money that came in, from orders and counter sales, by payment
+method, the discounts, the average ticket, the quote approval rate, what is still receivable and
+how much each technician delivered. Each count leads to the list already filtered. Right now covers
+what is on the bench, what is overdue, what is due today, what is waiting for the customer, what is
+ready for pickup and how many products need restocking.
 The list shows each order's deadline — today, tomorrow, the date or how many days overdue — and
 can be searched by customer, device, IMEI, phone or order number; the filters live in the URL.
 
@@ -104,6 +106,17 @@ code, and the owner can change it on the same screen, which shows the current ti
 zone to check against. Times on the screens, in the PDFs and in the emails, along with what counts
 as today and overdue, follow the shop's time zone. The subscription stays on Brasília time, like
 the Asaas charges.
+
+The Estoque e vendas (Stock and sales) screen keeps the parts used in repairs and the accessories
+sold at the counter, each with an optional barcode, cost, selling price and a minimum. Quantities
+are the sum of recorded movements, each with who did it and when: purchases that arrived, with
+supplier and unit cost, parts used in orders, sales, count corrections and transfers between
+stores. A shop with more than one store has a separate stock in each one. A part picked from stock
+goes into the quote with its name and price and leaves the order's store when the customer
+approves; if it is not on the shelf, the stock goes negative and the product shows up under To
+restock, on this screen and on the dashboard. The order shows the cost of its parts and the
+profit, with the cost locked in at pickup. Counter sales take the products, a discount and split
+payments, and only the owner can undo one. The whole team manages stock and sees cost and profit.
 
 Whoever signs in for the first time learns on their own. On the first visit to each main screen, a
 tour highlights the buttons one at a time and says what each one does, showing only what the
@@ -318,10 +331,11 @@ npm run e2e                      # opens the site in a browser and walks the mai
 
 `npm run e2e` opens http://localhost:3000, so the services have to be up (`make up`). It fails on
 any error in the browser console, including Content Security Policy violations. Each run signs up
-eight new shops, four per screen size, named "Assistência Teste" plus a code, in the local database.
-Sign-up allows 10 shops per hour from the same address, so a second run within the hour hits that
-limit; `THROTTLE_CADASTRO=100/hour` in `.env` raises it on your machine. To test another address,
-set `ENDERECO_DO_SITE`.
+ten new shops, five per screen size, named "Assistência Teste" plus a code, in the local database.
+Sign-up allows 10 shops per hour from the same address, so one run uses up the hour; with
+`THROTTLE_CADASTRO=100/hour` in `.env` you can run it again on your machine. In CI the API runs with
+`THROTTLE_CADASTRO=30/hour`, so a retried test still has room. To test another address, set
+`ENDERECO_DO_SITE`.
 
 ## Structure
 

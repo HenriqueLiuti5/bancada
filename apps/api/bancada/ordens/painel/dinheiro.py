@@ -1,7 +1,10 @@
+from collections.abc import Iterable, Mapping
 from decimal import Decimal
+from typing import Any
 
 from django.db.models import Avg, Count, Q, QuerySet, Sum
 
+from bancada.estoque.models import PagamentoDaVenda, Venda
 from bancada.ordens.estados import StatusOS
 from bancada.ordens.models import (
     EventoOS,
@@ -26,16 +29,41 @@ def _entregas_cobradas(
     return consulta.filter(periodo.filtro("entregue_em"), valor_cobrado__isnull=False)
 
 
+def _vendas_feitas(vendas: QuerySet[Venda], periodo: Periodo) -> QuerySet[Venda]:
+    return vendas.filter(periodo.filtro("criado_em"), desfeita_em__isnull=True)
+
+
+def _pagamentos_do_balcao(vendas: QuerySet[Venda], periodo: Periodo) -> QuerySet[PagamentoDaVenda]:
+    return PagamentoDaVenda.objects.filter(venda__in=_vendas_feitas(vendas, periodo))
+
+
 def recebido(consulta: QuerySet[OrdemServico], periodo: Periodo) -> Decimal:
     total = _pagamentos(consulta, periodo).aggregate(total=Sum("valor"))["total"]
     return total or ZERO
 
 
-def recebido_por_forma(consulta: QuerySet[OrdemServico], periodo: Periodo) -> list[dict[str, str]]:
-    totais = {
-        linha["forma"]: linha["total"]
-        for linha in _pagamentos(consulta, periodo).values("forma").annotate(total=Sum("valor"))
-    }
+def recebido_no_balcao(vendas: QuerySet[Venda], periodo: Periodo) -> Decimal:
+    total = _pagamentos_do_balcao(vendas, periodo).aggregate(total=Sum("valor"))["total"]
+    return total or ZERO
+
+
+def vendas_no_balcao(vendas: QuerySet[Venda], periodo: Periodo) -> int:
+    return _vendas_feitas(vendas, periodo).count()
+
+
+def _somar_por_forma(linhas: Iterable[Mapping[str, Any]], totais: dict[str, Decimal]) -> None:
+    for linha in linhas:
+        totais[linha["forma"]] = totais.get(linha["forma"], ZERO) + linha["total"]
+
+
+def recebido_por_forma(
+    consulta: QuerySet[OrdemServico], vendas: QuerySet[Venda], periodo: Periodo
+) -> list[dict[str, str]]:
+    totais: dict[str, Decimal] = {}
+    das_ordens = _pagamentos(consulta, periodo).order_by().values("forma")
+    _somar_por_forma(das_ordens.annotate(total=Sum("valor")), totais)
+    do_balcao = _pagamentos_do_balcao(vendas, periodo).order_by().values("forma")
+    _somar_por_forma(do_balcao.annotate(total=Sum("valor")), totais)
     return [
         {"forma": forma.value, "rotulo": forma.label, "valor": str(totais.get(forma.value, ZERO))}
         for forma in FormaDePagamento

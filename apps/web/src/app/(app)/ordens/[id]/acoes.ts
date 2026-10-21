@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { chamarApi, enviarArquivo, mensagemDaApi } from "@/lib/api";
 import { lerReais } from "@/lib/moeda";
+import { pagamentosInformados } from "@/lib/pagamentos";
 
 export type EstadoTransicao = { erro?: string; nota?: string; aprovados?: number[] };
 export type EstadoDaFoto = { erro?: string; enviada?: boolean; valores?: Record<string, string> };
@@ -18,22 +19,6 @@ export type EstadoDoRecebimento = {
   valores?: Record<string, string>;
 };
 export type EstadoDoComentario = { erro?: string; texto?: string };
-
-type PagamentoInformado = { forma: string; valor: string };
-
-function pagamentosInformados(dados: FormData): PagamentoInformado[] | string {
-  const formas = dados.getAll("forma").map(String);
-  const valores = dados.getAll("valor_pago").map(String);
-  const pagamentos: PagamentoInformado[] = [];
-
-  for (const [indice, forma] of formas.entries()) {
-    const valor = lerReais(valores[indice] ?? "");
-    if (valor === null) return "Um dos pagamentos está com valor inválido. Escreva só o número.";
-    if (Number(valor) === 0) return "Cada pagamento precisa ter valor maior que zero.";
-    pagamentos.push({ forma, valor });
-  }
-  return pagamentos;
-}
 
 export async function transicionar(
   _anterior: EstadoTransicao,
@@ -201,21 +186,28 @@ export async function adicionarItem(
   dados: FormData,
 ): Promise<EstadoDoItem> {
   const id = String(dados.get("id"));
-  const tipo = String(dados.get("tipo") ?? "peca");
+  const produto = String(dados.get("produto") ?? "");
+  const tipo = produto ? "peca" : String(dados.get("tipo") ?? "peca");
   const descricao = String(dados.get("descricao") ?? "").trim();
   const digitado = String(dados.get("valor") ?? "").trim();
+  const custoDigitado = produto ? "" : String(dados.get("custo") ?? "").trim();
   const valor = lerReais(digitado);
-  const valores = { tipo, descricao, valor: digitado };
+  const custo = custoDigitado ? lerReais(custoDigitado) : null;
+  const valores = { produto, tipo, descricao, valor: digitado, custo: custoDigitado };
 
   if (!descricao) return { erro: "Descreva a peça ou o serviço.", valores };
   if (!digitado) return { erro: "Informe o valor.", valores };
   if (valor === null) return { erro: "Valor inválido. Escreva só o número, como 150,00.", valores };
+  if (custoDigitado && custo === null) {
+    return { erro: "Custo inválido. Escreva só o número, como 90,00.", valores };
+  }
+
+  const corpo = produto
+    ? { produto: Number(produto), descricao, valor }
+    : { tipo, descricao, valor, custo };
 
   try {
-    await chamarApi(`/api/ordens/${id}/itens/`, {
-      metodo: "POST",
-      corpo: { tipo, descricao, valor },
-    });
+    await chamarApi(`/api/ordens/${id}/itens/`, { metodo: "POST", corpo });
   } catch (erro) {
     return { erro: mensagemDaApi(erro, "Não foi possível adicionar o item."), valores };
   }

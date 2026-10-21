@@ -21,6 +21,7 @@ class Acao(models.TextChoices):
     LINK_COMPARTILHADO = "link_compartilhado", "Link de acompanhamento compartilhado"
     CLIENTE_TROCADO = "cliente_trocado", "Cliente da ordem trocado"
     PAGAMENTO_REMOVIDO = "pagamento_removido", "Pagamento removido"
+    VENDA_DESFEITA = "venda_desfeita", "Venda no balcão desfeita"
     ASSINATURA_CONTRATADA = "assinatura_contratada", "Assinatura contratada"
     ASSINATURA_CANCELADA = "assinatura_cancelada", "Assinatura cancelada"
     PLATAFORMA_CONSULTADA = "plataforma_consultada", "Painel da plataforma consultado"
