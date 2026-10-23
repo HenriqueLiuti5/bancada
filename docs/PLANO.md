@@ -490,12 +490,33 @@ Comissão dos técnicos, taxa da maquininha e nota fiscal ficaram de fora.
 
 A fase é feita em quatro partes, uma de cada vez:
 
-1. Contas a pagar.
+1. Contas a pagar (concluída).
 2. Contas a receber num lugar só: o que falta receber das ordens e o fiado no balcão, com a data
    combinada para pagar e o aviso do que venceu.
 3. Caixa do dia: o que entrou e o que saiu em cada forma de pagamento, a conferência do dinheiro da
    gaveta no fim do dia e as retiradas e reforços.
 4. Lucro do mês no painel: o que entrou menos as despesas e o custo das peças.
+
+Na entrega da parte 1:
+
+- Tela Financeiro no menu. Qualquer pessoa da equipe lança a conta que chegou, com categoria, valor e
+  vencimento, ou já paga, com a data e a forma, como o motoboy pago com o dinheiro da gaveta. Só o dono
+  vê a lista e os totais, corrige, paga e remove, e a remoção fica na auditoria.
+- Contas a pagar do dono: o que venceu, o que vence nos próximos 7 dias e o que foi pago no mês no
+  alto; abas A pagar, Vencidas e Pagas; busca e filtro por categoria. O vencimento aparece como o
+  prazo das ordens, com "Há 2 dias" em vermelho e "Hoje" em laranja.
+- Pagamento com o valor de verdade, para juros e descontos, a data e a forma, que pode ser desfeito.
+- Contas que se repetem todo mês: a de cada mês aparece sozinha um mês antes de vencer. Mudar também
+  as próximas leva o valor novo do aluguel para os meses seguintes, e Parar de repetir encerra.
+- No painel, A pagar logo soma o que venceu com o que vence nos próximos 7 dias, em vermelho quando
+  há conta vencida.
+- No celular, a Assinatura passou da barra de baixo para o menu da conta, para a barra do dono
+  continuar com seis itens.
+- Testes da API, das contas do site, do contrato das categorias com a API e um teste de navegador do
+  caminho inteiro, no computador e no celular (ADR 0037).
+
+As compras de peças entram como conta a pagar, mas não vão contar como despesa no lucro da parte 4,
+que já desconta o custo das peças usadas e vendidas.
 
 ### 4R — Página inicial com telas novas
 

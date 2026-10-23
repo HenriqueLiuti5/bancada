@@ -2,6 +2,7 @@ import { BarrasHorizontais } from "@/componentes/BarrasHorizontais";
 import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
 import {
   HandCoinsIcon,
+  InvoiceIcon,
   MoneyIcon,
   ReceiptIcon,
   StampIcon,
@@ -10,6 +11,7 @@ import {
 } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Secao } from "@/componentes/ui/Secao";
+import { notaDoAPagar, totalAPagarLogo } from "@/lib/financeiro";
 import { contagem, emPorcentagem } from "@/lib/formatos";
 import { emReais } from "@/lib/moeda";
 import type { Painel } from "@/lib/tipos";
@@ -72,7 +74,12 @@ function Recebido({ dinheiro }: { dinheiro: Dinheiro }) {
 }
 
 export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
-  const { a_receber: aReceber, ticket_medio: ticket, taxa_de_aprovacao: taxa } = dinheiro;
+  const {
+    a_receber: aReceber,
+    a_pagar: aPagar,
+    ticket_medio: ticket,
+    taxa_de_aprovacao: taxa,
+  } = dinheiro;
   const ordensAReceber = contagem(aReceber.ordens, "ordem entregue", "ordens entregues");
 
   return (
@@ -99,7 +106,7 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
         </Cartao>
       </div>
 
-      <GradeDeIndicadores>
+      <GradeDeIndicadores colunas={5}>
         <Indicador
           rotulo="A receber"
           icone={HandCoinsIcon}
@@ -107,6 +114,15 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
           dinheiro
           nota={`${ordensAReceber} sem pagamento completo`}
           href={aReceber.ordens > 0 ? "/ordens?situacao=a_receber" : undefined}
+        />
+        <Indicador
+          rotulo="A pagar logo"
+          icone={InvoiceIcon}
+          valor={emReais(totalAPagarLogo(aPagar))}
+          dinheiro
+          alerta={aPagar.vencidas.contas > 0}
+          nota={notaDoAPagar(aPagar)}
+          href={aPagar.vencidas.contas > 0 ? "/financeiro?situacao=vencidas" : "/financeiro"}
         />
         <Indicador
           rotulo="Aprovado em aberto"

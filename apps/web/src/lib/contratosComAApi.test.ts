@@ -1,10 +1,12 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { ROTEIROS } from "@/app/(app)/roteiros";
+import { CATEGORIAS_DAS_CONTAS, FORMAS_DE_PAGAMENTO_DAS_CONTAS } from "@/lib/financeiro";
 import { TAMANHO_MAXIMO_DA_FOTO_EM_MB, fotoPassaDoTamanho } from "@/lib/fotos";
 import { FUSOS_DO_BRASIL } from "@/lib/fusos";
 import { problemaDoTelefone } from "@/lib/telefone";
 import { VERSAO_DOS_TEXTOS_LEGAIS } from "@/lib/textosLegais";
+import type { Opcao } from "@/lib/tipos";
 
 // Valores que o site e a API repetem, cada um no seu código, e que precisam mudar juntos.
 
@@ -33,13 +35,23 @@ function dddsDoSite(): number[] {
   return ddds;
 }
 
-function fusosDaApi(): string[] {
-  const bloco = /^class FusoHorario\(models\.TextChoices\):\n((?: {4}.+\n)+)/m.exec(
-    codigoDaApi("tenants/models.py"),
+function escolhasDaApi(caminho: string, classe: string): [string, string][] {
+  const bloco = new RegExp(`^class ${classe}\\(models\\.TextChoices\\):\\n((?: {4}.+\\n)+)`, "m").exec(
+    codigoDaApi(caminho),
   )?.[1];
-  if (!bloco) throw new Error("FusoHorario não aparece em apps/api/bancada/tenants/models.py");
+  if (!bloco) throw new Error(`${classe} não aparece em apps/api/bancada/${caminho}`);
 
-  return [...bloco.matchAll(/^ {4}\w+ = "([^"]+)"/gm)].map(([, valor]) => valor).sort();
+  return [...bloco.matchAll(/^ {4}\w+ = "([^"]+)", "([^"]+)"$/gm)].map(([, valor, rotulo]) => [valor, rotulo]);
+}
+
+function fusosDaApi(): string[] {
+  return escolhasDaApi("tenants/models.py", "FusoHorario")
+    .map(([valor]) => valor)
+    .sort();
+}
+
+function comoNaApi(opcoes: Opcao[]): [string, string][] {
+  return opcoes.map(({ valor, rotulo }) => [valor, rotulo]);
 }
 
 function toursDaApi(): string[] {
@@ -64,6 +76,15 @@ describe("o site e a API combinam", () => {
     const doSite = FUSOS_DO_BRASIL.map((fuso) => fuso.valor).sort();
     expect(doSite).toHaveLength(4);
     expect(doSite).toEqual(fusosDaApi());
+  });
+
+  it("nas categorias e nas formas de pagamento das contas a pagar", () => {
+    const categorias = escolhasDaApi("financeiro/models.py", "CategoriaDaConta");
+    expect(categorias).toHaveLength(13);
+    expect(comoNaApi(CATEGORIAS_DAS_CONTAS)).toEqual(categorias);
+    expect(comoNaApi(FORMAS_DE_PAGAMENTO_DAS_CONTAS)).toEqual(
+      escolhasDaApi("financeiro/models.py", "FormaDePagamentoDaConta"),
+    );
   });
 
   it("nos tours que a API deixa marcar como vistos", () => {

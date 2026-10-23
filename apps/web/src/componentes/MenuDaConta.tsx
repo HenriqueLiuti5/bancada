@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { sair } from "@/app/acoes";
 import {
@@ -21,11 +22,14 @@ const OPCOES_DE_TEMA: { valor: PreferenciaDeTema; rotulo: string; icone: Icon }[
   { valor: "automatico", rotulo: "Automático", icone: MonitorIcon },
 ];
 
+export type LinkDoMenu = { href: string; rotulo: string; icone: Icon };
+
 type Props = {
   nome: string;
   detalhe: string;
   lugar: "barra-lateral" | "cabecalho";
   recolhida?: boolean;
+  links?: LinkDoMenu[];
 };
 
 function EscolhaDoTema() {
@@ -63,7 +67,7 @@ function EscolhaDoTema() {
   );
 }
 
-export function MenuDaConta({ nome, detalhe, lugar, recolhida = false }: Props) {
+export function MenuDaConta({ nome, detalhe, lugar, recolhida = false, links = [] }: Props) {
   const { aberto, setAberto, caixa, painel } = useMenuSuspenso();
   const naBarraLateral = lugar === "barra-lateral";
 
@@ -115,6 +119,22 @@ export function MenuDaConta({ nome, detalhe, lugar, recolhida = false }: Props) 
               <p className="truncate text-xs text-texto-apagado">{detalhe}</p>
             </div>
           </div>
+
+          {links.length > 0 && (
+            <nav aria-label="Conta" className="border-t border-borda py-1.5">
+              {links.map(({ href, rotulo, icone: Icone }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setAberto(false)}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-sm font-medium text-texto transition-colors duration-150 hover:bg-realce sm:py-2"
+                >
+                  <Icone size={16} className="shrink-0 text-texto-apagado" />
+                  {rotulo}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           <div className="border-t border-borda">
             <EscolhaDoTema />

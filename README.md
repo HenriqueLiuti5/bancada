@@ -5,17 +5,20 @@ customer follows the repair through a public link, without creating an account.
 
 ## Current status
 
-Phases 4A to 4E and 4G to 4P of the self-service launch are done, and so is the server side of
-publishing (4F): the production setup in `infra/producao/` is ready and tested. Browser tests walk
+Phases 4A to 4E and 4G to 4P of the self-service launch are done, along with bills to pay, the first
+of the four parts of 4Q, and so is the server side of publishing (4F): the production setup in
+`infra/producao/` is ready and tested. Browser tests walk
 a new shop from sign-up through an order, from the counter to pickup, and on to the customer's
 tracking page, at desktop and phone sizes. They also move an order opened on the wrong customer to
 the right one, and open an order in a second store, deactivate that store and switch the shop to
 another time zone. Another test has a submission refused in each form, from the team invite to a
 payment taken after pickup, and checks that the form keeps what was sent. The stock test registers
 a part and an accessory, uses the part in an approved quote, sells accessories at the counter and
-checks what needs restocking. Before going live, phases 4Q to 4T add the shop's finances, refreshed
-landing page screenshots, the final terms with visit analytics and paid plans; see the
-[project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
+checks what needs restocking. The finance test enters a rent that repeats every month, an expense
+already paid and an electricity bill, pays the overdue rent and stops the repetition. Before going
+live, the rest of 4Q adds receivables, the daily cash count and the month's profit, and phases 4R to
+4T add refreshed landing page screenshots, the final terms with visit analytics and paid plans; see
+the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the
@@ -117,6 +120,16 @@ approves; if it is not on the shelf, the stock goes negative and the product sho
 restock, on this screen and on the dashboard. The order shows the cost of its parts and the
 profit, with the cost locked in at pickup. Counter sales take the products, a discount and split
 payments, and only the owner can undo one. The whole team manages stock and sees cost and profit.
+
+The Financeiro (Finance) screen starts with bills to pay. Anyone on the team enters a bill that
+arrived, with a category, amount and due date, or one already paid, such as a courier paid from the
+cash drawer, but only the owner sees the list and the totals and edits, pays or removes bills;
+removals go to the audit log. The owner sees what is overdue, what is due in the next 7 days and
+what was paid this month, with tabs for bills to pay, overdue and paid bills, a search and a
+category filter. A bill can repeat every month: each month's bill shows up on its own a month before
+it is due, and a change, such as a higher rent, can be carried to the following months. The
+dashboard shows the owner what is overdue plus what is due in the next 7 days. On phones, the
+owner's Assinatura (Subscription) link moved from the bottom bar to the account menu.
 
 Whoever signs in for the first time learns on their own. On the first visit to each main screen, a
 tour highlights the buttons one at a time and says what each one does, showing only what the
@@ -331,10 +344,10 @@ npm run e2e                      # opens the site in a browser and walks the mai
 
 `npm run e2e` opens http://localhost:3000, so the services have to be up (`make up`). It fails on
 any error in the browser console, including Content Security Policy violations. Each run signs up
-ten new shops, five per screen size, named "Assistência Teste" plus a code, in the local database.
-Sign-up allows 10 shops per hour from the same address, so one run uses up the hour; with
-`THROTTLE_CADASTRO=100/hour` in `.env` you can run it again on your machine. In CI the API runs with
-`THROTTLE_CADASTRO=30/hour`, so a retried test still has room. To test another address, set
+twelve new shops, six per screen size, named "Assistência Teste" plus a code, in the local database.
+Production allows 10 sign-ups per hour from the same address, so the development `docker-compose.yml`
+starts the API with `THROTTLE_CADASTRO=100/hour` unless `.env` sets another value. In CI the API runs
+with `THROTTLE_CADASTRO=30/hour`, so a retried test still has room. To test another address, set
 `ENDERECO_DO_SITE`.
 
 ## Structure

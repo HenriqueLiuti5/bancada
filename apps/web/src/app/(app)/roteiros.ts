@@ -1,4 +1,11 @@
-export type NomeDoTour = "ordens" | "nova-ordem" | "ordem" | "painel" | "equipe" | "estoque";
+export type NomeDoTour =
+  | "ordens"
+  | "nova-ordem"
+  | "ordem"
+  | "painel"
+  | "equipe"
+  | "estoque"
+  | "financeiro";
 
 export type Lado = "baixo" | "cima" | "direita" | "esquerda";
 
@@ -141,7 +148,7 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       papeis: ["dono"],
       titulo: "Dinheiro",
       texto:
-        "Quanto entrou no caixa pelas ordens e pelas vendas no balcão, separado por PIX, dinheiro e cartão, os descontos dados e o que os clientes ainda devem. Só quem é dono vê esta parte.",
+        "Quanto entrou no caixa pelas ordens e pelas vendas no balcão, separado por PIX, dinheiro e cartão, os descontos dados, o que os clientes ainda devem e as contas que vencem logo. Só quem é dono vê esta parte.",
     },
     {
       alvo: "operacao",
@@ -212,6 +219,36 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       titulo: "Os produtos",
       texto:
         "Clique num produto para registrar a compra que chegou, corrigir a contagem ou ver tudo o que entrou e saiu, com quem fez e quando.",
+    },
+  ],
+  financeiro: [
+    {
+      alvo: "resumo-das-contas",
+      papeis: ["dono"],
+      titulo: "Contas a pagar",
+      texto:
+        "O que já venceu, o que vence nos próximos 7 dias e o que foi pago neste mês. Clique num número para ver as contas. Só quem é dono vê esta tela.",
+    },
+    {
+      alvo: "lancar-conta",
+      papeis: ["dono"],
+      titulo: "Lançar conta",
+      texto:
+        "Aluguel, luz, salários, compras de peças: cada conta tem categoria e vencimento. A que se repete todo mês aparece sozinha, um mês antes de vencer.",
+    },
+    {
+      alvo: "lista-de-contas",
+      papeis: ["dono"],
+      titulo: "As contas",
+      texto:
+        "O que vence primeiro fica no alto. Clique numa conta para marcar como paga, corrigir o valor ou parar de repetir.",
+    },
+    {
+      alvo: "conta-da-equipe",
+      papeis: ["tecnico", "atendente"],
+      titulo: "Lançar conta",
+      texto:
+        "Lance a conta com o valor e o vencimento. Se o dinheiro já saiu da loja, como no motoboy pago na hora, marque Já está paga e diga como foi pago.",
     },
   ],
 };

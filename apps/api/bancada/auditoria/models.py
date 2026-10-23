@@ -22,6 +22,7 @@ class Acao(models.TextChoices):
     CLIENTE_TROCADO = "cliente_trocado", "Cliente da ordem trocado"
     PAGAMENTO_REMOVIDO = "pagamento_removido", "Pagamento removido"
     VENDA_DESFEITA = "venda_desfeita", "Venda no balcão desfeita"
+    CONTA_REMOVIDA = "conta_removida", "Conta a pagar removida"
     ASSINATURA_CONTRATADA = "assinatura_contratada", "Assinatura contratada"
     ASSINATURA_CANCELADA = "assinatura_cancelada", "Assinatura cancelada"
     PLATAFORMA_CONSULTADA = "plataforma_consultada", "Painel da plataforma consultado"

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "bancada.clientes",
     "bancada.ordens",
     "bancada.estoque",
+    "bancada.financeiro",
     "bancada.avisos",
     "bancada.auditoria",
     "bancada.orientacao",
@@ -130,6 +131,10 @@ CELERY_BEAT_SCHEDULE = {
     "sincronizar-cobrancas": {
         "task": "assinaturas.sincronizar_cobrancas",
         "schedule": crontab(minute=10),
+    },
+    "criar-contas-fixas": {
+        "task": "financeiro.criar_contas_fixas",
+        "schedule": crontab(hour=5, minute=0),
     },
 }
 

@@ -13,6 +13,7 @@ import {
   SquaresFourIcon,
   StorefrontIcon,
   UsersIcon,
+  WalletIcon,
   type Icon,
 } from "@/componentes/icones";
 import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
@@ -20,15 +21,32 @@ import { botao, focoNaLateral, itemDaLateral, juntar, rotuloDaLateral } from "@/
 import { guardarLateral } from "@/lib/lateral";
 import { MenuDeAjuda } from "./menuDeAjuda";
 
-type Item = { href: string; rotulo: string; curto: string; icone: Icon; soDono?: boolean };
+type Item = {
+  href: string;
+  rotulo: string;
+  curto: string;
+  icone: Icon;
+  soDono?: boolean;
+  foraDaBarraDeBaixo?: boolean;
+};
 
+// No celular, a barra de baixo do dono teria sete itens. A assinatura, que se abre poucas vezes,
+// fica no menu da conta, no alto da tela.
 const ITENS: Item[] = [
   { href: "/painel", rotulo: "Painel", curto: "Painel", icone: SquaresFourIcon },
   { href: "/ordens", rotulo: "Ordens de serviço", curto: "Ordens", icone: ClipboardTextIcon },
   { href: "/estoque", rotulo: "Estoque e vendas", curto: "Estoque", icone: PackageIcon },
+  { href: "/financeiro", rotulo: "Financeiro", curto: "Financeiro", icone: WalletIcon },
   { href: "/equipe", rotulo: "Equipe", curto: "Equipe", icone: UsersIcon, soDono: true },
   { href: "/assistencia", rotulo: "Assistência", curto: "Assistência", icone: StorefrontIcon, soDono: true },
-  { href: "/assinatura", rotulo: "Assinatura", curto: "Assinatura", icone: CreditCardIcon, soDono: true },
+  {
+    href: "/assinatura",
+    rotulo: "Assinatura",
+    curto: "Assinatura",
+    icone: CreditCardIcon,
+    soDono: true,
+    foraDaBarraDeBaixo: true,
+  },
 ];
 
 const COLUNAS_DA_BARRA_INFERIOR: Record<number, string> = {
@@ -73,6 +91,10 @@ export function BarraLateral({
   const alternador = useRef<HTMLButtonElement>(null);
   const devolverFoco = useRef(false);
   const itens = ITENS.filter((item) => !item.soDono || eDono);
+  const itensDeBaixo = itens.filter((item) => !item.foraDaBarraDeBaixo);
+  const noMenuDaConta = itens
+    .filter((item) => item.foraDaBarraDeBaixo)
+    .map(({ href, rotulo, icone }) => ({ href, rotulo, icone }));
   const detalheDaConta = assistencia ? `${papel} · ${assistencia}` : papel;
 
   useEffect(() => {
@@ -244,7 +266,12 @@ export function BarraLateral({
             linkDoSuporte={linkDoSuporte}
             podeReabrirPrimeirosPassos={podeReabrirPrimeirosPassos}
           />
-          <MenuDaConta nome={nome} detalhe={detalheDaConta} lugar="cabecalho" />
+          <MenuDaConta
+            nome={nome}
+            detalhe={detalheDaConta}
+            lugar="cabecalho"
+            links={noMenuDaConta}
+          />
         </div>
       </header>
 
@@ -252,10 +279,10 @@ export function BarraLateral({
         aria-label="Principal"
         className={juntar(
           "fixed inset-x-0 bottom-0 z-20 grid border-t border-borda bg-superficie pb-[env(safe-area-inset-bottom)] lg:hidden",
-          COLUNAS_DA_BARRA_INFERIOR[itens.length],
+          COLUNAS_DA_BARRA_INFERIOR[itensDeBaixo.length],
         )}
       >
-        {itens.map(({ href, curto, icone: Icone }) => {
+        {itensDeBaixo.map(({ href, curto, icone: Icone }) => {
           const ativo = estaAtivo(caminho, href);
           return (
             <Link

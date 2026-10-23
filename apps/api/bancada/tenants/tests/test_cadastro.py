@@ -4,6 +4,7 @@ import pytest
 from django.core import mail
 from pytest_django import DjangoCaptureOnCommitCallbacks
 from rest_framework.test import APIClient
+from rest_framework.throttling import ScopedRateThrottle
 
 from bancada.auditoria.models import Acao, RegistroDeAuditoria
 from bancada.tenants.contas import VERSAO_DOS_TERMOS
@@ -140,8 +141,12 @@ def test_duas_assistencias_com_o_mesmo_nome_convivem() -> None:
     assert len(slugs) == 2
 
 
+# O limite de produção vale aqui mesmo quando a máquina sobe o de desenvolvimento pelo
+# THROTTLE_CADASTRO, como fazem o .env e o docker-compose.yml para os testes de navegador.
 @pytest.mark.django_db
-def test_muitos_cadastros_do_mesmo_endereco_sao_barrados() -> None:
+def test_muitos_cadastros_do_mesmo_endereco_sao_barrados(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setitem(ScopedRateThrottle.THROTTLE_RATES, "cadastro", "10/hour")
+
     respostas = [cadastrar(email=f"pessoa{numero}@teste.test").status_code for numero in range(12)]
 
     assert 429 in respostas

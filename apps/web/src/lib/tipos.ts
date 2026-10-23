@@ -287,6 +287,36 @@ export type Venda = VendaResumo & {
   pagamentos: { id: number; forma: string; forma_rotulo: string; valor: string }[];
 };
 
+export type ContaAPagar = {
+  id: number;
+  descricao: string;
+  categoria: string;
+  categoria_rotulo: string;
+  fornecedor: string;
+  valor: string;
+  vencimento: string;
+  loja: number | null;
+  loja_nome: string | null;
+  observacao: string;
+  paga: boolean;
+  paga_em: string | null;
+  forma: string;
+  forma_rotulo: string;
+  repete: boolean;
+  dia_da_repeticao: number | null;
+  lancada_por: string | null;
+  paga_por: string | null;
+  criado_em: string;
+};
+
+export type TotalDeContas = { valor: string; contas: number };
+
+export type ResumoDasContas = {
+  vencidas: TotalDeContas;
+  proximos_dias: TotalDeContas;
+  pagas_no_mes: TotalDeContas;
+};
+
 export type LinhaDeStatus = { status: string; rotulo: string; total: number };
 
 export type Comparacao<T> = { atual: T; anterior: T };
@@ -341,6 +371,7 @@ export type Painel = {
     ticket_medio: Comparacao<string | null>;
     taxa_de_aprovacao: Comparacao<number | null>;
     a_receber: { valor: string; ordens: number };
+    a_pagar: Pick<ResumoDasContas, "vencidas" | "proximos_dias">;
     aprovado_em_aberto: string;
   };
   equipe?: LinhaDaEquipe[];

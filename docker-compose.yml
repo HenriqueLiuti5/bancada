@@ -33,6 +33,10 @@ services:
       context: ./apps/api
       target: desenvolvimento
     env_file: .env
+    environment:
+      # Cada execução dos testes de navegador cadastra doze assistências, acima do limite de 10
+      # por hora da produção (ADR 0037).
+      THROTTLE_CADASTRO: ${THROTTLE_CADASTRO:-100/hour}
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./apps/api:/app

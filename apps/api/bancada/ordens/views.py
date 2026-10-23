@@ -19,6 +19,7 @@ from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.api import ViewSetDoTenant, tenant_do_pedido
 from bancada.core.formatos import em_reais
 from bancada.estoque.models import Produto, Venda
+from bancada.financeiro.models import ContaAPagar
 from bancada.ordens import consultas, documentos, publico
 from bancada.ordens.estados import StatusOS, TransicaoInvalida
 from bancada.ordens.fotos import FotoInvalida
@@ -149,15 +150,18 @@ class OrdemServicoViewSet(ViewSetDoTenant):
 
         base = OrdemServico.objects.filter(tenant=tenant)
         vendas = Venda.objects.filter(tenant=tenant)
+        contas = ContaAPagar.objects.filter(tenant=tenant)
         if "loja" in escolhas:
             base = base.filter(loja=escolhas["loja"])
             vendas = vendas.filter(loja=escolhas["loja"])
+            contas = contas.filter(loja=escolhas["loja"])
 
         return Response(
             numeros_do_painel(
                 base,
                 vendas=vendas,
                 produtos=Produto.objects.filter(tenant=tenant),
+                contas=contas,
                 chave=escolhas["periodo"],
                 atual=escolhas["atual"],
                 anterior=escolhas["anterior"],
