@@ -88,7 +88,7 @@ o operador.
 | 4N | Troca do cliente da ordem e comentários internos no histórico | concluída |
 | 4O | Lojas pela tela e fuso horário por assistência | concluída |
 | 4P | Estoque de peças e venda no balcão | concluída |
-| 4Q | Financeiro da loja | |
+| 4Q | Financeiro da loja | em andamento |
 | 4R | Página inicial com telas novas | |
 | 4S | Termos finais, privacidade e medição de visitas | |
 | 4T | Planos e preços | |
@@ -480,15 +480,22 @@ recibo da venda em PDF, o aviso de estoque baixo por e-mail e o fiado no balcão
 
 ### 4Q — Financeiro da loja
 
-Hoje o Bancada registra o que entra pelas ordens, na entrega, e o que ficou a receber (4D). O
-financeiro completa o caixa da loja. O que entra é decidido no começo da fase; o ponto de partida:
+O Bancada registrava o que entra, pelas ordens (4D) e pelo balcão (4P), e nada do que sai. Os
+concorrentes que cobram até R$ 60 por mês já tinham contas a pagar e a receber, contas fixas, caixa do
+dia e lucro com o custo das peças, e alguns, comissão e fiado; a nota fiscal costuma ser vendida à
+parte. No começo da fase, em 22 de outubro de 2026, o Henrique decidiu que qualquer pessoa da equipe
+lança uma conta, mas só o dono vê a lista, os totais e o lucro; que o caixa do dia mostra o resumo e
+confere o dinheiro no fim do dia, sem ninguém precisar abrir o caixa; e que o fiado no balcão entra.
+Comissão dos técnicos, taxa da maquininha e nota fiscal ficaram de fora.
 
-- Despesas da loja, como aluguel, peças, salários e contas, com categoria e vencimento.
-- Contas a pagar e a receber num lugar só, com aviso do que está para vencer.
-- Caixa do dia: o que entrou, o que saiu e o saldo, por forma de pagamento.
-- Lucro do mês no painel: o que entrou menos as despesas e o custo das peças.
+A fase é feita em quatro partes, uma de cada vez:
 
-A emissão de nota fiscal, que os concorrentes vendem à parte, também é decidida no começo da fase.
+1. Contas a pagar.
+2. Contas a receber num lugar só: o que falta receber das ordens e o fiado no balcão, com a data
+   combinada para pagar e o aviso do que venceu.
+3. Caixa do dia: o que entrou e o que saiu em cada forma de pagamento, a conferência do dinheiro da
+   gaveta no fim do dia e as retiradas e reforços.
+4. Lucro do mês no painel: o que entrou menos as despesas e o custo das peças.
 
 ### 4R — Página inicial com telas novas
 
