@@ -5,7 +5,7 @@ requires-python = ">=3.12"
 dependencies = [
     "cryptography>=43.0",
     "django>=5.1,<6.0",
-    "djangorestframework>=3.15",
+    "djangorestframework>=3.18.2",
     "pillow>=11.0",
     "weasyprint>=66",
     "qrcode>=8.0",
