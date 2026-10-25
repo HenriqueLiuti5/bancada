@@ -6,6 +6,10 @@ export function hojeEmIso(fuso: string = FUSO_HORARIO): string {
   return new Date().toLocaleDateString("en-CA", { timeZone: fuso });
 }
 
+export function diaNoFuso(iso: string, fuso: string): string {
+  return new Date(iso).toLocaleDateString("en-CA", { timeZone: fuso });
+}
+
 export function diaEHora(iso: string, fuso: string): string {
   return new Date(iso).toLocaleString("pt-BR", {
     day: "2-digit",

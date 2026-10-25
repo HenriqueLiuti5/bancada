@@ -1,5 +1,6 @@
 import { CameraIcon, FileTextIcon, ReceiptIcon } from "@/componentes/icones";
 import { botao, juntar } from "@/componentes/ui/estilos";
+import { mensagemDeCobranca, textoDoAReceber } from "@/lib/financeiro";
 import { emReais } from "@/lib/moeda";
 import type { Ordem } from "@/lib/tipos";
 import { linkDoWhatsApp } from "@/lib/whatsapp";
@@ -7,7 +8,7 @@ import { AcoesDaEtapa } from "./acoesDaEtapa";
 import { AvisoNoWhatsApp } from "./avisoNoWhatsApp";
 import { BarraDeEtapas } from "./barraDeEtapas";
 
-type Etapa = { titulo: React.ReactNode; texto: string };
+type Etapa = { titulo: React.ReactNode; texto: string; alerta?: boolean };
 
 const ETAPAS: Record<string, Etapa> = {
   recebido: {
@@ -55,15 +56,17 @@ const ETAPAS: Record<string, Etapa> = {
   },
 };
 
-function etapaDa(ordem: Ordem): Etapa {
+function etapaDa(ordem: Ordem, hoje: string): Etapa {
   if (ordem.status === "entregue" && Number(ordem.saldo_a_receber) > 0) {
+    const { texto, vencido } = textoDoAReceber(ordem.pagamento_combinado_para, hoje);
     return {
       titulo: (
         <>
           Falta receber <span className="text-dinheiro">{emReais(ordem.saldo_a_receber)}</span>
         </>
       ),
-      texto: "O aparelho foi entregue. Quando o cliente pagar o resto, registre aqui.",
+      texto,
+      alerta: vencido,
     };
   }
   return ETAPAS[ordem.status] ?? { titulo: ordem.status_label, texto: "" };
@@ -91,6 +94,10 @@ function avisoDa(ordem: Ordem, link: string): Aviso | null {
         rotulo: "Avisar o cliente no WhatsApp",
         mensagem: `Olá, ${nome}! Seu ${aparelho} está pronto para retirada. Veja os detalhes: ${link}`,
       };
+    case "entregue":
+      return Number(ordem.saldo_a_receber) > 0
+        ? { rotulo: "Cobrar no WhatsApp", mensagem: mensagemDeCobranca(ordem) }
+        : null;
     default:
       return null;
   }
@@ -146,13 +153,15 @@ function atalhosDa(ordem: Ordem, linkDoCliente: string): React.ReactNode {
 export function PainelDaEtapa({
   ordem,
   linkDoCliente,
+  hoje,
   className,
 }: {
   ordem: Ordem;
   linkDoCliente: string;
+  hoje: string;
   className?: string;
 }) {
-  const etapa = etapaDa(ordem);
+  const etapa = etapaDa(ordem, hoje);
 
   return (
     <section
@@ -167,18 +176,27 @@ export function PainelDaEtapa({
       <div className="mt-5 space-y-1">
         <h2 className="text-lg leading-snug font-bold">{etapa.titulo}</h2>
         {etapa.texto && (
-          <p className="text-sm leading-relaxed text-pretty text-texto-suave">{etapa.texto}</p>
+          <p
+            className={juntar(
+              "text-sm leading-relaxed text-pretty",
+              etapa.alerta ? "font-medium text-perigo" : "text-texto-suave",
+            )}
+          >
+            {etapa.texto}
+          </p>
         )}
       </div>
 
       <AcoesDaEtapa
-        key={`${ordem.status}:${ordem.saldo_a_receber}`}
+        key={`${ordem.status}:${ordem.saldo_a_receber}:${ordem.pagamento_combinado_para}`}
         id={ordem.id}
         status={ordem.status}
         transicoes={ordem.transicoes_possiveis}
         itens={ordem.itens}
         totalAprovado={ordem.total_aprovado}
         saldoAReceber={ordem.saldo_a_receber}
+        pagamentoCombinado={ordem.pagamento_combinado_para}
+        hoje={hoje}
         atalhos={atalhosDa(ordem, linkDoCliente)}
       />
     </section>

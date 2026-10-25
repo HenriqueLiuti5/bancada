@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+from datetime import date
 from decimal import Decimal
 
 from django.db.models import DecimalField, F, OuterRef, Q, QuerySet, Subquery, Sum, Value
@@ -77,6 +78,11 @@ def com_valor_pago(consulta: QuerySet[OrdemServico]) -> QuerySet[OrdemServico]:
 
 def com_saldo_a_receber(consulta: QuerySet[OrdemServico]) -> QuerySet[OrdemServico]:
     return com_valor_pago(consulta).filter(valor_cobrado__gt=F("valor_pago"))
+
+
+# Vale para as ordens com saldo a receber: o painel e as contas a receber contam o mesmo vencido.
+def pagamento_vencido(hoje: date) -> Q:
+    return Q(pagamento_combinado_para__lt=hoje)
 
 
 def por_situacao(consulta: QuerySet[OrdemServico], situacao: str) -> QuerySet[OrdemServico]:

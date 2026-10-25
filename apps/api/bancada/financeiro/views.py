@@ -12,14 +12,16 @@ from bancada.auditoria.models import Acao
 from bancada.auditoria.registro import origem_do_pedido, registrar
 from bancada.core.api import ViewSetDoTenant, tenant_obrigatorio, usuario_obrigatorio
 from bancada.core.formatos import em_reais
-from bancada.financeiro import consultas
+from bancada.financeiro import a_receber, consultas
 from bancada.financeiro.models import ContaAPagar, ContaJaPaga, ContaNaoPaga
 from bancada.financeiro.serializers import (
     ContaAPagarSerializer,
+    ContaAReceberSerializer,
     EdicaoDaContaSerializer,
     NovaContaSerializer,
     PagamentoSerializer,
 )
+from bancada.ordens.models import OrdemServico
 from bancada.tenants.permissoes import ApenasDono, papel_do_pedido
 
 FORNECEDORES_SUGERIDOS = 30
@@ -143,3 +145,23 @@ class ContaAPagarViewSet(ViewSetDoTenant):
             if len(nomes) == FORNECEDORES_SUGERIDOS:
                 break
         return Response(nomes)
+
+
+# O que os clientes ficaram devendo nas ordens entregues. O pagamento continua sendo registrado na
+# própria ordem, por qualquer pessoa da equipe; a lista e os totais são só do dono.
+class ContaAReceberViewSet(ViewSetDoTenant):
+    queryset = OrdemServico.objects.select_related("cliente", "aparelho", "loja")
+    serializer_class = ContaAReceberSerializer
+    permission_classes = [*ViewSetDoTenant.permission_classes, ApenasDono]
+    http_method_names = ["get", "head", "options"]
+
+    def get_queryset(self) -> QuerySet[OrdemServico]:
+        consulta = a_receber.com_valores(super().get_queryset())
+        if self.action == "list":
+            return a_receber.filtrar(consulta, self.request.query_params, timezone.localdate())
+        return consulta
+
+    @action(detail=False, methods=["get"])
+    def resumo(self, request: Request) -> Response:
+        ordens = OrdemServico.objects.filter(tenant=tenant_obrigatorio(request))
+        return Response(a_receber.resumo(ordens, timezone.localdate()))

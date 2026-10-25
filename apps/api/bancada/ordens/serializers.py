@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 
@@ -128,6 +129,30 @@ class CobrancaSerializer(serializers.Serializer):
         error_messages={"min_value": "O valor cobrado não pode ser negativo."},
     )
     pagamentos = RecebimentoSerializer(many=True, required=False)
+    pagamento_combinado_para = serializers.DateField(
+        required=False,
+        allow_null=True,
+        default=None,
+        error_messages={"invalid": "Informe quando o cliente vai pagar o que falta."},
+    )
+
+
+DATA_COMBINADA_NO_PASSADO = "A data combinada para pagar não pode ser antes de hoje."
+
+
+class CombinacaoDoPagamentoSerializer(serializers.Serializer):
+    pagamento_combinado_para = serializers.DateField(
+        error_messages={
+            "required": "Informe a nova data.",
+            "null": "Informe a nova data.",
+            "invalid": "Informe a nova data.",
+        }
+    )
+
+    def validate_pagamento_combinado_para(self, data: date) -> date:
+        if data < timezone.localdate():
+            raise serializers.ValidationError(DATA_COMBINADA_NO_PASSADO)
+        return data
 
 
 class FotoOSSerializer(serializers.ModelSerializer):
@@ -292,6 +317,7 @@ class OrdemServicoDetailSerializer(OrdemServicoListSerializer):
             "pagamentos",
             "total_pago",
             "saldo_a_receber",
+            "pagamento_combinado_para",
             "custo_dos_itens",
             "lucro",
             "pecas_sem_custo",
@@ -510,9 +536,12 @@ class TransicaoSerializer(serializers.Serializer):
             Recebimento(**pagamento) for pagamento in cobranca.get("pagamentos", [])
         )
         attrs["cobranca"] = Cobranca(
-            valor_cobrado=cobranca["valor_cobrado"], recebimentos=recebimentos
+            valor_cobrado=cobranca["valor_cobrado"],
+            recebimentos=recebimentos,
+            pagamento_combinado_para=cobranca.get("pagamento_combinado_para"),
         )
         self._conferir_valores(attrs["cobranca"])
+        attrs["cobranca"] = self._conferir_combinado(attrs["cobranca"])
 
     def _conferir_valores(self, cobranca: Cobranca) -> None:
         aprovado = self.context["ordem"].total_aprovado
@@ -524,14 +553,28 @@ class TransicaoSerializer(serializers.Serializer):
                 }
             )
 
-        pago = sum((recebimento.valor for recebimento in cobranca.recebimentos), Decimal(0))
-        if pago > cobranca.valor_cobrado:
+        if cobranca.pago > cobranca.valor_cobrado:
             raise serializers.ValidationError(
                 {
-                    "cobranca": f"Os pagamentos somam {em_reais(pago)}, mais que o valor "
+                    "cobranca": f"Os pagamentos somam {em_reais(cobranca.pago)}, mais que o valor "
                     f"cobrado de {em_reais(cobranca.valor_cobrado)}."
                 }
             )
+
+    # O que fica a receber precisa do dia combinado com o cliente, para o vencido ser avisado. Sem
+    # nada a receber, a data enviada não vale.
+    def _conferir_combinado(self, cobranca: Cobranca) -> Cobranca:
+        if cobranca.falta_receber <= 0:
+            return replace(cobranca, pagamento_combinado_para=None)
+
+        data = cobranca.pagamento_combinado_para
+        if data is None:
+            raise serializers.ValidationError(
+                {"cobranca": "Informe quando o cliente vai pagar o que falta."}
+            )
+        if data < timezone.localdate():
+            raise serializers.ValidationError({"cobranca": DATA_COMBINADA_NO_PASSADO})
+        return cobranca
 
 
 class CompartilhamentoDoLinkSerializer(serializers.Serializer):

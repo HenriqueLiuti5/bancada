@@ -26,6 +26,7 @@ from bancada.ordens.fotos import FotoInvalida
 from bancada.ordens.models import (
     FotoOS,
     ItemOrcamento,
+    NadaAReceber,
     OrdemServico,
     Pagamento,
     PagamentoAcimaDoSaldo,
@@ -35,6 +36,7 @@ from bancada.ordens.models import (
 from bancada.ordens.painel import numeros as numeros_do_painel
 from bancada.ordens.serializers import (
     AberturaOrdemSerializer,
+    CombinacaoDoPagamentoSerializer,
     ComentarioSerializer,
     CompartilhamentoDoLinkSerializer,
     EdicaoDaOrdemSerializer,
@@ -249,6 +251,24 @@ class OrdemServicoViewSet(ViewSetDoTenant):
             return Response({"valor": [str(erro)]}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(PagamentoSerializer(pagamento).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["post"], url_path="pagamento-combinado")
+    def combinar_pagamento(self, request: Request, pk: str | None = None) -> Response:
+        ordem = self.get_object()
+        entrada = CombinacaoDoPagamentoSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+
+        usuario = request.user if isinstance(request.user, Usuario) else None
+        try:
+            ordem.combinar_pagamento(
+                entrada.validated_data["pagamento_combinado_para"], usuario=usuario
+            )
+        except NadaAReceber as erro:
+            return Response({"detail": str(erro)}, status=status.HTTP_409_CONFLICT)
+
+        atualizada = self.get_queryset().get(pk=ordem.pk)
+        saida = OrdemServicoDetailSerializer(atualizada, context=self.get_serializer_context())
+        return Response(saida.data)
 
     @action(detail=True, methods=["post"], url_path="link-compartilhado")
     def link_compartilhado(self, request: Request, pk: str | None = None) -> Response:

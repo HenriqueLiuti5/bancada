@@ -5,7 +5,8 @@ export type NomeDoTour =
   | "painel"
   | "equipe"
   | "estoque"
-  | "financeiro";
+  | "financeiro"
+  | "a-receber";
 
 export type Lado = "baixo" | "cima" | "direita" | "esquerda";
 
@@ -244,11 +245,34 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
         "O que vence primeiro fica no alto. Clique numa conta para marcar como paga, corrigir o valor ou parar de repetir.",
     },
     {
+      alvo: "abas-do-financeiro",
+      papeis: ["dono"],
+      titulo: "Contas a receber",
+      texto:
+        "As ordens entregues que o cliente ainda não pagou inteiras ficam em Contas a receber, com o dia combinado para pagar.",
+    },
+    {
       alvo: "conta-da-equipe",
       papeis: ["tecnico", "atendente"],
       titulo: "Lançar conta",
       texto:
         "Lance a conta com o valor e o vencimento. Se o dinheiro já saiu da loja, como no motoboy pago na hora, marque Já está paga e diga como foi pago.",
+    },
+  ],
+  "a-receber": [
+    {
+      alvo: "resumo-do-a-receber",
+      papeis: ["dono"],
+      titulo: "Contas a receber",
+      texto:
+        "O que passou do dia combinado, o que vence nos próximos 7 dias e o que os clientes pagaram neste mês. Só quem é dono vê esta tela.",
+    },
+    {
+      alvo: "lista-do-a-receber",
+      papeis: ["dono"],
+      titulo: "Quem está devendo",
+      texto:
+        "O dia combinado que vence primeiro fica no alto. Clique numa ordem para registrar o pagamento, mudar o dia ou cobrar o cliente pelo WhatsApp.",
     },
   ],
 };

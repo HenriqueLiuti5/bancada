@@ -1,4 +1,5 @@
 import {
+  CalendarDotsIcon,
   ChatCircleTextIcon,
   EnvelopeSimpleIcon,
   UserSwitchIcon,
@@ -156,16 +157,17 @@ function LinhaDoPagamento({ pagamento, quando }: { pagamento: Pagamento; quando:
   );
 }
 
+const ACAO_DO_REGISTRO: Record<RegistroDaOrdem["tipo"], { icone: Icon; acao: string }> = {
+  comentario: { icone: ChatCircleTextIcon, acao: "comentou" },
+  troca_de_cliente: { icone: UserSwitchIcon, acao: "trocou o cliente" },
+  pagamento_combinado: { icone: CalendarDotsIcon, acao: "combinou o pagamento" },
+};
+
 function LinhaDoRegistro({ registro, quando }: { registro: RegistroDaOrdem; quando: string }) {
-  const comentario = registro.tipo === "comentario";
+  const { icone, acao } = ACAO_DO_REGISTRO[registro.tipo];
 
   return (
-    <Linha
-      autor={registro.usuario}
-      marcador={<Marcador icone={comentario ? ChatCircleTextIcon : UserSwitchIcon} />}
-      quando={quando}
-      acao={comentario ? "comentou" : "trocou o cliente"}
-    >
+    <Linha autor={registro.usuario} marcador={<Marcador icone={icone} />} quando={quando} acao={acao}>
       <Texto>{registro.texto}</Texto>
     </Linha>
   );

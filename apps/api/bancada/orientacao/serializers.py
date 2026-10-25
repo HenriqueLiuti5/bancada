@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-TOURS = ["ordens", "nova-ordem", "ordem", "painel", "equipe", "estoque", "financeiro"]
+TOURS = ["ordens", "nova-ordem", "ordem", "painel", "equipe", "estoque", "financeiro", "a-receber"]
 
 
 class TourVistoSerializer(serializers.Serializer):

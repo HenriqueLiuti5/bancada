@@ -48,16 +48,33 @@ class Recebimento:
 class Cobranca:
     valor_cobrado: Decimal
     recebimentos: Sequence[Recebimento] = ()
+    pagamento_combinado_para: date | None = None
+
+    @property
+    def pago(self) -> Decimal:
+        return sum((recebimento.valor for recebimento in self.recebimentos), Decimal("0.00"))
+
+    @property
+    def falta_receber(self) -> Decimal:
+        return self.valor_cobrado - self.pago
+
+
+NADA_A_RECEBER = "Esta ordem não tem nada a receber."
 
 
 class PagamentoAcimaDoSaldo(Exception):
     def __init__(self, saldo: Decimal) -> None:
         if saldo <= 0:
-            mensagem = "Esta ordem não tem nada a receber."
+            mensagem = NADA_A_RECEBER
         else:
             mensagem = f"O valor passa do que falta receber, que é {em_reais(saldo)}."
         super().__init__(mensagem)
         self.saldo = saldo
+
+
+class NadaAReceber(Exception):
+    def __init__(self) -> None:
+        super().__init__(NADA_A_RECEBER)
 
 
 def proximo_numero(tenant: Tenant) -> int:
@@ -95,6 +112,9 @@ class OrdemServico(PertenceAoTenant):
     entregue_em = models.DateTimeField(null=True, blank=True)
     garantia_ate = models.DateField(null=True, blank=True)
     valor_cobrado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    pagamento_combinado_para = models.DateField(
+        "pagamento do que falta combinado para", null=True, blank=True
+    )
 
     class Meta:
         verbose_name = "ordem de serviço"
@@ -184,20 +204,28 @@ class OrdemServico(PertenceAoTenant):
             campos.append("entregue_em")
             if cobranca is not None:
                 self.valor_cobrado = cobranca.valor_cobrado
-                campos.append("valor_cobrado")
+                self.pagamento_combinado_para = cobranca.pagamento_combinado_para
+                campos += ["valor_cobrado", "pagamento_combinado_para"]
 
         self.save(update_fields=campos)
 
         if novo_status == StatusOS.ENTREGUE and cobranca is not None:
             self._registrar_recebimentos(cobranca.recebimentos, usuario)
 
-        return EventoOS.objects.create(
+        evento = EventoOS.objects.create(
             ordem=self,
             usuario=usuario,
             de_status=anterior,
             para_status=novo_status,
             nota=nota,
         )
+        if cobranca is not None and cobranca.pagamento_combinado_para is not None:
+            self._registrar_combinado(
+                f"Falta receber {em_reais(cobranca.falta_receber)}, combinado para "
+                f"{cobranca.pagamento_combinado_para:%d/%m/%Y}.",
+                usuario,
+            )
+        return evento
 
     def _registrar_aprovacao(self, itens_aprovados: Collection[int] | None) -> None:
         if itens_aprovados is None:
@@ -265,6 +293,38 @@ class OrdemServico(PertenceAoTenant):
             forma=recebimento.forma,
             valor=recebimento.valor,
             registrado_por=usuario,
+        )
+
+    # O cliente que pede mais prazo ganha outra data, e cada mudança fica no histórico. Pedir a
+    # data que já vale não registra nada.
+    @transaction.atomic
+    def combinar_pagamento(
+        self, data: date, *, usuario: Usuario | None = None
+    ) -> "RegistroOS | None":
+        travada = OrdemServico.objects.select_for_update().get(pk=self.pk)
+        if travada.saldo_a_receber <= 0:
+            raise NadaAReceber
+
+        anterior = travada.pagamento_combinado_para
+        if anterior == data:
+            return None
+
+        travada.pagamento_combinado_para = data
+        travada.save(update_fields=["pagamento_combinado_para", "atualizado_em"])
+        self.pagamento_combinado_para = data
+        if anterior is None:
+            texto = f"O pagamento do que falta ficou combinado para {data:%d/%m/%Y}."
+        else:
+            texto = f"O pagamento do que falta passou de {anterior:%d/%m/%Y} para {data:%d/%m/%Y}."
+        return self._registrar_combinado(texto, usuario)
+
+    def _registrar_combinado(self, texto: str, usuario: Usuario | None) -> "RegistroOS":
+        return RegistroOS.objects.create(
+            tenant_id=self.tenant_id,
+            ordem=self,
+            tipo=TipoDeRegistro.PAGAMENTO_COMBINADO,
+            texto=texto,
+            usuario=usuario,
         )
 
     @property
@@ -447,6 +507,7 @@ class EventoOS(models.Model):
 class TipoDeRegistro(models.TextChoices):
     COMENTARIO = "comentario", "Comentário"
     TROCA_DE_CLIENTE = "troca_de_cliente", "Troca de cliente"
+    PAGAMENTO_COMBINADO = "pagamento_combinado", "Pagamento combinado"
 
 
 class RegistroOS(PertenceAoTenant):

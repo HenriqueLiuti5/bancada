@@ -45,10 +45,12 @@ function Resumo({ rotulo, valor }: { rotulo: string; valor: string }) {
 export function RegistroDaEntrega({
   id,
   totalAprovado,
+  hoje,
   aoCancelar,
 }: {
   id: number;
   totalAprovado: string;
+  hoje: string;
   aoCancelar: () => void;
 }) {
   const [estado, acao, enviando] = useActionState(entregar, INICIAL);
@@ -59,6 +61,7 @@ export function RegistroDaEntrega({
   const [linhas, setLinhas] = useState<Linha[]>(
     aprovado > 0 ? [{ chave: 0, forma: "pix", valor: valorInicial }] : [],
   );
+  const [combinado, setCombinado] = useState("");
   const [nota, setNota] = useState("");
   const proximaChave = useRef(1);
 
@@ -146,6 +149,27 @@ export function RegistroDaEntrega({
         <Resumo rotulo="Pago agora" valor={centavosEmReais(pago)} />
         {aReceber > 0 && <Resumo rotulo="Fica a receber" valor={centavosEmReais(aReceber)} />}
       </dl>
+
+      {aReceber > 0 && (
+        <label className="block space-y-1.5">
+          <span className="block text-sm font-semibold sm:text-[13px]">
+            Quando o cliente vai pagar o resto?
+            <MarcaDeObrigatorio />
+          </span>
+          <input
+            type="date"
+            name="pagamento_combinado_para"
+            required
+            min={hoje}
+            value={combinado}
+            onChange={(evento) => setCombinado(evento.target.value)}
+            className={juntar(campo, "w-auto tabular-nums")}
+          />
+          <span className="block text-[13px] text-texto-apagado sm:text-xs">
+            O dia combinado com o cliente. Ele sai no recibo.
+          </span>
+        </label>
+      )}
 
       <input
         name="nota"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { CheckCircleIcon, TrashIcon, WalletIcon } from "@/componentes/icones";
 import { MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
@@ -9,7 +9,13 @@ import { dataDoMomento } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import { FORMAS_DE_PAGAMENTO } from "@/lib/pagamentos";
 import type { Ordem, Pagamento } from "@/lib/tipos";
-import { receberPagamento, removerPagamento, type EstadoDoRecebimento } from "./acoes";
+import {
+  combinarPagamento,
+  receberPagamento,
+  removerPagamento,
+  type EstadoDaCombinacao,
+  type EstadoDoRecebimento,
+} from "./acoes";
 
 const INICIAL: EstadoDoRecebimento = {};
 
@@ -122,6 +128,62 @@ export function NovoRecebimento({
       <div className="flex flex-wrap gap-2">
         <button type="submit" disabled={enviando} className={juntar(botao("primario"), "max-sm:w-full")}>
           {enviando ? "Registrando..." : "Registrar pagamento"}
+        </button>
+        <button type="button" onClick={aoCancelar} className={juntar(botao("fantasma"), "max-sm:w-full")}>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}
+
+const COMBINACAO_INICIAL: EstadoDaCombinacao = {};
+
+export function NovaDataCombinada({
+  id,
+  atual,
+  hoje,
+  aoCancelar,
+}: {
+  id: number;
+  atual: string | null;
+  hoje: string;
+  aoCancelar: () => void;
+}) {
+  const [estado, acao, enviando] = useActionState(combinarPagamento, COMBINACAO_INICIAL);
+  const sugerida = atual && atual >= hoje ? atual : "";
+
+  // Um dia novo remonta o cartão da ordem e fecha o formulário. Salvar o mesmo dia não muda o
+  // cartão, então o formulário se fecha aqui.
+  useEffect(() => {
+    if (estado.salvo) aoCancelar();
+  }, [estado, aoCancelar]);
+
+  return (
+    <form action={acao} className="space-y-3">
+      <input type="hidden" name="id" value={id} />
+      <label className="block space-y-1.5">
+        <span className="block text-sm font-semibold">
+          Novo dia combinado
+          <MarcaDeObrigatorio />
+        </span>
+        <input
+          type="date"
+          name="pagamento_combinado_para"
+          required
+          autoFocus
+          min={hoje}
+          defaultValue={estado.data ?? sugerida}
+          className={juntar(campo, "w-auto tabular-nums")}
+        />
+        <span className="block text-[13px] text-texto-apagado sm:text-xs">
+          A mudança fica no histórico da ordem, com o seu nome.
+        </span>
+      </label>
+      {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
+      <div className="flex flex-wrap gap-2">
+        <button type="submit" disabled={enviando} className={juntar(botao("primario"), "max-sm:w-full")}>
+          {enviando ? "Salvando..." : "Salvar a data"}
         </button>
         <button type="button" onClick={aoCancelar} className={juntar(botao("fantasma"), "max-sm:w-full")}>
           Cancelar

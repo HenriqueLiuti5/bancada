@@ -22,7 +22,8 @@ No começo da fase, em 22 de outubro de 2026, o Henrique decidiu:
 - Qualquer pessoa da equipe lança uma conta, mas só o dono vê a lista, os totais e o lucro.
 - O caixa do dia mostra o resumo por forma de pagamento e confere o dinheiro da gaveta no fim do dia,
   com retiradas e reforços, sem ninguém precisar abrir o caixa para trabalhar.
-- O fiado no balcão entra, com as contas a receber.
+- O fiado no balcão entra, com as contas a receber. Em 25 de outubro, o Henrique decidiu deixá-lo
+  fora do sistema.
 - Comissão dos técnicos, taxa da maquininha e nota fiscal ficam de fora.
 
 ## Decisão
@@ -82,11 +83,47 @@ quem não é dono (ADR 0020).
 
 **O isolamento.** As duas tabelas novas têm a assistência em cada linha e a trava do banco (ADR 0009).
 
+### Parte 2: contas a receber
+
+No começo da parte, em 25 de outubro de 2026, o Henrique decidiu que o dia combinado é obrigatório,
+que qualquer pessoa da equipe o muda e que a ordem ganha um botão para cobrar o cliente pelo WhatsApp.
+
+**O dia combinado.** Na entrega que deixa parte do valor para depois, quem entrega informa o dia em
+que o cliente combinou pagar o resto, guardado na ordem (`pagamento_combinado_para`). A API recusa a
+entrega sem ele e com um dia antes de hoje; quando nada fica a receber, o dia enviado não vale. É um
+dia só por ordem, sem parcelas. O recibo mostra o que falta pagar e até quando.
+
+**Mudar o dia.** O cliente que pede mais prazo ganha outro dia na tela da ordem, por qualquer pessoa
+da equipe, que também registra o pagamento do resto (ADR 0021). Cada dia combinado fica no histórico
+da ordem num registro novo, `pagamento_combinado`, com quem fez e quando: o da entrega diz quanto
+falta e até quando, e cada mudança diz de qual dia para qual. O cliente não vê esses registros, como
+os comentários (ADR 0034). Pedir o dia que já vale não registra nada. As ordens entregues antes desta
+parte não têm dia e ganham o primeiro do mesmo jeito.
+
+**Cobrar o cliente.** O cartão da ordem que ficou devendo diz até quando o cliente combinou pagar, em
+vermelho quando o dia passou, e tem Cobrar no WhatsApp, com uma mensagem pronta que lembra o valor, o
+aparelho e o dia. O botão fica na auditoria como os outros links mandados pelo WhatsApp.
+
+**A tela.** O Financeiro do dono ganhou duas abas, Contas a pagar e Contas a receber. Contas a receber
+segue a de pagar: no alto, o que venceu, o que vence nos próximos 7 dias e o que os clientes pagaram
+neste mês depois da entrega; abaixo, as abas A receber, Vencidas e Recebidas e a busca pelo cliente,
+pelo aparelho ou pelo número da OS. A lista começa pelo dia que vence primeiro, e as ordens sem dia
+ficam por último. Recebidas são as ordens que o cliente terminou de pagar depois da entrega. Cada
+linha leva à ordem, onde o pagamento é registrado. A API das contas a receber recusa técnico e
+atendente, como a das contas a pagar; a equipe continua com a aba A receber da lista de ordens.
+
+**O painel.** A receber fica em vermelho quando há pagamento vencido e leva às Contas a receber. A
+regra do vencido está em `ordens.consultas.pagamento_vencido`, usada pelo painel e pela tela, para os
+dois contarem o mesmo (ADR 0021).
+
+**O que veio depois da entrega.** O pagamento registrado na entrega fica com a hora dela (ADR 0021),
+então os que vêm depois são o cliente pagando o que ficou devendo. É essa a regra do recebido no mês e
+das Recebidas.
+
 ### As próximas partes
 
-A parte 2 junta o que falta receber das ordens e o fiado no balcão, com a data combinada para pagar
-e o aviso do que venceu. A parte 3 mostra o caixa do dia e a conferência do dinheiro. A parte 4 leva
-o lucro do mês ao painel. Cada uma acrescenta aqui o que decidiu.
+A parte 3 mostra o caixa do dia e a conferência do dinheiro. A parte 4 leva o lucro do mês ao painel.
+Cada uma acrescenta aqui o que decidiu.
 
 ## Consequências
 
@@ -122,6 +159,20 @@ anexar o boleto ou o comprovante, parcelar uma compra em várias contas, criar a
 entrada de compra no estoque ou do XML da nota do fornecedor, a conciliação com o extrato do banco e
 as categorias criadas pela assistência.
 
+Na parte 2, a API ganhou 10 testes: o dia na entrega e as recusas, a entrega quitada, a mudança por
+qualquer pessoa com o registro no histórico, o primeiro dia de uma entrega antiga, as recusas da
+mudança, quem vê, a ordem e as abas da lista com a busca, o resumo sem o mês anterior, o isolamento e
+o vencido no painel. Os testes que entregavam com valor faltando passaram a informar o dia. No site, a
+situação do dia combinado, o texto do cartão, a mensagem do WhatsApp e o aviso do painel têm testes
+de unidade, e o teste de contrato confere o tour novo, `a-receber`. O teste de navegador novo,
+`e2e/contas-a-receber.spec.ts`, entrega uma ordem com parte para depois, confere a recusa sem o dia,
+o cartão, a cobrança pelo WhatsApp, a mudança no histórico, a tela e o painel, e paga o resto, no
+computador e no celular. Cada execução completa dos testes de navegador cria agora catorze
+assistências, ainda abaixo das 30 por hora da CI.
+
+No `semear_movimento`, uma parte das entregas fica devendo tudo ou metade, com o dia combinado, e boa
+parte delas é paga perto do dia, para a tela não nascer vazia.
+
 ## Alternativas consideradas
 
 **Só o dono lançar as contas.** Era a recomendação, pelos salários. O Henrique preferiu que a equipe
@@ -143,3 +194,12 @@ lançamento e mantém o lucro agrupado do mesmo jeito em todas as assistências.
 **Gerar a conta a partir da entrada de compra do estoque.** O GestãoClick faz isso, mas a entrada é
 lançada por toda a equipe (ADR 0036), e o formulário passaria a perguntar o prazo e a forma de
 pagamento a quem só recebeu a caixa de peças.
+
+**Dia combinado opcional.** Seria mais rápido no balcão, mas a ordem sem dia nunca vence, e o aviso do
+que venceu sumiria justo para quem não combinou nada.
+
+**Parcelas com vários dias.** É o crediário de alguns concorrentes. Fica de fora, na mesma linha do
+fiado.
+
+**Só o dono mudar o dia.** O cliente que pede mais prazo costuma falar com quem está no balcão, e o
+registro no histórico mostra ao dono quem mudou.

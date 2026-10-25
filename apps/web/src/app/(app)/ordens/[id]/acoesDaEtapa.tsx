@@ -1,13 +1,14 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { CalendarDotsIcon } from "@/componentes/icones";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { IconeDeStatus } from "@/componentes/ui/Selo";
 import { botao, caixaDeMarcar, campo, juntar } from "@/componentes/ui/estilos";
 import { emReais } from "@/lib/moeda";
 import type { ItemOrcamento, Transicao } from "@/lib/tipos";
 import { transicionar, type EstadoTransicao } from "./acoes";
-import { NovoRecebimento } from "./pagamentoDaOrdem";
+import { NovaDataCombinada, NovoRecebimento } from "./pagamentoDaOrdem";
 import { RegistroDaEntrega } from "./registroDaEntrega";
 
 const INICIAL: EstadoTransicao = {};
@@ -35,7 +36,7 @@ const PRINCIPAL_DE_CADA_ETAPA: Record<string, string> = {
   pronto: "entregue",
 };
 
-type Gaveta = "aprovacao" | "peca" | "entrega" | "recebimento";
+type Gaveta = "aprovacao" | "peca" | "entrega" | "recebimento" | "data";
 
 function acaoDa(status: string, transicao: Transicao): string {
   if (status === "aguardando_peca" && transicao.valor === "em_reparo") {
@@ -120,6 +121,8 @@ type Props = {
   itens: ItemOrcamento[];
   totalAprovado: string;
   saldoAReceber: string;
+  pagamentoCombinado: string | null;
+  hoje: string;
   atalhos: React.ReactNode;
 };
 
@@ -130,6 +133,8 @@ export function AcoesDaEtapa({
   itens,
   totalAprovado,
   saldoAReceber,
+  pagamentoCombinado,
+  hoje,
   atalhos,
 }: Props) {
   const [aberta, setAberta] = useState<Gaveta | null>(null);
@@ -139,7 +144,7 @@ export function AcoesDaEtapa({
   if (aberta === "entrega") {
     return (
       <Moldura>
-        <RegistroDaEntrega id={id} totalAprovado={totalAprovado} aoCancelar={fechar} />
+        <RegistroDaEntrega id={id} totalAprovado={totalAprovado} hoje={hoje} aoCancelar={fechar} />
       </Moldura>
     );
   }
@@ -148,6 +153,14 @@ export function AcoesDaEtapa({
     return (
       <Moldura>
         <NovoRecebimento id={id} saldo={saldoAReceber} aoCancelar={fechar} />
+      </Moldura>
+    );
+  }
+
+  if (aberta === "data") {
+    return (
+      <Moldura>
+        <NovaDataCombinada id={id} atual={pagamentoCombinado} hoje={hoje} aoCancelar={fechar} />
       </Moldura>
     );
   }
@@ -198,13 +211,23 @@ export function AcoesDaEtapa({
 
       <div className="flex flex-wrap gap-2">
         {receber && (
-          <button
-            type="button"
-            onClick={() => setAberta("recebimento")}
-            className={juntar(botao("primario"), "max-sm:w-full")}
-          >
-            Registrar pagamento
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => setAberta("recebimento")}
+              className={juntar(botao("primario"), "max-sm:w-full")}
+            >
+              Registrar pagamento
+            </button>
+            <button
+              type="button"
+              onClick={() => setAberta("data")}
+              className={juntar(botao("secundario"), "max-sm:w-full")}
+            >
+              <CalendarDotsIcon size={17} />
+              {pagamentoCombinado ? "Mudar a data" : "Combinar a data"}
+            </button>
+          </>
         )}
 
         {ordenadas.map((transicao) => {

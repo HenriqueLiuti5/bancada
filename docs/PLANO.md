@@ -484,15 +484,16 @@ O Bancada registrava o que entra, pelas ordens (4D) e pelo balcão (4P), e nada 
 concorrentes que cobram até R$ 60 por mês já tinham contas a pagar e a receber, contas fixas, caixa do
 dia e lucro com o custo das peças, e alguns, comissão e fiado; a nota fiscal costuma ser vendida à
 parte. No começo da fase, em 22 de outubro de 2026, o Henrique decidiu que qualquer pessoa da equipe
-lança uma conta, mas só o dono vê a lista, os totais e o lucro; que o caixa do dia mostra o resumo e
-confere o dinheiro no fim do dia, sem ninguém precisar abrir o caixa; e que o fiado no balcão entra.
-Comissão dos técnicos, taxa da maquininha e nota fiscal ficaram de fora.
+lança uma conta, mas só o dono vê a lista, os totais e o lucro; e que o caixa do dia mostra o resumo e
+confere o dinheiro no fim do dia, sem ninguém precisar abrir o caixa. Comissão dos técnicos, taxa da
+maquininha e nota fiscal ficaram de fora. O fiado no balcão chegou a entrar, mas em 25 de outubro o
+Henrique decidiu deixá-lo fora do sistema.
 
 A fase é feita em quatro partes, uma de cada vez:
 
 1. Contas a pagar (concluída).
-2. Contas a receber num lugar só: o que falta receber das ordens e o fiado no balcão, com a data
-   combinada para pagar e o aviso do que venceu.
+2. Contas a receber num lugar só: o que falta receber das ordens, com a data combinada para pagar e
+   o aviso do que venceu (concluída).
 3. Caixa do dia: o que entrou e o que saiu em cada forma de pagamento, a conferência do dinheiro da
    gaveta no fim do dia e as retiradas e reforços.
 4. Lucro do mês no painel: o que entrou menos as despesas e o custo das peças.
@@ -517,6 +518,23 @@ Na entrega da parte 1:
 
 As compras de peças entram como conta a pagar, mas não vão contar como despesa no lucro da parte 4,
 que já desconta o custo das peças usadas e vendidas.
+
+No começo da parte 2, o Henrique decidiu que o dia combinado é obrigatório, que qualquer pessoa da
+equipe o muda e que a ordem cobra o cliente pelo WhatsApp. Na entrega da parte 2:
+
+- Na entrega com parte do valor para depois, quem entrega informa o dia em que o cliente combinou
+  pagar o resto, nunca antes de hoje. Ele sai no recibo.
+- Quando o cliente pede mais prazo, qualquer pessoa da equipe muda o dia na ordem, e cada dia
+  combinado fica no histórico, com quem fez e quando.
+- O cartão da ordem diz até quando o cliente combinou pagar, em vermelho quando venceu, e tem Cobrar
+  no WhatsApp, com uma mensagem pronta com o valor e o dia.
+- Contas a receber, ao lado de Contas a pagar, no Financeiro do dono: o que venceu, o que vence nos
+  próximos 7 dias e o que os clientes pagaram no mês; abas A receber, Vencidas e Recebidas; e busca
+  pelo cliente, pelo aparelho ou pelo número da OS.
+- No painel, A receber fica em vermelho quando há pagamento vencido e leva às Contas a receber.
+- Dados de exemplo com contas a receber vencidas, a vencer e quitadas.
+- Testes da API, das contas do site e um teste de navegador do caminho inteiro, no computador e no
+  celular (ADR 0037).
 
 ### 4R — Página inicial com telas novas
 

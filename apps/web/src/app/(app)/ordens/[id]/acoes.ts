@@ -18,6 +18,7 @@ export type EstadoDoRecebimento = {
   registrado?: boolean;
   valores?: Record<string, string>;
 };
+export type EstadoDaCombinacao = { erro?: string; data?: string; salvo?: boolean };
 export type EstadoDoComentario = { erro?: string; texto?: string };
 
 export async function transicionar(
@@ -235,6 +236,7 @@ export async function entregar(
 
   const pagamentos = pagamentosInformados(dados);
   if (typeof pagamentos === "string") return { erro: pagamentos };
+  const combinado = String(dados.get("pagamento_combinado_para") ?? "");
 
   try {
     await chamarApi(`/api/ordens/${id}/transicionar/`, {
@@ -242,7 +244,11 @@ export async function entregar(
       corpo: {
         status: "entregue",
         nota: String(dados.get("nota") ?? ""),
-        cobranca: { valor_cobrado: valorCobrado, pagamentos },
+        cobranca: {
+          valor_cobrado: valorCobrado,
+          pagamentos,
+          pagamento_combinado_para: combinado || null,
+        },
       },
     });
   } catch (erro) {
@@ -279,6 +285,27 @@ export async function receberPagamento(
   revalidatePath(`/ordens/${id}`);
   revalidatePath("/ordens");
   return { registrado: true };
+}
+
+export async function combinarPagamento(
+  _anterior: EstadoDaCombinacao,
+  dados: FormData,
+): Promise<EstadoDaCombinacao> {
+  const id = String(dados.get("id"));
+  const data = String(dados.get("pagamento_combinado_para") ?? "");
+  if (!data) return { erro: "Informe a nova data.", data };
+
+  try {
+    await chamarApi(`/api/ordens/${id}/pagamento-combinado/`, {
+      metodo: "POST",
+      corpo: { pagamento_combinado_para: data },
+    });
+  } catch (erro) {
+    return { erro: mensagemDaApi(erro, "Não foi possível mudar a data."), data };
+  }
+
+  revalidatePath(`/ordens/${id}`);
+  return { salvo: true };
 }
 
 export async function comentar(

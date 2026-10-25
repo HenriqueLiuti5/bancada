@@ -25,6 +25,7 @@ import { emReais } from "@/lib/moeda";
 import type { ContaAPagar, Loja, Pagina, ResumoDasContas } from "@/lib/tipos";
 import { fusoDaAssistencia, gerenciaEquipe, usuarioAtual } from "@/lib/usuario";
 import { Tour } from "../tour";
+import { CabecalhoDoFinanceiro } from "./cabecalho";
 import { FiltrosDasContas, type ValoresDasContas } from "./filtros";
 import { NovaConta } from "./novaConta";
 import { VencimentoDaConta } from "./vencimento";
@@ -241,7 +242,8 @@ export default async function ContasAPagar({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <CabecalhoDaPagina
+      <CabecalhoDoFinanceiro
+        ativa="a_pagar"
         titulo="Contas a pagar"
         descricao="As contas da loja, com o que vence primeiro no alto. Só quem é dono vê esta tela."
         acoes={

@@ -113,7 +113,7 @@ export type Evento = {
 
 export type RegistroDaOrdem = {
   id: number;
-  tipo: "comentario" | "troca_de_cliente";
+  tipo: "comentario" | "troca_de_cliente" | "pagamento_combinado";
   usuario: string | null;
   texto: string;
   criado_em: string;
@@ -199,6 +199,7 @@ export type Ordem = OrdemResumo & {
   pagamentos: Pagamento[];
   total_pago: string;
   saldo_a_receber: string;
+  pagamento_combinado_para: string | null;
   custo_dos_itens: string;
   lucro: string;
   pecas_sem_custo: number;
@@ -317,6 +318,30 @@ export type ResumoDasContas = {
   pagas_no_mes: TotalDeContas;
 };
 
+export type ContaAReceber = {
+  id: number;
+  numero: number;
+  cliente_nome: string;
+  cliente_telefone: string;
+  aparelho_descricao: string;
+  loja: number;
+  loja_nome: string;
+  valor_cobrado: string;
+  valor_pago: string;
+  saldo: string;
+  pagamento_combinado_para: string | null;
+  entregue_em: string;
+  quitada_em: string | null;
+};
+
+export type TotalAReceber = { valor: string; ordens: number };
+
+export type ResumoDoAReceber = {
+  vencidas: TotalAReceber;
+  proximos_dias: TotalAReceber;
+  recebido_no_mes: TotalAReceber;
+};
+
 export type LinhaDeStatus = { status: string; rotulo: string; total: number };
 
 export type Comparacao<T> = { atual: T; anterior: T };
@@ -370,7 +395,7 @@ export type Painel = {
     descontos: Comparacao<string>;
     ticket_medio: Comparacao<string | null>;
     taxa_de_aprovacao: Comparacao<number | null>;
-    a_receber: { valor: string; ordens: number };
+    a_receber: TotalAReceber & { vencidas: TotalAReceber };
     a_pagar: Pick<ResumoDasContas, "vencidas" | "proximos_dias">;
     aprovado_em_aberto: string;
   };

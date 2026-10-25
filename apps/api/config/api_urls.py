@@ -11,7 +11,7 @@ from bancada.assinaturas.views import (
 )
 from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
 from bancada.estoque.views import ProdutoViewSet, VendaViewSet
-from bancada.financeiro.views import ContaAPagarViewSet
+from bancada.financeiro.views import ContaAPagarViewSet, ContaAReceberViewSet
 from bancada.ordens.views import (
     FotoViewSet,
     ItemOrcamentoViewSet,
@@ -60,6 +60,7 @@ router.register("pagamentos", PagamentoViewSet, basename="pagamento")
 router.register("produtos", ProdutoViewSet, basename="produto")
 router.register("vendas", VendaViewSet, basename="venda")
 router.register("contas-a-pagar", ContaAPagarViewSet, basename="conta-a-pagar")
+router.register("contas-a-receber", ContaAReceberViewSet, basename="conta-a-receber")
 router.register("usuarios", UsuarioViewSet, basename="usuario")
 router.register("convites", ConviteViewSet, basename="convite")
 

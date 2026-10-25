@@ -1,6 +1,6 @@
 import random
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -19,6 +19,7 @@ from bancada.ordens.models import (
     OrdemServico,
     Pagamento,
     Recebimento,
+    RegistroOS,
     TipoItem,
 )
 from bancada.tenants.models import Loja, Tenant, Usuario
@@ -239,15 +240,17 @@ class Command(BaseCommand):
             if relogio.passou(momento):
                 return
 
-            cobranca = self._cobranca(ordem) if status == StatusOS.ENTREGUE else None
+            cobranca = self._cobranca(ordem, momento) if status == StatusOS.ENTREGUE else None
             evento = ordem.transicionar(status, usuario=tecnico, cobranca=cobranca)
             EventoOS.objects.filter(pk=evento.pk).update(criado_em=momento)
 
-            if status == StatusOS.ENTREGUE:
+            if status == StatusOS.ENTREGUE and cobranca is not None:
                 OrdemServico.objects.filter(pk=ordem.pk).update(entregue_em=momento)
                 Pagamento.objects.filter(ordem=ordem).update(recebido_em=momento)
+                RegistroOS.objects.filter(ordem=ordem).update(criado_em=momento)
+                self._quitar_depois(ordem, cobranca, tecnico, relogio)
 
-    def _cobranca(self, ordem: OrdemServico) -> Cobranca:
+    def _cobranca(self, ordem: OrdemServico, entrega: datetime) -> Cobranca:
         aprovado = ordem.total_aprovado
         sorteio = random.random()
         desconto_de_dez_por_cento = sorteio < 0.12
@@ -257,8 +260,17 @@ class Command(BaseCommand):
             else aprovado
         )
 
-        if sorteio > 0.94:
-            return Cobranca(valor_cobrado=cobrado)
+        # Uma parte das entregas fica devendo tudo ou metade, para pagar até o dia combinado.
+        if sorteio > 0.88:
+            parte_paga = Recebimento(
+                forma=FormaDePagamento.PIX, valor=(cobrado / 2).quantize(Decimal("1"))
+            )
+            return Cobranca(
+                valor_cobrado=cobrado,
+                recebimentos=() if sorteio > 0.94 else (parte_paga,),
+                pagamento_combinado_para=timezone.localdate(entrega)
+                + timedelta(days=random.randint(3, 15)),
+            )
 
         formas = [
             FormaDePagamento.PIX,
@@ -279,3 +291,23 @@ class Command(BaseCommand):
         return Cobranca(
             valor_cobrado=cobrado, recebimentos=(Recebimento(forma=principal, valor=cobrado),)
         )
+
+    # Boa parte de quem ficou devendo paga perto do dia combinado; o resto continua a receber, e o
+    # que passou da data aparece vencido.
+    def _quitar_depois(
+        self, ordem: OrdemServico, cobranca: Cobranca, tecnico: Usuario | None, relogio: Relogio
+    ) -> None:
+        combinado = cobranca.pagamento_combinado_para
+        if combinado is None or random.random() < 0.4:
+            return
+        dia = combinado + timedelta(days=random.choice([-2, -1, 0, 0, 1, 3]))
+        momento = timezone.make_aware(datetime.combine(dia, time(random.randint(10, 18))))
+        if relogio.passou(momento):
+            return
+
+        restante = Recebimento(
+            forma=random.choice([FormaDePagamento.PIX, FormaDePagamento.DINHEIRO]),
+            valor=cobranca.falta_receber,
+        )
+        pagamento = ordem.receber(restante, usuario=tecnico)
+        Pagamento.objects.filter(pk=pagamento.pk).update(recebido_em=momento)

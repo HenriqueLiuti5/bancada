@@ -1,7 +1,9 @@
+from datetime import timedelta
 from decimal import Decimal
 from typing import Any
 
 import pytest
+from django.utils import timezone
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
@@ -40,6 +42,10 @@ def entregar(api: APIClient, ordem: OrdemServico, **cobranca: Any) -> Any:
         {"status": StatusOS.ENTREGUE, "cobranca": cobranca},
         format="json",
     )
+
+
+def hoje() -> str:
+    return timezone.localdate().isoformat()
 
 
 def receber(api: APIClient, ordem: OrdemServico, forma: str, valor: str) -> Any:
@@ -189,7 +195,13 @@ def test_entrega_sem_pagamento_fica_a_receber_ate_ser_quitada(
     atendente_do_tenant: Usuario, pronta: OrdemServico
 ) -> None:
     api = api_de(atendente_do_tenant)
-    entregar(api, pronta, valor_cobrado="410.00", pagamentos=[{"forma": "pix", "valor": "100"}])
+    entregar(
+        api,
+        pronta,
+        valor_cobrado="410.00",
+        pagamentos=[{"forma": "pix", "valor": "100"}],
+        pagamento_combinado_para=hoje(),
+    )
 
     detalhe = api.get(f"/api/ordens/{pronta.pk}/").json()
     assert detalhe["saldo_a_receber"] == "310.00"
@@ -243,7 +255,9 @@ def test_so_o_dono_remove_um_pagamento_e_a_remocao_fica_registrada(
 def test_outra_assistencia_nao_mexe_nos_pagamentos(
     api_tecnico: APIClient, api_intruso: APIClient, pronta: OrdemServico
 ) -> None:
-    entregar(api_tecnico, pronta, valor_cobrado="410.00", pagamentos=[])
+    entregar(
+        api_tecnico, pronta, valor_cobrado="410.00", pagamentos=[], pagamento_combinado_para=hoje()
+    )
     Pagamento.objects.create(ordem=pronta, forma=FormaDePagamento.PIX, valor="10.00")
     pagamento = Pagamento.objects.get(ordem=pronta)
 
@@ -274,7 +288,11 @@ def test_lista_separa_as_ordens_com_valor_a_receber(
     api_tecnico: APIClient, pronta: OrdemServico, ordem: OrdemServico
 ) -> None:
     entregar(
-        api_tecnico, pronta, valor_cobrado="410.00", pagamentos=[{"forma": "pix", "valor": "10"}]
+        api_tecnico,
+        pronta,
+        valor_cobrado="410.00",
+        pagamentos=[{"forma": "pix", "valor": "10"}],
+        pagamento_combinado_para=hoje(),
     )
 
     resultados = api_tecnico.get("/api/ordens/?situacao=a_receber").json()["results"]
@@ -297,11 +315,13 @@ def test_lista_nao_mostra_ordem_quitada_como_a_receber(
 def test_recibo_mostra_desconto_pagamentos_e_o_que_falta(
     api_tecnico: APIClient, pronta: OrdemServico
 ) -> None:
+    combinado = timezone.localdate() + timedelta(days=5)
     entregar(
         api_tecnico,
         pronta,
         valor_cobrado="400.00",
         pagamentos=[{"forma": "credito", "valor": "300.00"}],
+        pagamento_combinado_para=combinado.isoformat(),
     )
 
     html = html_do_recibo(OrdemServico.objects.get(pk=pronta.pk))
@@ -309,7 +329,7 @@ def test_recibo_mostra_desconto_pagamentos_e_o_que_falta(
     assert "-R$ 10,00" in html
     assert "Crédito em" in html
     assert "R$ 300,00" in html
-    assert "Falta pagar" in html
+    assert f"Falta pagar até {combinado:%d/%m/%Y}" in html
     assert "R$ 100,00" in html
 
 

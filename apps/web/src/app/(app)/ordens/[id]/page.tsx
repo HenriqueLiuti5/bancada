@@ -92,6 +92,7 @@ export default async function DetalheDaOrdem({ params }: { params: Promise<{ id:
         <PainelDaEtapa
           ordem={ordem}
           linkDoCliente={linkDoCliente}
+          hoje={hojeEmIso(fuso)}
           className="min-w-0 lg:col-start-1 lg:row-start-1"
         />
 

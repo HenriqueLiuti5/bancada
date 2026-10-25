@@ -103,7 +103,7 @@
             </tr>
             {% if ordem.saldo_a_receber %}
               <tr>
-                <td>Falta pagar</td>
+                <td>Falta pagar{% if ordem.pagamento_combinado_para %} até {{ ordem.pagamento_combinado_para|date:"d/m/Y" }}{% endif %}</td>
                 <td class="valor">{{ ordem.saldo_a_receber|reais }}</td>
               </tr>
             {% endif %}

@@ -131,6 +131,15 @@ it is due, and a change, such as a higher rent, can be carried to the following 
 dashboard shows the owner what is overdue plus what is due in the next 7 days. On phones, the
 owner's Assinatura (Subscription) link moved from the bottom bar to the account menu.
 
+When a repair is picked up with part of the price left for later, whoever hands it over enters the
+day the customer agreed to pay the rest, and the receipt shows it. Anyone on the team can move that
+day when the customer asks for more time, and every agreed day goes into the order history with who
+set it. The order card says when the rest is due, turns red once it is overdue and offers a ready
+WhatsApp message to remind the customer. Next to bills to pay, the owner's Finance screen has
+Contas a receber (Receivables): what is overdue, what is due in the next 7 days and what customers
+paid this month, with tabs for open, overdue and received payments and a search by customer, device
+or order number. The dashboard's To receive figure turns red when a payment is overdue.
+
 Whoever signs in for the first time learns on their own. On the first visit to each main screen, a
 tour highlights the buttons one at a time and says what each one does, showing only what the
 person's role can see. The owner follows a getting-started checklist that ticks itself off as they

@@ -5,6 +5,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from bancada.financeiro.models import ContaAPagar, FormaDePagamentoDaConta, PagamentoDaConta
+from bancada.ordens.models import OrdemServico
 from bancada.tenants.models import Loja, Papel, Tenant
 
 ESCOLHA_A_FORMA = "Escolha como a conta foi paga."
@@ -194,3 +195,31 @@ class ContaAPagarSerializer(serializers.ModelSerializer):
 
     def get_dia_da_repeticao(self, obj: ContaAPagar) -> int | None:
         return obj.conta_fixa.dia if obj.repete and obj.conta_fixa is not None else None
+
+
+class ContaAReceberSerializer(serializers.ModelSerializer):
+    cliente_nome = serializers.CharField(source="cliente.nome", read_only=True)
+    cliente_telefone = serializers.CharField(source="cliente.telefone", read_only=True)
+    aparelho_descricao = serializers.CharField(source="aparelho.__str__", read_only=True)
+    loja_nome = serializers.CharField(source="loja.nome", read_only=True)
+    valor_pago = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    saldo = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    quitada_em = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = OrdemServico
+        fields = [
+            "id",
+            "numero",
+            "cliente_nome",
+            "cliente_telefone",
+            "aparelho_descricao",
+            "loja",
+            "loja_nome",
+            "valor_cobrado",
+            "valor_pago",
+            "saldo",
+            "pagamento_combinado_para",
+            "entregue_em",
+            "quitada_em",
+        ]

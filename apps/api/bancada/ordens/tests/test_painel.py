@@ -323,7 +323,39 @@ def test_a_receber_soma_o_que_falta_de_todas_as_entregas(
 
     dinheiro = painel(api_dono, periodo="hoje")["dinheiro"]
 
-    assert dinheiro["a_receber"] == {"valor": "290.00", "ordens": 2}
+    assert dinheiro["a_receber"] == {
+        "valor": "290.00",
+        "ordens": 2,
+        "vencidas": {"valor": "0.00", "ordens": 0},
+    }
+
+
+@pytest.mark.django_db
+def test_a_receber_separa_o_que_passou_da_data_combinada(
+    api_dono: APIClient, tenant: Tenant, loja: Loja, cliente: Cliente, aparelho: Aparelho
+) -> None:
+    vencida = entregar(
+        abrir(tenant, loja, cliente, aparelho),
+        aprovado="120.00",
+        cobrado="120.00",
+        pagamentos=[("pix", "20.00")],
+    )
+    no_prazo = entregar(
+        abrir(tenant, loja, cliente, aparelho), aprovado="80.00", cobrado="80.00", pagamentos=[]
+    )
+    hoje = timezone.localdate()
+    OrdemServico.objects.filter(pk=vencida.pk).update(
+        pagamento_combinado_para=hoje - timedelta(days=1)
+    )
+    OrdemServico.objects.filter(pk=no_prazo.pk).update(pagamento_combinado_para=hoje)
+
+    a_receber = painel(api_dono)["dinheiro"]["a_receber"]
+
+    assert a_receber == {
+        "valor": "180.00",
+        "ordens": 2,
+        "vencidas": {"valor": "100.00", "ordens": 1},
+    }
 
 
 @pytest.mark.django_db

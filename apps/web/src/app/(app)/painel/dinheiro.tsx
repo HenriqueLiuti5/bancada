@@ -11,7 +11,7 @@ import {
 } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Secao } from "@/componentes/ui/Secao";
-import { notaDoAPagar, totalAPagarLogo } from "@/lib/financeiro";
+import { linkDoAReceber, notaDoAPagar, notaDoAReceber, totalAPagarLogo } from "@/lib/financeiro";
 import { contagem, emPorcentagem } from "@/lib/formatos";
 import { emReais } from "@/lib/moeda";
 import type { Painel } from "@/lib/tipos";
@@ -80,7 +80,6 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
     ticket_medio: ticket,
     taxa_de_aprovacao: taxa,
   } = dinheiro;
-  const ordensAReceber = contagem(aReceber.ordens, "ordem entregue", "ordens entregues");
 
   return (
     <Secao
@@ -112,8 +111,9 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
           icone={HandCoinsIcon}
           valor={emReais(aReceber.valor)}
           dinheiro
-          nota={`${ordensAReceber} sem pagamento completo`}
-          href={aReceber.ordens > 0 ? "/ordens?situacao=a_receber" : undefined}
+          alerta={aReceber.vencidas.ordens > 0}
+          nota={notaDoAReceber(aReceber)}
+          href={linkDoAReceber(aReceber)}
         />
         <Indicador
           rotulo="A pagar logo"

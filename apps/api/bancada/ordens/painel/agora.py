@@ -2,8 +2,15 @@ from decimal import Decimal
 from typing import Any
 
 from django.db.models import Count, F, Q, QuerySet, Sum
+from django.utils import timezone
 
-from bancada.ordens.consultas import abertas, atrasadas, com_saldo_a_receber, para_hoje
+from bancada.ordens.consultas import (
+    abertas,
+    atrasadas,
+    com_saldo_a_receber,
+    pagamento_vencido,
+    para_hoje,
+)
 from bancada.ordens.estados import StatusOS
 from bancada.ordens.models import ItemOrcamento, OrdemServico
 
@@ -41,11 +48,22 @@ def valor_aprovado_em_aberto(consulta: QuerySet[OrdemServico]) -> Decimal:
 
 
 def a_receber(consulta: QuerySet[OrdemServico]) -> dict[str, Any]:
+    saldo = F("valor_cobrado") - F("valor_pago")
+    vencido = pagamento_vencido(timezone.localdate())
     pendentes = com_saldo_a_receber(consulta).aggregate(
-        valor=Sum(F("valor_cobrado") - F("valor_pago")),
+        valor=Sum(saldo),
         ordens=Count("id"),
+        vencidas_valor=Sum(saldo, filter=vencido),
+        vencidas_ordens=Count("id", filter=vencido),
     )
-    return {"valor": str(pendentes["valor"] or Decimal("0.00")), "ordens": pendentes["ordens"]}
+    return {
+        "valor": str(pendentes["valor"] or Decimal("0.00")),
+        "ordens": pendentes["ordens"],
+        "vencidas": {
+            "valor": str(pendentes["vencidas_valor"] or Decimal("0.00")),
+            "ordens": pendentes["vencidas_ordens"],
+        },
+    }
 
 
 def numeros(consulta: QuerySet[OrdemServico]) -> dict[str, Any]:

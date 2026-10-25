@@ -3,6 +3,7 @@ import {
   abrirComOProblema,
   cartao,
   criarConta,
+  diaDaquiA,
   donoNovo,
   expect,
   fotoDoAparelho,
@@ -194,6 +195,7 @@ test("cada formulário mostra o que foi salvo e, quando o envio é recusado, con
     await colega.goto(page.url());
     await colega.getByRole("button", { name: "Entregar ao cliente" }).click();
     await colega.getByRole("textbox", { name: "Valor pago nessa forma" }).fill("50,00");
+    await colega.getByLabel("Quando o cliente vai pagar o resto?").fill(diaDaquiA(2));
     await avancar(colega, "Confirmar entrega", /Falta receber/);
     await colega.close();
 
