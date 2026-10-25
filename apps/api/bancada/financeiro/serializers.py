@@ -1,26 +1,41 @@
+from datetime import date
 from decimal import Decimal
 from typing import Any
 
 from django.utils import timezone
 from rest_framework import serializers
 
-from bancada.financeiro.models import ContaAPagar, FormaDePagamentoDaConta, PagamentoDaConta
+from bancada.financeiro.models import (
+    ConferenciaDoCaixa,
+    ContaAPagar,
+    FormaDePagamentoDaConta,
+    MovimentoDoCaixa,
+    PagamentoDaConta,
+)
 from bancada.ordens.models import OrdemServico
 from bancada.tenants.models import Loja, Papel, Tenant
 
 ESCOLHA_A_FORMA = "Escolha como a conta foi paga."
 
 
-def campo_de_valor(**opcoes: Any) -> serializers.DecimalField:
+def campo_de_valor(
+    obrigatorio: str = "Informe o valor da conta.",
+    minimo: Decimal = Decimal("0.01"),
+    **opcoes: Any,
+) -> serializers.DecimalField:
     return serializers.DecimalField(
         max_digits=10,
         decimal_places=2,
-        min_value=Decimal("0.01"),
+        min_value=minimo,
         error_messages={
-            "required": "Informe o valor da conta.",
-            "null": "Informe o valor da conta.",
+            "required": obrigatorio,
+            "null": obrigatorio,
             "invalid": "Escreva só o número, como 150,00.",
-            "min_value": "O valor precisa ser maior que zero.",
+            "min_value": (
+                "O valor precisa ser maior que zero."
+                if minimo
+                else "O valor não pode ser negativo."
+            ),
             "max_digits": "Valor alto demais.",
             "max_whole_digits": "Valor alto demais.",
         },
@@ -195,6 +210,140 @@ class ContaAPagarSerializer(serializers.ModelSerializer):
 
     def get_dia_da_repeticao(self, obj: ContaAPagar) -> int | None:
         return obj.conta_fixa.dia if obj.repete and obj.conta_fixa is not None else None
+
+
+def loja_ativa_da_assistencia(loja: Loja, tenant: Tenant) -> Loja:
+    if loja.tenant_id != tenant.pk:
+        raise serializers.ValidationError("Não pertence à sua assistência.")
+    if not loja.ativa:
+        raise serializers.ValidationError("Esta loja foi desativada.")
+    return loja
+
+
+class MovimentoDoCaixaSerializer(serializers.ModelSerializer):
+    valor = campo_de_valor("Informe o valor.")
+    tipo_rotulo = serializers.CharField(source="get_tipo_display", read_only=True)
+    registrado_por = serializers.CharField(
+        source="registrado_por.nome_de_exibicao", read_only=True, default=None
+    )
+
+    class Meta:
+        model = MovimentoDoCaixa
+        fields = [
+            "id",
+            "loja",
+            "tipo",
+            "tipo_rotulo",
+            "valor",
+            "motivo",
+            "registrado_por",
+            "criado_em",
+        ]
+        extra_kwargs = {
+            "tipo": {
+                "error_messages": {
+                    "required": "Escolha retirada ou reforço.",
+                    "invalid_choice": "Escolha retirada ou reforço.",
+                }
+            },
+            "motivo": {"required": False},
+        }
+
+    def validate_loja(self, loja: Loja) -> Loja:
+        return loja_ativa_da_assistencia(loja, self.context["tenant"])
+
+
+class NovaConferenciaSerializer(serializers.Serializer):
+    loja = serializers.PrimaryKeyRelatedField(queryset=Loja.objects.all())
+    contado = campo_de_valor("Informe quanto dinheiro tem na gaveta.", minimo=Decimal("0"))
+    retirado = campo_de_valor(
+        "Informe quanto vai tirar.", minimo=Decimal("0"), required=False, default=Decimal("0")
+    )
+    observacao = serializers.CharField(max_length=200, required=False, allow_blank=True, default="")
+
+    def validate_loja(self, loja: Loja) -> Loja:
+        return loja_ativa_da_assistencia(loja, self.context["tenant"])
+
+    def validate(self, attrs: dict) -> dict:
+        if attrs["retirado"] > attrs["contado"]:
+            raise serializers.ValidationError(
+                {"retirado": "Não dá para tirar mais do que tem na gaveta."}
+            )
+        return attrs
+
+
+# A equipe conta o dinheiro sem ver quanto devia ter: o esperado e a diferença são só do dono.
+class ConferenciaDaEquipeSerializer(serializers.ModelSerializer):
+    retirado = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    conferida_por = serializers.CharField(
+        source="conferida_por.nome_de_exibicao", read_only=True, default=None
+    )
+
+    class Meta:
+        model = ConferenciaDoCaixa
+        fields = [
+            "id",
+            "loja",
+            "dia",
+            "contado",
+            "na_gaveta",
+            "retirado",
+            "observacao",
+            "conferida_por",
+            "criado_em",
+        ]
+
+
+class ConferenciaSerializer(ConferenciaDaEquipeSerializer):
+    diferenca = serializers.DecimalField(
+        max_digits=12, decimal_places=2, read_only=True, allow_null=True
+    )
+
+    class Meta(ConferenciaDaEquipeSerializer.Meta):
+        fields = [*ConferenciaDaEquipeSerializer.Meta.fields, "esperado", "diferenca"]
+
+
+class MovimentoDoDiaSerializer(serializers.Serializer):
+    momento = serializers.DateTimeField(allow_null=True)
+    tipo = serializers.CharField()
+    descricao = serializers.CharField()
+    forma = serializers.CharField()
+    forma_rotulo = serializers.SerializerMethodField()
+    valor = serializers.DecimalField(max_digits=12, decimal_places=2)
+    usuario = serializers.CharField(allow_null=True)
+    ordem = serializers.IntegerField(allow_null=True)
+    venda = serializers.IntegerField(allow_null=True)
+    conta = serializers.IntegerField(allow_null=True)
+    movimento = serializers.IntegerField(allow_null=True)
+
+    def get_forma_rotulo(self, obj: Any) -> str:
+        return str(FormaDePagamentoDaConta(obj.forma).label)
+
+
+ESCOLHA_A_LOJA = "Escolha a loja."
+
+
+class FiltroDoCaixaSerializer(serializers.Serializer):
+    loja = serializers.PrimaryKeyRelatedField(
+        queryset=Loja.objects.all(),
+        error_messages={
+            "required": ESCOLHA_A_LOJA,
+            "null": ESCOLHA_A_LOJA,
+            "does_not_exist": ESCOLHA_A_LOJA,
+            "incorrect_type": ESCOLHA_A_LOJA,
+        },
+    )
+    dia = serializers.DateField(required=False, error_messages={"invalid": "Escolha o dia."})
+
+    def validate_loja(self, loja: Loja) -> Loja:
+        if loja.tenant_id != self.context["tenant"].pk:
+            raise serializers.ValidationError("Não pertence à sua assistência.")
+        return loja
+
+    def validate_dia(self, dia: date) -> date:
+        if dia > timezone.localdate():
+            raise serializers.ValidationError("O caixa de um dia que ainda não chegou está vazio.")
+        return dia
 
 
 class ContaAReceberSerializer(serializers.ModelSerializer):

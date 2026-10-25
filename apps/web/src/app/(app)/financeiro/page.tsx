@@ -12,7 +12,6 @@ import {
   PlusIcon,
   ReceiptIcon,
 } from "@/componentes/icones";
-import { CabecalhoDaPagina } from "@/componentes/ui/CabecalhoDaPagina";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Mensagem } from "@/componentes/ui/Mensagem";
@@ -82,7 +81,9 @@ async function LancamentoPelaEquipe({ hoje }: { hoje: string }) {
 
   return (
     <>
-      <CabecalhoDaPagina
+      <CabecalhoDoFinanceiro
+        ativa="lancar"
+        dono={false}
         titulo="Lançar conta"
         descricao="Chegou um boleto ou pagou alguma coisa com o dinheiro da loja? Lance aqui. Só o dono vê a lista e os totais."
       />
@@ -244,6 +245,7 @@ export default async function ContasAPagar({ searchParams }: { searchParams: Pro
     <>
       <CabecalhoDoFinanceiro
         ativa="a_pagar"
+        dono
         titulo="Contas a pagar"
         descricao="As contas da loja, com o que vence primeiro no alto. Só quem é dono vê esta tela."
         acoes={

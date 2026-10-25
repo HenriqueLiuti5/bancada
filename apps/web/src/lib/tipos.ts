@@ -336,6 +336,74 @@ export type ContaAReceber = {
 
 export type TotalAReceber = { valor: string; ordens: number };
 
+export type MovimentoDoCaixa = {
+  id: number;
+  loja: number;
+  tipo: "retirada" | "reforco";
+  tipo_rotulo: string;
+  valor: string;
+  motivo: string;
+  registrado_por: string | null;
+  criado_em: string;
+};
+
+export type ConferenciaDoCaixa = {
+  id: number;
+  loja: number;
+  dia: string;
+  contado: string;
+  na_gaveta: string;
+  retirado: string;
+  observacao: string;
+  conferida_por: string | null;
+  criado_em: string;
+  esperado?: string | null;
+  diferenca?: string | null;
+};
+
+export type MovimentoDoDia = {
+  momento: string | null;
+  tipo: "ordem" | "venda" | "venda_desfeita" | "conta" | "retirada" | "reforco";
+  descricao: string;
+  forma: string;
+  forma_rotulo: string;
+  valor: string;
+  usuario: string | null;
+  ordem: number | null;
+  venda: number | null;
+  conta: number | null;
+  movimento: number | null;
+};
+
+export type CaixaDoDia = {
+  dia: string;
+  gaveta: {
+    comeco: string | null;
+    entrou: string;
+    saiu: string;
+    retiradas: string;
+    reforcos: string;
+    depois_da_conferencia: string | null;
+    deve_ter: string | null;
+  };
+  por_forma: { forma: string; rotulo: string; entrou: string; saiu: string }[];
+  conferencias: ConferenciaDoCaixa[];
+  movimentos: MovimentoDoDia[];
+};
+
+export type CaixaDeHoje = {
+  dia: string;
+  movimentos: MovimentoDoCaixa[];
+  conferencias: ConferenciaDoCaixa[];
+};
+
+export type CaixaDaLoja = {
+  loja: number;
+  loja_nome: string;
+  conferida_em: string | null;
+  diferenca: string | null;
+};
+
 export type ResumoDoAReceber = {
   vencidas: TotalAReceber;
   proximos_dias: TotalAReceber;
@@ -397,6 +465,7 @@ export type Painel = {
     taxa_de_aprovacao: Comparacao<number | null>;
     a_receber: TotalAReceber & { vencidas: TotalAReceber };
     a_pagar: Pick<ResumoDasContas, "vencidas" | "proximos_dias">;
+    caixa: CaixaDaLoja[];
     aprovado_em_aberto: string;
   };
   equipe?: LinhaDaEquipe[];

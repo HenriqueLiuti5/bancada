@@ -131,7 +131,9 @@ export default async function PainelDaLoja({
         </div>
 
         <Agora agora={painel.agora} estoque={painel.estoque} />
-        {painel.dinheiro && <SecaoDinheiro dinheiro={painel.dinheiro} />}
+        {painel.dinheiro && (
+          <SecaoDinheiro dinheiro={painel.dinheiro} fuso={fusoDaAssistencia(usuario)} />
+        )}
         <SecaoOperacao painel={painel} />
         {painel.equipe && <SecaoEquipe equipe={painel.equipe} />}
         <SecaoAtendimento atendimento={painel.atendimento} />

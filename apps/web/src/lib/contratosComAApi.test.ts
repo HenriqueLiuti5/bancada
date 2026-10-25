@@ -55,7 +55,7 @@ function comoNaApi(opcoes: Opcao[]): [string, string][] {
 }
 
 function toursDaApi(): string[] {
-  const lista = /^TOURS = \[(.+)\]$/m.exec(codigoDaApi("orientacao/serializers.py"))?.[1];
+  const lista = /^TOURS = \[([^\]]+)\]$/m.exec(codigoDaApi("orientacao/serializers.py"))?.[1];
   if (!lista) throw new Error("TOURS não aparece em apps/api/bancada/orientacao/serializers.py");
   return [...lista.matchAll(/"([^"]+)"/g)].map(([, nome]) => nome).sort();
 }

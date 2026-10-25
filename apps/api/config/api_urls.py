@@ -11,7 +11,14 @@ from bancada.assinaturas.views import (
 )
 from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
 from bancada.estoque.views import ProdutoViewSet, VendaViewSet
-from bancada.financeiro.views import ContaAPagarViewSet, ContaAReceberViewSet
+from bancada.financeiro.views import (
+    CaixaDeHojeView,
+    CaixaDoDiaView,
+    ConferenciaDoCaixaViewSet,
+    ContaAPagarViewSet,
+    ContaAReceberViewSet,
+    MovimentoDoCaixaViewSet,
+)
 from bancada.ordens.views import (
     FotoViewSet,
     ItemOrcamentoViewSet,
@@ -61,6 +68,8 @@ router.register("produtos", ProdutoViewSet, basename="produto")
 router.register("vendas", VendaViewSet, basename="venda")
 router.register("contas-a-pagar", ContaAPagarViewSet, basename="conta-a-pagar")
 router.register("contas-a-receber", ContaAReceberViewSet, basename="conta-a-receber")
+router.register("caixa/movimentos", MovimentoDoCaixaViewSet, basename="movimento-do-caixa")
+router.register("caixa/conferencias", ConferenciaDoCaixaViewSet, basename="conferencia-do-caixa")
 router.register("usuarios", UsuarioViewSet, basename="usuario")
 router.register("convites", ConviteViewSet, basename="convite")
 
@@ -78,6 +87,8 @@ urlpatterns = [
     path("lojas/", LojasView.as_view(), name="lojas"),
     path("lojas/<int:pk>/", LojaView.as_view(), name="loja"),
     path("equipe/", EquipeView.as_view(), name="equipe"),
+    path("caixa/", CaixaDoDiaView.as_view(), name="caixa-do-dia"),
+    path("caixa/hoje/", CaixaDeHojeView.as_view(), name="caixa-de-hoje"),
     path("orientacao/tours/", TourVistoView.as_view(), name="tour-visto"),
     path(
         "orientacao/primeiros-passos/",

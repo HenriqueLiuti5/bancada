@@ -140,6 +140,15 @@ Contas a receber (Receivables): what is overdue, what is due in the next 7 days 
 paid this month, with tabs for open, overdue and received payments and a search by customer, device
 or order number. The dashboard's To receive figure turns red when a payment is overdue.
 
+The Caixa do dia (Daily cash) tab shows the owner each store's cash drawer: what it started the day
+with, the cash that came in and went out, withdrawals and top-ups, each count and how much should be
+there now, plus the totals by payment method and every movement of the day with who did it. Nobody
+has to open the register: a store's first count is the starting point, and each count starts from
+what was left in the drawer at the previous one, after whoever counted took some to the safe or the
+bank. Technicians and front desk staff record withdrawals, top-ups and counts without seeing how
+much there should be; only the owner sees whether it matched. The dashboard's Cash figure shows the
+difference at each store's last count and turns red when money was missing.
+
 Whoever signs in for the first time learns on their own. On the first visit to each main screen, a
 tour highlights the buttons one at a time and says what each one does, showing only what the
 person's role can see. The owner follows a getting-started checklist that ticks itself off as they

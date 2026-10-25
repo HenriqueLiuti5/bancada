@@ -52,7 +52,7 @@ from bancada.ordens.serializers import (
     TransicaoSerializer,
     TrocaDeClienteSerializer,
 )
-from bancada.tenants.models import Papel, Usuario
+from bancada.tenants.models import Loja, Papel, Usuario
 from bancada.tenants.permissoes import ApagarSoDonoOuTecnico, ApenasDono, papel_do_pedido
 
 
@@ -153,10 +153,12 @@ class OrdemServicoViewSet(ViewSetDoTenant):
         base = OrdemServico.objects.filter(tenant=tenant)
         vendas = Venda.objects.filter(tenant=tenant)
         contas = ContaAPagar.objects.filter(tenant=tenant)
+        lojas = Loja.objects.filter(tenant=tenant, ativa=True)
         if "loja" in escolhas:
             base = base.filter(loja=escolhas["loja"])
             vendas = vendas.filter(loja=escolhas["loja"])
             contas = contas.filter(loja=escolhas["loja"])
+            lojas = Loja.objects.filter(pk=escolhas["loja"].pk)
 
         return Response(
             numeros_do_painel(
@@ -164,6 +166,7 @@ class OrdemServicoViewSet(ViewSetDoTenant):
                 vendas=vendas,
                 produtos=Produto.objects.filter(tenant=tenant),
                 contas=contas,
+                lojas=lojas,
                 chave=escolhas["periodo"],
                 atual=escolhas["atual"],
                 anterior=escolhas["anterior"],

@@ -120,10 +120,58 @@ dois contarem o mesmo (ADR 0021).
 então os que vêm depois são o cliente pagando o que ficou devendo. É essa a regra do recebido no mês e
 das Recebidas.
 
-### As próximas partes
+### Parte 3: caixa do dia
 
-A parte 3 mostra o caixa do dia e a conferência do dinheiro. A parte 4 leva o lucro do mês ao painel.
-Cada uma acrescenta aqui o que decidiu.
+No começo da parte, em 25 de outubro de 2026, o Henrique decidiu que técnico e atendente contam o
+dinheiro sem ver quanto devia ter, o chamado fechamento cego, e que o painel do dono mostra a última
+conferência de cada loja, em vermelho quando faltou dinheiro.
+
+**A gaveta.** Cada loja tem a sua gaveta, e só o dinheiro em espécie passa por ela: entram os
+pagamentos das ordens e as vendas no balcão pagos em dinheiro; saem as contas pagas em dinheiro e as
+vendas desfeitas, devolvidas no dia em que foram desfeitas. A retirada (`MovimentoDoCaixa`) é o
+dinheiro que sai sem ser despesa, como o depósito no banco, e o reforço, o que entra sem ser venda,
+como o troco trazido de fora. Com uma loja só, as contas de toda a assistência saem da gaveta dela;
+com mais de uma, só as contas da própria loja. As pagas até o dia em que a segunda loja foi criada
+continuam saindo da gaveta da primeira, para a loja nova não mudar o que já tinha sido conferido.
+
+**A conferência.** Ninguém abre o caixa. Quem confere conta o dinheiro e diz quanto vai tirar para o
+cofre ou o banco; o resto fica na gaveta, de troco para o dia seguinte (`ConferenciaDoCaixa`). A
+primeira contagem da loja é o ponto de partida e não tem com o que comparar. Nas seguintes, o que
+devia haver parte do que ficou na gaveta na anterior e soma o dinheiro que entrou e saiu depois
+dela. A conferência guarda o que devia haver e o dinheiro que tinha entrado e saído no dia até a
+hora da contagem, e o que é registrado depois, mesmo com a data daquele dia, como uma conta paga,
+entra depois dela. Contar de novo no mesmo dia vale, e cada contagem fica guardada; a última é a que
+vale para a seguinte. A conferência errada não se apaga: conta-se de novo. A trava na loja faz duas
+contagens ao mesmo tempo esperarem uma pela outra.
+
+**Quem vê o quê.** Toda a equipe registra retiradas, reforços e conferências. Para técnico e
+atendente, a API responde a conferência sem o que devia haver e sem a diferença, e a rota do dia
+deles, `/api/caixa/hoje/`, traz só as retiradas, os reforços e as contagens de hoje. O resumo do dia,
+a lista das conferências com a diferença e a remoção da retirada ou do reforço lançado errado são do
+dono, e a API recusa os outros papéis, como nas contas (parte 1). A remoção fica na auditoria, com a
+ação nova `movimento_do_caixa_removido`.
+
+**A tela.** O Financeiro ganhou a aba Caixa do dia, para toda a equipe. O dono vê a gaveta da loja,
+com quanto começou o dia, o dinheiro que entrou e saiu, as retiradas, os reforços, cada conferência
+com o resultado e quanto deve ter agora; o que entrou e saiu em cada forma de pagamento; cada
+movimento do dia, com quem fez e o link para a ordem, a venda ou a conta; e as últimas conferências
+da loja. As setas levam aos outros dias, e a escolha da loja aparece quando há mais de uma. Técnico
+e atendente veem os botões Conferir a gaveta, Retirada e Reforço e o que foi registrado hoje, sem
+valores esperados. Na equipe, a tela Financeiro passou a ter as abas Lançar conta e Caixa do dia. No
+celular, as três abas do dono não cabiam: Contas a pagar e Contas a receber aparecem como A pagar e A
+receber, e o leitor de tela continua lendo o nome inteiro. Um tour novo apresenta a tela, com paradas
+para o dono e para a equipe (ADR 0020), e o tour do Financeiro ganhou uma parada da aba para a
+equipe.
+
+**O painel.** Caixa mostra a diferença da última conferência: com uma loja, quanto sobrou ou faltou
+e quando; com várias, a soma do que faltou, em vermelho, ou do que sobrou. Com seis números em
+reais, a seção Dinheiro não cabia em uma linha e passou a ficar em duas linhas de três.
+
+**O isolamento.** As duas tabelas novas têm a assistência em cada linha e a trava do banco (ADR 0009).
+
+### A próxima parte
+
+A parte 4 leva o lucro do mês ao painel e acrescenta aqui o que decidir.
 
 ## Consequências
 
@@ -173,6 +221,24 @@ assistências, ainda abaixo das 30 por hora da CI.
 No `semear_movimento`, uma parte das entregas fica devendo tudo ou metade, com o dia combinado, e boa
 parte delas é paga perto do dia, para a tela não nascer vazia.
 
+Na parte 3, a API ganhou 19 testes: quem registra e quem remove, as recusas, o ponto de partida, a
+contagem cega, o que devia haver com o dinheiro antes e depois da contagem, a recontagem, os dias
+sem conferência, a gaveta de cada loja, as contas de toda a assistência com uma loja e depois da
+segunda, o resumo por forma e por movimento, a lista das conferências, o dia que não chegou, o
+painel, o isolamento e a trava do banco. No site, o resultado da conferência, a hora no fuso da
+assistência, o aviso do painel e o link de cada movimento têm testes de unidade, e o teste de
+contrato confere o tour novo, `caixa`, com a lista de tours da API agora em várias linhas. O teste de
+navegador novo, `e2e/caixa.spec.ts`, registra a primeira conferência, um reforço, uma conta paga em
+dinheiro e uma retirada, convida uma atendente que conta a gaveta sem ver quanto devia ter e confere
+o que faltou na tela do dono e no painel, no computador e no celular. Cada execução completa dos
+testes de navegador cria agora dezesseis assistências, ainda abaixo das 30 por hora da CI.
+
+As conferências de exemplo entram na 4R, com as contas.
+
+Ficaram de fora da parte 3: a contagem nota por nota, o fechamento impresso, o aviso por e-mail ou
+WhatsApp quando falta dinheiro, uma gaveta para cada pessoa ou cada máquina e a conferência das
+maquininhas com o extrato.
+
 ## Alternativas consideradas
 
 **Só o dono lançar as contas.** Era a recomendação, pelos salários. O Henrique preferiu que a equipe
@@ -203,3 +269,13 @@ fiado.
 
 **Só o dono mudar o dia.** O cliente que pede mais prazo costuma falar com quem está no balcão, e o
 registro no histórico mostra ao dono quem mudou.
+
+**Abrir e fechar o caixa.** É o modelo do GestãoClick. O Henrique preferiu que ninguém precise abrir
+o caixa para trabalhar: a última contagem já diz com quanto a gaveta começa.
+
+**A equipe ver quanto devia ter.** Quem conta sabendo o número tende a chegar nele. Com a contagem
+cega, a diferença aparece para o dono como foi.
+
+**Um saldo guardado, atualizado a cada movimento.** Seria preciso mexer nele em cada pagamento,
+venda, venda desfeita, conta e correção, e um esquecimento o deixaria errado para sempre. Partir da
+última contagem e somar os registros mantém uma fonte só para o que devia haver.

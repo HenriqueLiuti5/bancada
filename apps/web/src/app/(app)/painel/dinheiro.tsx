@@ -1,6 +1,7 @@
 import { BarrasHorizontais } from "@/componentes/BarrasHorizontais";
 import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
 import {
+  CashRegisterIcon,
   HandCoinsIcon,
   InvoiceIcon,
   MoneyIcon,
@@ -11,6 +12,8 @@ import {
 } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { Secao } from "@/componentes/ui/Secao";
+import { avisoDoCaixa } from "@/lib/caixa";
+import { hojeEmIso } from "@/lib/datas";
 import { linkDoAReceber, notaDoAPagar, notaDoAReceber, totalAPagarLogo } from "@/lib/financeiro";
 import { contagem, emPorcentagem } from "@/lib/formatos";
 import { emReais } from "@/lib/moeda";
@@ -73,13 +76,14 @@ function Recebido({ dinheiro }: { dinheiro: Dinheiro }) {
   );
 }
 
-export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
+export function SecaoDinheiro({ dinheiro, fuso }: { dinheiro: Dinheiro; fuso: string }) {
   const {
     a_receber: aReceber,
     a_pagar: aPagar,
     ticket_medio: ticket,
     taxa_de_aprovacao: taxa,
   } = dinheiro;
+  const caixa = avisoDoCaixa(dinheiro.caixa, hojeEmIso(fuso), fuso);
 
   return (
     <Secao
@@ -105,7 +109,16 @@ export function SecaoDinheiro({ dinheiro }: { dinheiro: Dinheiro }) {
         </Cartao>
       </div>
 
-      <GradeDeIndicadores colunas={5}>
+      <GradeDeIndicadores colunas="3x2">
+        <Indicador
+          rotulo="Caixa"
+          icone={CashRegisterIcon}
+          valor={caixa.valor}
+          dinheiro={caixa.valor !== "—"}
+          alerta={caixa.alerta}
+          nota={caixa.nota}
+          href="/financeiro/caixa"
+        />
         <Indicador
           rotulo="A receber"
           icone={HandCoinsIcon}

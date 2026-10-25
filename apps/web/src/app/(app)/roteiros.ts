@@ -6,7 +6,8 @@ export type NomeDoTour =
   | "equipe"
   | "estoque"
   | "financeiro"
-  | "a-receber";
+  | "a-receber"
+  | "caixa";
 
 export type Lado = "baixo" | "cima" | "direita" | "esquerda";
 
@@ -247,9 +248,9 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
     {
       alvo: "abas-do-financeiro",
       papeis: ["dono"],
-      titulo: "Contas a receber",
+      titulo: "Contas a receber e caixa",
       texto:
-        "As ordens entregues que o cliente ainda não pagou inteiras ficam em Contas a receber, com o dia combinado para pagar.",
+        "Em Contas a receber ficam as ordens que o cliente ainda não pagou inteiras, com o dia combinado. Em Caixa do dia, o dinheiro da gaveta de cada loja.",
     },
     {
       alvo: "conta-da-equipe",
@@ -257,6 +258,13 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       titulo: "Lançar conta",
       texto:
         "Lance a conta com o valor e o vencimento. Se o dinheiro já saiu da loja, como no motoboy pago na hora, marque Já está paga e diga como foi pago.",
+    },
+    {
+      alvo: "abas-do-financeiro",
+      papeis: ["tecnico", "atendente"],
+      titulo: "Caixa do dia",
+      texto:
+        "Em Caixa do dia você registra o dinheiro que sai ou entra na gaveta e conta o dinheiro no fim do dia.",
     },
   ],
   "a-receber": [
@@ -273,6 +281,36 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       titulo: "Quem está devendo",
       texto:
         "O dia combinado que vence primeiro fica no alto. Clique numa ordem para registrar o pagamento, mudar o dia ou cobrar o cliente pelo WhatsApp.",
+    },
+  ],
+  caixa: [
+    {
+      alvo: "gaveta-do-dia",
+      papeis: ["dono"],
+      titulo: "Caixa do dia",
+      texto:
+        "Com quanto a gaveta começou o dia, o dinheiro que entrou e saiu e quanto deve ter agora. Ninguém precisa abrir o caixa: a última contagem é o ponto de partida.",
+    },
+    {
+      alvo: "acoes-do-caixa",
+      papeis: ["dono"],
+      titulo: "Conferir a gaveta",
+      texto:
+        "No fim do dia, alguém conta o dinheiro e registra aqui. A equipe conta sem ver quanto devia ter; só você vê se bateu. Retirada é o dinheiro que sai, como o que vai para o banco; reforço é o que entra para troco.",
+    },
+    {
+      alvo: "acoes-do-caixa",
+      papeis: ["tecnico", "atendente"],
+      titulo: "Caixa do dia",
+      texto:
+        "No fim do dia, conte o dinheiro da gaveta e registre aqui. Retirada é o dinheiro que sai, como o que vai para o banco; reforço é o que entra para troco. O dono confere se bateu.",
+    },
+    {
+      alvo: "movimentos-do-dia",
+      papeis: ["dono"],
+      titulo: "Tudo o que mexeu no caixa",
+      texto:
+        "Cada ordem paga, venda, conta paga, retirada e reforço do dia, em cada forma de pagamento. Use as setas para ver os outros dias.",
     },
   ],
 };

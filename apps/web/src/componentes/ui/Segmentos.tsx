@@ -11,13 +11,17 @@ export function Segmentos({ children, tour }: { children: React.ReactNode; tour?
   );
 }
 
+// O rótulo curto aparece no lugar do outro no celular, quando os segmentos não cabem na largura;
+// o leitor de tela continua lendo o rótulo inteiro.
 export function Segmento({
   href,
   ativo,
+  curto,
   children,
 }: {
   href: string;
   ativo: boolean;
+  curto?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -30,7 +34,16 @@ export function Segmento({
           : "shrink-0 rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap text-texto-apagado transition-colors hover:text-texto sm:py-1.5 sm:text-[13px]"
       }
     >
-      {children}
+      {curto ? (
+        <>
+          <span aria-hidden className="sm:hidden">
+            {curto}
+          </span>
+          <span className="max-sm:sr-only">{children}</span>
+        </>
+      ) : (
+        children
+      )}
     </Link>
   );
 }

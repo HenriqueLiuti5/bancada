@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from decimal import Decimal
 from typing import Any
 
@@ -7,10 +7,11 @@ from django.utils import timezone
 
 from bancada.estoque.models import Produto, Venda, para_repor
 from bancada.financeiro import consultas as contas_a_pagar
-from bancada.financeiro.models import ContaAPagar
+from bancada.financeiro.models import ConferenciaDoCaixa, ContaAPagar
 from bancada.ordens.models import OrdemServico
 from bancada.ordens.painel import agora, atendimento, dinheiro, equipe, operacao
 from bancada.ordens.painel.periodo import Periodo
+from bancada.tenants.models import Loja
 
 
 def serializavel(valor: object) -> object:
@@ -64,12 +65,30 @@ def _a_pagar(contas: QuerySet[ContaAPagar]) -> dict[str, Any]:
     return {"vencidas": resumo["vencidas"], "proximos_dias": resumo["proximos_dias"]}
 
 
+# A última contagem da gaveta de cada loja, para o dono ver se faltou dinheiro.
+def _caixa(lojas: Iterable[Loja]) -> list[dict[str, Any]]:
+    linhas = []
+    for loja in lojas:
+        ultima = ConferenciaDoCaixa.ultima(loja)
+        diferenca = None if ultima is None else ultima.diferenca
+        linhas.append(
+            {
+                "loja": loja.pk,
+                "loja_nome": loja.nome,
+                "conferida_em": None if ultima is None else ultima.criado_em.isoformat(),
+                "diferenca": None if diferenca is None else str(diferenca),
+            }
+        )
+    return linhas
+
+
 # O recebido soma o que entrou pelas ordens e pelas vendas no balcão. O balcão também aparece à
 # parte, para o dono ver quanto dele veio das vendas de acessórios.
 def _dinheiro(
     consulta: QuerySet[OrdemServico],
     vendas: QuerySet[Venda],
     contas: QuerySet[ContaAPagar],
+    lojas: Iterable[Loja],
     atual: Periodo,
     anterior: Periodo,
 ) -> dict[str, Any]:
@@ -91,6 +110,7 @@ def _dinheiro(
         "taxa_de_aprovacao": comparar(dinheiro.taxa_de_aprovacao, consulta, atual, anterior),
         "a_receber": agora.a_receber(consulta),
         "a_pagar": _a_pagar(contas),
+        "caixa": _caixa(lojas),
         "aprovado_em_aberto": str(agora.valor_aprovado_em_aberto(consulta)),
     }
 
@@ -101,6 +121,7 @@ def numeros(
     vendas: QuerySet[Venda],
     produtos: QuerySet[Produto],
     contas: QuerySet[ContaAPagar],
+    lojas: Iterable[Loja],
     chave: str,
     atual: Periodo,
     anterior: Periodo,
@@ -114,6 +135,6 @@ def numeros(
         "atendimento": _atendimento(consulta, atual),
     }
     if com_dinheiro:
-        resposta["dinheiro"] = _dinheiro(consulta, vendas, contas, atual, anterior)
+        resposta["dinheiro"] = _dinheiro(consulta, vendas, contas, lojas, atual, anterior)
         resposta["equipe"] = equipe.por_tecnico(consulta, atual)
     return resposta

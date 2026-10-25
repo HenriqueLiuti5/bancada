@@ -248,6 +248,7 @@ export default async function ContasAReceber({ searchParams }: { searchParams: P
     <>
       <CabecalhoDoFinanceiro
         ativa="a_receber"
+        dono
         titulo="Contas a receber"
         descricao="O que os clientes ficaram devendo nas ordens entregues, com o dia combinado que vence primeiro no alto. Só quem é dono vê esta tela."
       />

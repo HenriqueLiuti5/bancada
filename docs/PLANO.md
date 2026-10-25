@@ -495,7 +495,7 @@ A fase é feita em quatro partes, uma de cada vez:
 2. Contas a receber num lugar só: o que falta receber das ordens, com a data combinada para pagar e
    o aviso do que venceu (concluída).
 3. Caixa do dia: o que entrou e o que saiu em cada forma de pagamento, a conferência do dinheiro da
-   gaveta no fim do dia e as retiradas e reforços.
+   gaveta no fim do dia e as retiradas e reforços (concluída).
 4. Lucro do mês no painel: o que entrou menos as despesas e o custo das peças.
 
 Na entrega da parte 1:
@@ -535,6 +535,28 @@ equipe o muda e que a ordem cobra o cliente pelo WhatsApp. Na entrega da parte 2
 - Dados de exemplo com contas a receber vencidas, a vencer e quitadas.
 - Testes da API, das contas do site e um teste de navegador do caminho inteiro, no computador e no
   celular (ADR 0037).
+
+No começo da parte 3, o Henrique decidiu que técnico e atendente contam o dinheiro da gaveta sem ver
+quanto devia ter e que o painel do dono avisa quando faltou dinheiro. Na entrega da parte 3:
+
+- Caixa do dia, ao lado das contas, no Financeiro. O dono vê a gaveta de cada loja: com quanto
+  começou o dia, o dinheiro que entrou e saiu, as retiradas, os reforços, cada conferência e quanto
+  deve ter agora. Vê também o que entrou e saiu em cada forma de pagamento e cada ordem paga, venda,
+  venda desfeita, conta paga, retirada e reforço do dia, com quem fez. As setas mostram os outros
+  dias.
+- Ninguém abre o caixa: a primeira contagem da loja é o ponto de partida, e cada conferência parte
+  do que ficou na gaveta na anterior. Quem conta diz quanto tem e quanto vai tirar para o cofre ou o
+  banco; o resto fica de troco para o dia seguinte. Contar de novo vale, e todas as contagens ficam
+  guardadas.
+- As contas pagas em dinheiro e as vendas desfeitas saem da gaveta. Com mais de uma loja, só saem
+  dela as contas da própria loja.
+- Técnico e atendente registram retiradas, reforços e conferências sem ver quanto devia ter nem o
+  resumo do dia. Só o dono vê se bateu, quanto sobrou ou faltou, e remove a retirada ou o reforço
+  lançado errado, com registro na auditoria.
+- No painel, Caixa mostra a diferença da última conferência de cada loja, em vermelho quando faltou
+  dinheiro. Os números do dinheiro passaram a ficar em duas linhas de três.
+- Testes da API, das contas do site e um teste de navegador do caminho inteiro, com uma atendente
+  convidada, no computador e no celular (ADR 0037).
 
 ### 4R — Página inicial com telas novas
 

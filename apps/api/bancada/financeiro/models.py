@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import F, Q
 
 from bancada.core.formatos import em_reais
 from bancada.core.models import PertenceAoTenant
@@ -335,3 +335,92 @@ class ContaAPagar(PertenceAoTenant):
             paga_em__isnull=True,
             vencimento__gt=self.vencimento,
         ).exclude(pk=self.pk)
+
+
+class TipoDeMovimentoDoCaixa(models.TextChoices):
+    RETIRADA = "retirada", "Retirada"
+    REFORCO = "reforco", "Reforço"
+
+
+# Dinheiro que sai da gaveta sem ser despesa, como o que vai para o banco, ou que entra nela sem
+# ser venda, como o troco trazido de fora.
+class MovimentoDoCaixa(PertenceAoTenant):
+    loja = models.ForeignKey(Loja, on_delete=models.RESTRICT, related_name="movimentos_do_caixa")
+    tipo = models.CharField(max_length=10, choices=TipoDeMovimentoDoCaixa.choices)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    motivo = models.CharField(max_length=120, blank=True)
+    registrado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="movimentos_do_caixa",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "retirada ou reforço do caixa"
+        verbose_name_plural = "retiradas e reforços do caixa"
+        ordering = ["criado_em", "pk"]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(valor__gt=0), name="movimento_do_caixa_com_valor_positivo"
+            ),
+        ]
+        indexes = [models.Index(fields=["tenant", "loja", "criado_em"])]
+
+    def __str__(self) -> str:
+        return f"{self.get_tipo_display()} de {em_reais(self.valor)}"
+
+
+# A contagem do dinheiro da gaveta. O que ficou nela é o ponto de partida do que deve haver depois,
+# sem ninguém precisar abrir o caixa. O esperado e o dinheiro que tinha entrado e saído no dia ficam
+# guardados como estavam na hora da contagem.
+class ConferenciaDoCaixa(PertenceAoTenant):
+    loja = models.ForeignKey(Loja, on_delete=models.RESTRICT, related_name="conferencias_do_caixa")
+    dia = models.DateField()
+    contado = models.DecimalField(max_digits=10, decimal_places=2)
+    na_gaveta = models.DecimalField("ficou na gaveta", max_digits=10, decimal_places=2)
+    esperado = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    movimento_do_dia = models.DecimalField(
+        "dinheiro que entrou menos o que saiu no dia, até a contagem",
+        max_digits=12,
+        decimal_places=2,
+    )
+    observacao = models.CharField("observação", max_length=200, blank=True)
+    conferida_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="conferencias_do_caixa",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "conferência do caixa"
+        verbose_name_plural = "conferências do caixa"
+        ordering = ["dia", "criado_em", "pk"]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(contado__gte=0) & Q(na_gaveta__gte=0) & Q(na_gaveta__lte=F("contado")),
+                name="conferencia_com_valores_possiveis",
+            ),
+        ]
+        indexes = [models.Index(fields=["tenant", "loja", "dia"])]
+
+    def __str__(self) -> str:
+        return f"Conferência de {self.dia:%d/%m/%Y}: {em_reais(self.contado)}"
+
+    @classmethod
+    def ultima(cls, loja: Loja, antes_de: date | None = None) -> "ConferenciaDoCaixa | None":
+        consulta = cls.objects.filter(loja=loja)
+        if antes_de is not None:
+            consulta = consulta.filter(dia__lt=antes_de)
+        return consulta.order_by("-dia", "-criado_em", "-pk").first()
+
+    @property
+    def retirado(self) -> Decimal:
+        return self.contado - self.na_gaveta
+
+    @property
+    def diferenca(self) -> Decimal | None:
+        return None if self.esperado is None else self.contado - self.esperado
