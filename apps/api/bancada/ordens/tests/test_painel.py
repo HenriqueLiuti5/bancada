@@ -410,7 +410,7 @@ def test_tempo_parado_em_cada_etapa_encerrada_no_periodo(
     for status, momento in horarios.items():
         EventoOS.objects.filter(ordem=ordem, para_status=status).update(criado_em=momento)
 
-    etapas = painel(api_tecnico, periodo="hoje")["operacao"]["tempo_por_etapa"]
+    etapas = painel(api_tecnico, periodo="7dias")["operacao"]["tempo_por_etapa"]
 
     assert etapas == [
         {"status": "recebido", "rotulo": "Recebido", "horas": 3.0, "vezes": 1},
