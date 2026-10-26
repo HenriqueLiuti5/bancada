@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { QUALIDADE_DAS_CAPTURAS } from "./src/lib/capturas";
 import { TAMANHO_MAXIMO_DO_ENVIO_DE_FOTO_EM_BYTES } from "./src/lib/fotos";
 
 const DESENVOLVIMENTO = process.env.NODE_ENV === "development";
@@ -20,6 +21,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   devIndicators: { position: "bottom-left" },
+  images: { qualities: [75, QUALIDADE_DAS_CAPTURAS] },
   experimental: {
     serverActions: { bodySizeLimit: TAMANHO_MAXIMO_DO_ENVIO_DE_FOTO_EM_BYTES },
     proxyClientMaxBodySize: TAMANHO_MAXIMO_DO_ENVIO_DE_FOTO_EM_BYTES,

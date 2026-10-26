@@ -1,3 +1,4 @@
+import { QUALIDADE_DAS_CAPTURAS } from "../src/lib/capturas";
 import { expect, test } from "./apoio";
 
 const PAGINAS = [
@@ -19,6 +20,20 @@ for (const { caminho, titulo } of PAGINAS) {
     await page.waitForLoadState("networkidle");
   });
 }
+
+// Sem a qualidade liberada no next.config.ts, o Next troca a pedida pela padrão, 75, sem erro.
+test("a página inicial mostra as telas do sistema na qualidade das capturas", async ({ page }) => {
+  await page.goto("/");
+  const telas = page.getByRole("main").getByRole("img");
+  await expect(telas).not.toHaveCount(0);
+
+  for (const tela of await telas.all()) {
+    await tela.scrollIntoViewIfNeeded();
+    await expect.poll(() => tela.evaluate((imagem: HTMLImageElement) => imagem.naturalWidth)).toBeGreaterThan(0);
+    const endereco = new URL(await tela.evaluate((imagem: HTMLImageElement) => imagem.currentSrc));
+    expect(endereco.searchParams.get("q")).toBe(String(QUALIDADE_DAS_CAPTURAS));
+  }
+});
 
 test("a demonstração mostra cada etapa do conserto", async ({ page }) => {
   await page.goto("/demonstracao");

@@ -89,6 +89,42 @@ domingo, que toda peça tem custo, que nenhum acessório fica negativo, que a ú
 cada loja bate e que só a conta esquecida está vencida. Outro confere que o comando não cria o
 movimento duas vezes.
 
+### Parte 2: celular e notebook desenhados
+
+**O desenho.** O celular e o notebook são desenhados com CSS em volta das capturas, em
+`app/(inicio)/molduras.tsx`, sem imagem e sem marca. O notebook tem a tampa preta com a câmera no
+alto e a base mais larga que a tampa, com o encaixe para abrir no meio. O celular tem o aro, a câmera
+num furo no alto da tela e os botões de volume e de ligar do lado direito, como a maioria dos
+Android; nada de logo nem do recorte do iPhone. Um filete cinza contorna a tela do notebook: a barra
+lateral do sistema é preta como a tampa, e sem ele a tela parecia começar mais para a direita.
+
+**As proporções.** Cada aparelho é um contêiner (`@container`), e as medidas são em `cqw`, frações da
+largura dele. O mesmo desenho serve a todos os tamanhos em que os aparelhos aparecem, do celular de
+208 px ao notebook de 1024 px, sem uma medida para cada um. A tampa ocupa 86% da largura da base,
+então a tela da lista de ordens, na abertura, passou de 1024 px para 846 px.
+
+**As cores.** Os dois aparelhos são escuros, como a barra lateral do sistema. As cores entraram em
+`globals.css` como `--aparelho` e as variações do aro, da lente, da base, da frente da base e do
+encaixe. No modo escuro, o aro e a base clareiam, para o notebook não sumir no fundo cinza.
+
+**O celular da abertura.** Continua de pé à frente do notebook, no canto direito. Ele avançava 48 px
+além do notebook a partir de 1024 px de largura e, entre 1024 e 1119 px, ficava cortado na borda da
+página. Agora avança 48 px a partir de 1280 px e 16 px abaixo disso.
+
+**A qualidade.** O `next.config.ts` libera a qualidade 90 em `images.qualities`, além da 75 padrão,
+e as molduras pedem a 90. A constante `QUALIDADE_DAS_CAPTURAS`, em `src/lib/capturas.ts`, é a mesma
+nos dois lugares, porque no Next 16 uma qualidade fora da lista vira a mais próxima, 75, sem erro
+nenhum. A escolha foi medida com o mesmo `sharp` que o Next usa: em WebP, a qualidade 90 tira as
+manchas em volta das letras, com 1,5 dB a mais de PSNR que a 75; a 100 acrescentaria só 0,5 dB e
+pesaria 55% a mais que a 90.
+
+**Os tamanhos.** O `sizes` de cada imagem passou a ser a largura da tela dentro do aparelho, e não a
+do aparelho inteiro, para o navegador não baixar uma imagem maior que a que mostra.
+
+**Teste.** O teste de navegador das páginas públicas confere, no computador e no celular, que cada
+tela da página inicial carrega e foi pedida na qualidade das capturas. Sem a qualidade liberada no
+`next.config.ts`, ele falha.
+
 ## Consequências
 
 O comando leva cerca de 45 segundos e cria em torno de 500 ordens, 450 vendas, 300 contas e 300
@@ -103,6 +139,20 @@ o desenho do gráfico e das telas.
 Ficam para as partes 2 e 3 o celular e o notebook desenhados, a qualidade das imagens e as capturas
 novas na página inicial.
 
+Na parte 2, as imagens da página inicial ficaram cerca de metade mais pesadas: no computador com tela
+de densidade 2x, passaram de 189 KB para 287 KB, e no celular, de 159 KB para 219 KB. As capturas
+originais, em PNG, somam 754 KB.
+
+Na densidade 1x, as letras da lista de ordens continuam pequenas: a captura tem 1280 px de largura e
+aparece com 846 px na tela do notebook. Servir a imagem já na largura exata não deixou nada mais
+nítido; ali falta tamanho de letra, não qualidade, o que é assunto das capturas novas da parte 3.
+
+O painel de dinheiro, nos recursos, é um recorte do painel e aparece no notebook sem a barra
+lateral, até a parte 3 trocar a captura.
+
+Como antes, o celular também baixa a lista de ordens da abertura, que ele não mostra: o Next antecipa
+a imagem para qualquer tamanho de tela.
+
 ## Alternativas consideradas
 
 **Gravar cada registro direto no banco, já com a data.** Seria mais rápido, mas o estoque, o custo
@@ -114,3 +164,16 @@ em que o comando rodava, e um mês comum podia aparecer quase no zero.
 
 **Dados fixos num arquivo.** As datas envelheceriam: o painel mostra o mês atual, e as contas
 vencidas e o caixa de ontem precisam ser de ontem.
+
+**Aparelhos em imagem, PNG ou SVG.** Teriam mais detalhe, mas cada um precisaria de um recorte na
+medida de cada captura, e a imagem de um aparelho de verdade traria a marca dele. O desenho em CSS se
+ajusta a qualquer captura e a qualquer tamanho.
+
+**AVIF.** Ligar o AVIF em `images.formats` guardaria melhor a cor dos ícones finos, que o WebP guarda
+com metade da resolução em qualquer qualidade, e as imagens ficariam menores que em WebP na qualidade
+90. Mas vale para todas as imagens do site, inclusive as fotos das ordens e as logos, e o AVIF leva
+mais tempo para ser codificado no servidor. A qualidade 90 resolve as letras, que eram o borrado da
+página.
+
+**As capturas em PNG, sem passar pelo otimizador.** Seriam perfeitas, mas a lista de ordens sozinha
+tem 304 KB, e o celular baixaria a imagem inteira, de 2560 px de largura.

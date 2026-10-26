@@ -47,6 +47,13 @@
   --lateral-icone: #3fb950;
   --lateral-anel: #56d364;
 
+  --aparelho: #0a0a0a;
+  --aparelho-aro: #404040;
+  --aparelho-lente: #262626;
+  --aparelho-base: #2e2e2e;
+  --aparelho-base-frente: #1a1a1a;
+  --aparelho-encaixe: #121212;
+
   --perigo: #b42318;
   --perigo-suave: #fef3f2;
   --aviso: #b54708;
@@ -78,6 +85,11 @@
     --texto: #ededed;
     --texto-suave: #b3b3b3;
     --texto-apagado: #999999;
+
+    --aparelho-aro: #4d4d4d;
+    --aparelho-base: #454545;
+    --aparelho-base-frente: #303030;
+    --aparelho-encaixe: #262626;
 
     --primario: #1f7f37;
     --primario-hover: #238636;
@@ -140,6 +152,13 @@
   --color-lateral-texto-suave: var(--lateral-texto-suave);
   --color-lateral-icone: var(--lateral-icone);
   --color-lateral-anel: var(--lateral-anel);
+
+  --color-aparelho: var(--aparelho);
+  --color-aparelho-aro: var(--aparelho-aro);
+  --color-aparelho-lente: var(--aparelho-lente);
+  --color-aparelho-base: var(--aparelho-base);
+  --color-aparelho-base-frente: var(--aparelho-base-frente);
+  --color-aparelho-encaixe: var(--aparelho-encaixe);
 
   --color-perigo: var(--perigo);
   --color-perigo-suave: var(--perigo-suave);

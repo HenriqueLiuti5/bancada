@@ -16,9 +16,9 @@ payment taken after pickup, and checks that the form keeps what was sent. The st
 a part and an accessory, uses the part in an approved quote, sells accessories at the counter and
 checks what needs restocking. The finance test enters a rent that repeats every month, an expense
 already paid and an electricity bill, pays the overdue rent and stops the repetition. Before going
-live, phase 4R refreshes the landing page screenshots, starting with six months of sample movement,
-and phases 4S and 4T add the final terms with visit analytics and paid plans; see the
-[project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
+live, phase 4R refreshes the landing page: six months of sample movement and a phone and laptop drawn
+around sharper screenshots are done, and new screenshots come next; phases 4S and 4T then add the
+final terms with visit analytics and paid plans; see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the
@@ -50,8 +50,8 @@ The list shows each order's deadline — today, tomorrow, the date or how many d
 can be searched by customer, device, IMEI, phone or order number; the filters live in the URL.
 
 Whoever opens the main address without being signed in lands on the landing page, which explains
-what Bancada does and leads to the free trial. It shows real screenshots of the system, presents
-each feature as a problem the shop recognizes, lists the single plan with the price read from the
+what Bancada does and leads to the free trial. It shows real screenshots of the system inside a
+phone and a laptop drawn without any brand, presents each feature as a problem the shop recognizes, lists the single plan with the price read from the
 same setting used for billing, and answers the usual objections in a FAQ. It shows no customer
 numbers or testimonials until there are real customers. A demo at `/demonstracao` shows the page
 the end customer receives, with a sample order and buttons to see each stage of the repair. The

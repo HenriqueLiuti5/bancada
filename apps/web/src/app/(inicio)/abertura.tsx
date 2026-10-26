@@ -50,16 +50,16 @@ export function Abertura({ diasDeTeste }: { diasDeTeste: number }) {
           <TelaDoComputador
             imagem={telaDasOrdens}
             descricao="Lista de ordens de serviço do Bancada, com o aparelho, o cliente, o técnico, o prazo e o status de cada conserto"
-            tamanhos="(min-width: 1024px) 1024px, 100vw"
+            tamanhos="(min-width: 1088px) 846px, 78vw"
             antecipar
             className="hidden md:block"
           />
           <TelaDoCelular
             imagem={telaDoCliente}
             descricao="Página de acompanhamento no celular do cliente, com o aparelho em reparo, a previsão de entrega e o orçamento aprovado"
-            tamanhos="240px"
+            tamanhos="224px"
             antecipar
-            className="mx-auto w-60 md:absolute md:-right-4 md:-bottom-14 md:w-52 lg:-right-12 lg:w-60"
+            className="mx-auto w-60 md:absolute md:-right-4 md:-bottom-14 md:w-52 lg:w-60 xl:-right-12"
           />
         </div>
       </div>

@@ -135,8 +135,9 @@ export function Recursos() {
                 <TelaDoCelular
                   imagem={telaDoOrcamento}
                   descricao="Página do cliente com o orçamento enviado, os itens com os valores e o pedido de aprovação"
-                  tamanhos="256px"
-                  className="-mb-28 w-64 shadow-none sm:-mb-24"
+                  tamanhos="240px"
+                  elevado={false}
+                  className="-mb-28 w-64 sm:-mb-24"
                 />
               </div>
             }
@@ -174,7 +175,7 @@ export function Recursos() {
               <TelaDoComputador
                 imagem={telaDoPainel}
                 descricao="Painel do Bancada com o dinheiro recebido no período, as entradas por forma de pagamento, o valor a receber e o ticket médio"
-                tamanhos="(min-width: 1024px) 560px, 100vw"
+                tamanhos="(min-width: 1024px) 424px, 78vw"
               />
             }
           />

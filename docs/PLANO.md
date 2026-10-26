@@ -586,9 +586,7 @@ Fotos e comprovante e nas fases de Para quem.
 1. Dados de exemplo: seis meses de movimento na assistência de exemplo, com estoque, vendas no
    balcão, contas e caixa (concluída).
 2. Celular e notebook desenhados em volta das telas, sem marca, e as imagens servidas com mais
-   qualidade, sem o borrado nas letras pequenas. Hoje elas usam a qualidade padrão do Next, 75:
-   falta liberar uma maior em `images.qualities`, no `next.config.ts`, e pedi-la nas imagens de
-   `app/(inicio)/molduras.tsx`.
+   qualidade, sem o borrado nas letras pequenas (concluída).
 3. Telas do sistema capturadas de novo em alta resolução, sobre os dados da parte 1 num banco à
    parte, e o estoque e o financeiro apresentados entre os recursos da página inicial. Como na ADR
    0026, as capturas deixam de fora o aviso de assinatura e a logo da loja de exemplo.
@@ -616,6 +614,19 @@ Na entrega da parte 1:
   troco. De vez em quando falta ou sobra um pouco, e as contagens dos últimos dias batem.
 - Os meses comuns dão lucro, e o terceiro mês do gráfico, o das ferramentas novas, dá prejuízo.
 - Teste da API com uma história curta, que confere essas regras (ADR 0038).
+
+Na entrega da parte 2:
+
+- O celular e o notebook desenhados em volta das telas da página inicial, sem marca: o notebook com
+  a câmera na tampa e a base com o encaixe para abrir, o celular com o aro, a câmera num furo no alto
+  da tela e os botões do lado. O desenho acompanha a largura de cada aparelho, em qualquer tamanho de
+  tela, e no modo escuro o aro e a base clareiam.
+- As imagens saem na qualidade 90, liberada em `images.qualities`, sem as manchas em volta das
+  letras pequenas, e cada uma é pedida na largura da tela dentro do aparelho. Ficaram cerca de
+  metade mais pesadas: no computador, de 189 KB para 287 KB.
+- Entre 1024 e 1119 px de largura, o celular da abertura deixou de ficar cortado na borda da página.
+- Teste de navegador que confere, no computador e no celular, que cada tela da página inicial
+  carrega na qualidade nova (ADR 0038).
 
 Depoimentos só entram quando houver clientes reais que autorizem (ADR 0026).
 
