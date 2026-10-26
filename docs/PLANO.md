@@ -585,7 +585,8 @@ Vem depois das fases que mudam as telas, da 4N à 4Q, para mostrá-las como vão
 - Celular e notebook desenhados em volta das telas, sem marca.
 - Fotos e imagens em PNG escolhidas pelo Henrique, onde couberem.
 - O estoque e o financeiro apresentados entre os recursos, com produtos e vendas de exemplo no
-  `semear` para as telas.
+  `semear` para as telas. A 4Q deixou para cá as contas a pagar de exemplo, com categorias e
+  custos que deem lucro e prejuízo no painel, e as conferências do caixa de exemplo (ADR 0037).
 
 Depoimentos só entram quando houver clientes reais que autorizem (ADR 0026).
 
