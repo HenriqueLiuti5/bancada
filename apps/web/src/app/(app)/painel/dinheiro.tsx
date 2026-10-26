@@ -18,6 +18,7 @@ import { linkDoAReceber, notaDoAPagar, notaDoAReceber, totalAPagarLogo } from "@
 import { contagem, emPorcentagem } from "@/lib/formatos";
 import { emReais } from "@/lib/moeda";
 import type { Painel } from "@/lib/tipos";
+import { LucroDoPeriodo, LucroMesAMes } from "./lucro";
 import { Variacao } from "./variacao";
 
 type Dinheiro = NonNullable<Painel["dinheiro"]>;
@@ -88,7 +89,7 @@ export function SecaoDinheiro({ dinheiro, fuso }: { dinheiro: Dinheiro; fuso: st
   return (
     <Secao
       titulo="Dinheiro"
-      descricao="O que entrou no caixa no período, pelas ordens e pelo balcão. Só quem é dono vê esta parte."
+      descricao="O que entrou no período, pelas ordens e pelo balcão, e o que sobrou depois das peças e das contas. Só quem é dono vê esta parte."
       tour="dinheiro"
       icone={WalletIcon}
     >
@@ -107,6 +108,11 @@ export function SecaoDinheiro({ dinheiro, fuso }: { dinheiro: Dinheiro; fuso: st
             }))}
           />
         </Cartao>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+        <LucroDoPeriodo atual={dinheiro.lucro.atual} anterior={dinheiro.lucro.anterior} />
+        <LucroMesAMes meses={dinheiro.lucro.meses} hoje={hojeEmIso(fuso)} />
       </div>
 
       <GradeDeIndicadores colunas="3x2">

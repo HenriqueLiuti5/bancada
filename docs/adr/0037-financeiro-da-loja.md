@@ -169,9 +169,48 @@ reais, a seção Dinheiro não cabia em uma linha e passou a ficar em duas linha
 
 **O isolamento.** As duas tabelas novas têm a assistência em cada linha e a trava do banco (ADR 0009).
 
-### A próxima parte
+### Parte 4: lucro do mês
 
-A parte 4 leva o lucro do mês ao painel e acrescenta aqui o que decidir.
+No começo da parte, em 25 de outubro de 2026, o Henrique decidiu que o lucro parte do que entrou,
+o mesmo Recebido do painel, e não do trabalho entregue; que ele segue o período escolhido no alto do
+painel; e que o painel mostra também o lucro de cada um dos últimos seis meses.
+
+**A conta.** O lucro do período é o que entrou pelas ordens e pelo balcão (ADR 0021 e 0036), menos o
+custo das peças das ordens entregues e das vendas feitas no período, menos as contas pagas no
+período. O custo de cada ordem é o dos itens aprovados: a peça do estoque com o custo guardado na
+entrega (ADR 0036), e a digitada à mão com o custo que a equipe informou. A venda desfeita sai do
+que entrou e do custo, como no Recebido. As contas contam pelo dia em que foram pagas, como o
+dinheiro que entrou, e a categoria Compras de peças e acessórios fica de fora, como a parte 1 já
+dizia: a compra é estoque, e a peça só vira custo quando é usada ou vendida. Uma ordem entregue no
+fim de um mês e paga no seguinte põe o custo das peças num mês e o dinheiro no outro; como a ordem
+costuma ser paga na entrega, a diferença tende a ser pequena, e é a mesma conta que o dono faz de
+cabeça com o que entrou e o que saiu.
+
+**As peças sem custo.** A peça digitada sem custo deixaria o lucro maior que o de verdade. O cartão
+avisa quantas peças das ordens entregues no período ficaram sem custo, contando só as peças, não os
+serviços.
+
+**O cartão.** Ao lado de Recebido no período e Por forma de pagamento, o painel ganhou Lucro no
+período: o valor em destaque, comparado com o período anterior, e a conta, com o que entrou, o custo
+das peças, as contas pagas com as três maiores categorias, as outras numa linha só, e o lucro com o
+quanto do que entrou sobrou. O resultado negativo vira Prejuízo no período, em vermelho. A
+comparação só mostra a porcentagem quando o período anterior teve lucro; sobre um anterior negativo
+ou zerado, ela não diria nada, e a regra vale para todos os números do painel.
+
+**O mês a mês.** Ao lado, Lucro mês a mês mostra os últimos seis meses, com o atual até hoje. O lucro
+sobe da linha do zero em verde e o prejuízo desce dela em vermelho, na mesma escala. O valor fica
+escrito no mês atual e no de maior lucro ou prejuízo; no celular, quando os dois estão lado a lado,
+só o do mês atual. Cada coluna mostra o valor ao passar o mouse, e Ver os números abre a tabela do
+que entrou, das peças, das contas e do lucro de cada mês. A API faz as mesmas consultas do período,
+agrupadas por mês no fuso da assistência (ADR 0035), para o mês atual do gráfico bater com o cartão
+em Este mês. No modo escuro, o verde e o vermelho ficam perto um do outro para quem não distingue
+essas cores; o lado da linha do zero, o sinal de menos e a tabela dizem o mesmo sem depender da cor.
+
+**A loja.** Com o painel filtrado por uma loja, entram só o que ela recebeu, as peças das ordens e
+vendas dela e as contas dela; as de toda a assistência aparecem no painel sem filtro, como em A
+pagar logo.
+
+**Quem vê.** O lucro está na seção Dinheiro, que a API só manda para o dono (ADR 0021).
 
 ## Consequências
 
@@ -235,6 +274,18 @@ testes de navegador cria agora dezesseis assistências, ainda abaixo das 30 por 
 
 As conferências de exemplo entram na 4R, com as contas.
 
+Na parte 4, a API ganhou 6 testes: a conta do lucro com as compras de fora e a conta ainda não paga,
+as peças sem custo e o orçamento reprovado, a venda desfeita, o período escolhido com a comparação,
+os seis meses e o filtro por loja. Eles passam também com o relógio parado na virada do mês e do
+dia. No site, a margem, as categorias resumidas, o aviso das peças sem custo, a escala e os valores
+escritos do gráfico e o valor curto, como R$ 8,3 mil, têm testes de unidade. O teste de navegador
+do financeiro passou a conferir, no painel, o prejuízo do mês feito só das contas pagas e a tabela
+do mês a mês, no computador e no celular, sem criar mais assistências.
+
+Os exemplos do `semear_movimento` não têm custo nas peças nem contas, então o painel de exemplo
+mostra o lucro igual ao recebido, com o aviso das peças sem custo; as contas de exemplo entram na
+4R.
+
 Ficaram de fora da parte 3: a contagem nota por nota, o fechamento impresso, o aviso por e-mail ou
 WhatsApp quando falta dinheiro, uma gaveta para cada pessoa ou cada máquina e a conferência das
 maquininhas com o extrato.
@@ -279,3 +330,12 @@ cega, a diferença aparece para o dono como foi.
 **Um saldo guardado, atualizado a cada movimento.** Seria preciso mexer nele em cada pagamento,
 venda, venda desfeita, conta e correção, e um esquecimento o deixaria errado para sempre. Partir da
 última contagem e somar os registros mantém uma fonte só para o que devia haver.
+
+**O lucro do trabalho entregue.** Contaria o valor das ordens entregues e das vendas, pagas ou
+não, e as contas pelo vencimento, como o regime de competência do contador. Alinharia o custo das
+peças com o serviço de cada mês, mas não bateria com o Recebido, logo acima no painel. O Henrique
+preferiu partir do que entrou.
+
+**Sempre o mês do calendário.** O cartão mostraria o mês atual qualquer que fosse o período do
+painel. Seguir o período mantém todos os números da seção Dinheiro falando do mesmo tempo, e o
+mês a mês já mostra os meses inteiros.

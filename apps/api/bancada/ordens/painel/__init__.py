@@ -9,7 +9,7 @@ from bancada.estoque.models import Produto, Venda, para_repor
 from bancada.financeiro import consultas as contas_a_pagar
 from bancada.financeiro.models import ConferenciaDoCaixa, ContaAPagar
 from bancada.ordens.models import OrdemServico
-from bancada.ordens.painel import agora, atendimento, dinheiro, equipe, operacao
+from bancada.ordens.painel import agora, atendimento, dinheiro, equipe, lucro, operacao
 from bancada.ordens.painel.periodo import Periodo
 from bancada.tenants.models import Loja
 
@@ -112,6 +112,11 @@ def _dinheiro(
         "a_pagar": _a_pagar(contas),
         "caixa": _caixa(lojas),
         "aprovado_em_aberto": str(agora.valor_aprovado_em_aberto(consulta)),
+        "lucro": {
+            "atual": lucro.no_periodo(consulta, vendas, contas, atual),
+            "anterior": lucro.no_periodo(consulta, vendas, contas, anterior),
+            "meses": lucro.mes_a_mes(consulta, vendas, contas, timezone.localdate()),
+        },
     }
 
 

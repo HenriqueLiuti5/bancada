@@ -150,7 +150,7 @@ export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
       papeis: ["dono"],
       titulo: "Dinheiro",
       texto:
-        "Quanto entrou no caixa pelas ordens e pelas vendas no balcão, separado por PIX, dinheiro e cartão, os descontos dados, o que os clientes ainda devem e as contas que vencem logo. Só quem é dono vê esta parte.",
+        "Quanto entrou pelas ordens e pelas vendas no balcão, separado por PIX, dinheiro e cartão, o lucro depois das peças e das contas pagas, mês a mês, o que os clientes ainda devem e as contas que vencem logo. Só quem é dono vê esta parte.",
     },
     {
       alvo: "operacao",

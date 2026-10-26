@@ -3,7 +3,7 @@ import { cartao, criarConta, diaDaquiA, donoNovo, expect, pularTour, test } from
 
 // As contas a pagar numa assistência nova: lançar o aluguel que se repete todo mês, uma despesa já
 // paga, depois de uma recusa que não perde o que foi enviado, e uma conta que vence logo, pagar o
-// aluguel vencido, parar a repetição e ver o aviso do painel.
+// aluguel vencido, parar a repetição e ver no painel o aviso do que vence e o prejuízo do mês.
 
 type Conta = {
   descricao: string;
@@ -134,5 +134,17 @@ test("o dono lança as contas, paga a vencida, a fixa se repete e o painel avisa
     const aPagar = page.getByRole("link").filter({ hasText: "A pagar logo" });
     await expect(aPagar).toContainText(/R\$\s250,00/);
     await expect(aPagar).toContainText("1 conta nos próximos 7 dias");
+  });
+
+  await test.step("sem nada recebido, as contas pagas viram o prejuízo do mês", async () => {
+    const lucro = page.locator('[data-tour="lucro"]');
+    await expect(lucro).toContainText("Prejuízo no período");
+    await expect(lucro).toContainText(/Contas pagas\s*−R\$\s1\.545,00/);
+    await expect(lucro).toContainText(/Aluguel e condomínio\s*R\$\s1\.530,00/);
+    await expect(lucro).toContainText(/Prejuízo\s*-R\$\s1\.545,00/);
+
+    const mesAMes = cartao(page, "Lucro mês a mês");
+    await mesAMes.getByText("Ver os números").click();
+    await expect(mesAMes.getByRole("row").last()).toContainText(/até hoje.*-R\$\s1\.545,00/);
   });
 });

@@ -88,7 +88,7 @@ o operador.
 | 4N | Troca do cliente da ordem e comentários internos no histórico | concluída |
 | 4O | Lojas pela tela e fuso horário por assistência | concluída |
 | 4P | Estoque de peças e venda no balcão | concluída |
-| 4Q | Financeiro da loja | em andamento |
+| 4Q | Financeiro da loja | concluída |
 | 4R | Página inicial com telas novas | |
 | 4S | Termos finais, privacidade e medição de visitas | |
 | 4T | Planos e preços | |
@@ -496,7 +496,7 @@ A fase é feita em quatro partes, uma de cada vez:
    o aviso do que venceu (concluída).
 3. Caixa do dia: o que entrou e o que saiu em cada forma de pagamento, a conferência do dinheiro da
    gaveta no fim do dia e as retiradas e reforços (concluída).
-4. Lucro do mês no painel: o que entrou menos as despesas e o custo das peças.
+4. Lucro do mês no painel: o que entrou menos as despesas e o custo das peças (concluída).
 
 Na entrega da parte 1:
 
@@ -557,6 +557,24 @@ quanto devia ter e que o painel do dono avisa quando faltou dinheiro. Na entrega
   dinheiro. Os números do dinheiro passaram a ficar em duas linhas de três.
 - Testes da API, das contas do site e um teste de navegador do caminho inteiro, com uma atendente
   convidada, no computador e no celular (ADR 0037).
+
+No começo da parte 4, o Henrique decidiu que o lucro parte do que entrou, como o Recebido do painel,
+que segue o período escolhido no alto do painel e que o painel mostra também o lucro dos últimos
+seis meses. Na entrega da parte 4:
+
+- No painel do dono, Lucro no período: o que entrou pelas ordens e pelo balcão, menos o custo das
+  peças das ordens entregues e das vendas e as contas pagas no período, com as maiores contas por
+  categoria, quanto do que entrou sobrou e a comparação com o período anterior. Quando o resultado
+  é negativo, o cartão diz Prejuízo no período, em vermelho.
+- As compras de peças não entram como conta, porque o custo das peças já conta o que foi usado e
+  vendido. As peças digitadas sem custo nas ordens entregues ganham um aviso: o lucro de verdade é
+  menor.
+- Lucro mês a mês, ao lado: os últimos seis meses, com o lucro subindo da linha do zero em verde e
+  o prejuízo descendo em vermelho, o valor do mês atual e do maior escritos, e a tabela com os
+  números de cada mês.
+- Com o painel filtrado por uma loja, entram só o que ela recebeu e as contas dela.
+- Testes da API, das contas do site e o teste de navegador do financeiro, que confere o prejuízo
+  do mês no painel, no computador e no celular (ADR 0037).
 
 ### 4R — Página inicial com telas novas
 

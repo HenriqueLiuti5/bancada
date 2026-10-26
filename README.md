@@ -149,6 +149,13 @@ bank. Technicians and front desk staff record withdrawals, top-ups and counts wi
 much there should be; only the owner sees whether it matched. The dashboard's Cash figure shows the
 difference at each store's last count and turns red when money was missing.
 
+The owner's dashboard also shows the profit for the chosen period: what came in through repairs and
+counter sales, minus the cost of the parts in the repairs picked up and the items sold, minus the
+bills paid, with the largest bill categories and the share of income left over. Parts purchases
+are not counted as bills, since the parts already count as a cost when used or sold, and parts
+entered without a cost are flagged. A chart next to it shows the profit for each of the last six
+months, with losses below the zero line in red.
+
 Whoever signs in for the first time learns on their own. On the first visit to each main screen, a
 tour highlights the buttons one at a time and says what each one does, showing only what the
 person's role can see. The owner follows a getting-started checklist that ticks itself off as they

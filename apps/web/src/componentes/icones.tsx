@@ -16,6 +16,7 @@ import {
   CaretRightIcon as CaretRight,
   CaretUpDownIcon as CaretUpDown,
   CashRegisterIcon as CashRegister,
+  ChartBarIcon as ChartBar,
   ChartPieSliceIcon as ChartPieSlice,
   ChatCircleTextIcon as ChatCircleText,
   ChatTextIcon as ChatText,
@@ -134,6 +135,7 @@ export const CaretLeftIcon = decorativo(CaretLeft);
 export const CaretRightIcon = decorativo(CaretRight);
 export const CaretUpDownIcon = decorativo(CaretUpDown);
 export const CashRegisterIcon = decorativo(CashRegister);
+export const ChartBarIcon = decorativo(ChartBar);
 export const ChartPieSliceIcon = decorativo(ChartPieSlice);
 export const ChatCircleTextIcon = decorativo(ChatCircleText);
 export const ChatTextIcon = decorativo(ChatText);

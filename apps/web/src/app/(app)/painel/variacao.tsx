@@ -9,7 +9,8 @@ function diferenca(atual: number, anterior: number, emPontos: boolean): string |
   if (emPontos) {
     return `${distancia.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} p.p.`;
   }
-  if (anterior === 0) return null;
+  // A porcentagem não diz nada sobre um anterior zerado ou negativo, como um mês de prejuízo.
+  if (anterior <= 0) return null;
   return `${Math.round((distancia / anterior) * 100)}%`;
 }
 

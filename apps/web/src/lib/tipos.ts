@@ -404,6 +404,22 @@ export type CaixaDaLoja = {
   diferenca: string | null;
 };
 
+export type ContaDoLucro = {
+  recebido: string;
+  custo_das_pecas: string;
+  despesas: string;
+  lucro: string;
+};
+
+export type DespesaPorCategoria = { categoria: string; rotulo: string; valor: string };
+
+export type LucroNoPeriodo = ContaDoLucro & {
+  pecas_sem_custo: number;
+  despesas_por_categoria: DespesaPorCategoria[];
+};
+
+export type LucroDoMes = ContaDoLucro & { mes: string };
+
 export type ResumoDoAReceber = {
   vencidas: TotalAReceber;
   proximos_dias: TotalAReceber;
@@ -467,6 +483,7 @@ export type Painel = {
     a_pagar: Pick<ResumoDasContas, "vencidas" | "proximos_dias">;
     caixa: CaixaDaLoja[];
     aprovado_em_aberto: string;
+    lucro: { atual: LucroNoPeriodo; anterior: LucroNoPeriodo; meses: LucroDoMes[] };
   };
   equipe?: LinhaDaEquipe[];
 };

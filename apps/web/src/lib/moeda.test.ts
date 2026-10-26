@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { centavosEmReais, centavosParaCampo, emCentavos, emReais, lerReais } from "@/lib/moeda";
+import {
+  centavosEmReais,
+  centavosParaCampo,
+  emCentavos,
+  emReais,
+  emReaisCurto,
+  lerReais,
+} from "@/lib/moeda";
 
 // O Intl separa o símbolo do número com um espaço que não quebra a linha.
 const ESPACO = " ";
@@ -9,6 +16,14 @@ describe("emReais", () => {
     expect(emReais(1234.5)).toBe(`R$${ESPACO}1.234,50`);
     expect(emReais("570.00")).toBe(`R$${ESPACO}570,00`);
     expect(emReais(0)).toBe(`R$${ESPACO}0,00`);
+  });
+});
+
+describe("emReaisCurto", () => {
+  it("abrevia os milhares, para caber num rótulo", () => {
+    expect(emReaisCurto(950)).toBe(`R$${ESPACO}950`);
+    expect(emReaisCurto("8296.00")).toBe(`R$${ESPACO}8,3${ESPACO}mil`);
+    expect(emReaisCurto(-1250)).toBe(`-R$${ESPACO}1,3${ESPACO}mil`);
   });
 });
 

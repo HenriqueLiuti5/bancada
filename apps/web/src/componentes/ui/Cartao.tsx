@@ -8,6 +8,8 @@ type Props = {
   acoes?: React.ReactNode;
   children: React.ReactNode;
   semEspaco?: boolean;
+  // O conteúdo ocupa a altura que sobrar, quando o cartão estica ao lado de um mais alto.
+  preencher?: boolean;
   className?: string;
   tour?: string;
 };
@@ -19,6 +21,7 @@ export function Cartao({
   acoes,
   children,
   semEspaco = false,
+  preencher = false,
   className,
   tour,
 }: Props) {
@@ -27,6 +30,7 @@ export function Cartao({
       data-tour={tour}
       className={juntar(
         "overflow-hidden rounded-2xl border border-borda bg-superficie shadow-cartao",
+        preencher && "flex flex-col",
         className,
       )}
     >
@@ -42,7 +46,9 @@ export function Cartao({
           {acoes && <div className="flex shrink-0 items-center gap-2">{acoes}</div>}
         </header>
       )}
-      <div className={semEspaco ? "" : "p-5"}>{children}</div>
+      <div className={juntar(!semEspaco && "p-5", preencher && "flex flex-1 flex-col")}>
+        {children}
+      </div>
     </section>
   );
 }

@@ -19,36 +19,34 @@ CENTAVO = Decimal("0.01")
 ZERO = Decimal("0.00")
 
 
-def _pagamentos(consulta: QuerySet[OrdemServico], periodo: Periodo) -> QuerySet[Pagamento]:
+def pagamentos(consulta: QuerySet[OrdemServico], periodo: Periodo) -> QuerySet[Pagamento]:
     return Pagamento.objects.filter(ordem__in=consulta).filter(periodo.filtro("recebido_em"))
 
 
-def _entregas_cobradas(
-    consulta: QuerySet[OrdemServico], periodo: Periodo
-) -> QuerySet[OrdemServico]:
+def entregas_cobradas(consulta: QuerySet[OrdemServico], periodo: Periodo) -> QuerySet[OrdemServico]:
     return consulta.filter(periodo.filtro("entregue_em"), valor_cobrado__isnull=False)
 
 
-def _vendas_feitas(vendas: QuerySet[Venda], periodo: Periodo) -> QuerySet[Venda]:
+def vendas_feitas(vendas: QuerySet[Venda], periodo: Periodo) -> QuerySet[Venda]:
     return vendas.filter(periodo.filtro("criado_em"), desfeita_em__isnull=True)
 
 
-def _pagamentos_do_balcao(vendas: QuerySet[Venda], periodo: Periodo) -> QuerySet[PagamentoDaVenda]:
-    return PagamentoDaVenda.objects.filter(venda__in=_vendas_feitas(vendas, periodo))
+def pagamentos_do_balcao(vendas: QuerySet[Venda], periodo: Periodo) -> QuerySet[PagamentoDaVenda]:
+    return PagamentoDaVenda.objects.filter(venda__in=vendas_feitas(vendas, periodo))
 
 
 def recebido(consulta: QuerySet[OrdemServico], periodo: Periodo) -> Decimal:
-    total = _pagamentos(consulta, periodo).aggregate(total=Sum("valor"))["total"]
+    total = pagamentos(consulta, periodo).aggregate(total=Sum("valor"))["total"]
     return total or ZERO
 
 
 def recebido_no_balcao(vendas: QuerySet[Venda], periodo: Periodo) -> Decimal:
-    total = _pagamentos_do_balcao(vendas, periodo).aggregate(total=Sum("valor"))["total"]
+    total = pagamentos_do_balcao(vendas, periodo).aggregate(total=Sum("valor"))["total"]
     return total or ZERO
 
 
 def vendas_no_balcao(vendas: QuerySet[Venda], periodo: Periodo) -> int:
-    return _vendas_feitas(vendas, periodo).count()
+    return vendas_feitas(vendas, periodo).count()
 
 
 def _somar_por_forma(linhas: Iterable[Mapping[str, Any]], totais: dict[str, Decimal]) -> None:
@@ -60,9 +58,9 @@ def recebido_por_forma(
     consulta: QuerySet[OrdemServico], vendas: QuerySet[Venda], periodo: Periodo
 ) -> list[dict[str, str]]:
     totais: dict[str, Decimal] = {}
-    das_ordens = _pagamentos(consulta, periodo).order_by().values("forma")
+    das_ordens = pagamentos(consulta, periodo).order_by().values("forma")
     _somar_por_forma(das_ordens.annotate(total=Sum("valor")), totais)
-    do_balcao = _pagamentos_do_balcao(vendas, periodo).order_by().values("forma")
+    do_balcao = pagamentos_do_balcao(vendas, periodo).order_by().values("forma")
     _somar_por_forma(do_balcao.annotate(total=Sum("valor")), totais)
     return [
         {"forma": forma.value, "rotulo": forma.label, "valor": str(totais.get(forma.value, ZERO))}
@@ -71,7 +69,7 @@ def recebido_por_forma(
 
 
 def descontos(consulta: QuerySet[OrdemServico], periodo: Periodo) -> Decimal:
-    entregas = _entregas_cobradas(consulta, periodo)
+    entregas = entregas_cobradas(consulta, periodo)
     aprovado = ItemOrcamento.objects.filter(ordem__in=entregas, aprovado=True).aggregate(
         total=Sum("valor")
     )["total"]
@@ -81,7 +79,7 @@ def descontos(consulta: QuerySet[OrdemServico], periodo: Periodo) -> Decimal:
 
 def ticket_medio(consulta: QuerySet[OrdemServico], periodo: Periodo) -> Decimal | None:
     media = (
-        _entregas_cobradas(consulta, periodo)
+        entregas_cobradas(consulta, periodo)
         .filter(valor_cobrado__gt=0)
         .aggregate(media=Avg("valor_cobrado"))["media"]
     )

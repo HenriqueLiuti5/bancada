@@ -1,10 +1,20 @@
 const MOEDA = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const MOEDA_CURTA = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  notation: "compact",
+});
 
 const SO_MILHARES = /^\d{1,3}(\.\d{3})+$/;
 const DECIMAL_NORMALIZADO = /^\d+(\.\d{1,2})?$/;
 
 export function emReais(valor: string | number): string {
   return MOEDA.format(Number(valor));
+}
+
+// Para onde o valor inteiro não cabe, como os rótulos de um gráfico: R$ 950, R$ 8,3 mil.
+export function emReaisCurto(valor: string | number): string {
+  return MOEDA_CURTA.format(Number(valor));
 }
 
 function normalizar(limpo: string): string {
