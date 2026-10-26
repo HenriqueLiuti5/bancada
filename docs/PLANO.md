@@ -89,7 +89,7 @@ o operador.
 | 4O | Lojas pela tela e fuso horário por assistência | concluída |
 | 4P | Estoque de peças e venda no balcão | concluída |
 | 4Q | Financeiro da loja | concluída |
-| 4R | Página inicial com telas novas | |
+| 4R | Página inicial com telas novas | em andamento |
 | 4S | Termos finais, privacidade e medição de visitas | |
 | 4T | Planos e preços | |
 | 4F | Publicação: domínio, termos, backup e monitoramento | em andamento |
@@ -578,15 +578,44 @@ seis meses. Na entrega da parte 4:
 
 ### 4R — Página inicial com telas novas
 
-Vem depois das fases que mudam as telas, da 4N à 4Q, para mostrá-las como vão ficar:
+Vem depois das fases que mudam as telas, da 4N à 4Q, para mostrá-las como vão ficar. No começo da
+fase, em 26 de outubro de 2026, o Henrique decidiu fazê-la em partes, uma de cada vez, e seguir sem
+fotos por enquanto. As fotos em PNG que ele escolher entram depois, onde couberem, como no cartão
+Fotos e comprovante e nas fases de Para quem.
 
-- Telas do sistema capturadas de novo em alta resolução, com dados de exemplo realistas, e servidas
-  com mais qualidade, sem o borrado nas letras pequenas.
-- Celular e notebook desenhados em volta das telas, sem marca.
-- Fotos e imagens em PNG escolhidas pelo Henrique, onde couberem.
-- O estoque e o financeiro apresentados entre os recursos, com produtos e vendas de exemplo no
-  `semear` para as telas. A 4Q deixou para cá as contas a pagar de exemplo, com categorias e
-  custos que deem lucro e prejuízo no painel, e as conferências do caixa de exemplo (ADR 0037).
+1. Dados de exemplo: seis meses de movimento na assistência de exemplo, com estoque, vendas no
+   balcão, contas e caixa (concluída).
+2. Celular e notebook desenhados em volta das telas, sem marca, e as imagens servidas com mais
+   qualidade, sem o borrado nas letras pequenas. Hoje elas usam a qualidade padrão do Next, 75:
+   falta liberar uma maior em `images.qualities`, no `next.config.ts`, e pedi-la nas imagens de
+   `app/(inicio)/molduras.tsx`.
+3. Telas do sistema capturadas de novo em alta resolução, sobre os dados da parte 1 num banco à
+   parte, e o estoque e o financeiro apresentados entre os recursos da página inicial. Como na ADR
+   0026, as capturas deixam de fora o aviso de assinatura e a logo da loja de exemplo.
+
+Na entrega da parte 1:
+
+- O `semear_movimento` passou de dois para seis meses da Assistência Central, o mesmo que o gráfico
+  do lucro mostra, e começa duas semanas antes do primeiro mês, para ele já ter ordens terminando.
+  As duas lojas abrem de segunda a sábado, e tudo acontece no horário delas.
+- Cada acontecimento roda na ordem do tempo, pelas mesmas funções do sistema: abrir, orçar,
+  aprovar e entregar a ordem, a peça saindo do estoque na aprovação, a venda no balcão, a compra do
+  estoque, a conta paga e a conferência do caixa. Assim o estoque, o custo médio, as contas e o que
+  devia haver na gaveta batem, como numa loja de verdade.
+- 34 produtos com código: telas, baterias e conectores dos aparelhos mais comuns e acessórios para
+  o balcão. A peça que falta para uma ordem aprovada vem da outra loja ou chega na manhã seguinte,
+  com a ordem em Aguardando peça. Uma vez por semana, a loja compra o que ficou abaixo do mínimo, e
+  Para repor mostra o que acabou desde a última compra.
+- As outras peças, como alto-falante e lente, entram no orçamento digitadas com o custo, e o painel
+  de exemplo deixou de mostrar o aviso das peças sem custo.
+- Vendas no balcão com desconto, pagamento dividido e algumas desfeitas.
+- Contas de aluguel, salários, contador e internet que se repetem todo mês; luz, água, imposto e
+  taxa das maquininhas, que mudam de valor; motoboy e limpeza pagos com o dinheiro da gaveta;
+  compras de peças à vista ou em boleto; e uma conta vencida há três dias.
+- Conferência do caixa no fim de quase todo dia, com dinheiro levado para o cofre e reforços de
+  troco. De vez em quando falta ou sobra um pouco, e as contagens dos últimos dias batem.
+- Os meses comuns dão lucro, e o terceiro mês do gráfico, o das ferramentas novas, dá prejuízo.
+- Teste da API com uma história curta, que confere essas regras (ADR 0038).
 
 Depoimentos só entram quando houver clientes reais que autorizem (ADR 0026).
 

@@ -16,9 +16,9 @@ payment taken after pickup, and checks that the form keeps what was sent. The st
 a part and an accessory, uses the part in an approved quote, sells accessories at the counter and
 checks what needs restocking. The finance test enters a rent that repeats every month, an expense
 already paid and an electricity bill, pays the overdue rent and stops the repetition. Before going
-live, the rest of 4Q adds receivables, the daily cash count and the month's profit, and phases 4R to
-4T add refreshed landing page screenshots, the final terms with visit analytics and paid plans; see
-the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
+live, phase 4R refreshes the landing page screenshots, starting with six months of sample movement,
+and phases 4S and 4T add the final terms with visit analytics and paid plans; see the
+[project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the
@@ -237,9 +237,13 @@ users share the password `bancada123` and exist for local use only:
 | `plataforma@bancada.local` | platform account — sees the dashboard with numbers from every shop |
 | `admin` (username, not email) | superuser of the Django admin |
 
-To give the dashboard numbers to show, `make semear-movimento` creates two months of orders in the
-sample shop, with payments, discounts, receivables and a second store. Running it again duplicates
-nothing.
+To give the screens something to show, `make semear-movimento` creates six months of movement in
+the sample shop, with a second store: orders that take parts from stock, counter sales, stock
+purchases, recurring and one-off bills, receivables and the daily cash count. The dashboard's
+six-month chart shows profit in ordinary months and a loss in the month new tools were bought. Each
+event goes through the same code the screens use, in the order it happened. It takes about a
+minute. Running it again duplicates nothing, and a database that already has the older two-month
+movement keeps it.
 
 To give the platform dashboard something to show, `make semear-plataforma` creates ten fictional
 shops in different situations: on trial, subscribed, with late payment, suspended and cancelled,
@@ -349,7 +353,7 @@ make test        # runs the backend tests
 make lint        # runs ruff and mypy
 make migrate     # applies migrations
 make semear      # fills the database with demo data
-make semear-movimento  # creates two months of sample orders and payments for the dashboard
+make semear-movimento  # creates six months of sample orders, stock, sales, bills and cash counts
 make sincronizar-cobrancas  # fetches invoices from Asaas, without waiting for the hourly check
 make semear-plataforma  # creates fictional shops for the platform dashboard
 make conta-da-plataforma  # creates your platform account, which sees every shop

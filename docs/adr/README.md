@@ -43,3 +43,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0035](0035-lojas-pela-tela-e-fuso-horario.md) | Lojas pela tela e fuso horário por assistência |
 | [0036](0036-estoque-de-pecas-e-venda-no-balcao.md) | Estoque de peças e venda no balcão |
 | [0037](0037-financeiro-da-loja.md) | Financeiro da loja |
+| [0038](0038-pagina-inicial-com-telas-novas.md) | Página inicial com telas novas |

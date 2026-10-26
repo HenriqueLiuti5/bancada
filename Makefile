@@ -41,7 +41,7 @@ makemigrations: ## Gera novas migracoes a partir dos models
 semear: ## Popula o banco com dados de demonstracao
 	docker compose exec api python manage.py semear
 
-semear-movimento: ## Cria dois meses de ordens e pagamentos de exemplo para o painel
+semear-movimento: ## Cria seis meses de movimento de exemplo: ordens, estoque, vendas, contas e caixa
 	docker compose exec api python manage.py semear_movimento
 
 sincronizar-cobrancas: ## Busca no Asaas as faturas das assinaturas, sem esperar a hora cheia
