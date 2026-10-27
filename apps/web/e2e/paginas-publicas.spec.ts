@@ -35,6 +35,25 @@ test("a página inicial mostra as telas do sistema na qualidade das capturas", a
   }
 });
 
+test("a página inicial mostra o dinheiro do painel, o estoque e o financeiro", async ({ page, isMobile }) => {
+  await page.goto("/");
+  // No celular, a abertura mostra só a página do cliente.
+  await expect(page.getByRole("img", { name: /^Painel do Bancada com o dinheiro recebido/ })).toBeVisible({
+    visible: !isMobile,
+  });
+
+  const recursos = page.locator("#recursos");
+  for (const [titulo, tela] of [
+    ["Você sabe o que tem na prateleira e o que falta comprar", /^Estoque do Bancada/],
+    ["Você sabe quanto entrou, quanto saiu e quanto sobrou", /^Contas a pagar do Bancada/],
+  ] as const) {
+    const cabecalho = recursos.getByRole("heading", { name: titulo });
+    await cabecalho.scrollIntoViewIfNeeded();
+    await expect(cabecalho).toBeVisible();
+    await expect(recursos.getByRole("img", { name: tela })).toBeVisible();
+  }
+});
+
 test("a demonstração mostra cada etapa do conserto", async ({ page }) => {
   await page.goto("/demonstracao");
   const etapas = page.getByRole("navigation", { name: "Etapas do conserto" });

@@ -17,7 +17,8 @@ import { botao, juntar } from "@/componentes/ui/estilos";
 import { TelaDoCelular, TelaDoComputador } from "./molduras";
 import { CabecalhoDaSecao, ListaDeConferencia, conteiner } from "./secao";
 import telaDoOrcamento from "./telas/acompanhamento-orcamento-enviado.png";
-import telaDoPainel from "./telas/painel-dinheiro.png";
+import telaDasContas from "./telas/contas-a-pagar.png";
+import telaDoEstoque from "./telas/estoque.png";
 
 type Detalhe = { icone: Icon; texto: string };
 
@@ -53,7 +54,14 @@ function Destaque({
   invertido?: boolean;
 }) {
   return (
-    <div className="revelar grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+    <div
+      className={juntar(
+        "revelar grid items-center gap-12 lg:gap-16",
+        invertido
+          ? "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"
+          : "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]",
+      )}
+    >
       <div className={juntar("max-w-xl", invertido && "lg:order-last")}>
         <p className="text-sm font-semibold text-destaque">{sobretitulo}</p>
         <h3 className="mt-3 text-2xl leading-tight font-bold tracking-tight text-balance sm:text-3xl">
@@ -162,20 +170,39 @@ export function Recursos() {
 
           <Destaque
             invertido
-            sobretitulo="Dinheiro e painel"
-            titulo="Você sabe quanto entrou e quem ainda deve"
-            texto="Na entrega, registre quanto o cliente pagou e como: PIX, dinheiro, débito ou crédito, dividido como precisar. O painel junta tudo no período que você escolher."
+            sobretitulo="Estoque e vendas no balcão"
+            titulo="Você sabe o que tem na prateleira e o que falta comprar"
+            texto="Cadastre peças e acessórios com o custo e o preço de venda. A peça do orçamento sai do estoque quando o cliente aprova, e a venda no balcão tira os acessórios na hora."
             itens={[
-              "Desconto e saldo a receber em cada ordem",
-              "Entradas por forma de pagamento e ticket médio",
-              "Aprovação dos orçamentos e quanto cada técnico entregou",
-              "Ordens atrasadas e tempo parado em cada etapa",
+              "Quantidade em cada loja e aviso do que precisa repor",
+              "Venda no balcão com desconto e pagamento dividido",
+              "Custo médio das compras e lucro de cada conserto e de cada venda",
+              "Busca pelo nome ou pelo código de barras",
             ]}
             imagem={
               <TelaDoComputador
-                imagem={telaDoPainel}
-                descricao="Painel do Bancada com o dinheiro recebido no período, as entradas por forma de pagamento, o valor a receber e o ticket médio"
-                tamanhos="(min-width: 1024px) 424px, 78vw"
+                imagem={telaDoEstoque}
+                descricao="Estoque do Bancada, com o aviso dos produtos para repor e, em cada peça, a quantidade em cada loja, o custo e o preço"
+                tamanhos="(min-width: 1024px) 496px, 78vw"
+              />
+            }
+          />
+
+          <Destaque
+            sobretitulo="Financeiro"
+            titulo="Você sabe quanto entrou, quanto saiu e quanto sobrou"
+            texto="Na entrega, registre quanto o cliente pagou e como: PIX, dinheiro, débito ou crédito, dividido como precisar. Lance as contas da loja, confira a gaveta no fim do dia e veja no painel o lucro de cada mês."
+            itens={[
+              "Saldo a receber de cada cliente, com o dia combinado",
+              "Contas a pagar, com as que se repetem todo mês",
+              "Conferência da gaveta no fim do dia, em cada loja",
+              "Painel com as ordens atrasadas, o ticket médio e quanto cada técnico entregou",
+            ]}
+            imagem={
+              <TelaDoComputador
+                imagem={telaDasContas}
+                descricao="Contas a pagar do Bancada, com o total vencido, o que vence nos próximos 7 dias, o que foi pago no mês e a lista das contas"
+                tamanhos="(min-width: 1024px) 496px, 78vw"
               />
             }
           />

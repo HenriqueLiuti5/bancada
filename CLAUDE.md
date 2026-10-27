@@ -126,6 +126,8 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
   Mude os dois lados juntos e mantenha o formato que a regex procura.
 - As paradas do tour, em `roteiros.ts`, apontam para atributos `data-tour` das telas.
 - `e2e/formularios.spec.ts` confere o texto de mensagens de erro da API: mude o teste junto com elas.
+- As capturas da página inicial, em `app/(inicio)/telas/`, saem do `make capturar-telas` (ADR 0038),
+  num banco à parte com o movimento de exemplo: refaça-as quando as telas que elas mostram mudarem.
 
 ### Interface
 

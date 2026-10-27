@@ -89,7 +89,7 @@ o operador.
 | 4O | Lojas pela tela e fuso horário por assistência | concluída |
 | 4P | Estoque de peças e venda no balcão | concluída |
 | 4Q | Financeiro da loja | concluída |
-| 4R | Página inicial com telas novas | em andamento |
+| 4R | Página inicial com telas novas | concluída |
 | 4S | Termos finais, privacidade e medição de visitas | |
 | 4T | Planos e preços | |
 | 4F | Publicação: domínio, termos, backup e monitoramento | em andamento |
@@ -589,7 +589,7 @@ Fotos e comprovante e nas fases de Para quem.
    qualidade, sem o borrado nas letras pequenas (concluída).
 3. Telas do sistema capturadas de novo em alta resolução, sobre os dados da parte 1 num banco à
    parte, e o estoque e o financeiro apresentados entre os recursos da página inicial. Como na ADR
-   0026, as capturas deixam de fora o aviso de assinatura e a logo da loja de exemplo.
+   0026, as capturas deixam de fora o aviso de assinatura e a logo da loja de exemplo (concluída).
 
 Na entrega da parte 1:
 
@@ -627,6 +627,21 @@ Na entrega da parte 2:
 - Entre 1024 e 1119 px de largura, o celular da abertura deixou de ficar cortado na borda da página.
 - Teste de navegador que confere, no computador e no celular, que cada tela da página inicial
   carrega na qualidade nova (ADR 0038).
+
+No começo da parte 3, em 27 de outubro de 2026, o Henrique pediu que a página mostre as telas que
+mais atraem, como o dinheiro em verde do painel. Na entrega da parte 3:
+
+- A abertura mostra o painel no notebook, na seção Dinheiro: o recebido, as formas de pagamento, o
+  lucro e o lucro mês a mês, em verde. O celular ao lado continua com a página do cliente, e a lista
+  de ordens saiu da página.
+- Os recursos ganharam Estoque e vendas no balcão, com a lista do estoque, e Financeiro, com as
+  contas a pagar, no lugar de Dinheiro e painel. Nos blocos com imagem, ela ficou mais larga que o
+  texto. O preço lista o estoque e o financeiro entre o que vem incluso.
+- `make capturar-telas` refaz as cinco capturas num banco à parte, o `bancada_capturas`, com o
+  movimento da parte 1, a API de desenvolvimento e o site de produção, e apaga o banco no fim. O
+  comando novo `preparar_capturas` tira o tour e os primeiros passos da frente das telas.
+- Teste da API do `preparar_capturas` e teste de navegador que confere, no computador e no celular,
+  o painel na abertura e o estoque e o financeiro nos recursos (ADR 0038).
 
 Depoimentos só entram quando houver clientes reais que autorizem (ADR 0026).
 

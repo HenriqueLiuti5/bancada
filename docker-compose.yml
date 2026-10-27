@@ -94,5 +94,54 @@ services:
     depends_on:
       - api
 
+  # A API e o site das capturas de tela da página inicial (make capturar-telas, ADR 0038), sobre um
+  # banco à parte, refeito a cada vez com o movimento de exemplo. As tarefas vão para outro banco do
+  # Redis: o worker de desenvolvimento procuraria os eventos no banco errado.
+  api-capturas:
+    profiles: [capturas]
+    build:
+      context: ./apps/api
+      target: desenvolvimento
+    env_file: .env
+    environment:
+      POSTGRES_DB: bancada_capturas
+      REDIS_URL: redis://redis:6379/1
+      DJANGO_ALLOWED_HOSTS: localhost,api-capturas
+    command: >-
+      sh -c "python manage.py migrate && python manage.py semear && python manage.py semear_movimento
+      && python manage.py preparar_capturas && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./apps/api:/app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 600s
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web-capturas:
+    profiles: [capturas]
+    build:
+      context: ./apps/web
+      target: producao
+    environment:
+      API_INTERNAL_URL: http://api-capturas:8000
+      APP_PUBLIC_URL: http://localhost:3001
+    ports:
+      - "127.0.0.1:3001:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/saude').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+    depends_on:
+      api-capturas:
+        condition: service_healthy
+
 volumes:
   postgres_data:

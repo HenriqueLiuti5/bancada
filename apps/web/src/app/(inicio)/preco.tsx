@@ -11,6 +11,8 @@ const INCLUSO = [
   "Fotos do aparelho, comprovante de entrada e recibo em PDF",
   "Senha de desbloqueio protegida",
   "Orçamento por item e pagamento na entrega",
+  "Estoque de peças e vendas no balcão",
+  "Contas a pagar, caixa do dia e lucro do mês",
   "Valores a receber e painel com os números da loja",
   "Equipe com papéis: dono, técnico e atendente",
   "Tutorial dentro do sistema e suporte pelo WhatsApp",

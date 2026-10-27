@@ -21,6 +21,9 @@ No começo da fase, em 26 de outubro de 2026, o Henrique decidiu:
   estoque e o financeiro entre os recursos.
 - A página segue sem fotos por enquanto. As fotos em PNG que ele escolher entram depois.
 
+No começo da parte 3, em 27 de outubro de 2026, o Henrique pediu que a página mostre as telas que
+mais atraem quem procura um sistema, como o dinheiro em verde do painel.
+
 ## Decisão
 
 ### Parte 1: seis meses de movimento de exemplo
@@ -125,6 +128,48 @@ do aparelho inteiro, para o navegador não baixar uma imagem maior que a que mos
 tela da página inicial carrega e foi pedida na qualidade das capturas. Sem a qualidade liberada no
 `next.config.ts`, ele falha.
 
+### Parte 3: telas novas na página inicial
+
+**O que a página mostra.** A abertura troca a lista de ordens pelo painel, rolado até a seção
+Dinheiro: o recebido, as formas de pagamento, o lucro depois das peças e das contas e o lucro mês a
+mês, com a barra lateral do sistema. O celular ao lado continua com a página do cliente. Nos
+recursos, Estoque e vendas no balcão mostra a lista do estoque, com o aviso do que repor e, em cada
+peça, a quantidade de cada loja, o custo e o preço em verde. Financeiro mostra as contas a pagar,
+com o vencido, o que vence em 7 dias e o que foi pago no mês. Ele fica no lugar de Dinheiro e painel,
+e o texto continua falando do pagamento na entrega e do painel. O preço passou a listar o estoque e o
+financeiro entre o que vem incluso.
+
+**Os tamanhos.** O painel é capturado com 1280 × 800: com menos largura, os valores grandes quebram a
+linha. O estoque e as contas são capturados com 1152 × 720, porque nos recursos o notebook é menor, e
+a tela mais estreita deixa as letras maiores. A página do cliente continua com 390 × 844, a partir do
+topo dela, sem o da demonstração. Todas em densidade 2x.
+
+**O período do painel.** A captura usa os últimos 30 dias, e não o mês, para não sair quase vazia
+quando é refeita no começo do mês. O filtro do período fica acima da seção Dinheiro, fora da imagem.
+
+**A imagem maior nos recursos.** Nos blocos com imagem, a imagem passou a ocupar 7 das 12 partes da
+largura, e o texto, 5. No computador, a tela do notebook dos recursos passou de 424 px para cerca de
+496 px de largura, e o notebook ficou da altura do texto ao lado.
+
+**As capturas por um comando.** `make capturar-telas` refaz as cinco capturas e as grava em
+`app/(inicio)/telas/`. Ele apaga e cria o banco `bancada_capturas` no Postgres de desenvolvimento e
+sobe, pelo perfil `capturas` do Compose, uma API sobre esse banco e o site na imagem de produção, em
+`localhost:3001`. A API roda o `semear`, o `semear_movimento` e o `preparar_capturas`, comando novo
+que deixa o dono de exemplo com os tours vistos e os primeiros passos escondidos. O Playwright roda
+`e2e/capturas.ts`, com a configuração `capturas.config.ts`, que não entra nos testes. No fim, o
+comando derruba a API e o site e apaga o banco. O banco de desenvolvimento não muda.
+
+**As tarefas.** A API das capturas manda as tarefas do Celery para outro banco do Redis, que o fim do
+comando limpa. O worker de desenvolvimento procuraria cada evento no banco de desenvolvimento, onde o
+mesmo número é de outra ordem.
+
+**Os avisos.** Como na ADR 0026, nenhum aviso da assinatura aparece nas capturas: o banco novo começa
+com 30 dias de teste, e a captura falha se o aviso aparecer. A assistência de exemplo não tem logo.
+
+**Teste.** O teste do `preparar_capturas` confere que ele só mexe no dono de exemplo. O teste de
+navegador das páginas públicas confere que a abertura mostra o painel no computador e que os recursos
+mostram o estoque e o financeiro, no computador e no celular.
+
 ## Consequências
 
 O comando leva cerca de 45 segundos e cria em torno de 500 ordens, 450 vendas, 300 contas e 300
@@ -153,6 +198,20 @@ lateral, até a parte 3 trocar a captura.
 Como antes, o celular também baixa a lista de ordens da abertura, que ele não mostra: o Next antecipa
 a imagem para qualquer tamanho de tela.
 
+Na parte 3, a lista de ordens saiu da página. No celular, a abertura continua só com a página do
+cliente, e o dinheiro em verde aparece nos recursos; o celular baixa o painel da abertura sem
+mostrá-lo, como baixava a lista.
+
+As imagens somam 341 KB no computador com tela de densidade 2x e 277 KB no celular, contra 287 KB e
+219 KB na parte 2: são cinco telas, e não quatro. As capturas em PNG somam 1,1 MB.
+
+O mês das ferramentas, o do prejuízo, aparece na abertura como a ponta de uma barra vermelha, abaixo
+da linha do zero do gráfico.
+
+As capturas mudam com o dia em que o comando roda, como o movimento de exemplo. Refazê-las leva
+alguns minutos, a maior parte para montar a imagem do site e criar os seis meses de movimento, e
+precisa do ambiente no ar (`make up`) e do Playwright instalado no computador.
+
 ## Alternativas consideradas
 
 **Gravar cada registro direto no banco, já com a data.** Seria mais rápido, mas o estoque, o custo
@@ -177,3 +236,25 @@ página.
 
 **As capturas em PNG, sem passar pelo otimizador.** Seriam perfeitas, mas a lista de ordens sozinha
 tem 304 KB, e o celular baixaria a imagem inteira, de 2560 px de largura.
+
+**Manter a lista de ordens na abertura.** Combina com o texto da abertura, que fala de abrir a ordem
+e mandar o link, mas é a tela que menos chama a atenção. O painel mostra o que o dono quer ver: quanto
+entrou e quanto sobrou.
+
+**Mostrar a venda no balcão, com o lucro.** A tela de uma venda tem o lucro em verde, mas a lista do
+estoque mostra mais do recurso: a quantidade em cada loja, o custo, o preço e o aviso do que repor.
+
+**Capturar à mão, no banco de desenvolvimento.** Foi como a ADR 0026 fez. Cada um dos três
+computadores tem o próprio banco, alguns com o movimento antigo, de dois meses, e esconder os avisos
+à mão é fácil de esquecer. O comando dá as mesmas telas em qualquer computador.
+
+**Outro projeto do Compose, com um Postgres só para as capturas.** Isolaria mais, mas duplicaria o
+banco, o Redis e as portas. Um banco a mais no mesmo Postgres basta, e o papel `bancada_app`, que não
+passa por cima da trava do banco, continua sendo o da API.
+
+**O site de desenvolvimento.** Dispensaria montar a imagem, mas mostra o indicador do Next no canto
+da tela e compila cada página na primeira visita.
+
+**Pular o tour pela tela.** O tour abre sozinho na primeira visita a cada tela. Pular cada um pela
+tela só funcionaria num banco recém-criado e faria a captura esperar o tour aparecer; o
+`preparar_capturas` deixa o dono pronto antes.

@@ -5,9 +5,8 @@ customer follows the repair through a public link, without creating an account.
 
 ## Current status
 
-Phases 4A to 4E and 4G to 4P of the self-service launch are done, along with bills to pay, the first
-of the four parts of 4Q, and so is the server side of publishing (4F): the production setup in
-`infra/producao/` is ready and tested. Browser tests walk
+Phases 4A to 4E and 4G to 4R of the self-service launch are done, and so is the server side of
+publishing (4F): the production setup in `infra/producao/` is ready and tested. Browser tests walk
 a new shop from sign-up through an order, from the counter to pickup, and on to the customer's
 tracking page, at desktop and phone sizes. They also move an order opened on the wrong customer to
 the right one, and open an order in a second store, deactivate that store and switch the shop to
@@ -16,9 +15,8 @@ payment taken after pickup, and checks that the form keeps what was sent. The st
 a part and an accessory, uses the part in an approved quote, sells accessories at the counter and
 checks what needs restocking. The finance test enters a rent that repeats every month, an expense
 already paid and an electricity bill, pays the overdue rent and stops the repetition. Before going
-live, phase 4R refreshes the landing page: six months of sample movement and a phone and laptop drawn
-around sharper screenshots are done, and new screenshots come next; phases 4S and 4T then add the
-final terms with visit analytics and paid plans; see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
+live, phases 4S and 4T add the final terms with visit analytics and paid plans; see the
+[project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the
@@ -51,12 +49,17 @@ can be searched by customer, device, IMEI, phone or order number; the filters li
 
 Whoever opens the main address without being signed in lands on the landing page, which explains
 what Bancada does and leads to the free trial. It shows real screenshots of the system inside a
-phone and a laptop drawn without any brand, presents each feature as a problem the shop recognizes, lists the single plan with the price read from the
-same setting used for billing, and answers the usual objections in a FAQ. It shows no customer
-numbers or testimonials until there are real customers. A demo at `/demonstracao` shows the page
-the end customer receives, with a sample order and buttons to see each stage of the repair. The
+phone and a laptop drawn without any brand: up top, the dashboard with the money that came in and
+the profit, in green, next to the page the customer receives. It presents each feature as a problem
+the shop recognizes, stock with counter sales and the shop's finances among them, lists the single
+plan with the price read from the same setting used for billing, and answers the usual objections in
+a FAQ. It shows no customer numbers or testimonials until there are real customers. A demo at
+`/demonstracao` shows the page the end customer receives, with a sample order and buttons to see
+each stage of the repair. The
 landing page also has a link preview image for WhatsApp, structured data, `robots.txt` and
-`sitemap.xml`. Signed-in users still go straight to their orders.
+`sitemap.xml`. Signed-in users still go straight to their orders. `make capturar-telas` retakes
+the screenshots on a separate database holding six months of sample movement, so they come out the
+same on any machine.
 
 A new shop signs itself up: the owner enters the shop name, their own name, email, WhatsApp and
 password, accepts the terms and lands straight inside the system. To build the team, the owner

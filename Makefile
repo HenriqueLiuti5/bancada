@@ -50,6 +50,16 @@ sincronizar-cobrancas: ## Busca no Asaas as faturas das assinaturas, sem esperar
 semear-plataforma: ## Cria assistencias ficticias em situacoes variadas para o painel da plataforma
 	docker compose exec api python manage.py semear_plataforma
 
+capturar-telas: ## Refaz as capturas de tela da pagina inicial, num banco a parte com o movimento de exemplo
+	docker compose --profile capturas rm -sf api-capturas web-capturas
+	docker compose exec -T db sh -c 'dropdb -U "$$POSTGRES_USER" --if-exists --force bancada_capturas && createdb -U "$$POSTGRES_USER" -O bancada_app bancada_capturas'
+	docker compose --profile capturas up -d --build --wait --wait-timeout 900 web-capturas
+	(cd apps/web && npx playwright test --config capturas.config.ts); situacao=$$?; \
+		docker compose --profile capturas rm -sf api-capturas web-capturas; \
+		docker compose exec -T db sh -c 'dropdb -U "$$POSTGRES_USER" --force bancada_capturas'; \
+		docker compose exec -T redis redis-cli -n 1 flushdb; \
+		exit $$situacao
+
 conta-da-plataforma: ## Cria a conta da plataforma, que ve os numeros de todas as assistencias
 	docker compose exec api python manage.py criar_conta_da_plataforma
 
@@ -71,4 +81,4 @@ fmt: ## Formata o codigo do backend
 clean: ## Derruba tudo e apaga os volumes (APAGA O BANCO LOCAL)
 	docker compose down -v
 
-.PHONY: help setup up down logs ps reiniciar-worker shell migrate makemigrations semear semear-movimento sincronizar-cobrancas semear-plataforma conta-da-plataforma superuser test lint fmt clean
+.PHONY: help setup up down logs ps reiniciar-worker shell migrate makemigrations semear semear-movimento sincronizar-cobrancas semear-plataforma capturar-telas conta-da-plataforma superuser test lint fmt clean
