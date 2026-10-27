@@ -33,4 +33,6 @@ def test_formulario_recusa_transicao_invalida(ordem: OrdemServico) -> None:
     form = OrdemServicoForm(data=_dados(ordem, StatusOS.ENTREGUE), instance=ordem)
 
     assert not form.is_valid()
-    assert "status" in form.errors
+    assert form.errors["status"] == [
+        "Esta ordem está na etapa Recebido e não pode passar para Entregue."
+    ]

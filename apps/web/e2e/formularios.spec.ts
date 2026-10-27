@@ -168,7 +168,9 @@ test("cada formulário mostra o que foi salvo e, quando o envio é recusado, con
     await tela.uncheck();
     await nota.fill(NOTA_DA_APROVACAO);
     await page.getByRole("button", { name: "Confirmar a aprovação" }).click();
-    await expect(page.getByText(/^Marque ao menos um item/)).toBeVisible();
+    await expect(
+      page.getByText("Marque ao menos um item. Se o cliente recusou tudo, cancele e use “O cliente recusou”."),
+    ).toBeVisible();
     await expect(maoDeObra).not.toBeChecked();
     await expect(tela).not.toBeChecked();
     await expect(nota).toHaveValue(NOTA_DA_APROVACAO);
@@ -200,7 +202,11 @@ test("cada formulário mostra o que foi salvo e, quando o envio é recusado, con
     await colega.close();
 
     await page.getByRole("button", { name: "Confirmar entrega" }).click();
-    await expect(page.getByText(/^Não é possível ir de 'entregue'/)).toBeVisible();
+    await expect(
+      page.getByText(
+        "Esta ordem já está na etapa Entregue. Atualize a página para ver como ela está agora.",
+      ),
+    ).toBeVisible();
     await expect(forma).toHaveValue("dinheiro");
     await expect(observacao).toHaveValue(OBSERVACAO);
   });

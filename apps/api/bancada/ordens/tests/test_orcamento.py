@@ -185,7 +185,9 @@ def test_aprovar_sem_nenhum_item_marcado_e_recusado(
     resposta = transicionar(api_tecnico, ordem, StatusOS.APROVADO, itens_aprovados=[])
 
     assert resposta.status_code == 400
-    assert "use Reprovado" in resposta.json()["itens_aprovados"][0]
+    assert resposta.json()["itens_aprovados"] == [
+        "Marque ao menos um item. Se o cliente recusou tudo, cancele e use “O cliente recusou”."
+    ]
     ordem.refresh_from_db()
     assert ordem.status == StatusOS.ORCAMENTO_ENVIADO
 

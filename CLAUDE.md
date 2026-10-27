@@ -125,8 +125,7 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
   `ROTEIROS` em `src/app/(app)/roteiros.ts`), na versão dos termos e no tamanho máximo da foto.
   Mude os dois lados juntos e mantenha o formato que a regex procura.
 - As paradas do tour, em `roteiros.ts`, apontam para atributos `data-tour` das telas.
-- `e2e/formularios.spec.ts` procura o começo de mensagens de erro da API (ver "Defeitos conhecidos"
-  no PLANO).
+- `e2e/formularios.spec.ts` confere o texto de mensagens de erro da API: mude o teste junto com elas.
 
 ### Interface
 

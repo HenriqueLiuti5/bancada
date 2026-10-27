@@ -182,3 +182,13 @@ envio seguinte, com a API de volta, gravou o mesmo texto.
 
 Cada execução completa dos testes de navegador passa a criar oito assistências, quatro por tamanho
 de tela, ainda abaixo do limite de 10 cadastros por hora na CI.
+
+Em 27 de outubro de 2026, as duas mensagens que o teste deixou anotadas no plano foram corrigidas. A
+aprovação sem nenhum item marcado mandava usar "Reprovado", nome que a tela não mostra; agora diz
+"Marque ao menos um item. Se o cliente recusou tudo, cancele e use “O cliente recusou”.", porque o
+botão fica atrás do Cancelar. A mudança de etapa recusada mostrava os nomes internos, como em "Não é
+possível ir de 'entregue' para 'entregue'."; agora usa os nomes das etapas que a tela mostra, como em
+"Esta ordem já está na etapa Entregue.", e a API acrescenta "Atualize a página para ver como ela está
+agora.", porque a tela só oferece as etapas possíveis e a recusa vem de alguém ter mudado a ordem
+depois que a tela abriu. O formulário do painel administrativo usa a mesma frase, sem o pedido para
+atualizar. O teste de navegador passou a conferir as duas mensagens inteiras.

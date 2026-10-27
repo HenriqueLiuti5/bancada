@@ -44,11 +44,17 @@ ESTADOS_COM_ORCAMENTO_APROVADO: frozenset[str] = frozenset(
 )
 
 
+def nome_da_etapa(status: str) -> str:
+    return StatusOS(status).label if status in StatusOS.values else status
+
+
 class TransicaoInvalida(Exception):
     def __init__(self, de: str, para: str) -> None:
-        permitidos = ", ".join(sorted(TRANSICOES.get(de, frozenset()))) or "nenhum"
+        etapa = nome_da_etapa(de)
         super().__init__(
-            f"Não é possível ir de '{de}' para '{para}'. A partir de '{de}' só: {permitidos}."
+            f"Esta ordem já está na etapa {etapa}."
+            if de == para
+            else f"Esta ordem está na etapa {etapa} e não pode passar para {nome_da_etapa(para)}."
         )
         self.de = de
         self.para = para

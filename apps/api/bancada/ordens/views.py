@@ -307,7 +307,12 @@ class OrdemServicoViewSet(ViewSetDoTenant):
                 cobranca=entrada.validated_data.get("cobranca"),
             )
         except TransicaoInvalida as erro:
-            return Response({"detail": str(erro)}, status=status.HTTP_409_CONFLICT)
+            # A tela só oferece as etapas possíveis: a recusa vem de alguém ter mudado a ordem
+            # depois que a tela abriu.
+            return Response(
+                {"detail": f"{erro} Atualize a página para ver como ela está agora."},
+                status=status.HTTP_409_CONFLICT,
+            )
 
         ordem = self.get_queryset().get(pk=ordem.pk)
         saida = OrdemServicoDetailSerializer(ordem, context=self.get_serializer_context())

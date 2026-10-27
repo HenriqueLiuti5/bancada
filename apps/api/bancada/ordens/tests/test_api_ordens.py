@@ -74,8 +74,31 @@ def test_transicao_invalida_pela_api_retorna_409(
     )
 
     assert resposta.status_code == 409
+    assert resposta.json()["detail"] == (
+        "Esta ordem está na etapa Recebido e não pode passar para Entregue. "
+        "Atualize a página para ver como ela está agora."
+    )
     ordem.refresh_from_db()
     assert ordem.status == StatusOS.RECEBIDO
+
+
+@pytest.mark.django_db
+def test_mudanca_que_outra_pessoa_ja_fez_diz_a_etapa_pelo_nome(
+    api_tecnico: APIClient, ordem: OrdemServico
+) -> None:
+    ordem.transicionar(StatusOS.EM_DIAGNOSTICO)
+
+    resposta = api_tecnico.post(
+        f"/api/ordens/{ordem.pk}/transicionar/",
+        {"status": StatusOS.EM_DIAGNOSTICO},
+        format="json",
+    )
+
+    assert resposta.status_code == 409
+    assert resposta.json()["detail"] == (
+        "Esta ordem já está na etapa Em diagnóstico. "
+        "Atualize a página para ver como ela está agora."
+    )
 
 
 @pytest.mark.django_db

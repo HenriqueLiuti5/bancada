@@ -484,7 +484,8 @@ class TransicaoSerializer(serializers.Serializer):
         required=False,
         allow_empty=False,
         error_messages={
-            "empty": "Marque ao menos um item. Se o cliente recusou tudo, use Reprovado."
+            "empty": "Marque ao menos um item. Se o cliente recusou tudo, cancele e use "
+            "“O cliente recusou”."
         },
     )
     cobranca = CobrancaSerializer(required=False)
