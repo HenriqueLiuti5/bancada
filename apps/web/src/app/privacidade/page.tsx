@@ -100,6 +100,11 @@ export default function Privacidade() {
           cumprimento de obrigação legal e legítimo interesse (art. 7º, II e IX).
         </li>
         <li>
+          <strong>Contar as visitas ao site:</strong> saber quantas pessoas abrem as páginas do
+          Bancada, de onde vieram e quantas criaram a conta, como explicado em Medição de visitas.
+          Base legal: legítimo interesse (art. 7º, IX).
+        </li>
+        <li>
           <strong>Atender e acompanhar as assistências:</strong> responder pelo suporte e acompanhar,
           num painel só do Bancada, o nome, o dono, o e-mail e o WhatsApp de cada assistência, a
           situação da assinatura, quantas ordens ela abriu e quando usou o sistema pela última vez.
@@ -152,6 +157,28 @@ export default function Privacidade() {
         a transferência segue as regras da LGPD para transferência internacional (art. 33). Dados
         também podem ser entregues a autoridades quando a lei ou uma ordem judicial obrigar.
       </p>
+
+      <h2>Medição de visitas</h2>
+      <p>
+        Para contar as visitas, o Bancada usa o Umami, um programa de estatísticas instalado no
+        próprio servidor do Bancada, que não manda nada a outras empresas. Ele não usa cookies e não
+        guarda o IP: com o IP e o navegador, calcula um código que muda todo mês, só para separar um
+        visitante do outro, e estima o país, o estado e a cidade.
+      </p>
+      <ul>
+        <li>
+          ele registra a página aberta, o site ou o link de onde a pessoa veio, o navegador, o
+          sistema, o tipo de aparelho, o tamanho da tela e o idioma;
+        </li>
+        <li>quando alguém cria a conta, ele conta o cadastro, sem guardar quem se cadastrou;</li>
+        <li>
+          ele só conta a página inicial, a demonstração, o cadastro, a entrada no sistema, os termos
+          de uso e esta política. O que acontece dentro do sistema e na página de acompanhamento dos
+          clientes nunca chega a ele;
+        </li>
+        <li>se o navegador pedir para não ser rastreado, nada é contado;</li>
+        <li>os números ficam guardados para comparar um mês com o outro.</li>
+      </ul>
 
       <h2>O que o cliente da assistência vê pelo link</h2>
       <p>
@@ -233,7 +260,10 @@ export default function Privacidade() {
           <strong>lateral</strong>, que lembra por até um ano se você recolheu o menu do lado da tela.
         </li>
       </ul>
-      <p>O Bancada não usa cookies de publicidade nem de rastreamento.</p>
+      <p>
+        O Bancada não usa cookies de publicidade nem de rastreamento, e a medição de visitas funciona
+        sem cookies.
+      </p>
 
       <h2>Incidentes de segurança</h2>
       <p>

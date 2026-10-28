@@ -75,7 +75,8 @@ docker compose exec api python manage.py criar_conta_da_plataforma
 ```
 
 No Asaas, em Integrações → Webhooks, cadastre o endereço `https://DOMINIO/webhooks/asaas` com o
-token igual ao `ASAAS_WEBHOOK_TOKEN` do `.env`.
+token igual ao `ASAAS_WEBHOOK_TOKEN` do `.env`. Para ligar a medição de visitas, siga
+[Medição de visitas](#medição-de-visitas).
 
 ## Atualizar para uma versão nova
 
@@ -109,6 +110,20 @@ O banco tem três papéis, criados na primeira subida por `postgres/papeis.sql`:
 
 A API confere o papel antes de subir e não sobe se ele for dono das tabelas, superusuário ou puder
 criar bancos, porque com qualquer um deles o isolamento entre assistências deixaria de valer.
+
+## Medição de visitas
+
+O Umami conta as visitas às páginas abertas do site e os cadastros (ADR 0039). Ele roda no
+próprio servidor, num banco só dele, e o painel responde só no servidor. Na primeira vez:
+
+1. crie um túnel SSH **no seu computador**: `ssh -L 3001:127.0.0.1:3001 usuario@endereco-do-servidor`;
+2. entre em http://localhost:3001 com o usuário `admin` e a senha `umami`, e **troque a senha na
+   hora**, em Settings → Profile (o painel abre em inglês);
+3. em Settings → Websites, adicione o site, com o nome Bancada e o `DOMINIO` do `.env`;
+4. copie o ID do site para o `UMAMI_ID_DO_SITE` do `.env` e rode `docker compose up -d web`.
+
+Sem o `UMAMI_ID_DO_SITE`, o site não conta nada. Para ver os números, abra o túnel e o painel do
+mesmo jeito. O banco do Umami não entra no backup: perder as estatísticas não atrapalha ninguém.
 
 ## Cópia e exclusão de uma assistência
 

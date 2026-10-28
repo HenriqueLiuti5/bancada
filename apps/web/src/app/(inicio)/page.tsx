@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Estatisticas } from "@/componentes/Estatisticas";
 import { buscarOferta, type Oferta } from "@/lib/oferta";
 import { linkDoSuporteParaVisitantes } from "@/lib/suporte";
 import { Abertura } from "./abertura";
@@ -64,6 +65,7 @@ export default async function PaginaInicial() {
       </main>
       <Rodape whatsapp={whatsapp} />
       {whatsapp && <WhatsAppFlutuante link={whatsapp} />}
+      <Estatisticas />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: dadosEstruturados(oferta) }}

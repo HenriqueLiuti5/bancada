@@ -90,7 +90,7 @@ o operador.
 | 4P | Estoque de peças e venda no balcão | concluída |
 | 4Q | Financeiro da loja | concluída |
 | 4R | Página inicial com telas novas | concluída |
-| 4S | Termos finais, privacidade e medição de visitas | em andamento |
+| 4S | Termos finais, privacidade e medição de visitas | concluída |
 | 4T | Planos e preços | |
 | 4F | Publicação: domínio, termos, backup e monitoramento | em andamento |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
@@ -675,7 +675,7 @@ A fase é feita em partes, uma de cada vez:
 2. Cópia e exclusão das contas: a pedido do dono, em até 15 dias, e sozinha depois de 6 meses
    seguidos só para consulta, com aviso por e-mail 30 dias antes. Os registros das cobranças ficam
    (concluída).
-3. Medição de visitas com o Umami, que a política de privacidade passa a descrever.
+3. Medição de visitas com o Umami, que a política de privacidade passa a descrever (concluída).
 
 Na entrega da parte 1:
 
@@ -714,6 +714,25 @@ Na entrega da parte 2:
 - Testes da API da exclusão, da ficha das cobranças, da tarefa, dos avisos, da cópia e dos
   comandos, teste do site do aviso de exclusão e teste de navegador que confere, no computador e no
   celular, o que a página inicial diz da conta de quem não assina (ADR 0039).
+
+Na entrega da parte 3:
+
+- O Umami 3.4.1 roda no servidor de produção, num banco só dele, sem telemetria nem chamadas para
+  fora, e o painel abre por túnel SSH. O passo a passo da primeira vez, com a troca da senha
+  `umami`, está em `infra/producao/README.md`.
+- O navegador fala só com o site: o script vem de `/estatisticas/contador` e as visitas vão a
+  `/estatisticas/api/send`, duas rotas do Next que repassam ao Umami com o IP e o navegador de quem
+  visita. A CSP não mudou.
+- O contador fica na página inicial, na demonstração, no cadastro, na entrada, nos termos e na
+  privacidade. A rota de envio descarta qualquer visita de outra página, então nada de dentro do
+  sistema nem do acompanhamento do cliente chega ao Umami.
+- Cada conta criada vira um evento `cadastro`, mandado pelo servidor na mesma visita de quem se
+  cadastrou, sem atrasar nem impedir o cadastro se o Umami falhar.
+- A política de privacidade ganhou a seção Medição de visitas: sem cookies, sem guardar o IP, o que
+  é contado e onde.
+- Teste do site do envio do cadastro e das páginas contadas, e teste de navegador que confere, no
+  computador e no celular, com o Umami de verdade na CI, a visita, o cadastro e que nada de dentro
+  do sistema é contado (ADR 0039).
 
 ### 4T — Planos e preços
 

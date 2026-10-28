@@ -28,6 +28,8 @@ sed \
     -e "s|^BANCADA_ENCRYPTION_KEY=.*|BANCADA_ENCRYPTION_KEY=$(chave_de_criptografia)|" \
     -e "s|^ASAAS_WEBHOOK_TOKEN=.*|ASAAS_WEBHOOK_TOKEN=$(aleatorio 36)|" \
     -e "s|^BACKUP_SENHA=.*|BACKUP_SENHA=$(aleatorio 24)|" \
+    -e "s|^UMAMI_POSTGRES_PASSWORD=.*|UMAMI_POSTGRES_PASSWORD=$(aleatorio 24)|" \
+    -e "s|^UMAMI_APP_SECRET=.*|UMAMI_APP_SECRET=$(aleatorio 48)|" \
     .env.example >.env
 chmod 600 .env
 

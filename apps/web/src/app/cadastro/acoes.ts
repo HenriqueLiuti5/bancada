@@ -1,7 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { abrirSessaoPor } from "@/lib/acesso";
+import { cabecalhosDoVisitante, contarCadastro } from "@/lib/estatisticas";
 import { estadoDeErro, texto, type EstadoDoFormulario } from "@/lib/formularios";
 
 export async function cadastrar(
@@ -26,5 +28,7 @@ export async function cadastrar(
     });
   }
 
+  const visitante = await cabecalhosDoVisitante();
+  after(() => contarCadastro(visitante));
   redirect("/ordens");
 }

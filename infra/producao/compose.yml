@@ -1,8 +1,8 @@
 # Produção do Bancada num servidor só. O passo a passo está em infra/producao/README.md.
 #
-# Só o proxy recebe conexões da internet, nas portas 80 e 443. Site, API, banco e Redis ficam na
-# rede interna, e a porta da API responde apenas no próprio servidor, para o painel
-# administrativo ser aberto por um túnel SSH.
+# Só o proxy recebe conexões da internet, nas portas 80 e 443. Site, API, bancos, Redis e Umami
+# ficam na rede interna, e as portas da API e do Umami respondem apenas no próprio servidor, para
+# os painéis serem abertos por um túnel SSH.
 #
 # Os segredos vêm do arquivo .env desta pasta, e cada serviço recebe só os que usa: a aplicação
 # nunca vê a senha do dono das tabelas nem a do superusuário do banco.
@@ -88,6 +88,8 @@ services:
       API_INTERNAL_URL: http://api:8000
       APP_PUBLIC_URL: https://${DOMINIO}
       WHATSAPP_DO_SUPORTE: ${WHATSAPP_DO_SUPORTE:-}
+      UMAMI_URL_INTERNA: http://umami:3000
+      UMAMI_ID_DO_SITE: ${UMAMI_ID_DO_SITE:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-producao}
     healthcheck:
@@ -173,6 +175,46 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # Medição de visitas (ADR 0039). O site repassa ao Umami o script e as visitas, e o painel dele
+  # responde só no próprio servidor, para ser aberto por um túnel SSH, como o administrativo.
+  umami:
+    image: ghcr.io/umami-software/umami:3.4.1
+    init: true
+    environment:
+      DATABASE_URL: postgresql://umami:${UMAMI_POSTGRES_PASSWORD:?Defina UMAMI_POSTGRES_PASSWORD no .env}@umami-db:5432/umami
+      APP_SECRET: ${UMAMI_APP_SECRET:?Defina UMAMI_APP_SECRET no .env}
+      CLIENT_IP_HEADER: x-forwarded-for
+      DISABLE_TELEMETRY: "1"
+      DISABLE_UPDATES: "1"
+      PRIVATE_MODE: "1"
+    ports:
+      - "127.0.0.1:${PORTA_DO_UMAMI:-3001}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:3000/api/heartbeat || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  umami-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${UMAMI_POSTGRES_PASSWORD}
+    volumes:
+      - umami_banco:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
   backup:
     build: ./backup
     environment:
@@ -209,3 +251,4 @@ volumes:
   backups:
   caddy_dados:
   caddy_config:
+  umami_banco:

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Acompanhamento } from "@/componentes/Acompanhamento";
+import { Estatisticas } from "@/componentes/Estatisticas";
 import { ArrowRightIcon } from "@/componentes/icones";
 import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
 import { botao, juntar } from "@/componentes/ui/estilos";
@@ -88,6 +89,7 @@ export default async function Demonstracao({ searchParams }: Props) {
           </div>
         </div>
       </section>
+      <Estatisticas />
     </>
   );
 }

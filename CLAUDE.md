@@ -66,9 +66,10 @@ banco de produção, roda o Playwright contra elas e faz um backup com restaura�
 O navegador só fala com o Next. O token do DRF fica no cookie httpOnly `bancada_token`
 (`src/lib/sessao.ts`), e os server components e as server actions (`acoes.ts`, com `"use server"`)
 chamam o Django por `chamarApi` e `enviarArquivo` (`src/lib/api.ts`), em `API_INTERNAL_URL`. Fotos,
-logos e o webhook do Asaas passam por route handlers do Next (`app/fotos`, `app/logos`,
-`app/webhooks/asaas`). `src/proxy.ts`, o middleware do Next 16, separa as rotas: rota pública nova
-entra em `SEM_LOGIN`. Os tipos das respostas da API ficam em `src/lib/tipos.ts`.
+logos, o webhook do Asaas e a medição de visitas do Umami passam por route handlers do Next
+(`app/fotos`, `app/logos`, `app/webhooks/asaas`, `app/estatisticas`). `src/proxy.ts`, o
+middleware do Next 16, separa as rotas: rota pública nova entra em `SEM_LOGIN`. Os tipos das
+respostas da API ficam em `src/lib/tipos.ts`.
 
 As server actions de formulário devolvem um `EstadoDoFormulario` (`src/lib/formularios.ts`), com o
 erro de cada campo e os `valores` enviados, para o formulário continuar com o que foi digitado
@@ -140,7 +141,8 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
 - Importe `test` e `expect` de `e2e/apoio.ts`, não de `@playwright/test`: a fixture de lá reprova o
   teste em qualquer erro no console ou violação da CSP.
 - Cada teste cria a própria assistência pelo cadastro e não depende do `semear`. São doze cadastros
-  por execução, por isso o `docker-compose.yml` sobe a API com `THROTTLE_CADASTRO=100/hour`.
+  por execução, por isso o `docker-compose.yml` sobe a API com `THROTTLE_CADASTRO=100/hour`. Na CI,
+  que liga o Umami, o `e2e/estatisticas.spec.ts` também roda e são catorze.
 
 ## Convenções
 

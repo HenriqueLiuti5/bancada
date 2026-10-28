@@ -156,6 +156,20 @@ jobs:
           docker build --target producao --build-arg VERSAO=${{ github.sha }} -t bancada-web apps/web
           docker build -t bancada-backup infra/producao/backup
 
+      # O Umami da medição de visitas, num banco só dele, como em produção. Ele leva quase um minuto
+      # para preparar o banco, então sobe antes de tudo.
+      - name: Subir o Umami
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d bancada -c "CREATE DATABASE umami"
+          docker run -d --name umami --network host \
+            -e DATABASE_URL=postgresql://postgres:postgres@localhost:5432/umami \
+            -e APP_SECRET=segredo-do-umami-da-integracao-continua -e PORT=3001 \
+            -e CLIENT_IP_HEADER=x-forwarded-for -e DISABLE_TELEMETRY=1 -e DISABLE_UPDATES=1 \
+            -e PRIVATE_MODE=1 \
+            ghcr.io/umami-software/umami:3.4.1
+
       - name: Criar os papéis do banco como em produção
         env:
           PGPASSWORD: postgres
@@ -181,8 +195,9 @@ jobs:
           -e DJANGO_DEBUG=1 -e POSTGRES_APP_USER=bancada_app -e POSTGRES_APP_PASSWORD=aplicacao
           bancada-api python manage.py semear
 
-      # Os testes de navegador cadastram doze assistências por execução, mais que o limite de uma
-      # hora. O limite maior deixa espaço para uma nova tentativa de um teste (ADR 0037).
+      # Os testes de navegador cadastram catorze assistências por execução, com a medição de
+      # visitas ligada, mais que o limite de uma hora. O limite maior deixa espaço para uma nova
+      # tentativa de um teste (ADR 0037).
       - name: Subir a API com o papel da aplicação
         run: >-
           docker run -d --name api --network host
@@ -192,10 +207,24 @@ jobs:
           -e THROTTLE_CADASTRO=30/hour
           bancada-api
 
+      # O site entra no Umami como em produção: pelo painel, que aqui é a API dele.
+      - name: Cadastrar o site no Umami
+        run: |
+          for tentativa in $(seq 60); do
+            curl -sf http://localhost:3001/api/heartbeat > /dev/null && break
+            sleep 2
+          done
+          token=$(curl -sf -X POST http://localhost:3001/api/auth/login \
+            -H "Content-Type: application/json" -d '{"username":"admin","password":"umami"}' | jq -r .token)
+          site=$(curl -sf -X POST http://localhost:3001/api/websites -H "Authorization: Bearer $token" \
+            -H "Content-Type: application/json" -d '{"name":"Bancada","domain":"localhost"}' | jq -r .id)
+          echo "UMAMI_ID_DO_SITE=$site" >> "$GITHUB_ENV"
+
       - name: Subir o site
         run: >-
           docker run -d --name web --network host
           -e API_INTERNAL_URL=http://localhost:8000 -e APP_PUBLIC_URL=http://localhost:3000
+          -e UMAMI_URL_INTERNA=http://localhost:3001 -e UMAMI_ID_DO_SITE
           bancada-web
 
       - name: Conferir que o site e a API respondem
@@ -225,6 +254,7 @@ jobs:
         working-directory: apps/web
         env:
           ENDERECO_DO_SITE: http://localhost:3000
+          ESTATISTICAS: "1"
         run: npx playwright test
 
       - name: Guardar o relatório dos testes do navegador
@@ -248,3 +278,4 @@ jobs:
         run: |
           docker logs api || true
           docker logs web || true
+          docker logs umami || true

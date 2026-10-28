@@ -16,6 +16,7 @@ const SEM_LOGIN = [
   "/privacidade",
   "/webhooks",
   "/saude",
+  "/estatisticas",
 ];
 const SO_PARA_DESLOGADO = ["/login", "/cadastro", "/esqueci-senha"];
 

@@ -102,6 +102,33 @@ uma consulta anterior não vale para a seguinte.
 tela Assinatura mostram esse dia. A página inicial, a confirmação do cancelamento e o e-mail do fim
 do teste deixaram de dizer que nada é apagado.
 
+### Parte 3: medição de visitas
+
+**O Umami no servidor.** A versão 3.4.1 roda num container e num PostgreSQL só dela, sem telemetria,
+sem procurar versões novas e sem chamar serviços de fora (`PRIVATE_MODE`). O painel responde só em
+`127.0.0.1` e abre por túnel SSH, como o administrativo do Django.
+
+**Pelo próprio site.** O navegador carrega o script em `/estatisticas/contador` e manda as visitas a
+`/estatisticas/api/send`, duas rotas do Next que repassam ao Umami pela rede interna, com o IP de
+quem visita no `X-Forwarded-For` e o navegador no `User-Agent` (ADR 0004). O Umami lê o IP só desse
+cabeçalho, que o Caddy reescreve. Assim a CSP continua igual, o Umami fica fora da internet, e quem
+bloqueia anúncios não o reconhece pelo endereço.
+
+**Só as páginas abertas.** O contador entra na página inicial, na demonstração, no cadastro, na
+entrada, nos termos e na privacidade, e nunca nas telas com um código no endereço, como o convite,
+a nova senha e o acompanhamento do cliente. O script continua na página quando a pessoa entra no
+sistema sem recarregar e conta cada troca de tela, então a rota de envio só repassa as visitas
+dessas seis páginas e descarta as outras ali mesmo.
+
+**O cadastro.** Depois de criar a conta, a server action manda ao Umami, pelo `after` do Next, um
+evento `cadastro` com o IP e o navegador de quem se cadastrou. O Umami calcula a sessão com os dois,
+então o evento cai na mesma visita que passou pela página inicial, e o funil sai no painel dele. Se
+o Umami não responde em 3 segundos, o cadastro segue sem a contagem.
+
+**Sem cookies.** O Umami separa um visitante do outro por um código do IP e do navegador que muda
+todo mês, e as tabelas dele não têm o IP. Com `data-do-not-track`, o pedido do navegador para não
+ser rastreado vale. A política de privacidade ganhou a seção Medição de visitas.
+
 ## Consequências
 
 O Bancada ainda não está no ar, então nenhuma assistência real aceitou os rascunhos. As assistências
@@ -133,6 +160,14 @@ qualquer outra.
 Apagar uma foto pela tela também passou a tirar o arquivo do disco só depois que o banco confirma,
 como já acontecia com a logo.
 
+O painel do Umami nasce com o usuário `admin` e a senha `umami`, e o passo a passo de
+`infra/producao/README.md` manda trocá-la no primeiro acesso. Até o `UMAMI_ID_DO_SITE` entrar no
+`.env`, o site não conta nada. O banco do Umami fica fora do backup.
+
+No desenvolvimento, o Umami não sobe, e o `e2e/estatisticas.spec.ts` pula. A CI das imagens de
+produção sobe o Umami, cadastra o site pela API dele e roda esse teste, que confere a visita, o
+cadastro e que nada de dentro do sistema chega ao Umami.
+
 ## Alternativas consideradas
 
 Completar o rascunho da ADR 0032, preenchendo os colchetes: o Henrique preferiu textos novos,
@@ -157,3 +192,12 @@ e a lei fiscal pede que elas fiquem.
 
 Um botão de apagar no painel da plataforma: o comando no servidor evita o clique por engano, e os
 pedidos chegam pelo suporte de qualquer jeito.
+
+Mandar o Caddy direto ao Umami nos dois endereços do contador: o Umami ficaria na internet, e o
+teste de navegador, que roda sem o Caddy, não passaria por esse caminho.
+
+Pôr o Umami no banco do Bancada: mudaria os papéis do banco (ADR 0032) e misturaria as estatísticas
+com as tabelas protegidas pelo isolamento entre assistências.
+
+Contar o cadastro no navegador: depois de criar a conta, a server action leva a pessoa para dentro
+do sistema, onde o contador não conta nada.

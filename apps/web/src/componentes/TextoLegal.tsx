@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Estatisticas } from "@/componentes/Estatisticas";
 import { CaretLeftIcon } from "@/componentes/icones";
 import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
 import { linkDoSuporteParaVisitantes } from "@/lib/suporte";
@@ -31,6 +32,7 @@ export function TextoLegal({ titulo, versao, children }: Props) {
         <CaretLeftIcon size={16} />
         Voltar para o cadastro
       </Link>
+      <Estatisticas />
     </main>
   );
 }
