@@ -80,6 +80,7 @@ def test_cadastro_fica_na_auditoria() -> None:
     assert registro.usuario is not None
     assert registro.usuario.email == "rafael@consertaja.test"
     assert VERSAO_DOS_TERMOS in registro.detalhe
+    assert RegistroDeAuditoria.objects.filter(acao=Acao.ENTRADA, usuario=registro.usuario).exists()
 
 
 @pytest.mark.django_db

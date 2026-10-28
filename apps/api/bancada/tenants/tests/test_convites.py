@@ -261,6 +261,7 @@ def test_aceite_fica_na_auditoria_da_assistencia(convite: Convite) -> None:
     registro = RegistroDeAuditoria.objects.get(acao=Acao.USUARIO_CRIADO)
     assert registro.tenant == convite.tenant
     assert "paulo@central.test" in registro.detalhe
+    assert RegistroDeAuditoria.objects.filter(acao=Acao.ENTRADA, usuario=registro.usuario).exists()
 
 
 @pytest.mark.django_db

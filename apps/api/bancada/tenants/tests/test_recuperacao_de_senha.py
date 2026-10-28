@@ -129,6 +129,7 @@ def test_redefinicao_fica_na_auditoria(tecnico: Usuario) -> None:
     registro = RegistroDeAuditoria.objects.get(acao=Acao.SENHA_REDEFINIDA)
     assert registro.usuario == tecnico
     assert "link" in registro.detalhe
+    assert RegistroDeAuditoria.objects.filter(acao=Acao.ENTRADA, usuario=tecnico).exists()
 
 
 @pytest.mark.django_db

@@ -104,4 +104,4 @@ class AceiteDeConviteView(RotaPublicaLimitada):
         if not usuario.email_confirmado:
             contas.pedir_confirmacao_de_email(usuario)
 
-        return Response(abrir_sessao(usuario), status=status.HTTP_201_CREATED)
+        return Response(abrir_sessao(request, usuario), status=status.HTTP_201_CREATED)

@@ -124,6 +124,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "clientes.purgar_senhas_de_desbloqueio",
         "schedule": crontab(hour=3, minute=30),
     },
+    "apagar-registros-de-acesso-vencidos": {
+        "task": "auditoria.apagar_registros_de_acesso_vencidos",
+        "schedule": crontab(hour=3, minute=45),
+    },
     "revisar-assinaturas": {
         "task": "assinaturas.revisar_assinaturas",
         "schedule": crontab(hour=7, minute=0),

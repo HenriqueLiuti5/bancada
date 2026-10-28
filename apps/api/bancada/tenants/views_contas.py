@@ -31,11 +31,20 @@ from bancada.tenants.serializers import (
 EMAIL_JA_EM_USO = {"email": ["Já existe uma conta com esse e-mail."]}
 
 
-def abrir_sessao(usuario: Usuario) -> dict[str, Any]:
+def abrir_sessao(request: Request, usuario: Usuario) -> dict[str, Any]:
     token, _ = Token.objects.get_or_create(user=usuario)
     if token_vencido(token):
         token.delete()
         token = Token.objects.create(user=usuario)
+    registrar(
+        tenant=usuario.tenant,
+        usuario=usuario,
+        acao=Acao.ENTRADA,
+        objeto="usuario",
+        objeto_id=usuario.pk,
+        detalhe=usuario.email,
+        origem=origem_do_pedido(request),
+    )
     return {"token": token.key, "usuario": UsuarioSerializer(usuario).data}
 
 
@@ -88,7 +97,7 @@ class LoginView(RotaPublicaLimitada):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        return Response(abrir_sessao(usuario))
+        return Response(abrir_sessao(request, usuario))
 
 
 class LogoutView(APIView):
@@ -140,7 +149,7 @@ class CadastroView(RotaPublicaLimitada):
         contas.pedir_confirmacao_de_email(dono)
         avisar_a_plataforma_do_cadastro(assistencia)
 
-        return Response(abrir_sessao(dono), status=status.HTTP_201_CREATED)
+        return Response(abrir_sessao(request, dono), status=status.HTTP_201_CREATED)
 
 
 class EsqueciASenhaView(RotaPublicaLimitada):
@@ -192,7 +201,7 @@ class RedefinirASenhaView(RotaPublicaLimitada):
             origem=origem_do_pedido(request),
         )
 
-        return Response(abrir_sessao(usuario))
+        return Response(abrir_sessao(request, usuario))
 
 
 class ConfirmarEmailView(RotaPublicaLimitada):

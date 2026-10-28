@@ -14,8 +14,11 @@ another time zone. Another test has a submission refused in each form, from the 
 payment taken after pickup, and checks that the form keeps what was sent. The stock test registers
 a part and an accessory, uses the part in an approved quote, sells accessories at the counter and
 checks what needs restocking. The finance test enters a rent that repeats every month, an expense
-already paid and an electricity bill, pays the overdue rent and stops the repetition. Before going
-live, phases 4S and 4T add the final terms with visit analytics and paid plans; see the
+already paid and an electricity bill, pays the overdue rent and stops the repetition. Phase 4S is
+under way: the terms of use and the privacy policy are final, rewritten for the system as it is
+today, and every sign-in is logged with its IP address for six months, as Brazil's Marco Civil da
+Internet requires. Before going live, the rest of 4S deletes accounts on request or after six months
+read-only and adds visit analytics, and 4T adds paid plans; see the
 [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets

@@ -90,7 +90,7 @@ o operador.
 | 4P | Estoque de peças e venda no balcão | concluída |
 | 4Q | Financeiro da loja | concluída |
 | 4R | Página inicial com telas novas | concluída |
-| 4S | Termos finais, privacidade e medição de visitas | |
+| 4S | Termos finais, privacidade e medição de visitas | em andamento |
 | 4T | Planos e preços | |
 | 4F | Publicação: domínio, termos, backup e monitoramento | em andamento |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
@@ -647,12 +647,52 @@ Depoimentos só entram quando houver clientes reais que autorizem (ADR 0026).
 
 ### 4S — Termos, privacidade e medição de visitas
 
-- Texto final dos termos de uso e da política de privacidade, a partir do rascunho da ADR 0032. Ele
-  identifica o Henrique pelo nome, com o e-mail, o WhatsApp do suporte e o horário de atendimento,
-  de segunda a sexta, das 8h30 às 17h, sem CPF, endereço nem foro. Os pontos que ficaram entre
-  colchetes são resolvidos com escolhas simples, e os nomes dos provedores entram na publicação.
+- Texto final dos termos de uso e da política de privacidade. Ele identifica o Henrique pelo nome,
+  com o e-mail, o WhatsApp do suporte e o horário de atendimento, de segunda a sexta, das 8h30 às
+  17h, sem CPF, endereço nem foro, e os nomes dos provedores entram na publicação.
 - Medição de visitas e de cadastros vindos da página inicial com o Umami, instalado no próprio
   servidor. Ele não usa cookies, o que dispensa o aviso de cookies.
+
+No começo da fase, em 28 de outubro de 2026, o Henrique decidiu:
+
+- Os dois textos são escritos de novo, para o sistema de hoje, em vez de completar o rascunho da
+  ADR 0032.
+- O e-mail de contato é henrique.liuti5@gmail.com até o domínio do Bancada ser registrado.
+- No cancelamento, não há devolução do valor proporcional do mês em andamento.
+- Os registros de acesso ficam guardados por 6 meses, como pede o Marco Civil da Internet.
+- Os textos não passam por advogado.
+- A medição de visitas continua na fase.
+- Os prazos para apagar os dados ficam para a fase escolher. Ficaram assim: a pedido do dono, em
+  até 15 dias; sem pedido, depois de 6 meses seguidos só para consulta, com aviso por e-mail 30 dias
+  antes.
+- O limite da responsabilidade é o valor pago nos 12 meses anteriores ao problema, o formato mais
+  comum nos contratos de sistemas.
+
+A fase é feita em partes, uma de cada vez:
+
+1. Termos e privacidade escritos de novo, com o contato num lugar só, e as entradas no sistema
+   registradas por 6 meses (concluída).
+2. Cópia e exclusão das contas: a pedido do dono, em até 15 dias, e sozinha depois de 6 meses
+   seguidos só para consulta, com aviso por e-mail 30 dias antes. Os registros das cobranças ficam.
+3. Medição de visitas com o Umami, que a política de privacidade passa a descrever.
+
+Na entrega da parte 1:
+
+- Os termos de uso e a política de privacidade foram escritos de novo para o sistema de hoje, com o
+  estoque, as vendas no balcão, o financeiro e as lojas, e nenhum trecho entre colchetes. Eles
+  identificam o Henrique Lizotti Liuti, com o e-mail, o WhatsApp e o horário do suporte.
+- Os termos limitam a indenização ao que a assistência pagou nos 12 meses anteriores ao problema,
+  dizem que o cancelamento não devolve o mês em andamento e trazem os prazos para apagar a conta,
+  que a parte 2 põe em prática.
+- A política diz quem vê os dados, inclusive o painel da plataforma, o que vai ao Asaas e o que a
+  página do cliente mostra, e lista o terceiro cookie, o `lateral`, que o rascunho não tinha. Os
+  provedores aparecem pelo que fazem.
+- O nome, o e-mail de contato e o horário do suporte ficam em `src/lib/textosLegais.ts`, para a
+  troca do e-mail quando o domínio chegar. A versão dos textos passou a `2026-10-28`.
+- Cada sessão aberta, pelo login, pelo cadastro, pelo convite ou pela redefinição da senha, fica na
+  auditoria com o IP, e uma tarefa diária apaga as entradas e as senhas erradas com mais de 6 meses.
+- Teste da API das entradas e da tarefa, e teste de navegador que confere nos dois textos, no
+  computador e no celular, o nome, o e-mail e que não sobrou colchete (ADR 0039).
 
 ### 4T — Planos e preços
 
@@ -693,7 +733,8 @@ Falta, e depende de decisões ou de contratar serviços:
 
 - Verificação em duas etapas na conta da plataforma, feita na véspera do lançamento para não
   atrapalhar os testes até lá (ADR 0029).
-- Domínio e HTTPS: registrar o domínio e apontá-lo para o servidor.
+- Domínio e HTTPS: registrar o domínio e apontá-lo para o servidor, e trocar o e-mail de contato
+  dos termos e da privacidade por um do domínio, em `src/lib/textosLegais.ts`.
 - Servidor, e-mail por provedor com domínio verificado (ADR 0011), destino do backup e, se for o
   caso, armazenamento das fotos e serviço de monitoramento, com os nomes deles na política de
   privacidade.

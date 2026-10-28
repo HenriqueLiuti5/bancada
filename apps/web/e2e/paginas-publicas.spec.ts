@@ -1,4 +1,5 @@
 import { QUALIDADE_DAS_CAPTURAS } from "../src/lib/capturas";
+import { EMAIL_DE_CONTATO, RESPONSAVEL_PELO_BANCADA, VERSAO_DOS_TEXTOS_LEGAIS } from "../src/lib/textosLegais";
 import { expect, test } from "./apoio";
 
 const PAGINAS = [
@@ -18,6 +19,22 @@ for (const { caminho, titulo } of PAGINAS) {
     // Rola até o fim para as imagens carregadas sob demanda também passarem pela CSP.
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await page.waitForLoadState("networkidle");
+  });
+}
+
+for (const caminho of ["/termos", "/privacidade"]) {
+  test(`${caminho} diz quem responde pelo Bancada e não tem trecho por decidir`, async ({ page }) => {
+    await page.goto(caminho);
+    const texto = page.getByRole("main");
+
+    await expect(texto).toContainText(`Versão ${VERSAO_DOS_TEXTOS_LEGAIS}`);
+    await expect(texto).toContainText(RESPONSAVEL_PELO_BANCADA);
+    await expect(texto.getByRole("link", { name: EMAIL_DE_CONTATO }).first()).toHaveAttribute(
+      "href",
+      `mailto:${EMAIL_DE_CONTATO}`,
+    );
+    // O rascunho deixava entre colchetes o que faltava decidir.
+    await expect(texto).not.toContainText("[");
   });
 }
 

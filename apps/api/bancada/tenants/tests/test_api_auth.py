@@ -129,6 +129,17 @@ def test_senha_errada_fica_na_auditoria_com_o_endereco_do_visitante(tecnico: Usu
 
 
 @pytest.mark.django_db
+def test_login_certo_fica_na_auditoria_com_o_endereco_do_visitante(tecnico: Usuario) -> None:
+    entrar("joana@central.test", "senha-de-teste", "203.0.113.9, 198.51.100.4")
+
+    registro = RegistroDeAuditoria.objects.get()
+    assert registro.acao == Acao.ENTRADA
+    assert registro.usuario == tecnico
+    assert registro.tenant == tecnico.tenant
+    assert registro.origem == "198.51.100.4"
+
+
+@pytest.mark.django_db
 def test_email_sem_conta_nao_gera_registro_de_auditoria(db: None) -> None:
     entrar("ninguem@central.test", "errada")
 
