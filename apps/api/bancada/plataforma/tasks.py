@@ -1,11 +1,20 @@
+import logging
+from datetime import timedelta
+
 from celery import shared_task
 from django.conf import settings
 from django.db import transaction
 
-from bancada.assinaturas.models import Assinatura
+from bancada.assinaturas import regras
+from bancada.assinaturas.models import Assinatura, SituacaoDaAssinatura
+from bancada.assinaturas.provedor import ErroNoProvedor
+from bancada.core.fuso import hoje_no_bancada
 from bancada.core.telefones import link_do_whatsapp
+from bancada.plataforma import exclusao
 from bancada.tenants.models import Papel, Tenant, Usuario
 from bancada.tenants.tasks import REPETIR_SE_O_ENVIO_FALHAR, enviar
+
+registrador = logging.getLogger(__name__)
 
 SEM_DESTINO = "sem destino"
 ENVIADO = "enviado"
@@ -53,3 +62,78 @@ def avisar_cadastro(tenant_id: int) -> str:
 def avisar_a_plataforma_do_cadastro(assistencia: Tenant) -> None:
     tenant_id = assistencia.pk
     transaction.on_commit(lambda: avisar_cadastro.delay(tenant_id))
+
+
+def _motivo_e_saida(assinatura: Assinatura) -> tuple[str, str]:
+    if assinatura.situacao == SituacaoDaAssinatura.CANCELADA:
+        return "a assinatura foi cancelada", "assinar de novo"
+    if assinatura.contratada:
+        return "há uma mensalidade em atraso", "pagar a mensalidade atrasada"
+    return "o teste grátis terminou sem assinatura", "assinar"
+
+
+@shared_task(name="plataforma.avisar_exclusao", **REPETIR_SE_O_ENVIO_FALHAR)
+def avisar_exclusao(assinatura_id: int) -> str:
+    hoje = hoje_no_bancada()
+    assinatura = Assinatura.objects.select_related("tenant").filter(pk=assinatura_id).first()
+    desde = regras.so_para_consulta_desde(assinatura, hoje) if assinatura else None
+    dia = regras.dia_de_apagar(assinatura, hoje) if assinatura else None
+    if assinatura is None or desde is None or dia is None:
+        return SEM_DESTINO
+
+    donos = Usuario.objects.filter(
+        tenant=assinatura.tenant, papel=Papel.DONO, is_active=True
+    ).exclude(email="")
+    motivo, saida = _motivo_e_saida(assinatura)
+
+    for dono in donos:
+        enviar(
+            dono.email,
+            f"A conta da {assinatura.tenant.nome} no Bancada será apagada em {dia:%d/%m/%Y}",
+            "plataforma/aviso_de_exclusao.txt",
+            {
+                "primeiro_nome": dono.nome_de_exibicao.split()[0],
+                "assistencia": assinatura.tenant.nome,
+                "desde": desde,
+                "motivo": motivo,
+                "dia": dia,
+                "saida": saida,
+                "link": f"{settings.APP_PUBLIC_URL}/assinatura",
+            },
+        )
+    return ENVIADO if donos else SEM_DESTINO
+
+
+@shared_task(name="plataforma.apagar_contas_so_para_consulta")
+def apagar_contas_so_para_consulta() -> int:
+    hoje = hoje_no_bancada()
+    apagadas = 0
+
+    assinaturas = Assinatura.objects.select_related("tenant").filter(
+        tenant__apagada_em__isnull=True
+    )
+    for assinatura in assinaturas:
+        dia = regras.dia_de_apagar(assinatura, hoje)
+        if dia is None:
+            continue
+
+        if not regras.avisada_da_exclusao(assinatura, hoje):
+            if hoje >= dia - timedelta(days=regras.DIAS_DO_AVISO_ANTES_DE_APAGAR):
+                assinatura.aviso_de_exclusao_em = hoje
+                assinatura.save(update_fields=["aviso_de_exclusao_em", "atualizado_em"])
+                avisar_exclusao.delay(assinatura.pk)
+            continue
+
+        if hoje < dia:
+            continue
+        try:
+            exclusao.apagar_assistencia(assinatura.tenant, motivo=exclusao.SO_PARA_CONSULTA)
+        except ErroNoProvedor as erro:
+            registrador.warning("A %s fica para amanhã: %s", assinatura.tenant.nome, erro)
+            continue
+        apagadas += 1
+
+    if apagadas:
+        registrador.info("Assistências apagadas depois de 6 meses só para consulta: %s", apagadas)
+
+    return apagadas

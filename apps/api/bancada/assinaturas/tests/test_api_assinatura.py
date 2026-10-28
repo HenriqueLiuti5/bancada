@@ -9,6 +9,8 @@ from bancada.assinaturas.models import Assinatura, SituacaoDaAssinatura, Situaca
 from bancada.assinaturas.regras import fim_do_teste
 from bancada.assinaturas.tests.conftest import ProvedorFalso
 from bancada.auditoria.models import Acao, RegistroDeAuditoria
+from bancada.core.calendario import somar_meses
+from bancada.core.fuso import hoje_no_bancada
 from bancada.tenants.models import Tenant, Usuario
 
 URL = "/api/assinatura/"
@@ -46,6 +48,18 @@ def test_cadastro_ja_comeca_em_teste_e_o_eu_conta_quantos_dias_faltam() -> None:
     assert resumo["em_teste"] is True
     assert resumo["dias_de_teste"] == 30
     assert resumo["teste_termina_em"] == fim_do_teste(timezone.localdate()).isoformat()
+
+
+@pytest.mark.django_db
+def test_so_para_consulta_mostra_quando_a_conta_sera_apagada(
+    api_dono: APIClient, tenant: Tenant
+) -> None:
+    assert api_dono.get(URL).json()["apaga_em"] is None
+
+    hoje = hoje_no_bancada()
+    Assinatura.objects.filter(tenant=tenant).update(teste_termina_em=hoje - timedelta(days=1))
+
+    assert api_dono.get(URL).json()["apaga_em"] == somar_meses(hoje, 6).isoformat()
 
 
 @pytest.mark.django_db

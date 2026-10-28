@@ -50,6 +50,7 @@ class Tenant(Carimbado):
     logo_largura = models.PositiveIntegerField(null=True, blank=True, editable=False)
     logo_altura = models.PositiveIntegerField(null=True, blank=True, editable=False)
     ativo = models.BooleanField(default=True)
+    apagada_em = models.DateTimeField(null=True, blank=True, editable=False)
     termos_aceitos_em = models.DateTimeField(null=True, blank=True)
     versao_dos_termos = models.CharField(max_length=40, blank=True)
 

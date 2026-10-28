@@ -132,6 +132,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "assinaturas.revisar_assinaturas",
         "schedule": crontab(hour=7, minute=0),
     },
+    "apagar-contas-so-para-consulta": {
+        "task": "plataforma.apagar_contas_so_para_consulta",
+        "schedule": crontab(hour=7, minute=30),
+    },
     "sincronizar-cobrancas": {
         "task": "assinaturas.sincronizar_cobrancas",
         "schedule": crontab(minute=10),

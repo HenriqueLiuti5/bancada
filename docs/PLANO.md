@@ -673,7 +673,8 @@ A fase é feita em partes, uma de cada vez:
 1. Termos e privacidade escritos de novo, com o contato num lugar só, e as entradas no sistema
    registradas por 6 meses (concluída).
 2. Cópia e exclusão das contas: a pedido do dono, em até 15 dias, e sozinha depois de 6 meses
-   seguidos só para consulta, com aviso por e-mail 30 dias antes. Os registros das cobranças ficam.
+   seguidos só para consulta, com aviso por e-mail 30 dias antes. Os registros das cobranças ficam
+   (concluída).
 3. Medição de visitas com o Umami, que a política de privacidade passa a descrever.
 
 Na entrega da parte 1:
@@ -693,6 +694,26 @@ Na entrega da parte 1:
   auditoria com o IP, e uma tarefa diária apaga as entradas e as senhas erradas com mais de 6 meses.
 - Teste da API das entradas e da tarefa, e teste de navegador que confere nos dois textos, no
   computador e no celular, o nome, o e-mail e que não sobrou colchete (ADR 0039).
+
+Na entrega da parte 2:
+
+- `exportar_assistencia` grava a cópia dos dados num `.zip`, com uma planilha por tabela, as fotos,
+  a logo e um LEIA-ME, sem as senhas de desbloqueio. `apagar_assistencia` pede o nome da
+  assistência, cancela no Asaas a assinatura que ainda cobra e apaga tudo. Os dois acham a
+  assistência pelo e-mail do dono, e o passo a passo está em `infra/producao/README.md`.
+- A assinatura e as faturas da assistência apagada passam para uma ficha sem nome, sem o CPF ou
+  CNPJ de quem pagou. O painel da plataforma guarda o recebido de cada mês e deixa a ficha fora da
+  lista e das contagens por situação. As entradas no sistema ficam ligadas só ao e-mail até
+  completarem 6 meses.
+- Uma tarefa diária, às 7h30, avisa os donos 30 dias antes e apaga a conta que passou 6 meses
+  seguidos só para consulta. Se o aviso sai tarde, a exclusão espera os 30 dias dele.
+- O aviso de só para consulta e a tela Assinatura mostram o dia em que a conta será apagada. A
+  página inicial, a confirmação do cancelamento e o e-mail do fim do teste deixaram de dizer que
+  nada é apagado.
+- A foto apagada só sai do disco depois que o banco confirma, como a logo.
+- Testes da API da exclusão, da ficha das cobranças, da tarefa, dos avisos, da cópia e dos
+  comandos, teste do site do aviso de exclusão e teste de navegador que confere, no computador e no
+  celular, o que a página inicial diz da conta de quem não assina (ADR 0039).
 
 ### 4T — Planos e preços
 

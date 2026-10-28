@@ -17,9 +17,11 @@ checks what needs restocking. The finance test enters a rent that repeats every 
 already paid and an electricity bill, pays the overdue rent and stops the repetition. Phase 4S is
 under way: the terms of use and the privacy policy are final, rewritten for the system as it is
 today, and every sign-in is logged with its IP address for six months, as Brazil's Marco Civil da
-Internet requires. Before going live, the rest of 4S deletes accounts on request or after six months
-read-only and adds visit analytics, and 4T adds paid plans; see the
-[project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
+Internet requires. On request, the owner gets a copy of the shop's data as spreadsheets with the
+photos, and the account is deleted; an account left read-only for six months in a row is deleted
+on its own, with an email to the owner 30 days before. Payment records stay, without the shop's
+name, for the tax authorities. Before going live, the rest of 4S adds visit analytics, and 4T adds
+paid plans; see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the

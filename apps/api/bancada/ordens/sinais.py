@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.db import transaction
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
@@ -38,4 +39,7 @@ def limpar_cache_ao_mudar_fotos(sender: type, instance: FotoOS, **kwargs: Any) -
 
 @receiver(post_delete, sender=FotoOS)
 def apagar_arquivo_da_foto(sender: type, instance: FotoOS, **kwargs: Any) -> None:
-    instance.arquivo.delete(save=False)
+    nome = instance.arquivo.name
+    armazenamento = instance.arquivo.storage
+    if nome:
+        transaction.on_commit(lambda: armazenamento.delete(nome))

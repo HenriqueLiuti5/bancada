@@ -65,8 +65,8 @@ export function CancelamentoDaAssinatura() {
     <form action={acao} className="w-full space-y-3 rounded-2xl border border-borda bg-realce p-4">
       <p className="text-[13px] text-texto">
         Cancelar a assinatura? Nada mais é cobrado. Você continua usando até o fim do período já
-        pago, ou do teste grátis, e depois disso o Bancada fica só para consulta, com todos os dados
-        guardados.
+        pago, ou do teste grátis, e depois disso o Bancada fica só para consulta. Se ficar 6 meses
+        assim, a conta é apagada com todos os dados, com um aviso por e-mail 30 dias antes.
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <button type="submit" disabled={enviando} className={botao("perigo", "sm")}>

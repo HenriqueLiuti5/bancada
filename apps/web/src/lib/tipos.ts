@@ -23,6 +23,7 @@ export type ResumoDaAssinatura = {
   dias_de_teste: number;
   pagar_ate: string | null;
   acesso_ate: string | null;
+  apaga_em: string | null;
 };
 
 export type UsuarioAtual = Usuario & {

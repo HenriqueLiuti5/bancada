@@ -21,7 +21,7 @@ const INCLUSO = [
 const CONDICOES = [
   { icone: CreditCardIcon, texto: "PIX, boleto ou cartão, todo mês" },
   { icone: HandshakeIcon, texto: "Sem fidelidade: cancele quando quiser, na tela Assinatura" },
-  { icone: ShieldCheckIcon, texto: "Se não assinar, nada é apagado: o sistema fica só para consulta" },
+  { icone: ShieldCheckIcon, texto: "Se não assinar, o sistema fica só para consulta, com tudo guardado por 6 meses" },
 ];
 
 export function Preco({ oferta }: { oferta: Oferta }) {

@@ -83,7 +83,13 @@ def _conversao(hoje: date) -> dict[str, Any]:
 
 
 def assinaturas(mes: Mes, hoje: date) -> dict[str, Any]:
-    totais = dict(Assinatura.objects.order_by().values_list("situacao").annotate(total=Count("id")))
+    # A assistência apagada sai das contagens de hoje, mas a assinatura dela continua na história.
+    totais = dict(
+        Assinatura.objects.filter(tenant__apagada_em__isnull=True)
+        .order_by()
+        .values_list("situacao")
+        .annotate(total=Count("id"))
+    )
     return {
         "por_situacao": [
             {
@@ -183,7 +189,8 @@ def assistencias(mes: Mes, hoje: date) -> list[dict[str, Any]]:
     donos = _donos()
 
     linhas = []
-    for tenant in Tenant.objects.select_related("assinatura").order_by("-criado_em"):
+    existentes = Tenant.objects.filter(apagada_em__isnull=True)
+    for tenant in existentes.select_related("assinatura").order_by("-criado_em"):
         dono = donos.get(tenant.pk)
         assinatura = getattr(tenant, "assinatura", None)
         movimento = movimentos.get(tenant.pk, Movimento())

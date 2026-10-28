@@ -11,7 +11,7 @@ function perguntasFrequentes(diasDeTeste: number) {
     {
       pergunta: "O que acontece se eu não assinar?",
       resposta:
-        "O Bancada fica só para consulta: você entra e vê tudo, mas não abre nem altera ordens. Nenhum dado é apagado, e assinando você volta a usar normalmente.",
+        "O Bancada fica só para consulta: você entra e vê tudo, mas não abre nem altera ordens, e assinando você volta a usar normalmente. Se a conta passar 6 meses assim, ela é apagada, com um aviso por e-mail 30 dias antes.",
     },
     {
       pergunta: "Meu cliente precisa baixar aplicativo ou criar conta?",

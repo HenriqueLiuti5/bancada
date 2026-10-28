@@ -66,6 +66,42 @@ a conta existir.
 
 **Versão.** Os textos passaram à versão `2026-10-28`, na API e no site.
 
+### Parte 2: cópia e exclusão das contas
+
+**Exclusão.** `apagar_assistencia`, em `bancada/plataforma/exclusao.py`, cancela no Asaas a
+assinatura que ainda cobra, como o botão de cancelar, e apaga a assistência. As ordens e os
+movimentos do estoque saem antes, porque a ordem protege a loja, o cliente e o aparelho, e o
+estoque guarda de que ordem saiu cada peça. O resto vai na cascata da própria assistência, então
+uma tabela nova da assistência é apagada junto sem mudar esse código. As fotos e a logo saem do
+armazenamento só depois que o banco confirma, e o cache das páginas de acompanhamento é limpo.
+
+**O que fica.** A assinatura e as faturas passam para uma ficha: uma assistência sem nome, WhatsApp
+nem equipe, com a data de cadastro da original, criada sem o teste grátis que toda assistência nova
+ganha. Elas perdem o CPF ou CNPJ de quem pagou e o link da fatura. Assim o recebido mês a mês, a
+conversão e os cadastros por semana do painel da plataforma não mudam, e a ficha fica fora da lista
+das assistências e da contagem por situação. As entradas e as senhas erradas ficam ligadas só ao
+e-mail de quem entrou, até a tarefa da parte 1 apagá-las aos 6 meses. Um registro na auditoria
+guarda o número da assistência apagada e o motivo, sem o nome.
+
+**A pedido.** Os comandos `exportar_assistencia` e `apagar_assistencia` acham a assistência pelo
+e-mail do dono, e o segundo pede o nome dela para confirmar. A cópia é um `.zip` com uma planilha
+por tabela, separada por ponto e vírgula e com BOM para o Excel, as fotos, a logo e um LEIA-ME que
+explica como as planilhas se ligam. Ela não leva a senha de desbloqueio, os links de acompanhamento
+nem a senha de acesso. Um teste confere que toda tabela ligada à assistência entra na cópia ou está
+na lista do que fica de fora: a cobrança, a auditoria, os convites e o registro dos e-mails ao
+cliente.
+
+**Sozinha.** A conta fica só para consulta no dia seguinte ao fim do teste sem assinatura, ao fim do
+período pago depois do cancelamento ou ao fim dos 7 dias de tolerância do atraso. Seis meses
+depois, a tarefa diária `plataforma.apagar_contas_so_para_consulta`, às 7h30, apaga a conta. Trinta
+dias antes, ela manda o aviso aos donos e guarda o dia em `aviso_de_exclusao_em`; se o aviso sai
+tarde, a exclusão espera os 30 dias dele. Assinar ou pagar tira a conta da consulta, e o aviso de
+uma consulta anterior não vale para a seguinte.
+
+**Na tela.** A API devolve `apaga_em` no resumo da assinatura, e o aviso de só para consulta e a
+tela Assinatura mostram esse dia. A página inicial, a confirmação do cancelamento e o e-mail do fim
+do teste deixaram de dizer que nada é apagado.
+
 ## Consequências
 
 O Bancada ainda não está no ar, então nenhuma assistência real aceitou os rascunhos. As assistências
@@ -85,7 +121,17 @@ Os registros de acesso guardam o IP sem a porta de origem, que o Caddy não repa
 mesmo IP dividido entre muitos clientes das operadoras de celular, uma investigação pode pedir a
 porta; guardá-la passa por repassar a porta do Caddy ao Next e do Next à API.
 
-Até a parte 2, os termos prometem a cópia e a exclusão das contas, que o sistema ainda não faz.
+A exclusão não tem volta: o que foi apagado fica só nas cópias de segurança, por até 30 dias.
+
+A ficha das cobranças ainda não tem prazo para sumir. A lei fiscal pede 5 anos, e apagar a ficha
+depois disso fica para quando a primeira chegar lá.
+
+As assistências dos dados de exemplo nascem com datas perto de hoje e não chegam aos 6 meses só
+para consulta. Uma assistência de teste esquecida num banco de desenvolvimento é apagada como
+qualquer outra.
+
+Apagar uma foto pela tela também passou a tirar o arquivo do disco só depois que o banco confirma,
+como já acontecia com a logo.
 
 ## Alternativas consideradas
 
@@ -101,3 +147,13 @@ no endereço.
 
 Apagar as contas só a pedido: os dados dos clientes de uma assistência que foi embora ficariam
 guardados para sempre.
+
+Guardar a própria assistência sem os dados, em vez de passar as cobranças para uma ficha: seria
+preciso apagar tabela por tabela, na ordem que as proteções entre elas pedem, e uma tabela nova
+ficaria esquecida.
+
+Apagar também as cobranças: o recebido do painel da plataforma mudaria a cada assistência apagada,
+e a lei fiscal pede que elas fiquem.
+
+Um botão de apagar no painel da plataforma: o comando no servidor evita o clique por engano, e os
+pedidos chegam pelo suporte de qualquer jeito.

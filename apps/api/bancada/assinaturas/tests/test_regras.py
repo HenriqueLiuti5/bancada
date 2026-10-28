@@ -190,3 +190,76 @@ def test_quem_ja_assinou_nao_recebe_aviso_de_fim_do_teste(tenant: Tenant) -> Non
     )
 
     assert regras.avisos_de_fim_do_teste_pendentes(assinatura, HOJE) == []
+
+
+@pytest.mark.django_db
+def test_depois_do_teste_a_consulta_comeca_no_dia_seguinte(tenant: Tenant) -> None:
+    assinatura = assinatura_de(tenant, teste_termina_em=HOJE)
+
+    assert regras.so_para_consulta_desde(assinatura, HOJE) is None
+    assert regras.so_para_consulta_desde(assinatura, HOJE + timedelta(days=3)) == HOJE + timedelta(
+        days=1
+    )
+
+
+@pytest.mark.django_db
+def test_cancelada_fica_so_para_consulta_depois_do_periodo_pago(tenant: Tenant) -> None:
+    assinatura = assinatura_de(
+        tenant,
+        assinatura_no_provedor="sub_1",
+        situacao=SituacaoDaAssinatura.CANCELADA,
+        acesso_ate=HOJE + timedelta(days=10),
+    )
+
+    desde = regras.so_para_consulta_desde(assinatura, HOJE + timedelta(days=20))
+
+    assert desde == HOJE + timedelta(days=11)
+
+
+@pytest.mark.django_db
+def test_no_atraso_a_consulta_comeca_quando_acaba_a_tolerancia(tenant: Tenant) -> None:
+    assinatura = assinatura_de(
+        tenant, assinatura_no_provedor="sub_1", teste_termina_em=HOJE - timedelta(days=60)
+    )
+    vencimento = HOJE - timedelta(days=30)
+    fatura(assinatura, vencimento, SituacaoDaFatura.VENCIDA)
+
+    assert regras.so_para_consulta_desde(assinatura, HOJE) == vencimento + timedelta(days=8)
+
+
+@pytest.mark.django_db
+def test_conta_so_para_consulta_e_apagada_seis_meses_depois(tenant: Tenant) -> None:
+    assinatura = assinatura_de(tenant, teste_termina_em=date(2026, 3, 31))
+
+    assert regras.dia_de_apagar(assinatura, date(2026, 4, 1)) == date(2026, 10, 1)
+
+
+@pytest.mark.django_db
+def test_aviso_que_sai_tarde_adia_a_exclusao_para_trinta_dias_depois_dele(tenant: Tenant) -> None:
+    assinatura = assinatura_de(tenant, teste_termina_em=date(2026, 3, 31))
+    assert regras.dia_de_apagar(assinatura, date(2026, 12, 1)) == date(2026, 12, 31)
+
+    avisada = assinatura_de(tenant, aviso_de_exclusao_em=date(2026, 12, 1))
+
+    assert regras.avisada_da_exclusao(avisada, date(2026, 12, 5))
+    assert regras.dia_de_apagar(avisada, date(2026, 12, 5)) == date(2026, 12, 31)
+
+
+@pytest.mark.django_db
+def test_aviso_de_uma_consulta_anterior_nao_vale_para_a_nova(tenant: Tenant) -> None:
+    assinatura = assinatura_de(
+        tenant,
+        assinatura_no_provedor="sub_1",
+        situacao=SituacaoDaAssinatura.CANCELADA,
+        acesso_ate=date(2026, 9, 30),
+        aviso_de_exclusao_em=date(2026, 5, 1),
+    )
+
+    assert not regras.avisada_da_exclusao(assinatura, date(2026, 10, 15))
+
+
+@pytest.mark.django_db
+def test_quem_ainda_edita_nao_tem_dia_para_ser_apagado(tenant: Tenant) -> None:
+    assinatura = assinatura_de(tenant, teste_termina_em=HOJE + timedelta(days=5))
+
+    assert regras.dia_de_apagar(assinatura, HOJE) is None

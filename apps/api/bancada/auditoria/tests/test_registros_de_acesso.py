@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from django.utils import timezone
 
 from bancada.auditoria.models import Acao, RegistroDeAuditoria
 from bancada.auditoria.registro import registrar
-from bancada.auditoria.tasks import apagar_registros_de_acesso_vencidos, meses_antes
+from bancada.auditoria.tasks import apagar_registros_de_acesso_vencidos
 from bancada.tenants.models import Usuario
 
 
@@ -42,9 +42,3 @@ def test_os_outros_registros_ficam_enquanto_a_conta_existir(tecnico: Usuario) ->
     assert apagar_registros_de_acesso_vencidos.run() == 0
 
     assert RegistroDeAuditoria.objects.filter(pk=senha_vista.pk).exists()
-
-
-def test_seis_meses_antes_respeita_o_tamanho_de_cada_mes() -> None:
-    assert meses_antes(datetime(2026, 8, 31, 10, 30), 6) == datetime(2026, 2, 28, 10, 30)
-    assert meses_antes(datetime(2026, 3, 15), 6) == datetime(2025, 9, 15)
-    assert meses_antes(datetime(2026, 6, 1), 6) == datetime(2025, 12, 1)

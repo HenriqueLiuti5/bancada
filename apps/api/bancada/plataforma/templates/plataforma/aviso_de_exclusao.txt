@@ -1,0 +1,12 @@
+{% autoescape off %}Olá, {{ primeiro_nome }}.
+
+A {{ assistencia }} está só para consulta no Bancada desde {{ desde|date:"d/m/Y" }}, porque {{ motivo }}.
+
+Como dizem os termos de uso, uma conta que passa 6 meses seguidos só para consulta é apagada com todos os dados: ordens, clientes, fotos, estoque e financeiro. A da {{ assistencia }} será apagada em {{ dia|date:"d/m/Y" }}.
+
+Para manter tudo, é só {{ saida }} até lá:
+{{ link }}
+
+Se preferir encerrar, você pode pedir antes uma cópia dos dados pelo suporte, no menu Ajuda do Bancada, em Entrar em contato com suporte.
+
+Equipe Bancada{% endautoescape %}

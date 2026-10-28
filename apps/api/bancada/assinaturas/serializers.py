@@ -24,6 +24,7 @@ def resumo_da_assinatura(assinatura: Assinatura, hoje: date) -> dict[str, Any]:
         "dias_de_teste": max((assinatura.teste_termina_em - hoje).days, 0),
         "pagar_ate": pagar_ate,
         "acesso_ate": assinatura.acesso_ate,
+        "apaga_em": regras.dia_de_apagar(assinatura, hoje),
     }
 
 

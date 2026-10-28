@@ -16,6 +16,7 @@ class Acao(models.TextChoices):
     LOGIN_RECUSADO = "login_recusado", "Login recusado por senha errada"
     ASSISTENCIA_CRIADA = "assistencia_criada", "Assistência criada"
     ASSISTENCIA_ALTERADA = "assistencia_alterada", "Dados da assistência alterados"
+    ASSISTENCIA_APAGADA = "assistencia_apagada", "Assistência apagada"
     LOJA_CRIADA = "loja_criada", "Loja criada"
     CONVITE_CRIADO = "convite_criado", "Convite para a equipe criado"
     CONVITE_CANCELADO = "convite_cancelado", "Convite para a equipe cancelado"

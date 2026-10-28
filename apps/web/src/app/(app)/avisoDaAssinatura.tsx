@@ -7,6 +7,7 @@ import {
 } from "@/componentes/icones";
 import { Alerta } from "@/componentes/ui/Alerta";
 import { botao } from "@/componentes/ui/estilos";
+import { avisoDaExclusao } from "@/lib/assinatura";
 import { diaPorExtenso } from "@/lib/datas";
 import type { ResumoDaAssinatura } from "@/lib/tipos";
 
@@ -38,12 +39,13 @@ function acaoDoDono(assinatura: ResumoDaAssinatura): string {
 }
 
 function avisoDeSoConsulta(assinatura: ResumoDaAssinatura, eDono: boolean): Aviso {
-  const motivo = `${motivoDoBloqueio(assinatura)}.`;
+  const frases = [`${motivoDoBloqueio(assinatura)}.`, avisoDaExclusao(assinatura.apaga_em)];
+  if (!eDono) frases.push("Fale com o dono da assistência.");
   return {
     icone: LockSimpleIcon,
     tom: "perigo",
     titulo: "O Bancada está só para consulta",
-    texto: eDono ? motivo : `${motivo} Fale com o dono da assistência.`,
+    texto: frases.filter(Boolean).join(" "),
     acao: eDono ? acaoDoDono(assinatura) : undefined,
   };
 }

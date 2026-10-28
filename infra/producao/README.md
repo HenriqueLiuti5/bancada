@@ -110,6 +110,25 @@ O banco tem três papéis, criados na primeira subida por `postgres/papeis.sql`:
 A API confere o papel antes de subir e não sobe se ele for dono das tabelas, superusuário ou puder
 criar bancos, porque com qualquer um deles o isolamento entre assistências deixaria de valer.
 
+## Cópia e exclusão de uma assistência
+
+Os termos de uso prometem ao dono, a qualquer momento, uma cópia dos dados e a exclusão da conta
+em até 15 dias. Os dois comandos acham a assistência pelo e-mail do dono:
+
+```bash
+docker compose exec api python manage.py exportar_assistencia dono@exemplo.com --saida /tmp/copia.zip
+docker compose cp api:/tmp/copia.zip .
+docker compose exec api python manage.py apagar_assistencia dono@exemplo.com
+```
+
+A cópia é um `.zip` com uma planilha por tabela, as fotos e a logo, sem as senhas de desbloqueio.
+Mande-a ao dono antes de apagar. O `apagar_assistencia` pede o nome da assistência para
+confirmar, cancela no Asaas a assinatura que ainda estiver cobrando e apaga tudo. As cobranças
+ficam numa ficha sem nome, pela lei fiscal, e as entradas no sistema ficam até completarem 6 meses.
+
+Sem pedido, a conta que passa 6 meses seguidos só para consulta é apagada sozinha, todo dia às
+7h30, com um aviso por e-mail ao dono 30 dias antes.
+
 ## Backup
 
 Todo dia, a partir das 3h, o serviço `backup`:

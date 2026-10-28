@@ -1,10 +1,12 @@
 import io
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import pytest
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import transaction
 from PIL import Image
 from rest_framework.test import APIClient
 
@@ -175,16 +177,38 @@ def test_tecnico_de_outra_assistencia_nao_apaga_nem_esconde_foto_alheia(
 
 @pytest.mark.django_db
 def test_apagar_a_foto_remove_o_arquivo_do_disco(
-    api_tecnico: APIClient, ordem: OrdemServico
+    api_tecnico: APIClient,
+    ordem: OrdemServico,
+    django_capture_on_commit_callbacks: Callable[..., Any],
 ) -> None:
     foto_id = enviar(api_tecnico, ordem).json()["id"]
     caminho = Path(FotoOS.objects.get(pk=foto_id).arquivo.path)
     assert caminho.exists()
 
-    assert api_tecnico.delete(f"/api/fotos/{foto_id}/").status_code == 204
+    with django_capture_on_commit_callbacks(execute=True):
+        assert api_tecnico.delete(f"/api/fotos/{foto_id}/").status_code == 204
 
     assert not caminho.exists()
     assert FotoOS.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_o_arquivo_da_foto_fica_se_a_exclusao_for_desfeita(
+    ordem: OrdemServico, django_capture_on_commit_callbacks: Callable[..., Any]
+) -> None:
+    foto = FotoOS.registrar(ordem=ordem, enviado=imagem_enviada())
+    foto_id, caminho = foto.pk, Path(foto.arquivo.path)
+
+    with (
+        django_capture_on_commit_callbacks(execute=True),
+        pytest.raises(RuntimeError),
+        transaction.atomic(),
+    ):
+        foto.delete()
+        raise RuntimeError("a exclusão foi desfeita")
+
+    assert caminho.exists()
+    assert FotoOS.objects.filter(pk=foto_id).exists()
 
 
 @pytest.mark.django_db

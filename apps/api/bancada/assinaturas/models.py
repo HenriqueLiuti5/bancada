@@ -45,6 +45,7 @@ class Assinatura(PertenceAoTenant):
     avisos_de_fim_do_teste = ArrayField(
         models.PositiveSmallIntegerField(), default=list, blank=True
     )
+    aviso_de_exclusao_em = models.DateField(null=True, blank=True)
 
     class Meta:
         verbose_name = "assinatura"

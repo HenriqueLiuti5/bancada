@@ -38,6 +38,15 @@ for (const caminho of ["/termos", "/privacidade"]) {
   });
 }
 
+test("a página inicial diz até quando guarda a conta de quem não assina", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.locator("#preco")).toContainText("com tudo guardado por 6 meses");
+  const pergunta = page.locator("details", { hasText: "O que acontece se eu não assinar?" });
+  await pergunta.locator("summary").click();
+  await expect(pergunta).toContainText("Se a conta passar 6 meses assim, ela é apagada");
+});
+
 // Sem a qualidade liberada no next.config.ts, o Next troca a pedida pela padrão, 75, sem erro.
 test("a página inicial mostra as telas do sistema na qualidade das capturas", async ({ page }) => {
   await page.goto("/");

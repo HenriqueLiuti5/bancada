@@ -5,11 +5,14 @@ from datetime import date, timedelta
 from django.db.models import Q
 
 from bancada.assinaturas.models import Assinatura, SituacaoDaAssinatura, SituacaoDaFatura
+from bancada.core.calendario import somar_meses
 from bancada.tenants.models import Tenant
 
 DIAS_DE_TESTE = 30
 DIAS_DE_TOLERANCIA = 7
 DIAS_DOS_AVISOS_DE_FIM_DO_TESTE = (7, 1)
+MESES_SO_PARA_CONSULTA_ATE_APAGAR = 6
+DIAS_DO_AVISO_ANTES_DE_APAGAR = 30
 
 
 @dataclass(frozen=True)
@@ -87,6 +90,40 @@ def acesso_depois_do_cancelamento(assinatura: Assinatura, hoje: date) -> date:
     if ultima_paga:
         datas.append(um_mes_depois(ultima_paga) - timedelta(days=1))
     return max(datas)
+
+
+def so_para_consulta_desde(assinatura: Assinatura, hoje: date) -> date | None:
+    atual = retrato(assinatura, hoje)
+    if atual.pode_editar:
+        return None
+    if atual.situacao == SituacaoDaAssinatura.CANCELADA:
+        ultimo_dia = assinatura.acesso_ate or assinatura.teste_termina_em
+    elif atual.em_atraso_desde:
+        ultimo_dia = ultimo_dia_para_pagar(atual.em_atraso_desde)
+    else:
+        ultimo_dia = assinatura.teste_termina_em
+    return ultimo_dia + timedelta(days=1)
+
+
+def _avisada_desde(assinatura: Assinatura, desde: date) -> bool:
+    aviso = assinatura.aviso_de_exclusao_em
+    return aviso is not None and aviso >= desde
+
+
+def avisada_da_exclusao(assinatura: Assinatura, hoje: date) -> bool:
+    desde = so_para_consulta_desde(assinatura, hoje)
+    return desde is not None and _avisada_desde(assinatura, desde)
+
+
+def dia_de_apagar(assinatura: Assinatura, hoje: date) -> date | None:
+    desde = so_para_consulta_desde(assinatura, hoje)
+    if desde is None:
+        return None
+
+    prazo = somar_meses(desde, MESES_SO_PARA_CONSULTA_ATE_APAGAR)
+    # O dono é avisado pelo menos 30 dias antes, mesmo quando o aviso sai depois do previsto.
+    aviso = assinatura.aviso_de_exclusao_em if _avisada_desde(assinatura, desde) else None
+    return max(prazo, (aviso or hoje) + timedelta(days=DIAS_DO_AVISO_ANTES_DE_APAGAR))
 
 
 def avisos_de_fim_do_teste_pendentes(assinatura: Assinatura, hoje: date) -> list[int]:

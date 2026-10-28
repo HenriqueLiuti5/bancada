@@ -6,6 +6,7 @@ import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { chamarApi } from "@/lib/api";
+import { avisoDaExclusao } from "@/lib/assinatura";
 import { dataCurta, diaPorExtenso } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import type { Assistencia, DetalheDaAssinatura, Fatura } from "@/lib/tipos";
@@ -132,7 +133,7 @@ export default async function PaginaDaAssinatura() {
         <Cartao titulo="Situação" icone={SealCheckIcon}>
           <div className="space-y-5">
             <p className="text-sm leading-relaxed text-texto-suave">
-              {explicacaoDaAssinatura(assinatura)}
+              {explicacaoDaAssinatura(assinatura)} {avisoDaExclusao(assinatura.apaga_em)}
             </p>
 
             {assinatura.contratada ? (
