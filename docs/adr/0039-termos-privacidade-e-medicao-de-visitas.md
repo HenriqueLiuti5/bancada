@@ -118,7 +118,10 @@ bloqueia anúncios não o reconhece pelo endereço.
 entrada, nos termos e na privacidade, e nunca nas telas com um código no endereço, como o convite,
 a nova senha e o acompanhamento do cliente. O script continua na página quando a pessoa entra no
 sistema sem recarregar e conta cada troca de tela, então a rota de envio só repassa as visitas
-dessas seis páginas e descarta as outras ali mesmo.
+dessas seis páginas e descarta as outras ali mesmo. A visita leva também a página anterior, e a rota
+a tira quando ela é do próprio site: pode ser uma tela do sistema ou um link com código, como o do
+convite, de onde a pessoa abriu a página inicial numa aba nova. A de fora, como uma busca ou o
+WhatsApp, segue para o Umami.
 
 **O cadastro.** Depois de criar a conta, a server action manda ao Umami, pelo `after` do Next, um
 evento `cadastro` com o IP e o navegador de quem se cadastrou. O Umami calcula a sessão com os dois,
@@ -166,7 +169,7 @@ O painel do Umami nasce com o usuário `admin` e a senha `umami`, e o passo a pa
 
 No desenvolvimento, o Umami não sobe, e o `e2e/estatisticas.spec.ts` pula. A CI das imagens de
 produção sobe o Umami, cadastra o site pela API dele e roda esse teste, que confere a visita, o
-cadastro e que nada de dentro do sistema chega ao Umami.
+evento do cadastro, lido na mesma API, e que nada de dentro do sistema chega ao Umami.
 
 ## Alternativas consideradas
 

@@ -17,6 +17,31 @@ export function paginaContada(endereco: unknown): boolean {
   }
 }
 
+// A visita leva também a página anterior. Do próprio site, ela pode ser uma tela do sistema ou um
+// link com código, como o do acompanhamento; o Umami só precisa da que vem de fora.
+export function visitaParaOUmami(corpo: string): string | null {
+  let visita: { payload?: Record<string, unknown> } | null;
+  try {
+    visita = JSON.parse(corpo);
+  } catch {
+    return null;
+  }
+  const dados = visita?.payload;
+  if (!dados || !paginaContada(dados.url)) return null;
+  if (doProprioSite(dados.referrer, dados.hostname)) delete dados.referrer;
+  return JSON.stringify(visita);
+}
+
+function doProprioSite(endereco: unknown, site: unknown): boolean {
+  if (typeof endereco !== "string") return false;
+  if (endereco.startsWith("/")) return true;
+  try {
+    return new URL(endereco).hostname === site;
+  } catch {
+    return false;
+  }
+}
+
 export function idDoSite(): string | null {
   return process.env.UMAMI_ID_DO_SITE || null;
 }

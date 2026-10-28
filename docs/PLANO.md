@@ -724,15 +724,16 @@ Na entrega da parte 3:
   `/estatisticas/api/send`, duas rotas do Next que repassam ao Umami com o IP e o navegador de quem
   visita. A CSP não mudou.
 - O contador fica na página inicial, na demonstração, no cadastro, na entrada, nos termos e na
-  privacidade. A rota de envio descarta qualquer visita de outra página, então nada de dentro do
-  sistema nem do acompanhamento do cliente chega ao Umami.
+  privacidade. A rota de envio descarta qualquer visita de outra página e tira das visitas a
+  página anterior quando ela é do próprio site, então nada de dentro do sistema nem do
+  acompanhamento do cliente chega ao Umami.
 - Cada conta criada vira um evento `cadastro`, mandado pelo servidor na mesma visita de quem se
   cadastrou, sem atrasar nem impedir o cadastro se o Umami falhar.
 - A política de privacidade ganhou a seção Medição de visitas: sem cookies, sem guardar o IP, o que
   é contado e onde.
-- Teste do site do envio do cadastro e das páginas contadas, e teste de navegador que confere, no
-  computador e no celular, com o Umami de verdade na CI, a visita, o cadastro e que nada de dentro
-  do sistema é contado (ADR 0039).
+- Teste do site do envio do cadastro, das páginas contadas e da página anterior, e teste de
+  navegador que confere, no computador e no celular, com o Umami de verdade na CI, a visita, o
+  evento do cadastro, lido na API do Umami, e que nada de dentro do sistema é contado (ADR 0039).
 
 ### 4T — Planos e preços
 

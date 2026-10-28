@@ -207,7 +207,8 @@ jobs:
           -e THROTTLE_CADASTRO=30/hour
           bancada-api
 
-      # O site entra no Umami como em produção: pelo painel, que aqui é a API dele.
+      # O site entra no Umami como em produção: pelo painel, que aqui é a API dele. Os testes de
+      # navegador usam o token para ler na mesma API o que chegou.
       - name: Cadastrar o site no Umami
         run: |
           for tentativa in $(seq 60); do
@@ -219,6 +220,7 @@ jobs:
           site=$(curl -sf -X POST http://localhost:3001/api/websites -H "Authorization: Bearer $token" \
             -H "Content-Type: application/json" -d '{"name":"Bancada","domain":"localhost"}' | jq -r .id)
           echo "UMAMI_ID_DO_SITE=$site" >> "$GITHUB_ENV"
+          echo "TOKEN_DO_UMAMI=$token" >> "$GITHUB_ENV"
 
       - name: Subir o site
         run: >-
@@ -254,7 +256,7 @@ jobs:
         working-directory: apps/web
         env:
           ENDERECO_DO_SITE: http://localhost:3000
-          ESTATISTICAS: "1"
+          ENDERECO_DO_UMAMI: http://localhost:3001
         run: npx playwright test
 
       - name: Guardar o relatório dos testes do navegador

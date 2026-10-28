@@ -4,6 +4,7 @@ import {
   estatisticasLigadas,
   eventoDeCadastro,
   paginaContada,
+  visitaParaOUmami,
 } from "@/lib/estatisticas";
 
 const enviar = vi.fn<typeof fetch>();
@@ -25,6 +26,13 @@ function ligarOUmami(): void {
   vi.stubEnv("APP_PUBLIC_URL", "https://bancada.exemplo");
 }
 
+function visitaVindaDe(referrer: string): string {
+  return JSON.stringify({
+    type: "event",
+    payload: { website: "site", hostname: "bancada.exemplo", url: "/", referrer },
+  });
+}
+
 describe("estatísticas", () => {
   it("ficam desligadas sem o site cadastrado no Umami", () => {
     vi.stubEnv("UMAMI_ID_DO_SITE", "");
@@ -38,6 +46,21 @@ describe("estatísticas", () => {
     expect(paginaContada("https://bancada.exemplo/ordens")).toBe(false);
     expect(paginaContada("/os/um-link-de-acompanhamento")).toBe(false);
     expect(paginaContada(undefined)).toBe(false);
+  });
+
+  it("descartam a visita de outra página e o que não é visita", () => {
+    expect(visitaParaOUmami(JSON.stringify({ type: "event", payload: { url: "/ordens" } }))).toBeNull();
+    expect(visitaParaOUmami("{")).toBeNull();
+    expect(visitaParaOUmami("null")).toBeNull();
+  });
+
+  it("tiram da visita a página anterior quando ela é do próprio site, como um link com código", () => {
+    const anterior = (referrer: string) =>
+      JSON.parse(visitaParaOUmami(visitaVindaDe(referrer)) ?? "").payload.referrer;
+
+    expect(anterior("/os/um-link-de-acompanhamento")).toBeUndefined();
+    expect(anterior("https://bancada.exemplo/convite/um-codigo")).toBeUndefined();
+    expect(anterior("https://www.google.com/")).toBe("https://www.google.com/");
   });
 
   it("contam o cadastro como um evento da página de cadastro, sem dados de quem se cadastrou", () => {
