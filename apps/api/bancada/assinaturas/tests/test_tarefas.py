@@ -54,7 +54,7 @@ def test_dono_e_avisado_sete_dias_antes_e_na_vespera_uma_vez_cada(
     ]
     assert mail.outbox[0].to == [dono.email]
     assert "http://localhost:3000/assinatura" in mail.outbox[0].body
-    assert "R$ 59,90" in mail.outbox[0].body
+    assert "Os planos vão de R$ 39,90 a R$ 119,90 por mês" in mail.outbox[0].body
 
     faltando(tenant, 1)
     revisar_assinaturas()

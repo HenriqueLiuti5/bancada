@@ -7,6 +7,7 @@ from django.utils import timezone
 from bancada.assinaturas import regras
 from bancada.assinaturas.models import (
     Assinatura,
+    Ciclo,
     Fatura,
     SituacaoDaAssinatura,
     SituacaoDaFatura,
@@ -156,6 +157,58 @@ def test_cancelar_sem_nada_pago_encerra_hoje(tenant: Tenant) -> None:
     fatura(assinatura, HOJE - timedelta(days=10), SituacaoDaFatura.VENCIDA)
 
     assert regras.acesso_depois_do_cancelamento(assinatura, HOJE) == HOJE
+
+
+@pytest.mark.parametrize(
+    ("dia", "ciclo", "esperado"),
+    [
+        (date(2026, 1, 31), Ciclo.MENSAL, date(2026, 2, 28)),
+        (date(2026, 1, 31), Ciclo.ANUAL, date(2027, 1, 31)),
+        (date(2028, 2, 29), Ciclo.ANUAL, date(2029, 2, 28)),
+    ],
+)
+def test_um_ciclo_depois_e_um_mes_no_mensal_e_um_ano_no_anual(
+    dia: date, ciclo: str, esperado: date
+) -> None:
+    assert regras.um_ciclo_depois(dia, ciclo) == esperado
+
+
+@pytest.mark.django_db
+def test_cancelar_o_anual_mantem_o_acesso_ate_o_fim_do_ano_pago(tenant: Tenant) -> None:
+    assinatura = assinatura_de(
+        tenant,
+        assinatura_no_provedor="sub_1",
+        ciclo=Ciclo.ANUAL,
+        teste_termina_em=date(2026, 9, 1),
+    )
+    fatura(assinatura, date(2026, 9, 20), SituacaoDaFatura.PAGA)
+
+    assert regras.acesso_depois_do_cancelamento(assinatura, HOJE) == date(2027, 9, 19)
+
+
+def pago_ha(assinatura: Assinatura, dias: int) -> Fatura:
+    paga = fatura(assinatura, HOJE - timedelta(days=dias), SituacaoDaFatura.PAGA)
+    Fatura.objects.filter(pk=paga.pk).update(paga_em=HOJE - timedelta(days=dias))
+    return paga
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(("dias", "devolve"), [(0, True), (7, True), (8, False)])
+def test_anual_e_devolvido_ate_sete_dias_depois_de_pago(
+    tenant: Tenant, dias: int, devolve: bool
+) -> None:
+    assinatura = assinatura_de(tenant, assinatura_no_provedor="sub_1", ciclo=Ciclo.ANUAL)
+    paga = pago_ha(assinatura, dias)
+
+    assert regras.fatura_a_devolver(assinatura, HOJE) == (paga if devolve else None)
+
+
+@pytest.mark.django_db
+def test_mensal_nunca_e_devolvido(tenant: Tenant) -> None:
+    assinatura = assinatura_de(tenant, assinatura_no_provedor="sub_1", ciclo=Ciclo.MENSAL)
+    pago_ha(assinatura, 0)
+
+    assert regras.fatura_a_devolver(assinatura, HOJE) is None
 
 
 @pytest.mark.django_db

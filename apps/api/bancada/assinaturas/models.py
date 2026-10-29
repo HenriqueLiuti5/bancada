@@ -27,6 +27,17 @@ class FormaDeCobranca(models.TextChoices):
     CARTAO = "cartao", "Cartão"
 
 
+class Plano(models.TextChoices):
+    SOLO = "solo", "Solo"
+    EQUIPE = "equipe", "Equipe"
+    REDE = "rede", "Rede"
+
+
+class Ciclo(models.TextChoices):
+    MENSAL = "mensal", "Mensal"
+    ANUAL = "anual", "Anual"
+
+
 class Assinatura(PertenceAoTenant):
     tenant = models.OneToOneField(
         "tenants.Tenant", on_delete=models.CASCADE, related_name="assinatura"
@@ -35,7 +46,10 @@ class Assinatura(PertenceAoTenant):
         max_length=20, choices=SituacaoDaAssinatura.choices, default=SituacaoDaAssinatura.TESTE
     )
     teste_termina_em = models.DateField()
-    valor_mensal = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    plano = models.CharField(max_length=20, choices=Plano.choices, blank=True)
+    ciclo = models.CharField(max_length=20, choices=Ciclo.choices, blank=True)
+    # O que cada cobrança leva, no ciclo da assinatura: por mês no mensal, por ano no anual.
+    valor = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     documento_do_pagador = models.CharField(max_length=14, blank=True)
     cliente_no_provedor = models.CharField(max_length=60, blank=True)
     assinatura_no_provedor = models.CharField(max_length=60, blank=True, db_index=True)
@@ -72,6 +86,8 @@ class Fatura(PertenceAoTenant):
     )
     paga_em = models.DateField(null=True, blank=True)
     link_de_pagamento = models.URLField(max_length=300, blank=True)
+    # O boleto não volta sozinho: quem pagou informa a conta neste link do Asaas.
+    link_da_devolucao = models.URLField(max_length=300, blank=True)
 
     class Meta:
         verbose_name = "fatura"

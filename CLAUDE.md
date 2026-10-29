@@ -102,6 +102,8 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
   `bancada/ordens/estados.py`). Cada transição grava um `EventoOS`; comentários e troca de cliente
   gravam um `RegistroOS`. Nenhum dos dois é editado nem apagado.
 - Papéis: dono, técnico e atendente, com as permissões em `bancada/tenants/permissoes.py`.
+- Os planos, os preços e o tamanho que cabe em cada um ficam em `PLANOS`
+  (`bancada/assinaturas/planos.py`), e o site recebe tudo da API (ADR 0040).
 - A senha de desbloqueio do aparelho é um `CampoCriptografado` (`bancada/core/fields.py`): só técnico
   e dono a veem, toda leitura vai para a auditoria e ela é apagada sozinha sete dias depois da
   entrega.
@@ -140,9 +142,10 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
 
 - Importe `test` e `expect` de `e2e/apoio.ts`, não de `@playwright/test`: a fixture de lá reprova o
   teste em qualquer erro no console ou violação da CSP.
-- Cada teste cria a própria assistência pelo cadastro e não depende do `semear`. São doze cadastros
-  por execução, por isso o `docker-compose.yml` sobe a API com `THROTTLE_CADASTRO=100/hour`. Na CI,
-  que liga o Umami, o `e2e/estatisticas.spec.ts` também roda e são catorze.
+- Cada teste cria a própria assistência pelo cadastro e não depende do `semear`. São dezoito
+  cadastros por execução, por isso o `docker-compose.yml` sobe a API com `THROTTLE_CADASTRO=100/hour`.
+  Na CI, que liga o Umami e um Asaas falso (`bancada/assinaturas/asaas_falso.py`), também rodam o
+  `e2e/estatisticas.spec.ts` e o teste que assina, e são vinte e dois.
 
 ## Convenções
 

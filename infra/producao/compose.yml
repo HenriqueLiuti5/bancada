@@ -24,7 +24,6 @@ x-ambiente-da-api: &ambiente-da-api
   ASAAS_API_URL: ${ASAAS_API_URL:-https://api.asaas.com/v3}
   ASAAS_API_KEY: ${ASAAS_API_KEY:-}
   ASAAS_WEBHOOK_TOKEN: ${ASAAS_WEBHOOK_TOKEN:?Defina ASAAS_WEBHOOK_TOKEN no .env}
-  VALOR_DA_ASSINATURA: ${VALOR_DA_ASSINATURA:-59.90}
   DJANGO_EMAIL_BACKEND: ${DJANGO_EMAIL_BACKEND:-django.core.mail.backends.smtp.EmailBackend}
   DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-}
   EMAIL_HOST: ${EMAIL_HOST:-}

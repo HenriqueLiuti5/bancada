@@ -12,6 +12,7 @@ CAMPOS_DA_FATURA = (
     "forma_de_pagamento",
     "paga_em",
     "id_no_provedor",
+    "link_da_devolucao",
 )
 
 
@@ -40,16 +41,20 @@ class AssinaturaAdmin(SoLeitura):
         "tenant",
         "situacao",
         "teste_termina_em",
-        "valor_mensal",
+        "plano",
+        "ciclo",
+        "valor",
         "assinada_em",
         "acesso_ate",
     ]
-    list_filter = ["situacao"]
+    list_filter = ["situacao", "plano", "ciclo"]
     search_fields = ["tenant__nome"]
     readonly_fields = [
         "tenant",
         "situacao",
-        "valor_mensal",
+        "plano",
+        "ciclo",
+        "valor",
         "documento_do_pagador",
         "cliente_no_provedor",
         "assinatura_no_provedor",

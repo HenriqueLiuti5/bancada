@@ -18,6 +18,7 @@ class ProvedorFalso:
         self.clientes: list[dict[str, Any]] = []
         self.assinaturas: list[dict[str, Any]] = []
         self.canceladas: list[str] = []
+        self.devolvidas: list[str] = []
         self.cobrancas: dict[str, list[Cobranca]] = {}
         self.falhar_em: str | None = None
 
@@ -37,6 +38,7 @@ class ProvedorFalso:
         *,
         cliente: str,
         valor: Decimal,
+        ciclo: str,
         primeiro_vencimento: date,
         descricao: str,
         referencia: str,
@@ -48,7 +50,9 @@ class ProvedorFalso:
                 "id": identificador,
                 "cliente": cliente,
                 "valor": valor,
+                "ciclo": ciclo,
                 "primeiro_vencimento": primeiro_vencimento,
+                "descricao": descricao,
                 "referencia": referencia,
             }
         )
@@ -74,6 +78,11 @@ class ProvedorFalso:
         self._talvez_falhar("cobrancas_da_assinatura")
         return list(self.cobrancas.get(assinatura, []))
 
+    def devolver_cobranca(self, cobranca: str, *, boleto: bool) -> str:
+        self._talvez_falhar("devolver_cobranca")
+        self.devolvidas.append(cobranca)
+        return f"https://sandbox.asaas.test/solicitar-estorno/{cobranca}" if boleto else ""
+
 
 @pytest.fixture
 def provedor(monkeypatch: pytest.MonkeyPatch) -> ProvedorFalso:
@@ -86,7 +95,6 @@ def provedor(monkeypatch: pytest.MonkeyPatch) -> ProvedorFalso:
 @pytest.fixture(autouse=True)
 def configuracao_da_cobranca(settings: Any) -> None:
     settings.ASAAS_WEBHOOK_TOKEN = TOKEN_DO_WEBHOOK
-    settings.VALOR_DA_ASSINATURA = Decimal("59.90")
 
 
 @pytest.fixture

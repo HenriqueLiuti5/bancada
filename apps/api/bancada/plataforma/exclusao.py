@@ -65,7 +65,9 @@ def apagar_assistencia(
 
     ficha = _ficha_das_cobrancas(tenant)
     Assinatura.objects.filter(tenant=tenant).update(tenant=ficha, documento_do_pagador="")
-    Fatura.objects.filter(tenant=tenant).update(tenant=ficha, link_de_pagamento="")
+    Fatura.objects.filter(tenant=tenant).update(
+        tenant=ficha, link_de_pagamento="", link_da_devolucao=""
+    )
     # Os registros de acesso ficam os 6 meses do Marco Civil, ligados só ao e-mail de quem entrou.
     RegistroDeAuditoria.objects.filter(tenant=tenant, acao__in=REGISTROS_DE_ACESSO).update(
         tenant=None

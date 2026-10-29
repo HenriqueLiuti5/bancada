@@ -45,3 +45,4 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0037](0037-financeiro-da-loja.md) | Financeiro da loja |
 | [0038](0038-pagina-inicial-com-telas-novas.md) | Página inicial com telas novas |
 | [0039](0039-termos-privacidade-e-medicao-de-visitas.md) | Termos, privacidade e medição de visitas |
+| [0040](0040-planos-e-precos.md) | Planos e preços |

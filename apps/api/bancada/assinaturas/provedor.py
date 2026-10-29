@@ -9,7 +9,7 @@ from typing import Any, Protocol
 
 from django.conf import settings
 
-from bancada.assinaturas.models import FormaDeCobranca, SituacaoDaFatura
+from bancada.assinaturas.models import Ciclo, FormaDeCobranca, SituacaoDaFatura
 
 TEMPO_LIMITE_EM_SEGUNDOS = 20
 NOME_DO_SISTEMA = "Bancada"
@@ -39,6 +39,8 @@ FORMAS_DO_ASAAS = {
     "BOLETO": FormaDeCobranca.BOLETO,
     "CREDIT_CARD": FormaDeCobranca.CARTAO,
 }
+
+CICLOS_DO_ASAAS: dict[str, str] = {Ciclo.MENSAL: "MONTHLY", Ciclo.ANUAL: "YEARLY"}
 
 
 class ErroNoProvedor(Exception):
@@ -74,6 +76,7 @@ class ProvedorDeCobranca(Protocol):
         *,
         cliente: str,
         valor: Decimal,
+        ciclo: str,
         primeiro_vencimento: date,
         descricao: str,
         referencia: str,
@@ -82,6 +85,8 @@ class ProvedorDeCobranca(Protocol):
     def cancelar_assinatura(self, assinatura: str) -> None: ...
 
     def cobrancas_da_assinatura(self, assinatura: str) -> list[Cobranca]: ...
+
+    def devolver_cobranca(self, cobranca: str, *, boleto: bool) -> str: ...
 
 
 def _data(valor: Any) -> date | None:
@@ -207,6 +212,7 @@ class Asaas:
         *,
         cliente: str,
         valor: Decimal,
+        ciclo: str,
         primeiro_vencimento: date,
         descricao: str,
         referencia: str,
@@ -219,7 +225,7 @@ class Asaas:
                 "billingType": "UNDEFINED",
                 "value": float(valor),
                 "nextDueDate": primeiro_vencimento.isoformat(),
-                "cycle": "MONTHLY",
+                "cycle": CICLOS_DO_ASAAS[ciclo],
                 "description": descricao,
                 "externalReference": referencia,
             },
@@ -234,6 +240,14 @@ class Asaas:
             "GET", f"/subscriptions/{assinatura}/payments?limit={COBRANCAS_POR_CONSULTA}"
         )
         return [cobranca_do_asaas(item) for item in consulta.get("data", [])]
+
+    def devolver_cobranca(self, cobranca: str, *, boleto: bool) -> str:
+        # PIX e cartão voltam na hora. O boleto devolve um link para quem pagou informar a conta.
+        if boleto:
+            pedido = self._chamar("POST", f"/payments/{cobranca}/bankSlip/refund", {})
+            return str(pedido.get("requestUrl") or "")
+        self._chamar("POST", f"/payments/{cobranca}/refund", {})
+        return ""
 
 
 def provedor_configurado() -> ProvedorDeCobranca:

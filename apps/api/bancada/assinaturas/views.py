@@ -1,4 +1,3 @@
-from django.conf import settings
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
@@ -6,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from bancada.assinaturas import regras, servicos
-from bancada.assinaturas.models import Assinatura, EventoDoProvedor
+from bancada.assinaturas.models import Assinatura, Ciclo, EventoDoProvedor, Plano
+from bancada.assinaturas.planos import PLANOS
 from bancada.assinaturas.provedor import (
     CABECALHO_DO_TOKEN_DO_WEBHOOK,
     ErroNoProvedor,
@@ -58,18 +58,23 @@ class AssinarView(ViewDaAssinatura):
                 tenant_obrigatorio(request),
                 documento=entrada.validated_data["documento"],
                 email=usuario_obrigatorio(request).email,
+                plano=entrada.validated_data["plano"],
+                ciclo=entrada.validated_data["ciclo"],
                 hoje=hoje,
             )
+        except servicos.PlanoNaoCabe as erro:
+            return Response({"plano": [str(erro)]}, status=status.HTTP_400_BAD_REQUEST)
         except servicos.AssinaturaIndisponivel as erro:
             return Response({"detail": str(erro)}, status=status.HTTP_409_CONFLICT)
         except ErroNoProvedor as erro:
             return Response({"detail": str(erro)}, status=status.HTTP_502_BAD_GATEWAY)
 
+        periodo = "ano" if assinatura.ciclo == Ciclo.ANUAL else "mês"
         self._registrar(
             request,
             assinatura,
             Acao.ASSINATURA_CONTRATADA,
-            f"R$ {assinatura.valor_mensal} por mês",
+            f"{assinatura.get_plano_display()}, R$ {assinatura.valor} por {periodo}",
         )
         return Response(detalhe_da_assinatura(assinatura, hoje), status=status.HTTP_201_CREATED)
 
@@ -79,14 +84,18 @@ class CancelarAssinaturaView(ViewDaAssinatura):
         hoje = hoje_no_bancada()
 
         try:
-            assinatura = servicos.cancelar(tenant_obrigatorio(request), hoje=hoje)
+            cancelamento = servicos.cancelar(tenant_obrigatorio(request), hoje=hoje)
         except servicos.AssinaturaIndisponivel as erro:
             return Response({"detail": str(erro)}, status=status.HTTP_409_CONFLICT)
         except ErroNoProvedor as erro:
             return Response({"detail": str(erro)}, status=status.HTTP_502_BAD_GATEWAY)
 
+        assinatura = cancelamento.assinatura
         acesso_ate = assinatura.acesso_ate.strftime("%d/%m/%Y") if assinatura.acesso_ate else ""
-        self._registrar(request, assinatura, Acao.ASSINATURA_CANCELADA, f"acesso até {acesso_ate}")
+        detalhe = f"acesso até {acesso_ate}"
+        if cancelamento.devolvida is not None:
+            detalhe += f", R$ {cancelamento.devolvida.valor} devolvidos"
+        self._registrar(request, assinatura, Acao.ASSINATURA_CANCELADA, detalhe)
         return Response(detalhe_da_assinatura(assinatura, hoje))
 
 
@@ -95,9 +104,10 @@ class OfertaView(APIView):
     authentication_classes: list = []
 
     def get(self, request: Request) -> Response:
+        # A página inicial mostra o Equipe até ganhar os três planos, na parte 4 da fase 4T.
         return Response(
             {
-                "valor_mensal": str(settings.VALOR_DA_ASSINATURA),
+                "valor_mensal": str(PLANOS[Plano.EQUIPE].mensal),
                 "dias_de_teste": regras.DIAS_DE_TESTE,
             }
         )

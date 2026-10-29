@@ -13,12 +13,15 @@ from django.utils.text import slugify
 from bancada.assinaturas import servicos
 from bancada.assinaturas.models import (
     Assinatura,
+    Ciclo,
     Fatura,
     FormaDeCobranca,
+    Plano,
     SituacaoDaAssinatura,
     SituacaoDaFatura,
 )
-from bancada.assinaturas.regras import DIAS_DE_TESTE, um_mes_depois
+from bancada.assinaturas.planos import PLANOS
+from bancada.assinaturas.regras import DIAS_DE_TESTE, um_ciclo_depois
 from bancada.clientes.models import Aparelho, Cliente
 from bancada.core.management.commands.semear import CONTA_DA_PLATAFORMA_DEMO, SENHA_DEMO
 from bancada.ordens.models import EventoOS, OrdemServico
@@ -58,6 +61,8 @@ class Exemplo:
     dias_desde_a_ultima_ordem: int | None
     dias_desde_o_ultimo_acesso: int
     assinou: bool = False
+    plano: str = Plano.EQUIPE
+    ciclo: str = Ciclo.MENSAL
     paga_por: str = FormaDeCobranca.PIX
     deixou_atrasar: bool = False
     dias_desde_o_cancelamento: int | None = None
@@ -67,7 +72,17 @@ EXEMPLOS = [
     Exemplo("Conserta Já Celulares", "Ana Ribeiro", "11981110001", 2, 0, None, 0),
     Exemplo("Cell Point Moema", "Bruno Carvalho", "11981110002", 6, 0, None, 5),
     Exemplo("Doutor Smartphone", "Camila Duarte", "21981110003", 12, 9, 1, 0),
-    Exemplo("Tech Mobile Reparos", "Diego Martins", "31981110004", 30, 26, 0, 0, assinou=True),
+    Exemplo(
+        "Tech Mobile Reparos",
+        "Diego Martins",
+        "31981110004",
+        30,
+        26,
+        0,
+        0,
+        assinou=True,
+        plano=Plano.SOLO,
+    ),
     Exemplo(
         "iFix Centro",
         "Eduarda Lopes",
@@ -77,6 +92,7 @@ EXEMPLOS = [
         2,
         1,
         assinou=True,
+        ciclo=Ciclo.ANUAL,
         paga_por=FormaDeCobranca.CARTAO,
     ),
     Exemplo(
@@ -88,6 +104,7 @@ EXEMPLOS = [
         18,
         16,
         assinou=True,
+        plano=Plano.REDE,
         paga_por=FormaDeCobranca.BOLETO,
     ),
     Exemplo(
@@ -99,6 +116,7 @@ EXEMPLOS = [
         4,
         3,
         assinou=True,
+        plano=Plano.SOLO,
         deixou_atrasar=True,
     ),
     Exemplo("Fix Fone", "Igor Barros", "51981110008", 50, 4, 25, 24),
@@ -228,9 +246,10 @@ class Command(BaseCommand):
         agora: datetime,
         hoje: date,
     ) -> None:
-        valor = settings.VALOR_DA_ASSINATURA
         assinatura.assinatura_no_provedor = f"sub_exemplo_{assinatura.tenant_id}"
-        assinatura.valor_mensal = valor
+        assinatura.plano = exemplo.plano
+        assinatura.ciclo = exemplo.ciclo
+        assinatura.valor = PLANOS[exemplo.plano].preco(exemplo.ciclo)
         assinatura.assinada_em = cadastro + timedelta(days=random.randint(14, 28))
         assinatura.situacao = SituacaoDaAssinatura.ATIVA
         assinatura.save()
@@ -239,9 +258,10 @@ class Command(BaseCommand):
         ultimo_dia = hoje - timedelta(days=cancelada) if cancelada else hoje
         vencimento = assinatura.teste_termina_em
         while vencimento <= ultimo_dia:
-            atrasou = exemplo.deixou_atrasar and um_mes_depois(vencimento) > hoje
+            proximo = um_ciclo_depois(vencimento, exemplo.ciclo)
+            atrasou = exemplo.deixou_atrasar and proximo > hoje
             self._fatura(assinatura, exemplo, vencimento, atrasou)
-            vencimento = um_mes_depois(vencimento)
+            vencimento = proximo
         if not cancelada:
             self._fatura(assinatura, exemplo, vencimento, atrasou=False, futura=True)
             return
@@ -257,7 +277,7 @@ class Command(BaseCommand):
         atrasou: bool,
         futura: bool = False,
     ) -> None:
-        valor = assinatura.valor_mensal or settings.VALOR_DA_ASSINATURA
+        valor = PLANOS[exemplo.plano].preco(exemplo.ciclo)
         paga = not (atrasou or futura)
         if paga:
             situacao = SituacaoDaFatura.PAGA

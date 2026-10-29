@@ -42,8 +42,9 @@ def test_criar_assinatura_manda_o_pedido_que_o_asaas_espera(
     identificador = asaas().criar_assinatura(
         cliente="cus_1",
         valor=Decimal("59.90"),
+        ciclo="mensal",
         primeiro_vencimento=date(2026, 11, 1),
-        descricao="Assinatura mensal do Bancada",
+        descricao="Assinatura mensal do Bancada, plano Equipe",
         referencia="assistencia-1",
     )
 
@@ -59,9 +60,55 @@ def test_criar_assinatura_manda_o_pedido_que_o_asaas_espera(
         "value": 59.9,
         "nextDueDate": "2026-11-01",
         "cycle": "MONTHLY",
-        "description": "Assinatura mensal do Bancada",
+        "description": "Assinatura mensal do Bancada, plano Equipe",
         "externalReference": "assistencia-1",
     }
+
+
+def test_assinatura_anual_vai_ao_asaas_com_o_ciclo_de_um_ano(
+    pedidos: list[urllib.request.Request],
+) -> None:
+    asaas().criar_assinatura(
+        cliente="cus_1",
+        valor=Decimal("399.00"),
+        ciclo="anual",
+        primeiro_vencimento=date(2026, 11, 1),
+        descricao="Assinatura anual do Bancada, plano Solo",
+        referencia="assistencia-1",
+    )
+
+    corpo = json.loads(cast(bytes, pedidos[0].data))
+    assert (corpo["cycle"], corpo["value"]) == ("YEARLY", 399.0)
+
+
+def test_devolucao_do_pix_e_do_cartao_e_feita_na_hora(
+    pedidos: list[urllib.request.Request],
+) -> None:
+    assert asaas().devolver_cobranca("pay_1", boleto=False) == ""
+
+    assert pedidos[0].full_url == "https://api-sandbox.asaas.com/v3/payments/pay_1/refund"
+    assert pedidos[0].get_method() == "POST"
+    assert json.loads(cast(bytes, pedidos[0].data)) == {}
+
+
+def test_devolucao_do_boleto_traz_o_link_para_informar_a_conta(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    enviados: list[urllib.request.Request] = []
+
+    def urlopen_falso(pedido: urllib.request.Request, timeout: int) -> io.BytesIO:
+        enviados.append(pedido)
+        link = "https://sandbox.asaas.com/solicitar-estorno/37ij5mdxwo1234"
+        return io.BytesIO(json.dumps({"requestUrl": link}).encode())
+
+    monkeypatch.setattr(urllib.request, "urlopen", urlopen_falso)
+
+    link = asaas().devolver_cobranca("pay_1", boleto=True)
+
+    assert link == "https://sandbox.asaas.com/solicitar-estorno/37ij5mdxwo1234"
+    assert enviados[0].full_url == (
+        "https://api-sandbox.asaas.com/v3/payments/pay_1/bankSlip/refund"
+    )
 
 
 def test_sem_chave_configurada_nada_e_enviado(pedidos: list[urllib.request.Request]) -> None:

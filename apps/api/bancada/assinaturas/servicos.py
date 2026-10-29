@@ -1,16 +1,18 @@
 import logging
+from dataclasses import dataclass
 from datetime import date
 
-from django.conf import settings
 from django.utils import timezone
 
 from bancada.assinaturas import regras
 from bancada.assinaturas.models import (
     Assinatura,
     Fatura,
+    FormaDeCobranca,
     SituacaoDaAssinatura,
     SituacaoDaFatura,
 )
+from bancada.assinaturas.planos import PLANOS, descricao_da_assinatura, tamanho_da
 from bancada.assinaturas.provedor import (
     Cobranca,
     ErroNoProvedor,
@@ -23,13 +25,22 @@ from bancada.tenants.models import Tenant
 
 registrador = logging.getLogger(__name__)
 
-DESCRICAO_DA_ASSINATURA = "Assinatura mensal do Bancada"
 PROCESSADO = "processado"
 IGNORADO = "ignorado"
 
 
 class AssinaturaIndisponivel(Exception):
     pass
+
+
+class PlanoNaoCabe(Exception):
+    pass
+
+
+@dataclass(frozen=True)
+class Cancelamento:
+    assinatura: Assinatura
+    devolvida: Fatura | None
 
 
 def referencia_da_assistencia(tenant: Tenant) -> str:
@@ -96,6 +107,8 @@ def assinar(
     *,
     documento: str,
     email: str,
+    plano: str,
+    ciclo: str,
     hoje: date,
     provedor: ProvedorDeCobranca | None = None,
 ) -> Assinatura:
@@ -104,17 +117,25 @@ def assinar(
     if assinatura.contratada:
         raise AssinaturaIndisponivel("A assistência já tem uma assinatura ativa.")
 
+    condicoes = PLANOS[plano]
+    motivo = condicoes.por_que_nao_cabe(tamanho_da(tenant))
+    if motivo:
+        raise PlanoNaoCabe(motivo)
+
     _garantir_cliente(assinatura, provedor, documento=documento, email=email)
 
-    valor = settings.VALOR_DA_ASSINATURA
+    valor = condicoes.preco(ciclo)
     assinatura.assinatura_no_provedor = provedor.criar_assinatura(
         cliente=assinatura.cliente_no_provedor,
         valor=valor,
+        ciclo=ciclo,
         primeiro_vencimento=regras.primeiro_vencimento(assinatura, hoje),
-        descricao=DESCRICAO_DA_ASSINATURA,
+        descricao=descricao_da_assinatura(plano, ciclo),
         referencia=referencia_da_assistencia(tenant),
     )
-    assinatura.valor_mensal = valor
+    assinatura.plano = plano
+    assinatura.ciclo = ciclo
+    assinatura.valor = valor
     assinatura.assinada_em = timezone.now()
     assinatura.cancelada_em = None
     assinatura.acesso_ate = None
@@ -139,16 +160,30 @@ def encerrar(assinatura: Assinatura, hoje: date) -> Assinatura:
     return assinatura
 
 
+def _devolver(fatura: Fatura, provedor: ProvedorDeCobranca) -> None:
+    fatura.link_da_devolucao = provedor.devolver_cobranca(
+        fatura.id_no_provedor, boleto=fatura.forma_de_pagamento == FormaDeCobranca.BOLETO
+    )
+    fatura.situacao = SituacaoDaFatura.ESTORNADA
+    fatura.save(update_fields=["link_da_devolucao", "situacao", "atualizado_em"])
+
+
 def cancelar(
     tenant: Tenant, *, hoje: date, provedor: ProvedorDeCobranca | None = None
-) -> Assinatura:
+) -> Cancelamento:
     provedor = provedor or provedor_configurado()
     assinatura = Assinatura.objects.select_for_update().get(tenant=tenant)
     if not assinatura.contratada:
         raise AssinaturaIndisponivel("Não há assinatura ativa para cancelar.")
 
+    # A devolução vem antes: se o Asaas recusar o cancelamento, a fatura já saiu como devolvida e
+    # a próxima tentativa não devolve de novo.
+    devolvida = regras.fatura_a_devolver(assinatura, hoje)
+    if devolvida is not None:
+        _devolver(devolvida, provedor)
+
     provedor.cancelar_assinatura(assinatura.assinatura_no_provedor)
-    return encerrar(assinatura, hoje)
+    return Cancelamento(encerrar(assinatura, hoje), devolvida)
 
 
 def _assinatura_da_cobranca(cobranca: Cobranca) -> Assinatura | None:

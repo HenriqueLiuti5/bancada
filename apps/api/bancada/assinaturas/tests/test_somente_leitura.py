@@ -127,7 +127,9 @@ def test_sem_assinatura_ainda_da_para_assinar_e_voltar_a_editar(
     assert api_dono.get("/api/assinatura/").status_code == 200
 
     assinatura = api_dono.post(
-        "/api/assinatura/assinar/", {"documento": "529.982.247-25"}, format="json"
+        "/api/assinatura/assinar/",
+        {"documento": "529.982.247-25", "plano": "solo", "ciclo": "mensal"},
+        format="json",
     )
 
     assert assinatura.status_code == 201

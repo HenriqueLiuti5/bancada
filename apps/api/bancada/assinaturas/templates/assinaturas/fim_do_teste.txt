@@ -5,7 +5,7 @@ O teste grátis da {{ assistencia }} no Bancada termina {{ quando }}, em {{ test
 Para continuar abrindo e atualizando ordens de serviço depois disso, assine por aqui:
 {{ link }}
 
-A mensalidade é de {{ valor|reais }}. Ela vence no último dia do teste, então você não perde nenhum dia grátis, e o pagamento pode ser por PIX, boleto ou cartão.
+Os planos vão de {{ menor_preco|reais }} a {{ maior_preco|reais }} por mês, conforme o número de pessoas e de lojas, e no anual você paga 10 meses e usa 12. A primeira cobrança vence no último dia do teste, então você não perde nenhum dia grátis, e o pagamento pode ser por PIX, boleto ou cartão.
 
 Se preferir não assinar agora, as ordens e os clientes continuam lá, só para consulta, e assinando você volta a editar na hora. Uma conta que passa 6 meses seguidos só para consulta é apagada, com um aviso por e-mail 30 dias antes.
 

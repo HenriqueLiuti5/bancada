@@ -13,11 +13,14 @@ export type Usuario = {
 
 export type SituacaoDaAssinatura = "teste" | "ativa" | "inadimplente" | "suspensa" | "cancelada";
 
+export type Ciclo = "mensal" | "anual";
+
 export type ResumoDaAssinatura = {
   situacao: SituacaoDaAssinatura;
   situacao_rotulo: string;
   pode_editar: boolean;
   contratada: boolean;
+  ciclo: Ciclo | "";
   em_teste: boolean;
   teste_termina_em: string;
   dias_de_teste: number;
@@ -514,10 +517,30 @@ export type Fatura = {
   forma_rotulo: string;
   paga_em: string | null;
   link_de_pagamento: string;
+  link_da_devolucao: string;
 };
 
+export type PlanoDaAssinatura = {
+  plano: string;
+  nome: string;
+  lojas: number;
+  pessoas: number | null;
+  mensal: string;
+  anual: string;
+  por_que_nao_cabe: string | null;
+};
+
+export type TamanhoDaAssistencia = { lojas: number; pessoas: number };
+
 export type DetalheDaAssinatura = ResumoDaAssinatura & {
-  valor_mensal: string;
+  plano: string;
+  plano_rotulo: string;
+  ciclo_rotulo: string;
+  valor: string | null;
+  planos: PlanoDaAssinatura[];
+  plano_sugerido: string | null;
+  tamanho: TamanhoDaAssistencia;
+  cancelamento: { devolve: string | null; acesso_ate: string } | null;
   primeiro_vencimento: string;
   documento_do_pagador: string;
   assinada_em: string | null;

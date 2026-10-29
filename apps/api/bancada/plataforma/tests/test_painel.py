@@ -6,7 +6,7 @@ import pytest
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from bancada.assinaturas.models import Assinatura, SituacaoDaAssinatura, SituacaoDaFatura
+from bancada.assinaturas.models import Assinatura, Ciclo, SituacaoDaAssinatura, SituacaoDaFatura
 from bancada.plataforma.meses import Mes
 from bancada.plataforma.models import Custo
 from bancada.plataforma.numeros import PAROU, SEM_ORDENS, alerta
@@ -87,6 +87,18 @@ def test_receita_recorrente_soma_quem_esta_pagando(api_plataforma: APIClient) ->
     assert assinaturas["receita_recorrente"] == {"valor": "209.70", "assinaturas": 3}
     totais = {linha["situacao"]: linha["total"] for linha in assinaturas["por_situacao"]}
     assert totais == {"teste": 1, "ativa": 2, "inadimplente": 1, "suspensa": 1, "cancelada": 1}
+
+
+@pytest.mark.django_db
+def test_receita_recorrente_conta_o_anual_dividido_pelos_doze_meses(
+    api_plataforma: APIClient,
+) -> None:
+    contratar(nova_assistencia("Mensal"))
+    contratar(nova_assistencia("Anual"), valor=Decimal("599.00"), ciclo=Ciclo.ANUAL)
+
+    receita = painel(api_plataforma)["assinaturas"]["receita_recorrente"]
+
+    assert receita == {"valor": "109.82", "assinaturas": 2}
 
 
 @pytest.mark.django_db

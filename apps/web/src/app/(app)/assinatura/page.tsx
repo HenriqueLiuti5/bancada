@@ -6,7 +6,12 @@ import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
 import { chamarApi } from "@/lib/api";
-import { avisoDaExclusao } from "@/lib/assinatura";
+import {
+  avisoDaExclusao,
+  nomeDaCobranca,
+  porPeriodo,
+  tamanhoDaAssistencia,
+} from "@/lib/assinatura";
 import { dataCurta, diaPorExtenso } from "@/lib/datas";
 import { emReais } from "@/lib/moeda";
 import type { Assistencia, DetalheDaAssinatura, Fatura } from "@/lib/tipos";
@@ -17,39 +22,41 @@ export const dynamic = "force-dynamic";
 
 const EM_ABERTO = new Set(["aberta", "vencida"]);
 
-function explicacaoDaAssinatura(assinatura: DetalheDaAssinatura): React.ReactNode {
-  const valor = <Dinheiro valor={assinatura.valor_mensal} />;
+const AVISO_DA_EXCLUSAO =
+  "Se ficar 6 meses assim, a conta é apagada com todos os dados, com um aviso por e-mail 30 dias antes.";
+
+function explicacaoDaAssinatura(assinatura: DetalheDaAssinatura): string {
   const fimDoTeste = diaPorExtenso(assinatura.teste_termina_em);
   const primeiroVencimento = diaPorExtenso(assinatura.primeiro_vencimento);
+  const cobranca = nomeDaCobranca(assinatura.ciclo);
 
   switch (assinatura.situacao) {
     case "teste":
-      return (
-        <>
-          Você está no teste grátis até {fimDoTeste}. Assinando agora, nada é cobrado antes disso: a
-          primeira mensalidade, de {valor}, vence em {primeiroVencimento}.
-        </>
-      );
+      return `Você está no teste grátis até ${fimDoTeste}. Assinando agora, nada é cobrado antes disso: a primeira cobrança vence em ${primeiroVencimento}.`;
     case "ativa":
       return assinatura.em_teste
-        ? `Assinatura feita. O teste grátis continua até ${fimDoTeste}, e a primeira mensalidade vence nesse dia.`
-        : (
-          <>
-            Tudo em dia. A mensalidade é de {valor}, e o Asaas, a empresa que faz a cobrança do
-            Bancada, manda a fatura por e-mail antes de cada vencimento.
-          </>
-        );
+        ? `Assinatura feita. O teste grátis continua até ${fimDoTeste}, e a primeira ${cobranca} vence nesse dia.`
+        : "Tudo em dia. O Asaas, a empresa que faz a cobrança do Bancada, manda a fatura por e-mail antes de cada vencimento.";
     case "inadimplente":
-      return `A mensalidade está atrasada. Pague até ${diaPorExtenso(assinatura.pagar_ate ?? assinatura.primeiro_vencimento)} para o Bancada não ficar só para consulta.`;
+      return `A ${cobranca} está atrasada. Pague até ${diaPorExtenso(assinatura.pagar_ate ?? assinatura.primeiro_vencimento)} para o Bancada não ficar só para consulta.`;
     case "suspensa":
       return assinatura.contratada
-        ? "A mensalidade está atrasada há mais de 7 dias, então o Bancada está só para consulta. Assim que o pagamento for confirmado, tudo volta ao normal."
-        : `O teste grátis terminou em ${fimDoTeste}. As ordens e os clientes continuam aqui, só para consulta. Assinando, você volta a editar na hora, e a primeira mensalidade vence em ${primeiroVencimento}.`;
+        ? `A ${cobranca} está atrasada há mais de 7 dias, então o Bancada está só para consulta. Assim que o pagamento for confirmado, tudo volta ao normal.`
+        : `O teste grátis terminou em ${fimDoTeste}. As ordens e os clientes continuam aqui, só para consulta. Assinando, você volta a editar na hora, e a primeira cobrança vence em ${primeiroVencimento}.`;
     case "cancelada":
       return assinatura.pode_editar && assinatura.acesso_ate
         ? `A assinatura foi cancelada. Você usa normalmente até ${diaPorExtenso(assinatura.acesso_ate)}; depois, o Bancada fica só para consulta. Para continuar, é só assinar de novo.`
         : "A assinatura foi cancelada, e o Bancada está só para consulta. Assinando de novo, você volta a editar na hora.";
   }
+}
+
+function avisoDoCancelamento({ cancelamento }: DetalheDaAssinatura): string {
+  if (!cancelamento) return "";
+  const ate = diaPorExtenso(cancelamento.acesso_ate);
+  const antes = cancelamento.devolve
+    ? `Cancelar a assinatura? Você pagou o ano há menos de 7 dias, então os ${emReais(cancelamento.devolve)} voltam para você, e o Bancada fica liberado até ${ate}.`
+    : `Cancelar a assinatura? Nada mais é cobrado. Você continua usando até ${ate}.`;
+  return `${antes} Depois disso, o Bancada fica só para consulta. ${AVISO_DA_EXCLUSAO}`;
 }
 
 function faturaAPagar(faturas: Fatura[]): Fatura | undefined {
@@ -87,6 +94,17 @@ function LinhaDaFatura({ fatura }: { fatura: Fatura }) {
         </p>
       </div>
       <Selo status={fatura.situacao} rotulo={fatura.situacao_rotulo} />
+      {fatura.link_da_devolucao && (
+        <a
+          href={fatura.link_da_devolucao}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={botao("secundario", "sm")}
+        >
+          Informar a conta para a devolução
+          <ArrowSquareOutIcon size={13} />
+        </a>
+      )}
       {fatura.link_de_pagamento && (
         <a
           href={fatura.link_de_pagamento}
@@ -99,6 +117,37 @@ function LinhaDaFatura({ fatura }: { fatura: Fatura }) {
         </a>
       )}
     </li>
+  );
+}
+
+function EscolhaDoPlano({
+  assinatura,
+  documento,
+}: {
+  assinatura: DetalheDaAssinatura;
+  documento: string;
+}) {
+  return (
+    <>
+      <p className="text-[13px] text-texto-suave">
+        Todos os planos têm tudo o que o Bancada faz; muda só o tamanho da assistência, que hoje
+        tem {tamanhoDaAssistencia(assinatura.tamanho)}, contando os convites ainda não aceitos. A
+        fatura chega por e-mail, todo mês ou uma vez por ano, e você paga por PIX, boleto ou cartão.
+        Quem manda a fatura é o Asaas, a empresa que faz a cobrança do Bancada. Dá para cancelar
+        quando quiser.
+      </p>
+      {!assinatura.plano_sugerido && (
+        <p className="text-[13px] font-semibold text-texto">
+          Com mais de 3 lojas, o preço é combinado com o suporte: fale com a gente pelo WhatsApp,
+          no menu Ajuda.
+        </p>
+      )}
+      <FormularioDeAssinatura
+        documento={documento}
+        planos={assinatura.planos}
+        sugerido={assinatura.plano_sugerido}
+      />
+    </>
   );
 }
 
@@ -125,13 +174,19 @@ export default async function PaginaDaAssinatura() {
     <>
       <CabecalhoDaPagina
         titulo="Assinatura"
-        descricao="A mensalidade do Bancada, as faturas e o cancelamento."
+        descricao="O plano do Bancada, as faturas e o cancelamento."
         junto={<Selo status={assinatura.situacao} rotulo={assinatura.situacao_rotulo} />}
       />
 
       <div className="max-w-3xl space-y-6">
         <Cartao titulo="Situação" icone={SealCheckIcon}>
           <div className="space-y-5">
+            {assinatura.plano && assinatura.valor && (
+              <p className="text-sm font-semibold text-texto">
+                Plano {assinatura.plano_rotulo}, pagamento {assinatura.ciclo_rotulo.toLowerCase()}:{" "}
+                <Dinheiro valor={assinatura.valor} /> {porPeriodo(assinatura.ciclo)}
+              </p>
+            )}
             <p className="text-sm leading-relaxed text-texto-suave">
               {explicacaoDaAssinatura(assinatura)} {avisoDaExclusao(assinatura.apaga_em)}
             </p>
@@ -139,20 +194,13 @@ export default async function PaginaDaAssinatura() {
             {assinatura.contratada ? (
               <div className="flex flex-wrap items-center gap-3 border-t border-borda pt-4">
                 {aPagar && <BotaoDaFatura fatura={aPagar} atrasada={atrasada} />}
-                <CancelamentoDaAssinatura />
+                <CancelamentoDaAssinatura aviso={avisoDoCancelamento(assinatura)} />
               </div>
             ) : (
-              <>
-                <p className="text-[13px] text-texto-suave">
-                  <Dinheiro valor={assinatura.valor_mensal} /> por mês. Todo mês chega uma fatura por
-                  e-mail, e você paga por PIX, boleto ou cartão. Quem manda a fatura é o Asaas, a
-                  empresa que faz a cobrança do Bancada. Dá para cancelar quando quiser.
-                </p>
-                <FormularioDeAssinatura
-                  documento={assinatura.documento_do_pagador || assistencia.documento}
-                  valorMensal={assinatura.valor_mensal}
-                />
-              </>
+              <EscolhaDoPlano
+                assinatura={assinatura}
+                documento={assinatura.documento_do_pagador || assistencia.documento}
+              />
             )}
           </div>
         </Cartao>

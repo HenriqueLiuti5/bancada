@@ -170,6 +170,13 @@ jobs:
             -e PRIVATE_MODE=1 \
             ghcr.io/umami-software/umami:3.4.1
 
+      # Um Asaas falso, da própria imagem da API, para os testes de navegador assinarem sem
+      # cobrança de verdade (ADR 0040).
+      - name: Subir o Asaas falso
+        run: >-
+          docker run -d --name asaas --network host
+          bancada-api python -m bancada.assinaturas.asaas_falso 8010
+
       - name: Criar os papéis do banco como em produção
         env:
           PGPASSWORD: postgres
@@ -195,9 +202,9 @@ jobs:
           -e DJANGO_DEBUG=1 -e POSTGRES_APP_USER=bancada_app -e POSTGRES_APP_PASSWORD=aplicacao
           bancada-api python manage.py semear
 
-      # Os testes de navegador cadastram catorze assistências por execução, com a medição de
-      # visitas ligada, mais que o limite de uma hora. O limite maior deixa espaço para uma nova
-      # tentativa de um teste (ADR 0037).
+      # Os testes de navegador cadastram vinte e duas assistências por execução, com a medição de
+      # visitas e o Asaas falso ligados, mais que o limite de uma hora. O limite maior deixa espaço
+      # para uma nova tentativa de um teste (ADR 0037).
       - name: Subir a API com o papel da aplicação
         run: >-
           docker run -d --name api --network host
@@ -205,6 +212,7 @@ jobs:
           -e DJANGO_SECRET_KEY -e DJANGO_DEBUG -e DJANGO_ALLOWED_HOSTS -e BANCADA_ENCRYPTION_KEY
           -e POSTGRES_APP_USER=bancada_app -e POSTGRES_APP_PASSWORD=aplicacao
           -e THROTTLE_CADASTRO=30/hour
+          -e ASAAS_API_URL=http://localhost:8010 -e ASAAS_API_KEY=chave-do-asaas-falso
           bancada-api
 
       # O site entra no Umami como em produção: pelo painel, que aqui é a API dele. Os testes de
@@ -257,6 +265,7 @@ jobs:
         env:
           ENDERECO_DO_SITE: http://localhost:3000
           ENDERECO_DO_UMAMI: http://localhost:3001
+          ENDERECO_DO_ASAAS: http://localhost:8010
         run: npx playwright test
 
       - name: Guardar o relatório dos testes do navegador
@@ -281,3 +290,4 @@ jobs:
           docker logs api || true
           docker logs web || true
           docker logs umami || true
+          docker logs asaas || true

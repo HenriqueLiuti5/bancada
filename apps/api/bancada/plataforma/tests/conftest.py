@@ -8,8 +8,10 @@ from rest_framework.test import APIClient
 
 from bancada.assinaturas.models import (
     Assinatura,
+    Ciclo,
     Fatura,
     FormaDeCobranca,
+    Plano,
     SituacaoDaAssinatura,
     SituacaoDaFatura,
 )
@@ -66,11 +68,14 @@ def contratar(
     *,
     situacao: str = SituacaoDaAssinatura.ATIVA,
     valor: Decimal = MENSALIDADE,
+    ciclo: str = Ciclo.MENSAL,
     dias_desde_a_assinatura: int = 0,
 ) -> Assinatura:
     assinatura = Assinatura.objects.get(tenant=tenant)
     assinatura.assinatura_no_provedor = f"sub_{tenant.pk}"
-    assinatura.valor_mensal = valor
+    assinatura.plano = Plano.EQUIPE
+    assinatura.ciclo = ciclo
+    assinatura.valor = valor
     assinatura.assinada_em = timezone.now() - timedelta(days=dias_desde_a_assinatura)
     assinatura.situacao = situacao
     assinatura.save()

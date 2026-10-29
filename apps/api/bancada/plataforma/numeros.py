@@ -4,16 +4,18 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
-from django.db.models import Count, F, Max, Q, QuerySet, Sum
+from django.db.models import Case, Count, DecimalField, F, Max, Q, QuerySet, Sum, When
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 
 from bancada.assinaturas.models import (
     Assinatura,
+    Ciclo,
     Fatura,
     SituacaoDaAssinatura,
     SituacaoDaFatura,
 )
+from bancada.assinaturas.regras import MESES_DO_CICLO
 from bancada.ordens.models import OrdemServico
 from bancada.ordens.painel.periodo import inicio_do_dia
 from bancada.plataforma.meses import Mes
@@ -21,6 +23,7 @@ from bancada.plataforma.models import Custo
 from bancada.tenants.models import Papel, Tenant, Usuario
 
 ZERO = Decimal("0.00")
+CENTAVO = Decimal("0.01")
 SEMANAS_NO_GRAFICO = 12
 MESES_NO_GRAFICO = 12
 DIAS_PARA_A_PRIMEIRA_ORDEM = 3
@@ -63,10 +66,16 @@ def dinheiro(mes: Mes) -> dict[str, Any]:
 
 
 def receita_recorrente() -> dict[str, Any]:
-    pagantes = Assinatura.objects.filter(situacao__in=SITUACOES_QUE_PAGAM).aggregate(
-        valor=Sum("valor_mensal"), assinaturas=Count("id")
+    por_mes = Case(
+        When(ciclo=Ciclo.ANUAL, then=F("valor") / MESES_DO_CICLO[Ciclo.ANUAL]),
+        default=F("valor"),
+        output_field=DecimalField(max_digits=10, decimal_places=2),
     )
-    return {"valor": str(pagantes["valor"] or ZERO), "assinaturas": pagantes["assinaturas"]}
+    pagantes = Assinatura.objects.filter(situacao__in=SITUACOES_QUE_PAGAM).aggregate(
+        valor=Sum(por_mes), assinaturas=Count("id")
+    )
+    valor = (pagantes["valor"] or ZERO).quantize(CENTAVO)
+    return {"valor": str(valor), "assinaturas": pagantes["assinaturas"]}
 
 
 def _conversao(hoje: date) -> dict[str, Any]:

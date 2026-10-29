@@ -91,7 +91,7 @@ o operador.
 | 4Q | Financeiro da loja | concluída |
 | 4R | Página inicial com telas novas | concluída |
 | 4S | Termos finais, privacidade e medição de visitas | concluída |
-| 4T | Planos e preços | |
+| 4T | Planos e preços | em andamento |
 | 4F | Publicação: domínio, termos, backup e monitoramento | em andamento |
 | 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
 | 6 | WhatsApp automático e relatórios além do painel | |
@@ -746,6 +746,64 @@ A proposta de partida é cobrar pelo tamanho da assistência, com todos os recur
 planos: Solo, com 1 loja e até 2 pessoas; Equipe, com 1 loja e pessoas ilimitadas; e Rede, com mais
 de uma loja. A fase faz a escolha do plano na tela Assinatura, os limites de pessoas e de lojas, a
 troca de plano e os planos na página inicial.
+
+No começo da fase, em 28 de outubro de 2026, o Henrique decidiu:
+
+- Três planos, todos com todos os recursos:
+
+  | Plano | Tamanho | Mensal | Anual |
+  |---|---|---|---|
+  | Solo | 1 loja, até 2 pessoas | R$ 39,90 | R$ 399 |
+  | Equipe | 1 loja, pessoas ilimitadas | R$ 59,90 | R$ 599 |
+  | Rede | até 3 lojas, pessoas ilimitadas | R$ 119,90 | R$ 1.199 |
+
+- Acima de 3 lojas, o preço é combinado pelo WhatsApp do suporte, por enquanto.
+- O anual dá dois meses grátis: paga 10 e usa 12. Quem cancela o anual até 7 dias depois de pagar
+  recebe tudo de volta; depois disso, usa até o fim dos 12 meses pagos, sem devolução. No mensal
+  continua sem devolução do mês em andamento.
+- Programa de fundadores: as 50 primeiras assinaturas pagam cerca de 25% menos, R$ 29,90, R$ 44,90
+  e R$ 89,90 por mês ou R$ 299, R$ 449 e R$ 899 por ano, enquanto a assinatura continuar sem
+  interrupção. Quem cancela perde o desconto, e a vaga não volta.
+- Contam como pessoas o dono, a equipe e os convites ainda não aceitos: no Solo, o dono e mais uma
+  pessoa.
+- O teste de 30 dias continua com tudo liberado. Na hora de assinar, o sistema sugere o plano que
+  cabe no tamanho da assistência.
+- Subir de plano vale na hora, e o valor novo entra na próxima fatura, sem cobrança proporcional.
+  Descer de plano só é possível quando a assistência cabe no plano menor, e nada é apagado.
+
+A fase é feita em partes, uma de cada vez:
+
+1. Escolha do plano ao assinar: os três planos, no mensal e no anual, na tela Assinatura e no
+   Asaas, e um Asaas falso na CI, para os testes de navegador assinarem (concluída).
+2. Limites de pessoas e de lojas durante o uso, e a troca de plano.
+3. Programa de fundadores.
+4. Página inicial e textos: os planos com a escolha entre mensal e anual, as perguntas, os termos
+   de uso, os e-mails e o plano de cada assistência no painel da plataforma.
+
+Na entrega da parte 1:
+
+- A tela Assinatura mostra os três planos, no mensal ou no anual, com o preço de cada um. Os que
+  não cabem na assistência ficam desligados, com o motivo, e o mais barato que cabe já vem marcado.
+  Contam as pessoas ativas, os convites que ainda valem e as lojas ativas. Com mais de 3 lojas, a
+  tela manda falar com o suporte.
+- Os planos e os preços ficam no código, em `bancada/assinaturas/planos.py`, e a variável
+  `VALOR_DA_ASSINATURA` saiu. A assinatura guarda o plano, o ciclo e o valor de cada cobrança, e as
+  de antes viraram Equipe mensal.
+- O anual vai ao Asaas com o ciclo de um ano, e depois do cancelamento o acesso vai até o fim do
+  ano pago. Cancelado até 7 dias depois do pagamento, ele é estornado inteiro pelo Asaas; no
+  boleto, a fatura mostra o link para quem pagou informar a conta. Antes de confirmar o
+  cancelamento, a tela diz o valor que volta ou até quando o sistema fica liberado.
+- O aviso do topo e a tela chamam a cobrança do anual de anuidade, o e-mail do fim do teste diz a
+  faixa de preços dos planos, e a receita recorrente do painel da plataforma conta o anual dividido
+  pelos 12 meses.
+- Um Asaas falso, `bancada/assinaturas/asaas_falso.py`, sobe na CI das imagens de produção, e os
+  testes de navegador assinam por ele.
+- A página inicial continua com o preço do Equipe até a parte 4.
+- Testes da API dos planos, do tamanho da assistência, da assinatura mensal e anual, do plano que
+  não cabe, da devolução do anual e do Asaas falso; teste do site dos textos da assinatura; e
+  testes de navegador, no computador e no celular, do plano sugerido quando o Solo não cabe, da
+  assinatura anual cancelada no teste grátis, contra o Asaas falso, e da assinatura recusada que
+  continua com o plano e o pagamento escolhidos (ADR 0040).
 
 ### 4F — Publicação
 

@@ -22,8 +22,13 @@ photos, and the account is deleted; an account left read-only for six months in 
 on its own, with an email to the owner 30 days before. Payment records stay, without the shop's
 name, for the tax authorities. Visits to the public pages and sign-ups are counted with Umami, on
 Bancada's own server, without cookies and without storing IP addresses; nothing inside the system
-or on the customers' tracking page is counted. Before going live, 4T adds paid plans; see the
-[project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
+or on the customers' tracking page is counted. Phase 4T, plans and prices, is under way: the
+subscription screen now offers three plans with every feature, priced by the size of the shop
+(Solo, Equipe and Rede), paid monthly or yearly with two months free, and suggests the cheapest one
+that fits the shop's people and stores. A yearly plan cancelled within 7 days of paying is refunded
+in full through Asaas. Browser tests subscribe and cancel against a fake Asaas in CI. Still to come
+in 4T are the limits while the shop is in use, plan changes, a founders' discount and the plans on
+the home page; see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the

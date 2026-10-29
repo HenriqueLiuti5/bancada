@@ -8,7 +8,11 @@ export async function assinar(
   _anterior: EstadoDoFormulario,
   dados: FormData,
 ): Promise<EstadoDoFormulario> {
-  const valores = { documento: texto(dados, "documento") };
+  const valores = {
+    documento: texto(dados, "documento"),
+    plano: texto(dados, "plano"),
+    ciclo: texto(dados, "ciclo"),
+  };
 
   try {
     await chamarApi("/api/assinatura/assinar/", { metodo: "POST", corpo: valores });

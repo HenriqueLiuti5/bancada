@@ -6,6 +6,7 @@ from django.db import transaction
 
 from bancada.assinaturas import regras, servicos
 from bancada.assinaturas.models import Assinatura, SituacaoDaAssinatura
+from bancada.assinaturas.planos import PLANOS
 from bancada.assinaturas.provedor import ErroNoProvedor, provedor_configurado
 from bancada.core.fuso import hoje_no_bancada
 from bancada.tenants.models import Papel, Usuario
@@ -49,7 +50,8 @@ def avisar_fim_do_teste(assinatura_id: int) -> str:
                 "assistencia": assinatura.tenant.nome,
                 "quando": quando,
                 "teste_termina_em": assinatura.teste_termina_em,
-                "valor": settings.VALOR_DA_ASSINATURA,
+                "menor_preco": min(condicoes.mensal for condicoes in PLANOS.values()),
+                "maior_preco": max(condicoes.mensal for condicoes in PLANOS.values()),
                 "link": f"{settings.APP_PUBLIC_URL}/assinatura",
             },
         )

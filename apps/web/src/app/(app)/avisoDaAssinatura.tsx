@@ -7,7 +7,7 @@ import {
 } from "@/componentes/icones";
 import { Alerta } from "@/componentes/ui/Alerta";
 import { botao } from "@/componentes/ui/estilos";
-import { avisoDaExclusao } from "@/lib/assinatura";
+import { avisoDaExclusao, nomeDaCobranca } from "@/lib/assinatura";
 import { diaPorExtenso } from "@/lib/datas";
 import type { ResumoDaAssinatura } from "@/lib/tipos";
 
@@ -29,7 +29,9 @@ function quandoTermina(dias: number): string {
 
 function motivoDoBloqueio(assinatura: ResumoDaAssinatura): string {
   if (assinatura.situacao === "cancelada") return "A assinatura foi cancelada";
-  if (assinatura.contratada) return "A mensalidade está atrasada há mais de 7 dias";
+  if (assinatura.contratada) {
+    return `A ${nomeDaCobranca(assinatura.ciclo)} está atrasada há mais de 7 dias`;
+  }
   return `O teste grátis terminou em ${diaPorExtenso(assinatura.teste_termina_em)}`;
 }
 
@@ -55,7 +57,7 @@ function avisoAoDono(assinatura: ResumoDaAssinatura): Aviso | null {
     return {
       icone: WarningCircleIcon,
       tom: "aviso",
-      titulo: "A mensalidade venceu e ainda não foi paga",
+      titulo: `A ${nomeDaCobranca(assinatura.ciclo)} venceu e ainda não foi paga`,
       texto: `Pague até ${diaPorExtenso(assinatura.pagar_ate)} para o Bancada não ficar só para consulta.`,
       acao: "Pagar a fatura",
     };
