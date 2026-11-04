@@ -153,9 +153,12 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
   são raros e explicam o porquê.
 - As fases do `docs/PLANO.md` são feitas uma de cada vez, na ordem. No começo de cada fase, o
   Henrique decide as escolhas de produto em aberto, e o PLANO registra a decisão.
-- A entrega de uma fase muda tudo junto: o código; os testes da API, do site e de navegador, no
-  computador e no celular; o ADR da fase (Contexto, Decisão, Consequências, Alternativas
-  consideradas), que, quando é novo, entra também na tabela de `docs/adr/README.md`; a seção "Na
-  entrega" do PLANO; e o "Current status" do README.
+- A entrega de uma fase muda tudo junto: o código; os testes da API e do site; os testes de
+  navegador, no computador e no celular, quando a fase muda um caminho principal ou mexe com
+  isolamento, dinheiro, senha ou cobrança; o ADR da fase, quando ela tem um; a seção "Na entrega"
+  do PLANO; e o "Current status" do README. ADR novo (Contexto, Decisão, Consequências,
+  Alternativas consideradas) só para decisão de arquitetura ou que mude o rumo do produto, e ele
+  entra também na tabela de `docs/adr/README.md`. É assim desde a revisão de 3 de novembro de 2026
+  (PLANO), até haver clientes pagando.
 - Mensagens de commit em português, sem acentos: `Fase 4Q parte 4: lucro do mes`,
   `Plano: o que a 4R leva da 4Q`.
