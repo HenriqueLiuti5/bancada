@@ -11,9 +11,9 @@ from bancada.tenants.models import Convite, Loja, Papel, Tenant, Usuario
 
 def test_o_anual_custa_dez_mensalidades() -> None:
     assert [(condicoes.mensal, condicoes.anual) for condicoes in PLANOS.values()] == [
-        (Decimal("39.90"), Decimal("399.00")),
-        (Decimal("59.90"), Decimal("599.00")),
-        (Decimal("119.90"), Decimal("1199.00")),
+        (Decimal("49.90"), Decimal("499.00")),
+        (Decimal("89.90"), Decimal("899.00")),
+        (Decimal("179.90"), Decimal("1799.00")),
     ]
 
 

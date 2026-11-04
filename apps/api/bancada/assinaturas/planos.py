@@ -50,9 +50,9 @@ class CondicoesDoPlano:
 
 
 PLANOS: dict[str, CondicoesDoPlano] = {
-    Plano.SOLO: CondicoesDoPlano(Plano.SOLO, lojas=1, pessoas=2, mensal=Decimal("39.90")),
-    Plano.EQUIPE: CondicoesDoPlano(Plano.EQUIPE, lojas=1, pessoas=None, mensal=Decimal("59.90")),
-    Plano.REDE: CondicoesDoPlano(Plano.REDE, lojas=3, pessoas=None, mensal=Decimal("119.90")),
+    Plano.SOLO: CondicoesDoPlano(Plano.SOLO, lojas=1, pessoas=2, mensal=Decimal("49.90")),
+    Plano.EQUIPE: CondicoesDoPlano(Plano.EQUIPE, lojas=1, pessoas=None, mensal=Decimal("89.90")),
+    Plano.REDE: CondicoesDoPlano(Plano.REDE, lojas=3, pessoas=None, mensal=Decimal("179.90")),
 }
 
 

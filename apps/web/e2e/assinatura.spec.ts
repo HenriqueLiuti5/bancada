@@ -34,7 +34,7 @@ test("o plano que não cabe na assistência fica de fora, e o menor que cabe já
   ).toBeVisible();
   await expect(page.getByRole("radio", { name: /^Equipe/ })).toBeChecked();
   await expect(
-    page.getByRole("button", { name: "Assinar o plano Equipe por R$ 59,90 por mês" }),
+    page.getByRole("button", { name: "Assinar o plano Equipe por R$ 89,90 por mês" }),
   ).toBeVisible();
 });
 
@@ -51,11 +51,11 @@ test("o dono assina o plano anual e, cancelando ainda no teste grátis, não pag
   await page.getByText("2 meses grátis").click();
   await page.getByRole("radio", { name: /^Equipe/ }).check();
   await page.getByRole("textbox", { name: "CPF ou CNPJ de quem paga" }).fill(CPF);
-  await page.getByRole("button", { name: "Assinar o plano Equipe por R$ 599,00 por ano" }).click();
+  await page.getByRole("button", { name: "Assinar o plano Equipe por R$ 899,00 por ano" }).click();
 
-  await expect(page.getByText("Plano Equipe, pagamento anual: R$ 599,00 por ano")).toBeVisible();
+  await expect(page.getByText("Plano Equipe, pagamento anual: R$ 899,00 por ano")).toBeVisible();
   const fatura = cartao(page, "Faturas").getByRole("listitem");
-  await expect(fatura).toContainText("R$ 599,00");
+  await expect(fatura).toContainText("R$ 899,00");
   await expect(fatura).toContainText("Aguardando pagamento");
 
   await page.getByRole("button", { name: "Cancelar assinatura" }).click();

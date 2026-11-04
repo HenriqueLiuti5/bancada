@@ -121,8 +121,8 @@ def test_dono_ve_os_planos_e_o_que_cabe_na_assistencia_antes_de_assinar(
             "nome": "Solo",
             "lojas": 1,
             "pessoas": 2,
-            "mensal": "39.90",
-            "anual": "399.00",
+            "mensal": "49.90",
+            "anual": "499.00",
             "por_que_nao_cabe": None,
         },
         {
@@ -130,8 +130,8 @@ def test_dono_ve_os_planos_e_o_que_cabe_na_assistencia_antes_de_assinar(
             "nome": "Equipe",
             "lojas": 1,
             "pessoas": None,
-            "mensal": "59.90",
-            "anual": "599.00",
+            "mensal": "89.90",
+            "anual": "899.00",
             "por_que_nao_cabe": None,
         },
         {
@@ -139,8 +139,8 @@ def test_dono_ve_os_planos_e_o_que_cabe_na_assistencia_antes_de_assinar(
             "nome": "Rede",
             "lojas": 3,
             "pessoas": None,
-            "mensal": "119.90",
-            "anual": "1199.00",
+            "mensal": "179.90",
+            "anual": "1799.00",
             "por_que_nao_cabe": None,
         },
     ]
@@ -195,7 +195,7 @@ def test_assinar_no_teste_cobra_a_primeira_mensalidade_no_fim_do_teste(
         }
     ]
     assert provedor.assinaturas[0]["primeiro_vencimento"] == fim
-    assert provedor.assinaturas[0]["valor"] == Decimal("59.90")
+    assert provedor.assinaturas[0]["valor"] == Decimal("89.90")
     assert provedor.assinaturas[0]["ciclo"] == "mensal"
     assert provedor.assinaturas[0]["descricao"] == "Assinatura mensal do Bancada, plano Equipe"
 
@@ -209,7 +209,7 @@ def test_assinar_no_teste_cobra_a_primeira_mensalidade_no_fim_do_teste(
     assert (dados["plano_rotulo"], dados["ciclo_rotulo"], dados["valor"]) == (
         "Equipe",
         "Mensal",
-        "59.90",
+        "89.90",
     )
     assert [(f["vencimento"], f["situacao"]) for f in dados["faturas"]] == [
         (fim.isoformat(), SituacaoDaFatura.ABERTA)
@@ -217,7 +217,7 @@ def test_assinar_no_teste_cobra_a_primeira_mensalidade_no_fim_do_teste(
     assert dados["faturas"][0]["link_de_pagamento"].startswith("https://")
     assert (
         RegistroDeAuditoria.objects.get(tenant=tenant, acao=Acao.ASSINATURA_CONTRATADA).detalhe
-        == "Equipe, R$ 59.90 por mês"
+        == "Equipe, R$ 89.90 por mês"
     )
 
 
@@ -227,14 +227,14 @@ def test_assinar_o_anual_cobra_dez_meses_uma_vez_por_ano(
 ) -> None:
     dados = assinar(api_dono, plano="solo", ciclo="anual")
 
-    assert provedor.assinaturas[0]["valor"] == Decimal("399.00")
+    assert provedor.assinaturas[0]["valor"] == Decimal("499.00")
     assert provedor.assinaturas[0]["ciclo"] == "anual"
     assert provedor.assinaturas[0]["descricao"] == "Assinatura anual do Bancada, plano Solo"
-    assert (dados["plano"], dados["ciclo"], dados["valor"]) == ("solo", "anual", "399.00")
-    assert dados["faturas"][0]["valor"] == "399.00"
+    assert (dados["plano"], dados["ciclo"], dados["valor"]) == ("solo", "anual", "499.00")
+    assert dados["faturas"][0]["valor"] == "499.00"
     assert (
         RegistroDeAuditoria.objects.get(tenant=tenant, acao=Acao.ASSINATURA_CONTRATADA).detalhe
-        == "Solo, R$ 399.00 por ano"
+        == "Solo, R$ 499.00 por ano"
     )
 
 
@@ -361,7 +361,7 @@ def test_cancelar_o_anual_ate_sete_dias_depois_de_pagar_devolve_tudo(
     vencimento = terminar_o_teste(tenant, dias_atras=7)
     pagar(tenant, vencimento=vencimento, paga_em=vencimento, forma=FormaDeCobranca.PIX)
     assert api_dono.get(URL).json()["cancelamento"] == {
-        "devolve": "399.00",
+        "devolve": "499.00",
         "acesso_ate": hoje.isoformat(),
     }
 
@@ -372,7 +372,7 @@ def test_cancelar_o_anual_ate_sete_dias_depois_de_pagar_devolve_tudo(
     assert dados["faturas"][0]["situacao"] == SituacaoDaFatura.ESTORNADA
     assert dados["faturas"][0]["link_da_devolucao"] == ""
     detalhe = RegistroDeAuditoria.objects.get(tenant=tenant, acao=Acao.ASSINATURA_CANCELADA).detalhe
-    assert detalhe == f"acesso até {hoje:%d/%m/%Y}, R$ 399.00 devolvidos"
+    assert detalhe == f"acesso até {hoje:%d/%m/%Y}, R$ 499.00 devolvidos"
 
 
 @pytest.mark.django_db
@@ -459,7 +459,7 @@ def test_assinar_de_novo_depois_de_cancelar_reaproveita_o_cliente(
     assert len(provedor.clientes) == 1
     assert assinatura_do(tenant).assinatura_no_provedor == "sub_2"
     assert resposta.json()["situacao"] == SituacaoDaAssinatura.ATIVA
-    assert resposta.json()["valor"] == "599.00"
+    assert resposta.json()["valor"] == "899.00"
 
 
 @pytest.mark.django_db

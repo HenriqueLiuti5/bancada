@@ -25,6 +25,15 @@ No começo da fase, em 28 de outubro de 2026, o Henrique decidiu:
 A fase é feita em quatro partes, uma de cada vez: a escolha do plano ao assinar; os limites durante
 o uso e a troca de plano; o programa de fundadores; a página inicial e os textos.
 
+Em 3 de novembro de 2026, depois da revisão do produto e dos concorrentes (PLANO, Revisão de 3 de
+novembro de 2026), o Henrique mudou essas decisões. Os preços passaram a R$ 49,90, R$ 89,90 e
+R$ 179,90 por mês, ou R$ 499, R$ 899 e R$ 1.799 por ano: com R$ 39,90, e R$ 29,90 para fundadores,
+o Bancada ficava abaixo do mais barato do mercado, e o InforOS só mandava WhatsApp automático a
+partir de R$ 169,90. O desconto de fundador passou a 30%, o que deixa o preço de fundador perto do
+que tinha sido decidido para todos. Os limites durante o uso e a troca de plano saíram da fase e são
+feitos à mão enquanto forem poucos casos. A fase ficou com três partes: a escolha do plano ao
+assinar; os preços novos com o programa de fundadores; a página inicial e os textos.
+
 ## Decisão
 
 ### Parte 1: escolha do plano ao assinar
@@ -60,7 +69,7 @@ Bancada usa, guardando tudo na memória, e roda sem o Django. A CI das imagens d
 própria imagem da API e aponta a API para ele, e os testes de navegador assinam e cancelam por ele.
 Um teste da API roda contra ele o cliente de verdade do Asaas.
 
-**Até a fase terminar.** A página inicial continua com um preço só, o do Equipe, até a parte 4
+**Até a fase terminar.** A página inicial continua com um preço só, o do Equipe, até a parte 3
 mostrar os três planos.
 
 ## Consequências
@@ -74,8 +83,9 @@ aponta-se a API para `http://asaas-falso:8010` e roda-se o Playwright com `ENDER
 
 O `VALOR_DA_ASSINATURA` que sobrar no `.env` de cada máquina deixa de ser lido e pode ser apagado.
 
-Na parte 1, os limites valem só na hora de assinar: durante o uso, a assistência ainda convida
-pessoas e abre lojas sem limite, até a parte 2.
+Os limites valem só na hora de assinar: durante o uso, a assistência ainda convida pessoas e abre
+lojas sem limite. Desde 3 de novembro, isso fica assim, e o Henrique acerta o plano à mão quando a
+assistência passa do tamanho dele.
 
 ## Alternativas consideradas
 

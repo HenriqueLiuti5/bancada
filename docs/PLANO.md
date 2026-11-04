@@ -40,8 +40,8 @@ RECEBIDO → EM_DIAGNOSTICO → ORCAMENTO_ENVIADO ─┬→ APROVADO → EM_REPA
 ```
 
 Transições são validadas explicitamente. Cada uma grava um `EventoOS`, que nunca é editado nem
-apagado. Esse histórico é a trilha de auditoria do produto e será a base de dados da camada de
-inteligência artificial na Fase 5.
+apagado. Esse histórico é a trilha de auditoria do produto e a base do tempo de reparo e do tempo
+parado em cada etapa, no painel.
 
 ## Dados sensíveis
 
@@ -92,9 +92,10 @@ o operador.
 | 4R | Página inicial com telas novas | concluída |
 | 4S | Termos finais, privacidade e medição de visitas | concluída |
 | 4T | Planos e preços | em andamento |
-| 4F | Publicação: domínio, termos, backup e monitoramento | em andamento |
-| 5 | Inteligência artificial: tradutor técnico, triagem assistida, busca no histórico | |
-| 6 | WhatsApp automático e relatórios além do painel | |
+| 4F | Publicação: empresa, domínio, servidor, e-mail e Asaas de produção | em andamento |
+| 5 | Primeiras lojas: dez assistências usando, checklist de entrada, impressão térmica e aprovação do orçamento pelo link | |
+| 6 | WhatsApp automático pela API oficial e pedido de avaliação no Google | |
+| 7 | Indicação e parceiros | |
 
 A Fase 1 termina quando uma assistência real conseguir abrir uma ordem de serviço e enviar o
 link ao cliente. Nada que não sirva a essa frase entra antes.
@@ -112,17 +113,69 @@ estoque e o financeiro entram antes do lançamento, para o Bancada chegar ao mer
 concorrentes já oferecem. A página inicial vem depois das mudanças nas telas, para mostrá-las
 prontas. Os planos ficam por último, decididos pelo Henrique com o sistema pronto.
 
-Depois do lançamento vêm a inteligência artificial, da Fase 5, e a Fase 6.
+A Fase 5 termina quando dez assistências usarem o Bancada no dia a dia, e o que elas pedirem passa
+na frente do resto da fase. A Fase 6 vem logo depois, porque o aviso pelo WhatsApp é o que cumpre a
+promessa da página inicial. Depois da Fase 7, entra só o que as lojas pedirem (veja Depois do
+lançamento).
 
-Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5 e publicação na 6.
-O lançamento passou para a frente da inteligência artificial, e os ADRs escritos antes dessa
-mudança usam a numeração antiga: as Fases 5 e 6 citadas neles fazem parte hoje da Fase 4, e a
-Fase 4 citada neles é hoje a Fase 5.
+Até a Fase 3, o roadmap previa inteligência artificial na Fase 4, cobrança na 5, publicação na 6 e
+WhatsApp na 7. O lançamento passou para a frente da inteligência artificial, e os ADRs escritos
+antes dessa mudança usam a numeração antiga: as Fases 5 e 6 citadas neles fazem parte hoje da Fase
+4, a Fase 4 citada neles era a da inteligência artificial e a Fase 7, a do WhatsApp, que hoje é a
+6. Em 3 de novembro de 2026, a inteligência artificial saiu do roadmap; a Fase 5 citada na ADR 0021
+é a dela.
 
 O cache que a Fase 2 previa foi entregue antes, na Fase 1C: a leitura da página pública passa por
 cache no Redis, no formato cache-aside, com invalidação por sinal. Nada mais no sistema tem hoje
 volume de leitura que justifique cache, e cache sem necessidade só acrescenta caminhos para o
 dado ficar velho.
+
+## Revisão de 3 de novembro de 2026
+
+Com a Fase 4 quase pronta, o Henrique pediu uma revisão franca do produto, dos concorrentes e dos
+preços. O que ela encontrou:
+
+- O sistema está acima do que esse mercado costuma ver em segurança, testes e interface, mas ainda
+  não está no ar e nenhuma assistência o usa. Estoque, financeiro e caixa entraram para igualar os
+  concorrentes, sem uma loja para confirmar o que mais importa.
+- A promessa da página inicial, o cliente que para de perguntar se ficou pronto, depende do e-mail,
+  que o cliente de assistência quase não lê. O e-mail dele é opcional, e o WhatsApp é um botão que
+  alguém precisa lembrar de apertar.
+- Em novembro de 2026, o InforOS cobrava de R$ 89,90 (3 usuários) a R$ 389,90 por mês e só mandava
+  WhatsApp automático e NFS-e a partir de R$ 169,90. O ServosERP cobrava de R$ 49,90 a R$ 149,90,
+  com WhatsApp automático a partir de R$ 119,90. Os dois tinham checklist de entrada; o InforOS,
+  também etiquetas, comissão por usuário e depoimentos de clientes.
+- Com R$ 39,90 no Solo e R$ 29,90 para fundadores, o Bancada ficava abaixo do mais barato do
+  mercado, e cada loja dá o mesmo trabalho de suporte, pague pouco ou muito.
+
+A partir da revisão, o Henrique decidiu:
+
+- Publicar antes de qualquer recurso novo: a 4T termina enxuta, e vem a 4F.
+- Preços novos e desconto de fundador de 30%, que deixa o preço de fundador perto do que foi
+  decidido em outubro para todos (veja 4T).
+- Os limites durante o uso e a troca de plano pela tela saem da 4T e são feitos à mão enquanto forem
+  poucos casos.
+- As dez primeiras assistências são cadastradas de perto, na Fase 5, que traz também o checklist de
+  entrada, a impressão térmica e a aprovação do orçamento pelo link.
+- O WhatsApp automático, pela API oficial, vem logo depois (Fase 6).
+- A inteligência artificial sai do roadmap.
+- Os termos de uso e a política de privacidade passam por um advogado antes da publicação, ao
+  contrário do que a 4S decidiu.
+- O processo das fases fica mais leve até haver clientes pagando: testes de navegador nos caminhos
+  principais e onde um erro custa caro, e ADR novo só para decisão de arquitetura ou de rumo.
+
+### Metas
+
+- Dez assistências usando no primeiro mês depois da publicação.
+- Dez pagando 90 dias depois da publicação. Se não houver, a fase seguinte é rever o canal de venda
+  e a proposta, não fazer recurso novo.
+- Acompanhar, no painel da plataforma, as assistências sem ordem 3 dias depois do cadastro, as
+  ordens de cada loja, a conversão do teste e os cancelamentos do mês.
+
+A conta da revisão inclui todos os custos: Asaas, servidor, backup, e-mail, domínio, WhatsApp,
+contador, Simples e INSS do pró-labore, e a aquisição de clientes. Com 12 assinaturas novas por mês
+e 5% de cancelamento, o Bancada se paga a partir do nono mês e chega a cerca de 160 lojas e R$ 5 mil
+de lucro por mês em 24 meses. Com os preços de outubro, o mesmo cenário dava a metade.
 
 ## Fase 4: lançamento self-service
 
@@ -771,14 +824,36 @@ No começo da fase, em 28 de outubro de 2026, o Henrique decidiu:
 - Subir de plano vale na hora, e o valor novo entra na próxima fatura, sem cobrança proporcional.
   Descer de plano só é possível quando a assistência cabe no plano menor, e nada é apagado.
 
+Em 3 de novembro de 2026, depois da revisão do produto (veja Revisão de 3 de novembro de 2026), o
+Henrique mudou os preços e o desconto de fundador:
+
+| Plano | Tamanho | Mensal | Anual | Fundador, mensal | Fundador, anual |
+|---|---|---|---|---|---|
+| Solo | 1 loja, até 2 pessoas | R$ 49,90 | R$ 499 | R$ 34,90 | R$ 349 |
+| Equipe | 1 loja, pessoas ilimitadas | R$ 89,90 | R$ 899 | R$ 62,90 | R$ 629 |
+| Rede | até 3 lojas, pessoas ilimitadas | R$ 179,90 | R$ 1.799 | R$ 125,90 | R$ 1.259 |
+
+- O desconto de fundador passa a 30%, nas 50 primeiras assinaturas, com as mesmas regras: vale
+  enquanto a assinatura continuar sem interrupção, e quem cancela perde o desconto sem devolver a
+  vaga.
+- Os limites de pessoas e de lojas durante o uso e a troca de plano pela tela saem da fase. Enquanto
+  forem poucos casos, o Henrique muda o plano à mão, no Asaas e no painel administrativo, e o painel
+  da plataforma mostra o plano de cada assistência e avisa quando ela passou do tamanho dele.
+- Continua tudo em todos os planos. O WhatsApp automático, quando chegar (Fase 6), entra em todos,
+  com uma franquia de mensagens por plano, porque cada mensagem tem custo.
+
 A fase é feita em partes, uma de cada vez:
 
 1. Escolha do plano ao assinar: os três planos, no mensal e no anual, na tela Assinatura e no
    Asaas, e um Asaas falso na CI, para os testes de navegador assinarem (concluída).
-2. Limites de pessoas e de lojas durante o uso, e a troca de plano.
-3. Programa de fundadores.
-4. Página inicial e textos: os planos com a escolha entre mensal e anual, as perguntas, os termos
-   de uso, os e-mails e o plano de cada assistência no painel da plataforma.
+2. Preços de 3 de novembro e programa de fundadores: o preço com desconto nas 50 primeiras
+   assinaturas, na tela Assinatura e no Asaas, e o desconto que acaba no cancelamento.
+3. Página inicial e textos: os planos com a escolha entre mensal e anual e as vagas de fundador que
+   restam, as perguntas, os termos de uso e os e-mails, sem os avisos por e-mail como argumento de
+   venda, e o plano de cada assistência no painel da plataforma, com o aviso de quem passou do
+   tamanho do plano.
+
+Os limites durante o uso e a troca de plano, que eram a parte 2, saíram da fase em 3 de novembro.
 
 Na entrega da parte 1:
 
@@ -798,7 +873,7 @@ Na entrega da parte 1:
   pelos 12 meses.
 - Um Asaas falso, `bancada/assinaturas/asaas_falso.py`, sobe na CI das imagens de produção, e os
   testes de navegador assinam por ele.
-- A página inicial continua com o preço do Equipe até a parte 4.
+- A página inicial continua com o preço do Equipe até a parte 3.
 - Testes da API dos planos, do tamanho da assistência, da assinatura mensal e anual, do plano que
   não cabe, da devolução do anual e do Asaas falso; teste do site dos textos da assinatura; e
   testes de navegador, no computador e no celular, do plano sugerido quando o Solo não cabe, da
@@ -830,6 +905,10 @@ O que não dependia de decisão ficou pronto na preparação do servidor de prod
 
 Falta, e depende de decisões ou de contratar serviços:
 
+- Empresa: abrir uma microempresa no Simples Nacional, com contador, antes da primeira cobrança.
+  Como pessoa física, as mensalidades iriam para o carnê-leão, com alíquota de até 27,5%. No
+  Simples, o contador define o CNAE e o anexo; o Anexo III, com o Fator R, começa em 6%. A conta do
+  Asaas de produção é aberta no CNPJ, e o Asaas emite a nota fiscal de cada mensalidade.
 - Verificação em duas etapas na conta da plataforma, feita na véspera do lançamento para não
   atrapalhar os testes até lá (ADR 0029).
 - Domínio e HTTPS: registrar o domínio e apontá-lo para o servidor, e trocar o e-mail de contato
@@ -837,17 +916,99 @@ Falta, e depende de decisões ou de contratar serviços:
 - Servidor, e-mail por provedor com domínio verificado (ADR 0011), destino do backup e, se for o
   caso, armazenamento das fotos e serviço de monitoramento, com os nomes deles na política de
   privacidade.
-- Asaas em produção.
+- Asaas em produção. Conferir se a conta cobra as notificações das faturas, R$ 0,99 por fatura paga
+  em novembro de 2026, e decidir se elas ficam ligadas.
+- Termos de uso e política de privacidade revisados por um advogado (Revisão de 3 de novembro).
 - Número do WhatsApp do suporte configurado no servidor, fora do repositório (ADR 0030).
-- Entrega contínua: publicar as imagens montadas pela CI num registro e fazer o servidor buscá-las.
 - Prévia do link da página inicial conferida no WhatsApp, com o endereço público (ADR 0026).
 - Com o backup no ar, a resposta sobre segurança da página inicial passa a citá-lo.
 
-### Decisões em aberto
+A entrega contínua, que publicaria as imagens montadas pela CI num registro para o servidor
+buscá-las, saiu da fase em 3 de novembro: até haver motivo, o servidor é atualizado à mão.
+
+## Fase 5: primeiras lojas
+
+Começa no dia da publicação. As dez primeiras assistências são cadastradas de perto, na loja ou por
+chamada de vídeo, com o preço de fundador: o Henrique cadastra com o dono as ordens que já estão na
+bancada e passa uma manhã no balcão vendo o sistema em uso. Quem não abrir ordem em 3 dias recebe
+uma ligação, e quem gostar é convidado a gravar um depoimento, que entra na página inicial com
+autorização (ADR 0026).
+
+O código da fase:
+
+- Checklist de entrada: o que funciona e o que não funciona quando o aparelho chega, como liga,
+  tela, toque, câmeras, biometria, botões, áudio, carregamento, sinais de umidade, chip e cartão de
+  memória. Ele sai no comprovante que o cliente assina, ao lado das fotos.
+- Comprovante de entrada e recibo na impressora térmica de 80 mm, e etiqueta com o número da ordem
+  para colar no aparelho.
+- Aprovação do orçamento pelo link: o cliente aprova ou recusa na página de acompanhamento, item por
+  item, como no balcão, e a resposta entra no histórico com a hora e o IP.
+- Senha em padrão, o desenho de 3 por 3 pontos do Android, ao lado da senha escrita.
+- Manifest para instalar o Bancada na tela inicial do celular.
+
+O que as dez lojas pedirem passa na frente dessa lista.
+
+No começo da fase, o Henrique decide: os itens do checklist e se a assistência muda a lista; se o
+cliente vê o checklist na página dele; o tamanho da etiqueta; o que a aprovação pelo link exige
+além do próprio link; e se o suporte passa a atender no sábado de manhã, dia em que as assistências
+abrem.
+
+## Fase 6: WhatsApp automático
+
+Os avisos que hoje saem por e-mail (ADR 0011) passam a sair também pelo WhatsApp, pela API oficial
+da Meta, nas mesmas etapas. Primeiro, por um número do Bancada que manda em nome da assistência,
+com um botão para falar com a loja; depois, pelo número da própria assistência, com a coexistência
+da Meta, em que a loja continua usando o WhatsApp Business no celular. API não oficial está fora:
+para a assistência, ter o número banido é o pior cenário possível.
+
+- Em todos os planos, com uma franquia de mensagens por plano e pacote extra. Em novembro de 2026,
+  uma mensagem de utilidade custava cerca de US$ 0,0068 no Brasil, perto de R$ 0,04.
+- Pedido de avaliação no Google depois da entrega, com o link que a assistência cadastrar.
+- Quando a franquia acaba, o aviso volta a ser o botão de hoje, com a mensagem pronta.
+
+Depende de: conta do Meta Business verificada no CNPJ do Bancada, um número para os envios e os
+modelos de mensagem aprovados pela Meta.
+
+No começo da fase, o Henrique decide: o tamanho das franquias e o preço do pacote extra, quais
+etapas mandam mensagem e o texto dos modelos.
+
+## Fase 7: indicação e parceiros
+
+- Indicação: cada dono tem um link, e quem chega por ele e assina ganha um mês grátis, assim como
+  quem indicou.
+- Parceiros: distribuidoras de peças e cursos de manutenção de celular ganham um link próprio e uma
+  comissão recorrente por 12 meses, com o relatório no painel da plataforma.
+- O painel da plataforma mostra de onde veio cada cadastro.
+
+No começo da fase, o Henrique decide: o valor da comissão (a revisão sugeriu de 20% a 30%), como o
+parceiro recebe e o benefício de quem indica.
+
+## Depois do lançamento
+
+Entram só quando as lojas pedirem, na ordem em que pedirem:
+
+- Comissão dos técnicos e retorno em garantia por técnico.
+- Compra e venda de seminovos com IMEI, termo de procedência e consulta do IMEI.
+- NFS-e como adicional pago, por um emissor contratado, para as assistências que emitem nota.
+- Importação de clientes e aparelhos por planilha, para quem vem de outro sistema.
+- Cobrança por PIX pelo Bancada: o que o cliente ficou devendo vira um link de PIX, por subcontas
+  do Asaas, e o Bancada fica com uma parte de cada pagamento.
+- Relatórios além do painel, que estavam na Fase 6 junto com o WhatsApp.
+
+Fora do roadmap, desde 3 de novembro de 2026:
+
+- Inteligência artificial, a antiga Fase 5: tradutor técnico, triagem assistida e busca no
+  histórico. Nada disso faz a assistência pagar mais, e o serviço FastAPI da ADR 0005 fica sem data.
+- Plano grátis: atrai quem não vai pagar e ocupa o suporte.
+- Limites durante o uso e troca de plano pela tela, enquanto der para fazer à mão.
+
+## Decisões em aberto
 
 Ficam para quando cada parte chegar:
 
-- Planos e preços, decididos pelo Henrique depois de revisar o sistema pronto (4T).
-- Documentos que o Asaas exige para receber (CPF ou CNPJ) e emissão de nota fiscal.
 - Nome do domínio.
 - Provedores de servidor, e-mail, armazenamento e monitoramento.
+- Contador e abertura da empresa (4F).
+- Atendimento no sábado de manhã (Fase 5).
+- Franquias do WhatsApp e preço do pacote extra (Fase 6).
+- Comissão dos parceiros (Fase 7).
