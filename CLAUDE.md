@@ -178,3 +178,7 @@ na entrega da parte da 4T que as fizer.
 - Domínio, servidor e e-mail enviado pelo domínio do sistema: contratados só quando tudo estiver
   pronto, depois da 4T.
 - Destino do backup, armazenamento das fotos e monitoramento de erros: decididos mais tarde.
+- A PR #8 (revisão de 3 de novembro), ainda fora do `main`, discorda destas decisões em preços,
+  fundadores, limites, empresa e advogado. A revisão de 8 de novembro,
+  `docs/REVISAO-2026-11-08.md`, lista o que o Henrique decide antes de a 4T continuar (C1 a C9) e
+  o resto do que ficou para resolver.
