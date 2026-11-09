@@ -175,6 +175,12 @@ Vêm da PR #8:
   parceiros. A inteligência artificial sai do roadmap.
 - Processo mais leve até haver clientes pagando, e entrega contínua fora da 4F, como o Henrique
   decidiu em 3 de novembro.
+- Limites de pessoas e de lojas durante o uso e troca de plano feitos à mão, fora da 4T (escolhido
+  em 8 de novembro): o sistema não bloqueia nada, o painel da plataforma mostra o plano de cada
+  assistência e avisa quando ela passou do tamanho dele, e o Henrique combina com o dono e troca o
+  plano no Asaas e no sistema. O painel administrativo mostra plano e valor só para leitura
+  (`bancada/assinaturas/admin.py`), então a troca no sistema precisa de um comando ou desses campos
+  editáveis.
 
 Mudam em relação à PR #8:
 
@@ -191,6 +197,4 @@ Mudam em relação à PR #8:
   pronto, depois da 4T.
 - Destino do backup, armazenamento das fotos e monitoramento de erros: decididos mais tarde.
 
-Em aberto: os limites de pessoas e de lojas durante o uso e a troca de plano, pela tela (a parte 2
-da 4T no `main`) ou à mão (a PR #8). É o item C3 de `docs/REVISAO-2026-11-08.md`, que lista também
-o resto do que ficou para resolver.
+O resto do que ficou para resolver está em `docs/REVISAO-2026-11-08.md`.
