@@ -91,7 +91,7 @@ o operador.
 | 4Q | Financeiro da loja | concluída |
 | 4R | Página inicial com telas novas | concluída |
 | 4S | Termos finais, privacidade e medição de visitas | concluída |
-| 4T | Planos e preços | em andamento |
+| 4T | Planos e preços | concluída |
 | 4F | Publicação: domínio, servidor, e-mail e Asaas de produção | em andamento |
 | 5 | Primeiras lojas: dez assistências usando, checklist de entrada, impressão térmica e aprovação do orçamento pelo link | |
 | 6 | WhatsApp automático pela API oficial e pedido de avaliação no Google | |
@@ -879,11 +879,12 @@ A fase é feita em partes, uma de cada vez:
    Asaas, e um Asaas falso na CI, para os testes de navegador assinarem (concluída).
 2. Preços novos, teste de 15 dias e programa de fundadores: os preços de 3 de novembro no código; o
    teste de 15 dias, com os textos que citam o prazo; e o preço com desconto nas 15 primeiras
-   assinaturas, na tela Assinatura e no Asaas, com o desconto que acaba no cancelamento.
+   assinaturas, na tela Assinatura e no Asaas, com o desconto que acaba no cancelamento
+   (concluída).
 3. Página inicial e textos: os planos com a escolha entre mensal e anual e as vagas de fundador que
    restam, as perguntas, os termos de uso e os e-mails, sem os avisos por e-mail como argumento de
    venda, e o plano de cada assistência no painel da plataforma, com o aviso de quem passou do
-   tamanho do plano e um jeito de o Henrique trocar o plano à mão.
+   tamanho do plano e um jeito de o Henrique trocar o plano à mão (concluída).
 
 Os limites durante o uso e a troca de plano, que eram a parte 2, saíram da fase em 3 de novembro.
 
@@ -911,6 +912,33 @@ Na entrega da parte 1:
   testes de navegador, no computador e no celular, do plano sugerido quando o Solo não cabe, da
   assinatura anual cancelada no teste grátis, contra o Asaas falso, e da assinatura recusada que
   continua com o plano e o pagamento escolhidos (ADR 0040).
+
+As partes 2 e 3 foram feitas juntas, em 8 de novembro de 2026, por dois agentes ao mesmo tempo, um
+na API e outro nas telas, com o trabalho juntado e testado no fim. Na entrega:
+
+- Os preços de 3 de novembro estão no código, com o preço de fundador de cada plano escrito em
+  `PLANOS`. O teste grátis tem 15 dias para os cadastros novos; quem já estava no teste continua com
+  a data que tinha.
+- Fundadores: quem assina enquanto há vaga, e nunca ocupou uma, ocupa uma das 15 vagas e paga o
+  preço de fundador, no mensal ou no anual; é esse o valor que vai ao Asaas. As vagas ficam numa
+  tabela fora do isolamento entre assistências, travada enquanto uma assinatura ocupa a vaga, para
+  duas assistências não levarem a última juntas. Se o Asaas recusa a assinatura, a vaga volta.
+  Quando a assinatura termina, o preço de fundador acaba; a vaga não volta, nem quando a assistência
+  é apagada.
+- A tela Assinatura mostra o preço de fundador com o cheio riscado e quantas vagas restam, e avisa,
+  antes de cancelar, que o preço de fundador se perde.
+- A página inicial mostra os três planos, com a escolha entre mensal e anual, o preço de fundador
+  enquanto houver vaga e as vagas que restam. Os avisos por e-mail saíram dos argumentos de venda, e
+  as perguntas frequentes, os termos (versão `2026-11-08`) e o e-mail do fim do teste falam dos
+  planos, dos fundadores e dos 15 dias.
+- O painel da plataforma mostra o plano de cada assistência, quem é fundadora, quem passou do
+  tamanho do plano e as vagas ocupadas. `python manage.py trocar_plano <e-mail do dono> <plano>`
+  troca o plano à mão, no mesmo ciclo, e manda o valor novo ao Asaas para as próximas faturas;
+  descer só quando a assistência cabe no plano menor (passo a passo em `infra/producao/README.md`).
+- Testes da API das vagas, inclusive duas assinaturas disputando a última ao mesmo tempo, do preço
+  no mensal e no anual, do desconto perdido, da troca de plano, da oferta e do painel; testes do
+  site das contas dos preços; e os testes de navegador da assinatura e dos formulários, que passam
+  com ou sem vaga de fundador sobrando (ADR 0040).
 
 ### 4F — Publicação
 

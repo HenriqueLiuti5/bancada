@@ -22,14 +22,16 @@ photos, and the account is deleted; an account left read-only for six months in 
 on its own, with an email to the owner 30 days before. Payment records stay, without the shop's
 name, for the tax authorities. Visits to the public pages and sign-ups are counted with Umami, on
 Bancada's own server, without cookies and without storing IP addresses; nothing inside the system
-or on the customers' tracking page is counted. Phase 4T, plans and prices, is under way: the
-subscription screen now offers three plans with every feature, priced by the size of the shop
-(Solo, Equipe and Rede), paid monthly or yearly with two months free, and suggests the cheapest one
-that fits the shop's people and stores. A yearly plan cancelled within 7 days of paying is refunded
-in full through Asaas. Browser tests subscribe and cancel against a fake Asaas in CI. Still to come
-in 4T are the prices set on November 3, 2026, a free trial cut to 15 days, a founders' discount for
-the first 15 subscriptions, and the plans on the home page; limits while the shop is in use and plan changes are
-handled by hand for now. After publishing (4F) come the first ten shops, with an intake checklist,
+or on the customers' tracking page is counted. Phase 4T, plans and prices, is done: three plans
+with every feature, priced by the size of the shop (Solo R$ 49.90, Equipe R$ 89.90 and Rede
+R$ 179.90 a month), paid monthly or yearly with two months free. The subscription screen suggests
+the cheapest one that fits the shop's people and stores. The first 15 subscriptions pay a founders'
+price, 30% lower, for as long as the subscription lasts, and the home page shows the three plans
+and the founder spots left. A yearly plan cancelled within 7 days of paying is refunded in full
+through Asaas. Limits while the shop is in use are handled by hand: the platform dashboard flags
+shops that outgrew their plan, and a command changes the plan in Bancada and in Asaas. Browser
+tests subscribe and cancel against a fake Asaas in CI. Next comes publishing (4F); after it come
+the first ten shops, with an intake checklist,
 thermal printing and quote approval through the tracking link (Phase 5), automatic WhatsApp
 notices (Phase 6) and referrals and partners (Phase 7); see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
@@ -66,8 +68,8 @@ Whoever opens the main address without being signed in lands on the landing page
 what Bancada does and leads to the free trial. It shows real screenshots of the system inside a
 phone and a laptop drawn without any brand: up top, the dashboard with the money that came in and
 the profit, in green, next to the page the customer receives. It presents each feature as a problem
-the shop recognizes, stock with counter sales and the shop's finances among them, lists the single
-plan with the price read from the same setting used for billing, and answers the usual objections in
+the shop recognizes, stock with counter sales and the shop's finances among them, lists the three
+plans with the prices read from the same catalog used for billing, and answers the usual objections in
 a FAQ. It shows no customer numbers or testimonials until there are real customers. A demo at
 `/demonstracao` shows the page the end customer receives, with a sample order and buttons to see
 each stage of the repair. The
@@ -83,7 +85,7 @@ opens the link and creates their own password. Everyone signs in with their emai
 forgets their password gets a link to create a new one. The email is confirmed by link, without
 blocking use.
 
-Every new shop gets 30 days free, with no payment method required. In the last week of the trial
+Every new shop gets 15 days free, with no payment method required. In the last week of the trial
 the owner sees a banner at the top of the screens and gets an email seven days before and on the
 day before it ends. The owner subscribes on the Assinatura (Subscription) screen by entering only
 their CPF or CNPJ (Brazilian individual or company tax ID): the monthly charge is created in Asaas,

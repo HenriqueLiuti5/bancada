@@ -3,6 +3,7 @@
 #   python -m bancada.assinaturas.asaas_falso 8010
 import json
 import re
+import secrets
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from itertools import count
@@ -14,12 +15,15 @@ CICLOS = {"MONTHLY", "YEARLY"}
 
 class Estado:
     def __init__(self) -> None:
+        # O código da execução evita repetir, num banco que já guardou cobranças de uma execução
+        # anterior, um número que lá é único.
+        self.execucao = secrets.token_hex(3)
         self.numeros = count(1)
         self.assinaturas: dict[str, dict[str, Any]] = {}
         self.cobrancas: dict[str, dict[str, Any]] = {}
 
     def novo_id(self, prefixo: str) -> str:
-        return f"{prefixo}_{next(self.numeros)}"
+        return f"{prefixo}_{self.execucao}_{next(self.numeros)}"
 
 
 class Pedido(BaseHTTPRequestHandler):

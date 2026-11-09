@@ -74,8 +74,37 @@ Bancada usa, guardando tudo na memória, e roda sem o Django. A CI das imagens d
 própria imagem da API e aponta a API para ele, e os testes de navegador assinam e cancelam por ele.
 Um teste da API roda contra ele o cliente de verdade do Asaas.
 
-**Até a fase terminar.** A página inicial continua com um preço só, o do Equipe, até a parte 3
-mostrar os três planos.
+### Partes 2 e 3: preços novos, fundadores, página inicial e textos
+
+**Preços e teste.** `PLANOS` tem os preços de 3 de novembro e, escrito por extenso, o preço de
+fundador de cada plano, porque 30% a menos não dá um valor redondo; o anual de fundador são dez
+mensalidades de fundador. O teste grátis tem 15 dias para os cadastros novos; quem já estava no
+teste continua com a data que tinha.
+
+**As vagas de fundador fora do isolamento.** A página inicial e cada assinatura contam as vagas de
+todas as assistências, e um pedido com a variável do tenant definida só enxerga a própria
+assinatura (ADR 0009). Por isso as vagas ficam numa tabela à parte, `VagaDeFundador`, fora do RLS,
+com o número da vaga, de 1 a 15, e a assistência que a ocupou, uma vaga por assistência. Ela guarda
+só isso, nada que identifique um cliente final. Ao assinar, a API trava essa tabela até o fim da
+transação, conta e ocupa a vaga, para duas assistências não levarem a última juntas; quem só
+consulta não espera. A ocupação fica num savepoint: se o Asaas recusa a assinatura, a vaga volta.
+
+**O desconto acaba, a vaga não volta.** `Assinatura.fundador` marca quem paga o preço de fundador.
+Quando a assinatura termina, pelo dono ou pelo Asaas, o preço de fundador acaba, e quem assinar de
+novo paga o preço cheio sem ocupar outra vaga. Quando a assistência é apagada, a vaga passa para a
+ficha das cobranças e continua contada.
+
+**A troca de plano à mão.** `python manage.py trocar_plano <e-mail do dono> <plano>` troca o plano,
+no mesmo ciclo, pelo preço do plano novo (o de fundador, para quem é fundadora), e manda ao Asaas o
+valor e a descrição novos para as próximas faturas, sem mexer nas que já existem. Descer só quando a
+assistência cabe no plano menor; subir sempre. A troca fica na auditoria. O painel da plataforma
+mostra o plano de cada assistência, quem é fundadora, quem passou do tamanho do plano e as vagas
+ocupadas.
+
+**Página inicial e textos.** A seção de preço mostra os três planos, com a escolha entre mensal e
+anual, o preço de fundador com o cheio riscado enquanto houver vaga e as vagas que restam. Os avisos
+por e-mail saíram dos argumentos de venda, e as perguntas frequentes, os termos (versão
+`2026-11-08`) e o e-mail do fim do teste falam dos planos, dos fundadores e dos 15 dias.
 
 ## Consequências
 
@@ -91,6 +120,14 @@ O `VALOR_DA_ASSINATURA` que sobrar no `.env` de cada máquina deixa de ser lido 
 Os limites valem só na hora de assinar: durante o uso, a assistência ainda convida pessoas e abre
 lojas sem limite. Desde 3 de novembro, isso fica assim, e o Henrique acerta o plano à mão quando a
 assistência passa do tamanho dele.
+
+A oferta pública, que a ADR 0026 deixava sem consulta ao banco, passou a contar as vagas de fundador
+numa consulta só.
+
+As vagas ocupadas ficam no banco de cada máquina de uma execução para outra, e o
+`semear_plataforma` ocupa vagas com as assistências de exemplo que assinaram. Por isso os testes de
+navegador que mostram preço passam com ou sem vaga sobrando; num banco novo, como o da CI, quem
+assina paga o preço de fundador.
 
 ## Alternativas consideradas
 

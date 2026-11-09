@@ -6,7 +6,7 @@ function perguntasFrequentes(diasDeTeste: number) {
   return [
     {
       pergunta: "Como funciona o teste grátis?",
-      resposta: `Você cria a conta em uma tela e já começa a usar, com tudo liberado por ${diasDeTeste} dias e sem cadastrar cartão. Para continuar depois, é só assinar na tela Assinatura informando o CPF ou o CNPJ. A primeira mensalidade vence no último dia do teste, então você não perde nenhum dia grátis.`,
+      resposta: `Você cria a conta em uma tela e já começa a usar, com tudo liberado por ${diasDeTeste} dias e sem cadastrar cartão. Para continuar depois, é só assinar na tela Assinatura informando o CPF ou o CNPJ. A primeira cobrança vence no último dia do teste, então você não perde nenhum dia grátis.`,
     },
     {
       pergunta: "Quanto custa e qual plano escolher?",

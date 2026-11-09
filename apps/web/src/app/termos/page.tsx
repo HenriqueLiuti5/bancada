@@ -70,7 +70,10 @@ export default function Termos() {
           continuar; quem cancela perde o desconto, e a vaga não volta;
         </li>
         <li>a cobrança é feita pelo Asaas, uma instituição de pagamento, por PIX, boleto ou cartão;</li>
-        <li>quem assina durante o teste paga a primeira mensalidade no último dia do teste;</li>
+        <li>
+          quem assina durante o teste paga a primeira cobrança, mensal ou anual, no último dia do
+          teste;
+        </li>
         <li>
           uma mudança de preço é avisada ao dono por e-mail com pelo menos 30 dias de antecedência
           e só vale a partir da cobrança seguinte ao aviso.
