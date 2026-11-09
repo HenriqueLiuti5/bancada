@@ -7,7 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Bancada é um SaaS de ordens de serviço para assistências técnicas de celular: Django 5 + DRF em
 `apps/api`, Next.js 16 (App Router, React 19, Tailwind 4) em `apps/web`, PostgreSQL 17, Redis e
 Celery, tudo no Docker Compose. O produto está descrito no `README.md` (em inglês); domínio,
-roadmap e fase atual, em `docs/PLANO.md`; o porquê de cada decisão técnica, em `docs/adr/`.
+roadmap, fase atual e as decisões do Henrique, em `docs/PLANO.md`; o porquê de cada decisão
+técnica, em `docs/adr/`; e o que a revisão de 8 de novembro de 2026 deixou para resolver, em
+`docs/REVISAO-2026-11-08.md`.
 
 ## Ambiente
 
@@ -18,7 +20,8 @@ roadmap e fase atual, em `docs/PLANO.md`; o porquê de cada decisão técnica, e
   `make setup` com uma `BANCADA_ENCRYPTION_KEY` própria, e o próprio banco. Não presuma que o banco
   local tem algum dado: recrie com `make semear`, `make semear-movimento` e `make semear-plataforma`,
   que podem rodar de novo sem duplicar nada. Um campo criptografado gravado com a chave de outra
-  máquina é lido como `None`.
+  máquina é lido como `None`. O trabalho chega ao GitHub de qualquer um deles, às vezes por PR: no
+  começo de cada sessão, rode `git fetch` e `gh pr list` antes de dizer em que pé o projeto está.
 - `make setup` não mexe num `.env` que já existe: variável nova no `.env.example` é acrescentada à
   mão no `.env` de cada máquina. `ASAAS_API_KEY` vai entre aspas simples, porque começa com `$`.
 - Depois de um `git pull`, `make up` reconstrói as imagens (dependências novas do `uv.lock` e do
@@ -153,48 +156,12 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
   são raros e explicam o porquê.
 - As fases do `docs/PLANO.md` são feitas uma de cada vez, na ordem. No começo de cada fase, o
   Henrique decide as escolhas de produto em aberto, e o PLANO registra a decisão.
-- A entrega de uma fase muda tudo junto: o código; os testes da API, do site e de navegador, no
-  computador e no celular; o ADR da fase (Contexto, Decisão, Consequências, Alternativas
-  consideradas), que, quando é novo, entra também na tabela de `docs/adr/README.md`; a seção "Na
-  entrega" do PLANO; e o "Current status" do README.
+- A entrega de uma fase muda tudo junto: o código; os testes da API e do site; os testes de
+  navegador, no computador e no celular, quando a fase muda um caminho principal ou mexe com
+  isolamento, dinheiro, senha ou cobrança; o ADR da fase, quando ela tem um; a seção "Na entrega"
+  do PLANO; e o "Current status" do README. ADR novo (Contexto, Decisão, Consequências,
+  Alternativas consideradas) só para decisão de arquitetura ou que mude o rumo do produto, e ele
+  entra também na tabela de `docs/adr/README.md`. É assim desde a revisão de 3 de novembro de 2026
+  (PLANO), até haver clientes pagando.
 - Mensagens de commit em português, sem acentos: `Fase 4Q parte 4: lucro do mes`,
   `Plano: o que a 4R leva da 4Q`.
-
-## Decisões do Henrique ainda fora do PLANO
-
-A PR #8 (branch `plano-revisao-3-novembro`, com a revisão de 3 de novembro de 2026) ainda não entrou
-no `main`. Em 8 de novembro, depois da revisão em `docs/REVISAO-2026-11-08.md`, o Henrique escolheu,
-item por item, entre ela e o que tinha decidido naquele dia. O resultado vale por cima do
-`docs/PLANO.md` e entra nele quando a PR #8 for ajustada e juntada ao `main`.
-
-Vêm da PR #8:
-
-- Preços: Solo R$ 49,90, Equipe R$ 89,90 e Rede R$ 179,90 por mês; R$ 499, R$ 899 e R$ 1.799 por
-  ano. O código no `main` ainda tem os de outubro (`bancada/assinaturas/planos.py`).
-- Depois da publicação: Fase 5, primeiras lojas; Fase 6, WhatsApp automático; Fase 7, indicação e
-  parceiros. A inteligência artificial sai do roadmap.
-- Processo mais leve até haver clientes pagando, e entrega contínua fora da 4F, como o Henrique
-  decidiu em 3 de novembro.
-- Limites de pessoas e de lojas durante o uso e troca de plano feitos à mão, fora da 4T (escolhido
-  em 8 de novembro): o sistema não bloqueia nada, o painel da plataforma mostra o plano de cada
-  assistência e avisa quando ela passou do tamanho dele, e o Henrique combina com o dono e troca o
-  plano no Asaas e no sistema. O painel administrativo mostra plano e valor só para leitura
-  (`bancada/assinaturas/admin.py`), então a troca no sistema precisa de um comando ou desses campos
-  editáveis.
-
-Mudam em relação à PR #8:
-
-- Fundadores: as **15** primeiras assinaturas, não 50, com o desconto da PR, 30% (R$ 34,90,
-  R$ 62,90 e R$ 125,90 por mês; R$ 349, R$ 629 e R$ 1.259 por ano), e as mesmas regras.
-- Teste grátis de **15 dias**, não 30. O código ainda tem 30 (`DIAS_DE_TESTE` em
-  `bancada/assinaturas/regras.py`), e as telas e os textos que citam o teste também (página
-  inicial, Assinatura, termos, e-mail do fim do teste). A troca entra na 4T.
-- Sem empresa por enquanto: a cobrança usa a conta do Asaas que o Henrique já tem, e nota fiscal só
-  quando um cliente pedir. Os termos não passam por advogado, como decidido em outubro.
-- WhatsApp do suporte: o número do próprio Henrique, por enquanto, configurado no servidor e fora
-  do repositório (ADR 0030).
-- Domínio, servidor e e-mail enviado pelo domínio do sistema: contratados só quando tudo estiver
-  pronto, depois da 4T.
-- Destino do backup, armazenamento das fotos e monitoramento de erros: decididos mais tarde.
-
-O resto do que ficou para resolver está em `docs/REVISAO-2026-11-08.md`.

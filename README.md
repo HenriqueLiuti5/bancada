@@ -27,8 +27,11 @@ subscription screen now offers three plans with every feature, priced by the siz
 (Solo, Equipe and Rede), paid monthly or yearly with two months free, and suggests the cheapest one
 that fits the shop's people and stores. A yearly plan cancelled within 7 days of paying is refunded
 in full through Asaas. Browser tests subscribe and cancel against a fake Asaas in CI. Still to come
-in 4T are the limits while the shop is in use, plan changes, a founders' discount and the plans on
-the home page; see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
+in 4T are the prices set on November 3, 2026, a free trial cut to 15 days, a founders' discount for
+the first 15 subscriptions, and the plans on the home page; limits while the shop is in use and plan changes are
+handled by hand for now. After publishing (4F) come the first ten shops, with an intake checklist,
+thermal printing and quote approval through the tracking link (Phase 5), automatic WhatsApp
+notices (Phase 6) and referrals and partners (Phase 7); see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
 customer and device on the same screen, along with the promised date, photographs the device, prints
 the intake receipt the customer signs at the counter and moves the status along; the customer gets
 the link by email, follows the repair without creating an account and, at pickup, receives the
