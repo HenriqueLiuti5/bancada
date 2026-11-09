@@ -162,23 +162,35 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
 
 ## Decisões do Henrique ainda fora do PLANO
 
-Tomadas em 8 de novembro de 2026. Elas valem por cima do que o `docs/PLANO.md` diz e entram nele
-na entrega da parte da 4T que as fizer.
+A PR #8 (branch `plano-revisao-3-novembro`, com a revisão de 3 de novembro de 2026) ainda não entrou
+no `main`. Em 8 de novembro, depois da revisão em `docs/REVISAO-2026-11-08.md`, o Henrique escolheu,
+item por item, entre ela e o que tinha decidido naquele dia. O resultado vale por cima do
+`docs/PLANO.md` e entra nele quando a PR #8 for ajustada e juntada ao `main`.
 
-- 4T: a parte 2 (limites de pessoas e de lojas durante o uso, e troca de plano) e a parte 4 (página
-  inicial e textos) seguem como estão no PLANO.
-- Fundadores, na parte 3: são as **15** primeiras assinaturas, não as 50 do PLANO. Os preços e as
-  regras continuam os do PLANO.
+Vêm da PR #8:
+
+- Preços: Solo R$ 49,90, Equipe R$ 89,90 e Rede R$ 179,90 por mês; R$ 499, R$ 899 e R$ 1.799 por
+  ano. O código no `main` ainda tem os de outubro (`bancada/assinaturas/planos.py`).
+- Depois da publicação: Fase 5, primeiras lojas; Fase 6, WhatsApp automático; Fase 7, indicação e
+  parceiros. A inteligência artificial sai do roadmap.
+- Processo mais leve até haver clientes pagando, e entrega contínua fora da 4F, como o Henrique
+  decidiu em 3 de novembro.
+
+Mudam em relação à PR #8:
+
+- Fundadores: as **15** primeiras assinaturas, não 50, com o desconto da PR, 30% (R$ 34,90,
+  R$ 62,90 e R$ 125,90 por mês; R$ 349, R$ 629 e R$ 1.259 por ano), e as mesmas regras.
 - Teste grátis de **15 dias**, não 30. O código ainda tem 30 (`DIAS_DE_TESTE` em
   `bancada/assinaturas/regras.py`), e as telas e os textos que citam o teste também (página
   inicial, Assinatura, termos, e-mail do fim do teste). A troca entra na 4T.
-- Asaas: o Henrique já tem a conta. Nota fiscal só quando um cliente pedir.
+- Sem empresa por enquanto: a cobrança usa a conta do Asaas que o Henrique já tem, e nota fiscal só
+  quando um cliente pedir. Os termos não passam por advogado, como decidido em outubro.
 - WhatsApp do suporte: o número do próprio Henrique, por enquanto, configurado no servidor e fora
   do repositório (ADR 0030).
 - Domínio, servidor e e-mail enviado pelo domínio do sistema: contratados só quando tudo estiver
   pronto, depois da 4T.
 - Destino do backup, armazenamento das fotos e monitoramento de erros: decididos mais tarde.
-- A PR #8 (revisão de 3 de novembro), ainda fora do `main`, discorda destas decisões em preços,
-  fundadores, limites, empresa e advogado. A revisão de 8 de novembro,
-  `docs/REVISAO-2026-11-08.md`, lista o que o Henrique decide antes de a 4T continuar (C1 a C9) e
-  o resto do que ficou para resolver.
+
+Em aberto: os limites de pessoas e de lojas durante o uso e a troca de plano, pela tela (a parte 2
+da 4T no `main`) ou à mão (a PR #8). É o item C3 de `docs/REVISAO-2026-11-08.md`, que lista também
+o resto do que ficou para resolver.
