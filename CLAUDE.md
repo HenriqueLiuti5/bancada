@@ -159,3 +159,22 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
   entrega" do PLANO; e o "Current status" do README.
 - Mensagens de commit em português, sem acentos: `Fase 4Q parte 4: lucro do mes`,
   `Plano: o que a 4R leva da 4Q`.
+
+## Decisões do Henrique ainda fora do PLANO
+
+Tomadas em 8 de novembro de 2026. Elas valem por cima do que o `docs/PLANO.md` diz e entram nele
+na entrega da parte da 4T que as fizer.
+
+- 4T: a parte 2 (limites de pessoas e de lojas durante o uso, e troca de plano) e a parte 4 (página
+  inicial e textos) seguem como estão no PLANO.
+- Fundadores, na parte 3: são as **15** primeiras assinaturas, não as 50 do PLANO. Os preços e as
+  regras continuam os do PLANO.
+- Teste grátis de **15 dias**, não 30. O código ainda tem 30 (`DIAS_DE_TESTE` em
+  `bancada/assinaturas/regras.py`), e as telas e os textos que citam o teste também (página
+  inicial, Assinatura, termos, e-mail do fim do teste). A troca entra na 4T.
+- Asaas: o Henrique já tem a conta. Nota fiscal só quando um cliente pedir.
+- WhatsApp do suporte: o número do próprio Henrique, por enquanto, configurado no servidor e fora
+  do repositório (ADR 0030).
+- Domínio, servidor e e-mail enviado pelo domínio do sistema: contratados só quando tudo estiver
+  pronto, depois da 4T.
+- Destino do backup, armazenamento das fotos e monitoramento de erros: decididos mais tarde.
