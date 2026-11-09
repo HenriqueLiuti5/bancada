@@ -240,7 +240,7 @@ test("cada formulário mostra o que foi salvo e, quando o envio é recusado, con
     await page.getByText("2 meses grátis").click();
     await equipe.check();
     await documento.fill("123.456.789-00");
-    await page.getByRole("button", { name: "Assinar o plano Equipe por R$ 599,00 por ano" }).click();
+    await page.getByRole("button", { name: /^Assinar o plano Equipe por R\$\s(899|629),00 por ano$/ }).click();
     await expect(page.getByText("Informe um CPF ou CNPJ válido.")).toBeVisible();
     await expect(anual).toBeChecked();
     await expect(equipe).toBeChecked();

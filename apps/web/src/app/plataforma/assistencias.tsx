@@ -1,4 +1,4 @@
-import { StorefrontIcon, WhatsappLogoIcon } from "@/componentes/icones";
+import { StorefrontIcon, WarningIcon, WhatsappLogoIcon } from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Secao } from "@/componentes/ui/Secao";
@@ -30,6 +30,12 @@ function mensagemPara(linha: LinhaDaAssistencia, quemFala: string): string {
 function textoDoAlerta(linha: LinhaDaAssistencia): string {
   if (linha.alerta === "sem_ordens") return "Não abriu nenhuma ordem";
   return `Sem ordem nova ${haDias(linha.dias_sem_ordem ?? 0)}`;
+}
+
+function textoDoPlano(linha: LinhaDaAssistencia): string | null {
+  if (!linha.plano) return null;
+  const ciclo = linha.ciclo ? `, ${linha.ciclo}` : "";
+  return `Plano ${linha.plano_rotulo}${ciclo}${linha.fundador ? ", fundador" : ""}`;
 }
 
 function movimento(linha: LinhaDaAssistencia, nomeDoMes: string): string {
@@ -68,6 +74,15 @@ function Linha({
           {linha.situacao && <Selo status={linha.situacao} rotulo={linha.situacao_rotulo} />}
           {linha.alerta && <Selo status={linha.alerta} rotulo={textoDoAlerta(linha)} />}
         </div>
+        {textoDoPlano(linha) && (
+          <p className="text-[13px] font-semibold text-texto-suave">{textoDoPlano(linha)}</p>
+        )}
+        {linha.passou_do_plano && (
+          <p className="flex items-start gap-1.5 text-[13px] font-semibold text-aviso">
+            <WarningIcon size={15} className="mt-px shrink-0" />
+            Passou do plano: {linha.passou_do_plano}
+          </p>
+        )}
         {contato && <p className="text-[13px] break-words text-texto-apagado">{contato}</p>}
         <p className="text-xs text-texto-apagado first-letter:uppercase">
           {movimento(linha, nomeDoMes)}

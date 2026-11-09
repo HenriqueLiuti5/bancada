@@ -10,7 +10,7 @@ from bancada.tenants.tasks import (
 )
 
 # A mesma versão aparece nas páginas dos termos e da privacidade (web/src/lib/textosLegais.ts).
-VERSAO_DOS_TERMOS = "2026-10-28"
+VERSAO_DOS_TERMOS = "2026-11-08"
 NOME_DA_PRIMEIRA_LOJA = "Matriz"
 
 

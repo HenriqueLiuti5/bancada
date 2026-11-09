@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   avisoDaExclusao,
+  avisoDoFundador,
   mensalNoAnual,
   nomeDaCobranca,
   porPeriodo,
   precoDoPlano,
   tamanhoDaAssistencia,
   tamanhoDoPlano,
+  vagasDeFundador,
 } from "@/lib/assinatura";
 import type { PlanoDaAssinatura } from "@/lib/tipos";
 
@@ -15,8 +17,10 @@ const EQUIPE: PlanoDaAssinatura = {
   nome: "Equipe",
   lojas: 1,
   pessoas: null,
-  mensal: "59.90",
-  anual: "599.00",
+  mensal: "89.90",
+  anual: "899.00",
+  fundador_mensal: "62.90",
+  fundador_anual: "629.00",
   por_que_nao_cabe: null,
 };
 
@@ -40,10 +44,34 @@ describe("cobrança no ciclo da assinatura", () => {
   });
 
   it("mostra o preço do ciclo escolhido e o anual dividido pelos doze meses", () => {
-    expect(precoDoPlano(EQUIPE, "mensal")).toBe("59.90");
-    expect(precoDoPlano(EQUIPE, "anual")).toBe("599.00");
-    expect(mensalNoAnual(EQUIPE)).toBe("49.92");
+    expect(precoDoPlano(EQUIPE, "mensal")).toBe("89.90");
+    expect(precoDoPlano(EQUIPE, "anual")).toBe("899.00");
+    expect(mensalNoAnual(EQUIPE)).toBe("74.92");
     expect(mensalNoAnual({ ...EQUIPE, anual: "399.00" })).toBe("33.25");
+  });
+
+  it("mostra o preço de fundador quando a assistência ganha o desconto", () => {
+    expect(precoDoPlano(EQUIPE, "mensal", true)).toBe("62.90");
+    expect(precoDoPlano(EQUIPE, "anual", true)).toBe("629.00");
+    expect(mensalNoAnual(EQUIPE, true)).toBe("52.42");
+  });
+});
+
+describe("vagas de fundador", () => {
+  it("diz quantas das vagas restam, no singular e no plural", () => {
+    expect(vagasDeFundador({ vagas: 15, restantes: 12, desconto: 30 })).toBe(
+      "Restam 12 de 15 vagas de fundador",
+    );
+    expect(vagasDeFundador({ vagas: 15, restantes: 1, desconto: 30 })).toBe(
+      "Restam 1 de 15 vaga de fundador",
+    );
+  });
+
+  it("avisa que o preço vale enquanto a assinatura continuar", () => {
+    const aviso = avisoDoFundador({ vagas: 15, restantes: 12, desconto: 30 });
+    expect(aviso).toContain("30% a menos");
+    expect(aviso).toContain("Restam 12 de 15 vagas de fundador");
+    expect(aviso).toContain("acaba se você cancelar");
   });
 });
 

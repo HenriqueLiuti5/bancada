@@ -53,14 +53,22 @@ export default function Termos() {
 
       <h2>Teste grátis</h2>
       <p>
-        Toda assistência nova tem 30 dias grátis, sem informar forma de pagamento. Se o teste acabar
+        Toda assistência nova tem 15 dias grátis, sem informar forma de pagamento. Se o teste acabar
         sem assinatura, o sistema fica só para consulta: dá para entrar, ver tudo e assinar, mas não
         registrar nem alterar nada.
       </p>
 
       <h2>Assinatura e pagamento</h2>
       <ul>
-        <li>o valor mensal é o que aparece na tela Assinatura no momento da contratação;</li>
+        <li>
+          há três planos, Solo (1 loja, até 2 pessoas), Equipe (1 loja, pessoas ilimitadas) e Rede
+          (até 3 lojas, pessoas ilimitadas), com pagamento mensal ou anual; os valores são os que
+          aparecem na tela Assinatura no momento da contratação;
+        </li>
+        <li>
+          as primeiras 15 assinaturas têm preço de fundador, 30% menor, enquanto a assinatura
+          continuar; quem cancela perde o desconto, e a vaga não volta;
+        </li>
         <li>a cobrança é feita pelo Asaas, uma instituição de pagamento, por PIX, boleto ou cartão;</li>
         <li>quem assina durante o teste paga a primeira mensalidade no último dia do teste;</li>
         <li>

@@ -1,9 +1,21 @@
 import { ErroDaApi } from "@/lib/api";
+import type { Fundadores } from "@/lib/tipos";
 
 const BASE = process.env.API_INTERNAL_URL ?? "http://localhost:8000";
 const CINCO_MINUTOS = 300;
 
-export type Oferta = { valor_mensal: string; dias_de_teste: number };
+export type PlanoDaOferta = {
+  plano: string;
+  nome: string;
+  lojas: number;
+  pessoas: number | null;
+  mensal: string;
+  anual: string;
+  fundador_mensal: string;
+  fundador_anual: string;
+};
+
+export type Oferta = { dias_de_teste: number; planos: PlanoDaOferta[]; fundadores: Fundadores };
 
 export async function buscarOferta(): Promise<Oferta> {
   const resposta = await fetch(`${BASE}/api/publico/oferta/`, {

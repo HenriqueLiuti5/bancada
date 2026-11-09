@@ -3,6 +3,7 @@ import { GradeDeIndicadores, Indicador } from "@/componentes/Indicador";
 import {
   ChartPieSliceIcon,
   CreditCardIcon,
+  CrownIcon,
   RepeatIcon,
   TargetIcon,
   UserMinusIcon,
@@ -13,7 +14,7 @@ import { Secao } from "@/componentes/ui/Secao";
 import { IconeDeStatus } from "@/componentes/ui/Selo";
 import { contagem, emPorcentagem } from "@/lib/formatos";
 import { emReais } from "@/lib/moeda";
-import type { PainelDaPlataforma } from "@/lib/tipos";
+import type { Fundadores, PainelDaPlataforma } from "@/lib/tipos";
 
 type Assinaturas = PainelDaPlataforma["assinaturas"];
 
@@ -24,9 +25,11 @@ function notaDaConversao({ assinaram, decidiram }: Assinaturas["conversao"]): st
 
 export function SecaoAssinaturas({
   assinaturas,
+  fundadores,
   nome,
 }: {
   assinaturas: Assinaturas;
+  fundadores: Fundadores;
   nome: string;
 }) {
   const { receita_recorrente: receita, conversao } = assinaturas;
@@ -76,6 +79,12 @@ export function SecaoAssinaturas({
             icone={UserMinusIcon}
             valor={String(assinaturas.canceladas_no_mes)}
             nota={`em ${nome}`}
+          />
+          <Indicador
+            rotulo="Vagas de fundador"
+            icone={CrownIcon}
+            valor={`${fundadores.vagas - fundadores.restantes} de ${fundadores.vagas}`}
+            nota={contagem(fundadores.restantes, "vaga restante", "vagas restantes")}
           />
         </GradeDeIndicadores>
       </div>

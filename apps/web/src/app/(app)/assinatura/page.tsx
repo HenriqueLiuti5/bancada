@@ -50,13 +50,17 @@ function explicacaoDaAssinatura(assinatura: DetalheDaAssinatura): string {
   }
 }
 
-function avisoDoCancelamento({ cancelamento }: DetalheDaAssinatura): string {
+function avisoDoCancelamento(assinatura: DetalheDaAssinatura): string {
+  const { cancelamento } = assinatura;
   if (!cancelamento) return "";
   const ate = diaPorExtenso(cancelamento.acesso_ate);
   const antes = cancelamento.devolve
     ? `Cancelar a assinatura? Você pagou o ano há menos de 7 dias, então os ${emReais(cancelamento.devolve)} voltam para você, e o Bancada fica liberado até ${ate}.`
     : `Cancelar a assinatura? Nada mais é cobrado. Você continua usando até ${ate}.`;
-  return `${antes} Depois disso, o Bancada fica só para consulta. ${AVISO_DA_EXCLUSAO}`;
+  const fundador = assinatura.fundador
+    ? " Você paga o preço de fundador: se cancelar, ele se perde e não volta, mesmo que você assine de novo."
+    : "";
+  return `${antes}${fundador} Depois disso, o Bancada fica só para consulta. ${AVISO_DA_EXCLUSAO}`;
 }
 
 function faturaAPagar(faturas: Fatura[]): Fatura | undefined {
@@ -146,6 +150,8 @@ function EscolhaDoPlano({
         documento={documento}
         planos={assinatura.planos}
         sugerido={assinatura.plano_sugerido}
+        fundador={assinatura.ganha_preco_de_fundador}
+        fundadores={assinatura.fundadores}
       />
     </>
   );
@@ -185,6 +191,12 @@ export default async function PaginaDaAssinatura() {
               <p className="text-sm font-semibold text-texto">
                 Plano {assinatura.plano_rotulo}, pagamento {assinatura.ciclo_rotulo.toLowerCase()}:{" "}
                 <Dinheiro valor={assinatura.valor} /> {porPeriodo(assinatura.ciclo)}
+              </p>
+            )}
+            {assinatura.fundador && (
+              <p className="text-[13px] font-semibold text-sucesso">
+                Você paga o preço de fundador, {assinatura.fundadores.desconto}% menor, enquanto a
+                assinatura continuar.
               </p>
             )}
             <p className="text-sm leading-relaxed text-texto-suave">

@@ -129,7 +129,6 @@ export function Recursos() {
             itens={[
               "Etapas do conserto, previsão de entrega e orçamento com os valores",
               "Com o nome e a logo da sua loja",
-              "Aviso por e-mail quando o orçamento sai, quando fica pronto e na entrega",
               "Botões para o cliente ligar ou chamar a loja no WhatsApp",
             ]}
             acao={

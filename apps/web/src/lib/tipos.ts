@@ -527,8 +527,12 @@ export type PlanoDaAssinatura = {
   pessoas: number | null;
   mensal: string;
   anual: string;
+  fundador_mensal: string;
+  fundador_anual: string;
   por_que_nao_cabe: string | null;
 };
+
+export type Fundadores = { vagas: number; restantes: number; desconto: number };
 
 export type TamanhoDaAssistencia = { lojas: number; pessoas: number };
 
@@ -537,6 +541,9 @@ export type DetalheDaAssinatura = ResumoDaAssinatura & {
   plano_rotulo: string;
   ciclo_rotulo: string;
   valor: string | null;
+  fundador: boolean;
+  ganha_preco_de_fundador: boolean;
+  fundadores: Fundadores;
   planos: PlanoDaAssinatura[];
   plano_sugerido: string | null;
   tamanho: TamanhoDaAssistencia;
@@ -566,12 +573,18 @@ export type LinhaDaAssistencia = {
   ultimo_acesso: string | null;
   dias_sem_acesso: number | null;
   alerta: AlertaDeUso | null;
+  plano: string | null;
+  plano_rotulo: string;
+  ciclo: Ciclo | null;
+  fundador: boolean;
+  passou_do_plano: string | null;
 };
 
 export type MesesDoPainel = { escolhido: string; anterior: string | null; seguinte: string | null };
 
 export type PainelDaPlataforma = {
   mes: MesesDoPainel;
+  fundadores: Fundadores;
   dinheiro: {
     recebido: string;
     faturas_pagas: number;

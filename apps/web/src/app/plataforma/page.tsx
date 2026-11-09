@@ -53,7 +53,11 @@ export default async function PaginaDaPlataforma({
       <div className="space-y-10">
         {erro && <Mensagem tipo="erro">{erro}</Mensagem>}
         <SecaoDinheiro dinheiro={painel.dinheiro} mes={painel.mes.escolhido} nome={nome} />
-        <SecaoAssinaturas assinaturas={painel.assinaturas} nome={nome} />
+        <SecaoAssinaturas
+          assinaturas={painel.assinaturas}
+          fundadores={painel.fundadores}
+          nome={nome}
+        />
         <SecaoCrescimento crescimento={painel.crescimento} />
         <SecaoAssistencias
           assistencias={painel.assistencias}

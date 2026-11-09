@@ -4,10 +4,10 @@ import { useActionState, useState } from "react";
 import { AvisoDeObrigatorios, CampoRotulado, MarcaDeObrigatorio } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo } from "@/componentes/ui/estilos";
-import { mensalNoAnual, porPeriodo, precoDoPlano, tamanhoDoPlano } from "@/lib/assinatura";
+import { avisoDoFundador, mensalNoAnual, porPeriodo, precoDoPlano, tamanhoDoPlano } from "@/lib/assinatura";
 import type { EstadoDoFormulario } from "@/lib/formularios";
 import { emReais } from "@/lib/moeda";
-import type { Ciclo, PlanoDaAssinatura } from "@/lib/tipos";
+import type { Ciclo, Fundadores, PlanoDaAssinatura } from "@/lib/tipos";
 import { assinar, cancelarAssinatura } from "./acoes";
 
 const INICIAL: EstadoDoFormulario = {};
@@ -23,11 +23,13 @@ const LEGENDA = "mb-2 text-sm font-semibold text-texto sm:text-[13px]";
 function OpcaoDoPlano({
   plano,
   ciclo,
+  fundador,
   marcado,
   aoEscolher,
 }: {
   plano: PlanoDaAssinatura;
   ciclo: Ciclo;
+  fundador: boolean;
   marcado: boolean;
   aoEscolher: (plano: string) => void;
 }) {
@@ -46,12 +48,19 @@ function OpcaoDoPlano({
         />
       </span>
       <span className="text-[13px] text-texto-suave">{tamanhoDoPlano(plano)}</span>
-      <span className="mt-2 text-lg font-extrabold text-dinheiro tabular-nums">
-        {emReais(precoDoPlano(plano, ciclo))}
+      <span className="mt-2 flex flex-wrap items-baseline gap-x-2">
+        <span className="text-lg font-extrabold text-dinheiro tabular-nums">
+          {emReais(precoDoPlano(plano, ciclo, fundador))}
+        </span>
+        {fundador && (
+          <s className="text-[13px] text-texto-apagado tabular-nums">
+            {emReais(precoDoPlano(plano, ciclo))}
+          </s>
+        )}
       </span>
       <span className="text-[13px] text-texto-apagado">
         {ciclo === "anual"
-          ? `por ano, ou ${emReais(mensalNoAnual(plano))} por mês`
+          ? `por ano, ou ${emReais(mensalNoAnual(plano, fundador))} por mês`
           : "por mês"}
       </span>
       {plano.por_que_nao_cabe && (
@@ -65,9 +74,17 @@ type PropsDaAssinatura = {
   documento: string;
   planos: PlanoDaAssinatura[];
   sugerido: string | null;
+  fundador: boolean;
+  fundadores: Fundadores;
 };
 
-export function FormularioDeAssinatura({ documento, planos, sugerido }: PropsDaAssinatura) {
+export function FormularioDeAssinatura({
+  documento,
+  planos,
+  sugerido,
+  fundador,
+  fundadores,
+}: PropsDaAssinatura) {
   const [estado, acao, enviando] = useActionState(assinar, INICIAL);
   const erros = estado.erros ?? {};
   const valores = estado.valores ?? { documento, plano: sugerido ?? "", ciclo: "mensal" };
@@ -126,12 +143,16 @@ export function FormularioDeAssinatura({ documento, planos, sugerido }: PropsDaA
                 key={opcao.plano}
                 plano={opcao}
                 ciclo={ciclo}
+                fundador={fundador}
                 marcado={opcao.plano === valores.plano && !opcao.por_que_nao_cabe}
                 aoEscolher={setPlano}
               />
             ))}
           </div>
           {erros.plano && <p className="mt-1.5 text-[13px] text-perigo sm:text-xs">{erros.plano}</p>}
+          {fundador && (
+            <p className="mt-3 text-[13px] font-semibold text-texto">{avisoDoFundador(fundadores)}</p>
+          )}
         </fieldset>
       </div>
 
@@ -159,7 +180,7 @@ export function FormularioDeAssinatura({ documento, planos, sugerido }: PropsDaA
           {enviando
             ? "Assinando..."
             : escolhido
-              ? `Assinar o plano ${escolhido.nome} por ${emReais(precoDoPlano(escolhido, ciclo))} ${porPeriodo(ciclo)}`
+              ? `Assinar o plano ${escolhido.nome} por ${emReais(precoDoPlano(escolhido, ciclo, fundador))} ${porPeriodo(ciclo)}`
               : "Assinar"}
         </button>
         {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}

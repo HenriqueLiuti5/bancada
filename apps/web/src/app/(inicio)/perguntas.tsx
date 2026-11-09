@@ -9,6 +9,18 @@ function perguntasFrequentes(diasDeTeste: number) {
       resposta: `Você cria a conta em uma tela e já começa a usar, com tudo liberado por ${diasDeTeste} dias e sem cadastrar cartão. Para continuar depois, é só assinar na tela Assinatura informando o CPF ou o CNPJ. A primeira mensalidade vence no último dia do teste, então você não perde nenhum dia grátis.`,
     },
     {
+      pergunta: "Quanto custa e qual plano escolher?",
+      resposta: [
+        "Todos os planos têm todos os recursos; muda só o tamanho da assistência. O Solo serve para 1 loja com até 2 pessoas, o Equipe para 1 loja com quantas pessoas você precisar, e o Rede para até 3 lojas, também com pessoas ilimitadas.",
+        "Dá para pagar por mês ou por ano. O anual custa 10 mensalidades, ou seja, você ganha 2 meses grátis.",
+      ],
+    },
+    {
+      pergunta: "O que é o preço de fundador?",
+      resposta:
+        "As 15 primeiras assinaturas pagam 30% menos, no mensal e no anual. O desconto vale enquanto a assinatura continuar; quem cancela perde o preço de fundador, e a vaga não volta. Quando as 15 vagas acabam, a página passa a mostrar só o preço cheio.",
+    },
+    {
       pergunta: "O que acontece se eu não assinar?",
       resposta:
         "O Bancada fica só para consulta: você entra e vê tudo, mas não abre nem altera ordens, e assinando você volta a usar normalmente. Se a conta passar 6 meses assim, ela é apagada, com um aviso por e-mail 30 dias antes.",
@@ -26,7 +38,7 @@ function perguntasFrequentes(diasDeTeste: number) {
     {
       pergunta: "Quantas pessoas podem usar?",
       resposta:
-        "Quantas você precisar, sem pagar a mais por isso. Cada pessoa entra com o próprio e-mail e um papel: dono, técnico ou atendente.",
+        "O plano Solo aceita até 2 pessoas; o Equipe e o Rede, quantas você precisar. Cada pessoa entra com o próprio e-mail e um papel: dono, técnico ou atendente.",
     },
     {
       pergunta: "Meus dados e os dos meus clientes ficam seguros?",
@@ -39,9 +51,9 @@ function perguntasFrequentes(diasDeTeste: number) {
     {
       pergunta: "Como eu pago e como cancelo?",
       resposta: [
-        "Todo mês chega uma fatura no seu e-mail, e você escolhe pagar por PIX, boleto ou cartão de crédito.",
+        "No plano mensal chega uma fatura no seu e-mail todo mês, e no anual uma vez por ano, sempre com PIX, boleto ou cartão de crédito.",
         "Quem manda a fatura é o Asaas, a empresa que cuida da cobrança do Bancada, do mesmo jeito que a maquininha cuida dos pagamentos no seu balcão.",
-        "Para cancelar, é só apertar um botão na tela Assinatura. Não tem multa nem fidelidade, e você continua usando até o fim do mês que já pagou.",
+        "Para cancelar, é só apertar um botão na tela Assinatura. Não tem multa nem fidelidade, e você continua usando até o fim do período que já pagou.",
       ],
     },
   ];

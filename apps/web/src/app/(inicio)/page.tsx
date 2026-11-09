@@ -36,6 +36,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 function dadosEstruturados(oferta: Oferta): string {
+  const mensais = oferta.planos.map((plano) => Number(plano.mensal));
+  const menorPreco = Math.min(...mensais).toFixed(2);
+  const maiorPreco = Math.max(...mensais).toFixed(2);
   const dados = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -43,7 +46,13 @@ function dadosEstruturados(oferta: Oferta): string {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description: descricao(oferta.dias_de_teste),
-    offers: { "@type": "Offer", price: oferta.valor_mensal, priceCurrency: "BRL" },
+    offers: {
+      "@type": "AggregateOffer",
+      lowPrice: menorPreco,
+      highPrice: maiorPreco,
+      priceCurrency: "BRL",
+      offerCount: oferta.planos.length,
+    },
   };
   return JSON.stringify(dados).replace(/</g, "\\u003c");
 }
