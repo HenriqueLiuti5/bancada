@@ -4,7 +4,7 @@ from celery import shared_task
 from django.conf import settings
 from django.db import transaction
 
-from bancada.assinaturas import regras, servicos
+from bancada.assinaturas import fundadores, regras, servicos
 from bancada.assinaturas.models import Assinatura, SituacaoDaAssinatura
 from bancada.assinaturas.planos import PLANOS
 from bancada.assinaturas.provedor import ErroNoProvedor, provedor_configurado
@@ -39,6 +39,13 @@ def avisar_fim_do_teste(assinatura_id: int) -> str:
         tenant=assinatura.tenant, papel=Papel.DONO, is_active=True
     ).exclude(email="")
     quando = quando_termina((assinatura.teste_termina_em - hoje_no_bancada()).days)
+    vagas_de_fundador = (
+        fundadores.situacao_dos_fundadores()
+        if fundadores.ganha_preco_de_fundador(assinatura.tenant)
+        else None
+    )
+    precos = [condicoes.mensal for condicoes in PLANOS.values()]
+    precos_de_fundador = [condicoes.fundador_mensal for condicoes in PLANOS.values()]
 
     for dono in donos:
         enviar(
@@ -50,8 +57,11 @@ def avisar_fim_do_teste(assinatura_id: int) -> str:
                 "assistencia": assinatura.tenant.nome,
                 "quando": quando,
                 "teste_termina_em": assinatura.teste_termina_em,
-                "menor_preco": min(condicoes.mensal for condicoes in PLANOS.values()),
-                "maior_preco": max(condicoes.mensal for condicoes in PLANOS.values()),
+                "menor_preco": min(precos),
+                "maior_preco": max(precos),
+                "fundadores": vagas_de_fundador,
+                "menor_preco_de_fundador": min(precos_de_fundador),
+                "maior_preco_de_fundador": max(precos_de_fundador),
                 "link": f"{settings.APP_PUBLIC_URL}/assinatura",
             },
         )

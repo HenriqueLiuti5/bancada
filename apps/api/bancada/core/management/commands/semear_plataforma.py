@@ -10,7 +10,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.text import slugify
 
-from bancada.assinaturas import servicos
+from bancada.assinaturas import fundadores, servicos
 from bancada.assinaturas.models import (
     Assinatura,
     Ciclo,
@@ -249,8 +249,9 @@ class Command(BaseCommand):
         assinatura.assinatura_no_provedor = f"sub_exemplo_{assinatura.tenant_id}"
         assinatura.plano = exemplo.plano
         assinatura.ciclo = exemplo.ciclo
-        assinatura.valor = PLANOS[exemplo.plano].preco(exemplo.ciclo)
-        assinatura.assinada_em = cadastro + timedelta(days=random.randint(14, 28))
+        assinatura.fundador = fundadores.ocupar_vaga(assinatura.tenant)
+        assinatura.valor = PLANOS[exemplo.plano].preco(exemplo.ciclo, fundador=assinatura.fundador)
+        assinatura.assinada_em = cadastro + timedelta(days=random.randint(7, DIAS_DE_TESTE - 1))
         assinatura.situacao = SituacaoDaAssinatura.ATIVA
         assinatura.save()
 
@@ -277,7 +278,7 @@ class Command(BaseCommand):
         atrasou: bool,
         futura: bool = False,
     ) -> None:
-        valor = PLANOS[exemplo.plano].preco(exemplo.ciclo)
+        valor = PLANOS[exemplo.plano].preco(exemplo.ciclo, fundador=assinatura.fundador)
         paga = not (atrasou or futura)
         if paga:
             situacao = SituacaoDaFatura.PAGA

@@ -28,6 +28,7 @@ class Acao(models.TextChoices):
     MOVIMENTO_DO_CAIXA_REMOVIDO = "movimento_do_caixa_removido", "Retirada ou reforço removido"
     ASSINATURA_CONTRATADA = "assinatura_contratada", "Assinatura contratada"
     ASSINATURA_CANCELADA = "assinatura_cancelada", "Assinatura cancelada"
+    PLANO_TROCADO = "plano_trocado", "Plano da assinatura trocado"
     PLATAFORMA_CONSULTADA = "plataforma_consultada", "Painel da plataforma consultado"
     CUSTO_LANCADO = "custo_lancado", "Custo da plataforma lançado"
     CUSTO_REMOVIDO = "custo_removido", "Custo da plataforma removido"

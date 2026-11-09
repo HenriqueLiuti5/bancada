@@ -28,7 +28,7 @@ def test_o_asaas_falso_assina_devolve_e_cancela_como_o_bancada_espera(asaas_fals
     )
     assinatura = asaas_falso.criar_assinatura(
         cliente=cliente,
-        valor=Decimal("399.00"),
+        valor=Decimal("499.00"),
         ciclo="anual",
         primeiro_vencimento=date(2026, 11, 27),
         descricao="Assinatura anual do Bancada, plano Solo",
@@ -37,11 +37,16 @@ def test_o_asaas_falso_assina_devolve_e_cancela_como_o_bancada_espera(asaas_fals
 
     [cobranca] = asaas_falso.cobrancas_da_assinatura(assinatura)
     assert (cobranca.valor, cobranca.vencimento, cobranca.situacao) == (
-        Decimal("399.00"),
+        Decimal("499.00"),
         date(2026, 11, 27),
         SituacaoDaFatura.ABERTA,
     )
     assert cobranca.link.endswith(f"/i/{cobranca.id}")
+
+    asaas_falso.atualizar_assinatura(
+        assinatura, valor=Decimal("1799.00"), descricao="Assinatura anual do Bancada, plano Rede"
+    )
+    assert asaas_falso.cobrancas_da_assinatura(assinatura)[0].valor == Decimal("499.00")
 
     link = asaas_falso.devolver_cobranca(cobranca.id, boleto=True)
     assert link.endswith(f"/solicitar-estorno/{cobranca.id}")
@@ -54,3 +59,5 @@ def test_o_asaas_falso_assina_devolve_e_cancela_como_o_bancada_espera(asaas_fals
 def test_o_asaas_falso_recusa_assinatura_que_nao_existe(asaas_falso: Asaas) -> None:
     with pytest.raises(ErroNoProvedor, match="Assinatura não encontrada."):
         asaas_falso.cancelar_assinatura("sub_que_nao_existe")
+    with pytest.raises(ErroNoProvedor, match="Assinatura não encontrada."):
+        asaas_falso.atualizar_assinatura("sub_que_nao_existe", valor=Decimal("1"), descricao="")

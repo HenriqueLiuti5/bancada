@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from django.db import models
 from django.utils import timezone
 
-from bancada.assinaturas.models import Assinatura, Fatura
+from bancada.assinaturas.models import Assinatura, Fatura, VagaDeFundador
 from bancada.auditoria.models import RegistroDeAuditoria
 from bancada.avisos.models import AvisoDeStatus
 from bancada.clientes.models import Aparelho, Cliente
@@ -62,11 +62,12 @@ PLANILHAS: list[tuple[str, type[models.Model]]] = [
     ("conferencias-do-caixa", ConferenciaDoCaixa),
 ]
 
-# A cobrança e a auditoria são registros do Bancada, o convite leva o link de entrar na equipe e
-# o aviso guarda só o envio de cada e-mail ao cliente.
+# A cobrança, a vaga de fundador e a auditoria são registros do Bancada, o convite leva o link de
+# entrar na equipe e o aviso guarda só o envio de cada e-mail ao cliente.
 FORA_DA_COPIA: set[type[models.Model]] = {
     Assinatura,
     Fatura,
+    VagaDeFundador,
     RegistroDeAuditoria,
     Convite,
     AvisoDeStatus,

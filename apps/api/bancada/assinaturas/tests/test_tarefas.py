@@ -11,6 +11,7 @@ from bancada.assinaturas.models import (
     FormaDeCobranca,
     SituacaoDaAssinatura,
     SituacaoDaFatura,
+    VagaDeFundador,
 )
 from bancada.assinaturas.provedor import Cobranca
 from bancada.assinaturas.tasks import revisar_assinaturas, sincronizar_cobrancas
@@ -54,13 +55,42 @@ def test_dono_e_avisado_sete_dias_antes_e_na_vespera_uma_vez_cada(
     ]
     assert mail.outbox[0].to == [dono.email]
     assert "http://localhost:3000/assinatura" in mail.outbox[0].body
-    assert "Os planos vão de R$ 39,90 a R$ 119,90 por mês" in mail.outbox[0].body
+    assert "Os planos vão de R$ 49,90 a R$ 179,90 por mês" in mail.outbox[0].body
 
     faltando(tenant, 1)
     revisar_assinaturas()
 
     assert len(mail.outbox) == 2
     assert mail.outbox[1].subject == "Seu teste grátis do Bancada termina amanhã"
+
+
+@pytest.mark.django_db
+def test_aviso_de_fim_do_teste_fala_do_preco_de_fundador_enquanto_ha_vaga(
+    tenant: Tenant, outro_tenant: Tenant, dono: Usuario
+) -> None:
+    VagaDeFundador.objects.create(numero=1, tenant=outro_tenant)
+    faltando(tenant, 7)
+
+    revisar_assinaturas()
+
+    assert (
+        "Ainda restam 14 das 15 vagas de fundador: quem assina agora paga 30% menos, de "
+        "R$ 34,90 a R$ 125,90 por mês, enquanto a assinatura continuar."
+    ) in mail.outbox[0].body
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("vagas_esgotadas")
+def test_sem_vaga_o_aviso_de_fim_do_teste_nao_fala_do_preco_de_fundador(
+    tenant: Tenant, dono: Usuario
+) -> None:
+    faltando(tenant, 7)
+
+    revisar_assinaturas()
+
+    corpo = mail.outbox[0].body.replace("\r\n", "\n")
+    assert "fundador" not in corpo
+    assert "PIX, boleto ou cartão.\n\nSe preferir não assinar agora" in corpo
 
 
 @pytest.mark.django_db
@@ -94,7 +124,7 @@ def test_sincronizacao_traz_o_pagamento_que_o_webhook_perdeu(
         tenant=tenant,
         assinatura=assinatura,
         id_no_provedor="pay_1",
-        valor=Decimal("59.90"),
+        valor=Decimal("89.90"),
         vencimento=vencimento,
         situacao=SituacaoDaFatura.VENCIDA,
     )
@@ -102,7 +132,7 @@ def test_sincronizacao_traz_o_pagamento_que_o_webhook_perdeu(
         Cobranca(
             id="pay_1",
             assinatura="sub_1",
-            valor=Decimal("59.90"),
+            valor=Decimal("89.90"),
             vencimento=vencimento,
             situacao=SituacaoDaFatura.PAGA,
             forma=FormaDeCobranca.PIX,

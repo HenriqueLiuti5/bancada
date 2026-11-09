@@ -4,8 +4,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from bancada.assinaturas import regras, servicos
-from bancada.assinaturas.models import Assinatura, Ciclo, EventoDoProvedor, Plano
+from bancada.assinaturas import fundadores, regras, servicos
+from bancada.assinaturas.models import Assinatura, EventoDoProvedor
 from bancada.assinaturas.planos import PLANOS
 from bancada.assinaturas.provedor import (
     CABECALHO_DO_TOKEN_DO_WEBHOOK,
@@ -13,7 +13,11 @@ from bancada.assinaturas.provedor import (
     evento_do_asaas,
     token_do_webhook_valido,
 )
-from bancada.assinaturas.serializers import AssinarSerializer, detalhe_da_assinatura
+from bancada.assinaturas.serializers import (
+    AssinarSerializer,
+    dados_do_plano,
+    detalhe_da_assinatura,
+)
 from bancada.auditoria.models import Acao
 from bancada.auditoria.registro import origem_do_pedido, registrar
 from bancada.core.api import (
@@ -69,12 +73,11 @@ class AssinarView(ViewDaAssinatura):
         except ErroNoProvedor as erro:
             return Response({"detail": str(erro)}, status=status.HTTP_502_BAD_GATEWAY)
 
-        periodo = "ano" if assinatura.ciclo == Ciclo.ANUAL else "mês"
         self._registrar(
             request,
             assinatura,
             Acao.ASSINATURA_CONTRATADA,
-            f"{assinatura.get_plano_display()}, R$ {assinatura.valor} por {periodo}",
+            servicos.resumo_do_preco(assinatura),
         )
         return Response(detalhe_da_assinatura(assinatura, hoje), status=status.HTTP_201_CREATED)
 
@@ -104,11 +107,11 @@ class OfertaView(APIView):
     authentication_classes: list = []
 
     def get(self, request: Request) -> Response:
-        # A página inicial mostra o Equipe até ganhar os três planos, na parte 4 da fase 4T.
         return Response(
             {
-                "valor_mensal": str(PLANOS[Plano.EQUIPE].mensal),
                 "dias_de_teste": regras.DIAS_DE_TESTE,
+                "planos": [dados_do_plano(condicoes) for condicoes in PLANOS.values()],
+                "fundadores": fundadores.situacao_dos_fundadores(),
             }
         )
 

@@ -91,6 +91,16 @@ class Pedido(BaseHTTPRequestHandler):
         }
         self._responder(200, assinatura)
 
+    def atualizar_assinatura(self, assinatura: str) -> None:
+        achada = self.estado.assinaturas.get(assinatura)
+        if achada is None:
+            self._recusar(404, "Assinatura não encontrada.")
+            return
+        corpo = self._corpo()
+        corpo.pop("updatePendingPayments", None)
+        achada.update(corpo)
+        self._responder(200, achada)
+
     def cobrancas_da_assinatura(self, assinatura: str) -> None:
         dados = [c for c in self.estado.cobrancas.values() if c["subscription"] == assinatura]
         self._responder(200, {"data": dados, "totalCount": len(dados)})
@@ -134,6 +144,7 @@ ROTAS: dict[str, list[tuple[str, Any]]] = {
     "POST": [
         (r"/customers", Pedido.criar_cliente),
         (r"/subscriptions", Pedido.criar_assinatura),
+        (r"/subscriptions/([\w-]+)", Pedido.atualizar_assinatura),
         (r"/payments/([\w-]+)/receiveInCash", Pedido.receber_em_dinheiro),
         (r"/payments/([\w-]+)/refund", Pedido.devolver),
         (r"/payments/([\w-]+)/bankSlip/refund", Pedido.devolver_boleto),

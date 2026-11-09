@@ -148,7 +148,7 @@ def test_atraso_dentro_da_tolerancia_continua_editando(
         tenant=tenant,
         assinatura=assinatura,
         id_no_provedor="pay_1",
-        valor=Decimal("59.90"),
+        valor=Decimal("89.90"),
         vencimento=vencimento,
         situacao=SituacaoDaFatura.VENCIDA,
     )

@@ -8,6 +8,7 @@ from django.db.models import Case, Count, DecimalField, F, Max, Q, QuerySet, Sum
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 
+from bancada.assinaturas.fundadores import situacao_dos_fundadores
 from bancada.assinaturas.models import (
     Assinatura,
     Ciclo,
@@ -15,6 +16,7 @@ from bancada.assinaturas.models import (
     SituacaoDaAssinatura,
     SituacaoDaFatura,
 )
+from bancada.assinaturas.planos import PLANOS, Tamanho, tamanho_das_assistencias
 from bancada.assinaturas.regras import MESES_DO_CICLO
 from bancada.ordens.models import OrdemServico
 from bancada.ordens.painel.periodo import inicio_do_dia
@@ -187,6 +189,28 @@ def _movimento_das_assistencias(mes: Mes) -> dict[int, Movimento]:
     }
 
 
+def _plano_da(assinatura: Assinatura | None, tamanho: Tamanho) -> dict[str, Any]:
+    if assinatura is None:
+        return {
+            "plano": None,
+            "plano_rotulo": "",
+            "ciclo": None,
+            "fundador": False,
+            "passou_do_plano": None,
+        }
+
+    condicoes = PLANOS.get(assinatura.plano)
+    return {
+        "plano": assinatura.plano or None,
+        "plano_rotulo": assinatura.get_plano_display(),
+        "ciclo": assinatura.ciclo or None,
+        "fundador": assinatura.fundador,
+        "passou_do_plano": (
+            condicoes.por_que_nao_cabe(tamanho) if condicoes and assinatura.contratada else None
+        ),
+    }
+
+
 def assistencias(mes: Mes, hoje: date) -> list[dict[str, Any]]:
     movimentos = _movimento_das_assistencias(mes)
     acessos = dict(
@@ -196,6 +220,7 @@ def assistencias(mes: Mes, hoje: date) -> list[dict[str, Any]]:
         .annotate(ultimo=Max("ultimo_acesso"))
     )
     donos = _donos()
+    tamanhos = tamanho_das_assistencias()
 
     linhas = []
     existentes = Tenant.objects.filter(apagada_em__isnull=True)
@@ -216,6 +241,7 @@ def assistencias(mes: Mes, hoje: date) -> list[dict[str, Any]]:
                 "cadastro": timezone.localdate(tenant.criado_em).isoformat(),
                 "situacao": assinatura.situacao if assinatura else None,
                 "situacao_rotulo": assinatura.get_situacao_display() if assinatura else "",
+                **_plano_da(assinatura, tamanhos.get(tenant.pk, Tamanho(lojas=0, pessoas=0))),
                 "ordens_no_mes": movimento.no_mes,
                 "ordens_no_total": movimento.total,
                 "dias_sem_ordem": dias_sem_ordem,
@@ -251,6 +277,7 @@ def painel(mes: Mes, hoje: date) -> dict[str, Any]:
         },
         "dinheiro": dinheiro(mes),
         "assinaturas": assinaturas(mes, hoje),
+        "fundadores": situacao_dos_fundadores(),
         "crescimento": {
             "cadastros_por_semana": cadastros_por_semana(hoje),
             "recebido_por_mes": recebido_por_mes(hoje),

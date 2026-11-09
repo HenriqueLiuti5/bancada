@@ -15,7 +15,8 @@ from django.core.management.base import CommandError
 from PIL import Image
 from rest_framework.test import APIClient
 
-from bancada.assinaturas.models import Assinatura, Fatura, SituacaoDaAssinatura
+from bancada.assinaturas import fundadores, servicos
+from bancada.assinaturas.models import Assinatura, Fatura, SituacaoDaAssinatura, VagaDeFundador
 from bancada.assinaturas.provedor import ErroNoProvedor
 from bancada.assinaturas.tests.conftest import ProvedorFalso
 from bancada.auditoria.models import Acao, RegistroDeAuditoria
@@ -116,6 +117,33 @@ def test_as_cobrancas_ficam_numa_ficha_sem_os_dados_da_assistencia(db: None) -> 
 
 
 @pytest.mark.django_db
+def test_a_vaga_de_fundador_continua_ocupada_quando_a_assistencia_e_apagada(db: None) -> None:
+    tenant = nova_assistencia("Conserta Já")
+    provedor = ProvedorFalso()
+    assinatura = servicos.assinar(
+        tenant,
+        documento="52998224725",
+        email="dono@consertaja.test",
+        plano="solo",
+        ciclo="mensal",
+        hoje=hoje_no_bancada(),
+        provedor=provedor,
+    )
+    assert assinatura.fundador
+
+    ficha = exclusao.apagar_assistencia(tenant, motivo=exclusao.A_PEDIDO_DO_DONO, provedor=provedor)
+
+    assert VagaDeFundador.objects.get().tenant_id == ficha.pk
+    assert Assinatura.objects.get(tenant=ficha).fundador is False
+    assert fundadores.vagas_restantes() == 14
+
+    ficha.delete()
+
+    assert VagaDeFundador.objects.get().tenant_id is None
+    assert fundadores.vagas_restantes() == 14
+
+
+@pytest.mark.django_db
 def test_os_registros_de_acesso_ficam_ligados_so_ao_email(tecnico: Usuario) -> None:
     tenant = tecnico.tenant
     assert tenant is not None
@@ -186,7 +214,7 @@ def test_painel_tira_a_apagada_da_lista_e_das_situacoes_mas_guarda_o_recebido(
     assert [linha["nome"] for linha in painel["assistencias"]] == ["Fica Celulares"]
     situacoes = {item["situacao"]: item["total"] for item in painel["assinaturas"]["por_situacao"]}
     assert situacoes[SituacaoDaAssinatura.CANCELADA] == 0
-    assert painel["dinheiro"]["recebido"] == "59.90"
+    assert painel["dinheiro"]["recebido"] == "89.90"
 
 
 @pytest.mark.django_db

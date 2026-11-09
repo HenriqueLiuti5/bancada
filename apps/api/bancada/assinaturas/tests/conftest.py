@@ -6,7 +6,12 @@ import pytest
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
-from bancada.assinaturas.models import FormaDeCobranca, SituacaoDaFatura
+from bancada.assinaturas.models import (
+    VAGAS_DE_FUNDADOR,
+    FormaDeCobranca,
+    SituacaoDaFatura,
+    VagaDeFundador,
+)
 from bancada.assinaturas.provedor import Cobranca, ErroNoProvedor
 from bancada.tenants.models import Papel, Tenant, Usuario
 
@@ -17,6 +22,7 @@ class ProvedorFalso:
     def __init__(self) -> None:
         self.clientes: list[dict[str, Any]] = []
         self.assinaturas: list[dict[str, Any]] = []
+        self.atualizadas: list[dict[str, Any]] = []
         self.canceladas: list[str] = []
         self.devolvidas: list[str] = []
         self.cobrancas: dict[str, list[Cobranca]] = {}
@@ -70,6 +76,10 @@ class ProvedorFalso:
         ]
         return identificador
 
+    def atualizar_assinatura(self, assinatura: str, *, valor: Decimal, descricao: str) -> None:
+        self._talvez_falhar("atualizar_assinatura")
+        self.atualizadas.append({"id": assinatura, "valor": valor, "descricao": descricao})
+
     def cancelar_assinatura(self, assinatura: str) -> None:
         self._talvez_falhar("cancelar_assinatura")
         self.canceladas.append(assinatura)
@@ -90,6 +100,13 @@ def provedor(monkeypatch: pytest.MonkeyPatch) -> ProvedorFalso:
     monkeypatch.setattr("bancada.assinaturas.servicos.provedor_configurado", lambda: falso)
     monkeypatch.setattr("bancada.assinaturas.tasks.provedor_configurado", lambda: falso)
     return falso
+
+
+@pytest.fixture
+def vagas_esgotadas(db: None) -> None:
+    VagaDeFundador.objects.bulk_create(
+        VagaDeFundador(numero=numero) for numero in range(1, VAGAS_DE_FUNDADOR + 1)
+    )
 
 
 @pytest.fixture(autouse=True)

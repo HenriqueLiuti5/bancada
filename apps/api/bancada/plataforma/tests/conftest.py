@@ -19,7 +19,7 @@ from bancada.clientes.models import Aparelho, Cliente
 from bancada.ordens.models import OrdemServico
 from bancada.tenants.models import Loja, Papel, Tenant, Usuario
 
-MENSALIDADE = Decimal("59.90")
+MENSALIDADE = Decimal("89.90")
 
 
 @pytest.fixture
@@ -68,14 +68,17 @@ def contratar(
     *,
     situacao: str = SituacaoDaAssinatura.ATIVA,
     valor: Decimal = MENSALIDADE,
+    plano: str = Plano.EQUIPE,
     ciclo: str = Ciclo.MENSAL,
+    fundador: bool = False,
     dias_desde_a_assinatura: int = 0,
 ) -> Assinatura:
     assinatura = Assinatura.objects.get(tenant=tenant)
     assinatura.assinatura_no_provedor = f"sub_{tenant.pk}"
-    assinatura.plano = Plano.EQUIPE
+    assinatura.plano = plano
     assinatura.ciclo = ciclo
     assinatura.valor = valor
+    assinatura.fundador = fundador
     assinatura.assinada_em = timezone.now() - timedelta(days=dias_desde_a_assinatura)
     assinatura.situacao = situacao
     assinatura.save()

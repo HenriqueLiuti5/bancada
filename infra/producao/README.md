@@ -144,6 +144,22 @@ ficam numa ficha sem nome, pela lei fiscal, e as entradas no sistema ficam até 
 Sem pedido, a conta que passa 6 meses seguidos só para consulta é apagada sozinha, todo dia às
 7h30, com um aviso por e-mail ao dono 30 dias antes.
 
+## Troca de plano
+
+A tela Assinatura não troca o plano de quem já assina. Quando o dono pede, ou quando o painel da
+plataforma avisa que a assistência passou do tamanho do plano, troque pelo comando, com o e-mail do
+dono e o plano novo (`solo`, `equipe` ou `rede`):
+
+```bash
+docker compose exec api python manage.py trocar_plano dono@exemplo.com rede
+```
+
+A assinatura continua no mesmo ciclo, mensal ou anual, e o valor novo vale a partir da próxima
+fatura, também no Asaas: a fatura já gerada fica com o valor de antes, sem cobrança proporcional.
+Quem paga o preço de fundador continua com ele no plano novo. Subir de plano sempre dá certo;
+descer, só quando a assistência cabe no plano menor, e o comando diz o que passou do limite. A troca
+fica na auditoria.
+
 ## Backup
 
 Todo dia, a partir das 3h, o serviço `backup`:

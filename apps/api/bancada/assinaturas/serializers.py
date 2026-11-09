@@ -3,9 +3,15 @@ from typing import Any
 
 from rest_framework import serializers
 
-from bancada.assinaturas import regras
+from bancada.assinaturas import fundadores, regras
 from bancada.assinaturas.models import Assinatura, Ciclo, Fatura, Plano, SituacaoDaAssinatura
-from bancada.assinaturas.planos import PLANOS, Tamanho, plano_que_cabe, tamanho_da
+from bancada.assinaturas.planos import (
+    PLANOS,
+    CondicoesDoPlano,
+    Tamanho,
+    plano_que_cabe,
+    tamanho_da,
+)
 from bancada.core.cpf_cnpj import cpf_ou_cnpj
 
 
@@ -49,17 +55,22 @@ class FaturaSerializer(serializers.ModelSerializer):
         ]
 
 
+def dados_do_plano(condicoes: CondicoesDoPlano) -> dict[str, Any]:
+    return {
+        "plano": condicoes.plano.value,
+        "nome": condicoes.plano.label,
+        "lojas": condicoes.lojas,
+        "pessoas": condicoes.pessoas,
+        "mensal": str(condicoes.mensal),
+        "anual": str(condicoes.anual),
+        "fundador_mensal": str(condicoes.fundador_mensal),
+        "fundador_anual": str(condicoes.fundador_anual),
+    }
+
+
 def _planos(tamanho: Tamanho) -> list[dict[str, Any]]:
     return [
-        {
-            "plano": condicoes.plano.value,
-            "nome": condicoes.plano.label,
-            "lojas": condicoes.lojas,
-            "pessoas": condicoes.pessoas,
-            "mensal": str(condicoes.mensal),
-            "anual": str(condicoes.anual),
-            "por_que_nao_cabe": condicoes.por_que_nao_cabe(tamanho),
-        }
+        {**dados_do_plano(condicoes), "por_que_nao_cabe": condicoes.por_que_nao_cabe(tamanho)}
         for condicoes in PLANOS.values()
     ]
 
@@ -83,6 +94,9 @@ def detalhe_da_assinatura(assinatura: Assinatura, hoje: date) -> dict[str, Any]:
         "plano_rotulo": assinatura.get_plano_display(),
         "ciclo_rotulo": assinatura.get_ciclo_display(),
         "valor": None if assinatura.valor is None else str(assinatura.valor),
+        "fundador": assinatura.fundador,
+        "ganha_preco_de_fundador": fundadores.ganha_preco_de_fundador(assinatura.tenant),
+        "fundadores": fundadores.situacao_dos_fundadores(),
         "planos": _planos(tamanho),
         "plano_sugerido": sugerido.value if sugerido else None,
         "tamanho": {"lojas": tamanho.lojas, "pessoas": tamanho.pessoas},

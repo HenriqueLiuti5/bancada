@@ -14,7 +14,7 @@ from bancada.assinaturas.models import (
 from bancada.core.calendario import somar_meses
 from bancada.tenants.models import Tenant
 
-DIAS_DE_TESTE = 30
+DIAS_DE_TESTE = 15
 DIAS_DE_TOLERANCIA = 7
 DIAS_DOS_AVISOS_DE_FIM_DO_TESTE = (7, 1)
 MESES_SO_PARA_CONSULTA_ATE_APAGAR = 6

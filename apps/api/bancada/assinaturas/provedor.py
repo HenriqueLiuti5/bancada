@@ -82,6 +82,8 @@ class ProvedorDeCobranca(Protocol):
         referencia: str,
     ) -> str: ...
 
+    def atualizar_assinatura(self, assinatura: str, *, valor: Decimal, descricao: str) -> None: ...
+
     def cancelar_assinatura(self, assinatura: str) -> None: ...
 
     def cobrancas_da_assinatura(self, assinatura: str) -> list[Cobranca]: ...
@@ -231,6 +233,14 @@ class Asaas:
             },
         )
         return str(assinatura["id"])
+
+    def atualizar_assinatura(self, assinatura: str, *, valor: Decimal, descricao: str) -> None:
+        # A fatura já gerada fica como está; o valor novo vale a partir da próxima.
+        self._chamar(
+            "POST",
+            f"/subscriptions/{assinatura}",
+            {"value": float(valor), "description": descricao, "updatePendingPayments": False},
+        )
 
     def cancelar_assinatura(self, assinatura: str) -> None:
         self._chamar("DELETE", f"/subscriptions/{assinatura}")

@@ -3,7 +3,7 @@ from typing import Any
 from django.contrib import admin
 from django.http import HttpRequest
 
-from bancada.assinaturas.models import Assinatura, EventoDoProvedor, Fatura
+from bancada.assinaturas.models import Assinatura, EventoDoProvedor, Fatura, VagaDeFundador
 
 CAMPOS_DA_FATURA = (
     "vencimento",
@@ -44,10 +44,11 @@ class AssinaturaAdmin(SoLeitura):
         "plano",
         "ciclo",
         "valor",
+        "fundador",
         "assinada_em",
         "acesso_ate",
     ]
-    list_filter = ["situacao", "plano", "ciclo"]
+    list_filter = ["situacao", "plano", "ciclo", "fundador"]
     search_fields = ["tenant__nome"]
     readonly_fields = [
         "tenant",
@@ -55,6 +56,7 @@ class AssinaturaAdmin(SoLeitura):
         "plano",
         "ciclo",
         "valor",
+        "fundador",
         "documento_do_pagador",
         "cliente_no_provedor",
         "assinatura_no_provedor",
@@ -81,6 +83,15 @@ class EventoDoProvedorAdmin(SoLeitura):
     list_display = ["tipo", "id_no_provedor", "recebido_em"]
     list_filter = ["tipo"]
     search_fields = ["id_no_provedor"]
+
+    def has_change_permission(self, request: HttpRequest, obj: Any = None) -> bool:
+        return False
+
+
+@admin.register(VagaDeFundador)
+class VagaDeFundadorAdmin(SoLeitura):
+    list_display = ["numero", "tenant", "criado_em"]
+    search_fields = ["tenant__nome"]
 
     def has_change_permission(self, request: HttpRequest, obj: Any = None) -> bool:
         return False

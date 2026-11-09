@@ -1,7 +1,9 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
-from bancada.core.models import PertenceAoTenant
+from bancada.core.models import Carimbado, PertenceAoTenant
+
+VAGAS_DE_FUNDADOR = 15
 
 
 class SituacaoDaAssinatura(models.TextChoices):
@@ -50,6 +52,8 @@ class Assinatura(PertenceAoTenant):
     ciclo = models.CharField(max_length=20, choices=Ciclo.choices, blank=True)
     # O que cada cobrança leva, no ciclo da assinatura: por mês no mensal, por ano no anual.
     valor = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    # Paga o preço de fundador, que acaba quando a assinatura termina.
+    fundador = models.BooleanField(default=False)
     documento_do_pagador = models.CharField(max_length=14, blank=True)
     cliente_no_provedor = models.CharField(max_length=60, blank=True)
     assinatura_no_provedor = models.CharField(max_length=60, blank=True, db_index=True)
@@ -96,6 +100,34 @@ class Fatura(PertenceAoTenant):
 
     def __str__(self) -> str:
         return f"Fatura de {self.vencimento:%d/%m/%Y} da {self.tenant.nome}"
+
+
+class VagaDeFundador(Carimbado):
+    # Fica fora do isolamento entre assistências (ADR 0009), porque a página inicial e cada
+    # assinatura contam as vagas de todas. A vaga não volta: nem quando a assinatura termina, nem
+    # quando a assistência é apagada.
+    numero = models.PositiveSmallIntegerField(unique=True)
+    tenant = models.OneToOneField(
+        "tenants.Tenant",
+        on_delete=models.SET_NULL,
+        related_name="vaga_de_fundador",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "vaga de fundador"
+        verbose_name_plural = "vagas de fundador"
+        ordering = ["numero"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(numero__gte=1, numero__lte=VAGAS_DE_FUNDADOR),
+                name="vaga_de_fundador_dentro_do_programa",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"Vaga {self.numero} de {VAGAS_DE_FUNDADOR}"
 
 
 class EventoDoProvedor(models.Model):

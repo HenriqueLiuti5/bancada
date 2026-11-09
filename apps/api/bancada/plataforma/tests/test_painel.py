@@ -6,7 +6,14 @@ import pytest
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from bancada.assinaturas.models import Assinatura, Ciclo, SituacaoDaAssinatura, SituacaoDaFatura
+from bancada.assinaturas.models import (
+    Assinatura,
+    Ciclo,
+    Plano,
+    SituacaoDaAssinatura,
+    SituacaoDaFatura,
+    VagaDeFundador,
+)
 from bancada.plataforma.meses import Mes
 from bancada.plataforma.models import Custo
 from bancada.plataforma.numeros import PAROU, SEM_ORDENS, alerta
@@ -17,7 +24,15 @@ from bancada.plataforma.tests.conftest import (
     fatura,
     nova_assistencia,
 )
-from bancada.tenants.models import Usuario
+from bancada.tenants.models import Papel, Tenant, Usuario
+
+
+def com_pessoas(tenant: Tenant, quantas: int) -> Tenant:
+    for numero in range(quantas):
+        Usuario.objects.create_user(
+            username=f"pessoa{numero}@{tenant.slug}.test", tenant=tenant, papel=Papel.TECNICO
+        )
+    return tenant
 
 
 def painel(api: APIClient, mes: str = "") -> Any:
@@ -32,20 +47,20 @@ def test_lucro_do_mes_desconta_taxas_do_asaas_e_custos(api_plataforma: APIClient
     mes = Mes.de(hoje)
     pix = contratar(nova_assistencia("Cell Point"))
     cartao = contratar(nova_assistencia("Fix Fone"))
-    fatura(pix, vencimento=hoje, valor_liquido=Decimal("57.91"))
-    fatura(cartao, vencimento=hoje, valor_liquido=Decimal("57.42"))
-    fatura(pix, vencimento=mes.anterior.inicio, valor_liquido=Decimal("57.91"))
+    fatura(pix, vencimento=hoje, valor_liquido=Decimal("87.91"))
+    fatura(cartao, vencimento=hoje, valor_liquido=Decimal("87.42"))
+    fatura(pix, vencimento=mes.anterior.inicio, valor_liquido=Decimal("87.91"))
     fatura(cartao, vencimento=hoje + timedelta(days=40), situacao=SituacaoDaFatura.ABERTA)
     Custo.objects.create(mes=mes.inicio, descricao="Domínio", valor=Decimal("40.00"))
     Custo.objects.create(mes=mes.anterior.inicio, descricao="Servidor", valor=Decimal("30.00"))
 
     dinheiro = painel(api_plataforma)["dinheiro"]
 
-    assert dinheiro["recebido"] == "119.80"
+    assert dinheiro["recebido"] == "179.80"
     assert dinheiro["faturas_pagas"] == 2
     assert dinheiro["taxas"] == "4.47"
     assert dinheiro["custos"] == "40.00"
-    assert dinheiro["lucro"] == "75.33"
+    assert dinheiro["lucro"] == "135.33"
     assert [custo["descricao"] for custo in dinheiro["lista_de_custos"]] == ["Domínio"]
 
 
@@ -53,13 +68,13 @@ def test_lucro_do_mes_desconta_taxas_do_asaas_e_custos(api_plataforma: APIClient
 def test_mes_anterior_mostra_o_dinheiro_daquele_mes(api_plataforma: APIClient) -> None:
     anterior = Mes.de(timezone.localdate()).anterior
     assinatura = contratar(nova_assistencia("Cell Point", dias_desde_o_cadastro=60))
-    fatura(assinatura, vencimento=anterior.inicio, valor_liquido=Decimal("57.91"))
+    fatura(assinatura, vencimento=anterior.inicio, valor_liquido=Decimal("87.91"))
     Custo.objects.create(mes=anterior.inicio, descricao="Servidor", valor=Decimal("30.00"))
 
     dinheiro = painel(api_plataforma, anterior.em_texto())["dinheiro"]
 
-    assert dinheiro["recebido"] == "59.90"
-    assert dinheiro["lucro"] == "27.91"
+    assert dinheiro["recebido"] == "89.90"
+    assert dinheiro["lucro"] == "57.91"
 
 
 @pytest.mark.django_db
@@ -69,7 +84,7 @@ def test_fatura_paga_sem_valor_liquido_nao_inventa_taxa(api_plataforma: APIClien
 
     dinheiro = painel(api_plataforma)["dinheiro"]
 
-    assert dinheiro["recebido"] == "59.90"
+    assert dinheiro["recebido"] == "89.90"
     assert dinheiro["taxas"] == "0.00"
 
 
@@ -77,14 +92,14 @@ def test_fatura_paga_sem_valor_liquido_nao_inventa_taxa(api_plataforma: APIClien
 def test_receita_recorrente_soma_quem_esta_pagando(api_plataforma: APIClient) -> None:
     contratar(nova_assistencia("Ativa"))
     contratar(nova_assistencia("Atrasada"), situacao=SituacaoDaAssinatura.INADIMPLENTE)
-    contratar(nova_assistencia("Mais cara"), valor=Decimal("89.90"))
+    contratar(nova_assistencia("Mais cara"), valor=Decimal("179.90"))
     contratar(nova_assistencia("Suspensa"), situacao=SituacaoDaAssinatura.SUSPENSA)
     contratar(nova_assistencia("Cancelada"), situacao=SituacaoDaAssinatura.CANCELADA)
     nova_assistencia("Em teste")
 
     assinaturas = painel(api_plataforma)["assinaturas"]
 
-    assert assinaturas["receita_recorrente"] == {"valor": "209.70", "assinaturas": 3}
+    assert assinaturas["receita_recorrente"] == {"valor": "359.70", "assinaturas": 3}
     totais = {linha["situacao"]: linha["total"] for linha in assinaturas["por_situacao"]}
     assert totais == {"teste": 1, "ativa": 2, "inadimplente": 1, "suspensa": 1, "cancelada": 1}
 
@@ -94,11 +109,11 @@ def test_receita_recorrente_conta_o_anual_dividido_pelos_doze_meses(
     api_plataforma: APIClient,
 ) -> None:
     contratar(nova_assistencia("Mensal"))
-    contratar(nova_assistencia("Anual"), valor=Decimal("599.00"), ciclo=Ciclo.ANUAL)
+    contratar(nova_assistencia("Anual"), valor=Decimal("899.00"), ciclo=Ciclo.ANUAL)
 
     receita = painel(api_plataforma)["assinaturas"]["receita_recorrente"]
 
-    assert receita == {"valor": "109.82", "assinaturas": 2}
+    assert receita == {"valor": "164.82", "assinaturas": 2}
 
 
 @pytest.mark.django_db
@@ -169,8 +184,8 @@ def test_recebido_mes_a_mes_dos_ultimos_doze(api_plataforma: APIClient) -> None:
     meses = painel(api_plataforma)["crescimento"]["recebido_por_mes"]
 
     assert len(meses) == 12
-    assert meses[-1] == {"mes": mes.em_texto(), "recebido": "59.90"}
-    assert meses[-2] == {"mes": mes.anterior.em_texto(), "recebido": "119.80"}
+    assert meses[-1] == {"mes": mes.em_texto(), "recebido": "89.90"}
+    assert meses[-2] == {"mes": mes.anterior.em_texto(), "recebido": "179.80"}
     assert meses[0] == {"mes": mes.antes(11).em_texto(), "recebido": "0.00"}
 
 
@@ -245,6 +260,40 @@ def test_linha_da_assistencia_traz_o_contato_do_dono_e_o_ultimo_acesso(
     assert linha["ordens_no_mes"] == 1
     assert linha["ordens_no_total"] == 2
     assert linha["dias_sem_ordem"] == 0
+
+
+@pytest.mark.django_db
+def test_linha_da_assistencia_traz_o_plano_e_avisa_quem_passou_do_tamanho_dele(
+    api_plataforma: APIClient,
+) -> None:
+    cresceu = com_pessoas(nova_assistencia("Cresceu"), 3)
+    contratar(cresceu, plano=Plano.SOLO, valor=Decimal("34.90"), fundador=True)
+    VagaDeFundador.objects.create(numero=1, tenant=cresceu)
+    rede = com_pessoas(nova_assistencia("Rede Anual"), 5)
+    contratar(rede, plano=Plano.REDE, ciclo=Ciclo.ANUAL, valor=Decimal("1799.00"))
+    cancelada = com_pessoas(nova_assistencia("Cancelada"), 3)
+    contratar(cancelada, plano=Plano.SOLO, situacao=SituacaoDaAssinatura.CANCELADA)
+    nova_assistencia("Em teste")
+
+    dados = painel(api_plataforma)
+
+    campos = ["plano", "plano_rotulo", "ciclo", "fundador", "passou_do_plano"]
+    assert {
+        linha["nome"]: [linha[campo] for campo in campos] for linha in dados["assistencias"]
+    } == {
+        "Cresceu": [
+            "solo",
+            "Solo",
+            "mensal",
+            True,
+            "A assistência tem 3 pessoas, contando os convites ainda não aceitos, e o plano "
+            "Solo é para até 2.",
+        ],
+        "Rede Anual": ["rede", "Rede", "anual", False, None],
+        "Cancelada": ["solo", "Solo", "mensal", False, None],
+        "Em teste": [None, "", None, False, None],
+    }
+    assert dados["fundadores"] == {"vagas": 15, "restantes": 14, "desconto": 30}
 
 
 @pytest.mark.django_db

@@ -41,7 +41,7 @@ def test_criar_assinatura_manda_o_pedido_que_o_asaas_espera(
 ) -> None:
     identificador = asaas().criar_assinatura(
         cliente="cus_1",
-        valor=Decimal("59.90"),
+        valor=Decimal("89.90"),
         ciclo="mensal",
         primeiro_vencimento=date(2026, 11, 1),
         descricao="Assinatura mensal do Bancada, plano Equipe",
@@ -57,7 +57,7 @@ def test_criar_assinatura_manda_o_pedido_que_o_asaas_espera(
     assert json.loads(cast(bytes, pedido.data)) == {
         "customer": "cus_1",
         "billingType": "UNDEFINED",
-        "value": 59.9,
+        "value": 89.9,
         "nextDueDate": "2026-11-01",
         "cycle": "MONTHLY",
         "description": "Assinatura mensal do Bancada, plano Equipe",
@@ -70,7 +70,7 @@ def test_assinatura_anual_vai_ao_asaas_com_o_ciclo_de_um_ano(
 ) -> None:
     asaas().criar_assinatura(
         cliente="cus_1",
-        valor=Decimal("399.00"),
+        valor=Decimal("499.00"),
         ciclo="anual",
         primeiro_vencimento=date(2026, 11, 1),
         descricao="Assinatura anual do Bancada, plano Solo",
@@ -78,7 +78,23 @@ def test_assinatura_anual_vai_ao_asaas_com_o_ciclo_de_um_ano(
     )
 
     corpo = json.loads(cast(bytes, pedidos[0].data))
-    assert (corpo["cycle"], corpo["value"]) == ("YEARLY", 399.0)
+    assert (corpo["cycle"], corpo["value"]) == ("YEARLY", 499.0)
+
+
+def test_trocar_o_plano_muda_no_asaas_so_as_proximas_faturas(
+    pedidos: list[urllib.request.Request],
+) -> None:
+    asaas().atualizar_assinatura(
+        "sub_1", valor=Decimal("179.90"), descricao="Assinatura mensal do Bancada, plano Rede"
+    )
+
+    assert pedidos[0].full_url == "https://api-sandbox.asaas.com/v3/subscriptions/sub_1"
+    assert pedidos[0].get_method() == "POST"
+    assert json.loads(cast(bytes, pedidos[0].data)) == {
+        "value": 179.9,
+        "description": "Assinatura mensal do Bancada, plano Rede",
+        "updatePendingPayments": False,
+    }
 
 
 def test_devolucao_do_pix_e_do_cartao_e_feita_na_hora(
@@ -149,7 +165,7 @@ def test_cobranca_paga_por_pix_vem_com_a_data_do_pagamento() -> None:
         {
             "id": "pay_1",
             "subscription": "sub_1",
-            "value": 59.9,
+            "value": 89.9,
             "billingType": "PIX",
             "status": "RECEIVED",
             "dueDate": "2026-11-01",
@@ -158,14 +174,14 @@ def test_cobranca_paga_por_pix_vem_com_a_data_do_pagamento() -> None:
         }
     )
 
-    assert cobranca.valor == Decimal("59.9")
+    assert cobranca.valor == Decimal("89.9")
     assert cobranca.situacao == SituacaoDaFatura.PAGA
     assert cobranca.forma == FormaDeCobranca.PIX
     assert cobranca.paga_em == date(2026, 10, 30)
 
 
 def test_cobranca_traz_o_valor_liquido_depois_da_taxa_do_asaas() -> None:
-    dados = {"id": "pay_1", "value": 59.9, "dueDate": "2026-11-01", "status": "RECEIVED"}
+    dados = {"id": "pay_1", "value": 89.9, "dueDate": "2026-11-01", "status": "RECEIVED"}
 
     assert cobranca_do_asaas({**dados, "netValue": 57.91}).valor_liquido == Decimal("57.91")
     assert cobranca_do_asaas(dados).valor_liquido is None
@@ -182,7 +198,7 @@ def test_cobranca_traz_o_valor_liquido_depois_da_taxa_do_asaas() -> None:
     ],
 )
 def test_situacoes_do_asaas_viram_situacoes_da_fatura(dados: dict[str, Any], situacao: str) -> None:
-    cobranca = cobranca_do_asaas({"id": "pay_1", "value": 59.9, "dueDate": "2026-11-01", **dados})
+    cobranca = cobranca_do_asaas({"id": "pay_1", "value": 89.9, "dueDate": "2026-11-01", **dados})
 
     assert cobranca.situacao == situacao
     assert cobranca.paga_em is None or situacao == SituacaoDaFatura.PAGA
@@ -192,7 +208,7 @@ def test_evento_sem_id_ganha_um_identificador_estavel() -> None:
     corpo = {
         "event": "PAYMENT_CREATED",
         "dateCreated": "2026-10-02 10:00:00",
-        "payment": {"id": "pay_1", "value": 59.9, "dueDate": "2026-11-01"},
+        "payment": {"id": "pay_1", "value": 89.9, "dueDate": "2026-11-01"},
     }
 
     primeiro = evento_do_asaas(corpo).id

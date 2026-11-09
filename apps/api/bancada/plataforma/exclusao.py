@@ -3,7 +3,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from bancada.assinaturas import servicos
-from bancada.assinaturas.models import Assinatura, Fatura
+from bancada.assinaturas.models import Assinatura, Fatura, VagaDeFundador
 from bancada.assinaturas.provedor import ProvedorDeCobranca
 from bancada.auditoria.models import Acao, RegistroDeAuditoria
 from bancada.auditoria.registro import registrar
@@ -68,6 +68,7 @@ def apagar_assistencia(
     Fatura.objects.filter(tenant=tenant).update(
         tenant=ficha, link_de_pagamento="", link_da_devolucao=""
     )
+    VagaDeFundador.objects.filter(tenant=tenant).update(tenant=ficha)
     # Os registros de acesso ficam os 6 meses do Marco Civil, ligados só ao e-mail de quem entrou.
     RegistroDeAuditoria.objects.filter(tenant=tenant, acao__in=REGISTROS_DE_ACESSO).update(
         tenant=None

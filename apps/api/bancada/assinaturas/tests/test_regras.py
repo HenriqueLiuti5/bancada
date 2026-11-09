@@ -27,14 +27,14 @@ def fatura(assinatura: Assinatura, vencimento: date, situacao: str) -> Fatura:
         tenant=assinatura.tenant,
         assinatura=assinatura,
         id_no_provedor=f"pay_{vencimento}_{situacao}",
-        valor=Decimal("59.90"),
+        valor=Decimal("89.90"),
         vencimento=vencimento,
         situacao=situacao,
     )
 
 
-def test_teste_gratis_dura_trinta_dias() -> None:
-    assert regras.fim_do_teste(HOJE) == date(2026, 11, 1)
+def test_teste_gratis_dura_quinze_dias() -> None:
+    assert regras.fim_do_teste(HOJE) == date(2026, 10, 17)
 
 
 @pytest.mark.parametrize(
@@ -50,7 +50,7 @@ def test_um_mes_depois_respeita_o_tamanho_do_mes(dia: date, esperado: date) -> N
 
 
 @pytest.mark.django_db
-def test_assistencia_nova_nasce_em_teste_de_trinta_dias(tenant: Tenant) -> None:
+def test_assistencia_nova_nasce_em_teste_de_quinze_dias(tenant: Tenant) -> None:
     assinatura = Assinatura.objects.get(tenant=tenant)
 
     assert assinatura.situacao == SituacaoDaAssinatura.TESTE

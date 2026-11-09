@@ -47,7 +47,7 @@ def evento_de_cobranca(
             "id": "pay_1",
             "customer": "cus_abc",
             "subscription": assinatura,
-            "value": 59.9,
+            "value": 89.9,
             "billingType": "UNDEFINED",
             "status": status,
             "dueDate": (vencimento or timezone.localdate()).isoformat(),
