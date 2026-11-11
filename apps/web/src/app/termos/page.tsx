@@ -2,30 +2,30 @@ import Link from "next/link";
 import { Contato, TextoLegal } from "@/componentes/TextoLegal";
 import {
   HORARIO_DO_SUPORTE,
-  RESPONSAVEL_PELO_BANCADA,
+  RESPONSAVEL_PELO_REPARIUM,
   VERSAO_DOS_TEXTOS_LEGAIS,
 } from "@/lib/textosLegais";
 
-export const metadata = { title: "Termos de uso · Bancada" };
+export const metadata = { title: "Termos de uso · Reparium" };
 
 export default function Termos() {
   return (
     <TextoLegal titulo="Termos de uso" versao={VERSAO_DOS_TEXTOS_LEGAIS}>
       <p>
-        Estes termos valem entre o Bancada e cada assistência técnica que usa o sistema. Ao marcar,
+        Estes termos valem entre o Reparium e cada assistência técnica que usa o sistema. Ao marcar,
         no cadastro, que leu e aceita estes termos, quem cria a conta concorda com eles em nome da
         assistência.
       </p>
 
-      <h2>Quem oferece o Bancada</h2>
+      <h2>Quem oferece o Reparium</h2>
       <p>
-        O Bancada é oferecido por {RESPONSAVEL_PELO_BANCADA}. O contato é <Contato />,{" "}
+        O Reparium é oferecido por {RESPONSAVEL_PELO_REPARIUM}. O contato é <Contato />,{" "}
         {HORARIO_DO_SUPORTE}.
       </p>
 
       <h2>O serviço</h2>
       <p>
-        O Bancada é um sistema na internet para assistências técnicas de celular. Com ele, a
+        O Reparium é um sistema na internet para assistências técnicas de celular. Com ele, a
         assistência abre e acompanha as ordens de serviço, mostra o andamento do conserto ao cliente
         por um link, controla o estoque de peças, registra as vendas no balcão, as contas a pagar e o
         caixa, e vê os números da loja num painel. Ele funciona no navegador do computador e do
@@ -95,10 +95,10 @@ export default function Termos() {
 
       <h2>Os dados são da assistência</h2>
       <p>
-        A assistência é dona de tudo o que registra no Bancada. Dos dados pessoais dos clientes dela,
+        A assistência é dona de tudo o que registra no Reparium. Dos dados pessoais dos clientes dela,
         ela é a controladora, como define a Lei Geral de Proteção de Dados (LGPD): cabe a ela ter um
-        motivo legítimo para registrá-los, informar os clientes, inclusive de que usa o Bancada, e
-        atender aos pedidos deles. O Bancada trata esses dados como operador, só para prestar o
+        motivo legítimo para registrá-los, informar os clientes, inclusive de que usa o Reparium, e
+        atender aos pedidos deles. O Reparium trata esses dados como operador, só para prestar o
         serviço, do jeito descrito na <Link href="/privacidade">política de privacidade</Link>.
       </p>
       <p>
@@ -122,19 +122,19 @@ export default function Termos() {
 
       <h2>Funcionamento e suporte</h2>
       <p>
-        O Bancada trabalha para manter o sistema no ar o tempo todo, mas pode haver interrupções para
+        O Reparium trabalha para manter o sistema no ar o tempo todo, mas pode haver interrupções para
         manutenção ou por falhas de terceiros, como a internet e o servidor. Todo dia é feita uma
         cópia de segurança dos dados. O atendimento é <Contato />, {HORARIO_DO_SUPORTE}.
       </p>
 
       <h2>Responsabilidade</h2>
       <p>
-        O Bancada responde pelo funcionamento do sistema como descrito nestes termos. Ele não responde
+        O Reparium responde pelo funcionamento do sistema como descrito nestes termos. Ele não responde
         pelas decisões da assistência, pelo que ela registra, por falhas na internet ou nos aparelhos
         dela, nem por prejuízos indiretos, como o lucro que deixou de entrar.
       </p>
       <p>
-        Quando o Bancada tiver de indenizar uma assistência, o valor fica limitado ao que ela pagou
+        Quando o Reparium tiver de indenizar uma assistência, o valor fica limitado ao que ela pagou
         pela assinatura nos 12 meses anteriores ao problema, menos nos casos em que a lei não permite
         esse limite.
       </p>

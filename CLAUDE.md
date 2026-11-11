@@ -4,20 +4,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Visão geral
 
-Bancada é um SaaS de ordens de serviço para assistências técnicas de celular: Django 5 + DRF em
+Reparium é um SaaS de ordens de serviço para assistências técnicas de celular: Django 5 + DRF em
 `apps/api`, Next.js 16 (App Router, React 19, Tailwind 4) em `apps/web`, PostgreSQL 17, Redis e
 Celery, tudo no Docker Compose. O produto está descrito no `README.md` (em inglês); domínio,
 roadmap, fase atual e as decisões do Henrique, em `docs/PLANO.md`; o porquê de cada decisão
 técnica, em `docs/adr/`; e o que a revisão de 8 de novembro de 2026 deixou para resolver, em
-`docs/REVISAO-2026-11-08.md`.
+`docs/REVISAO-2026-11-08.md`. Até 11 de novembro de 2026 o produto se chamava Bancada, e o
+repositório no GitHub, HenriqueLiuti5/bancada: o histórico do git ainda tem o nome antigo, e
+"bancada" com artigo feminino ("na bancada") é a mesa do técnico, não o produto.
 
 ## Ambiente
 
+- Em 11 de novembro de 2026, tudo o que se chamava `bancada` passou a se chamar `reparium`: o pacote
+  Python, o banco e os papéis do Postgres, o projeto do Compose, a chave de criptografia e o cookie.
+  Numa máquina cujo `.env` ainda tem `BANCADA_ENCRYPTION_KEY`, o Compose se recusa a subir. Na raiz
+  do projeto, rode `sed -i 's/bancada/reparium/g; s/Bancada/Reparium/g; s/BANCADA/REPARIUM/g' .env`,
+  depois `docker compose -p bancada down` (tira os containers com o nome antigo, sem apagar dados),
+  `make up` e os três `make semear...`: o banco com o nome novo começa vazio. O antigo continua no
+  volume `bancada_postgres_data` até alguém apagá-lo. O repositório também mudou de nome: o
+  endereço antigo redireciona, mas vale rodar
+  `git remote set-url origin https://github.com/HenriqueLiuti5/reparium.git`. A pasta do clone
+  pode ser renomeada para `reparium` com o VS Code fechado. Quando as três máquinas tiverem feito
+  isso, este item pode sair.
 - O Python do backend fica dentro da imagem (`/opt/venv`), não no host: os comandos do backend
   rodam com `docker compose exec api ...` ou pelos atalhos do `Makefile`. O lint e os testes do site
   rodam no host, em `apps/web`, com Node 22 (`npm ci` antes da primeira vez).
 - O projeto é trabalhado em três computadores. Cada um tem o próprio `.env`, criado por
-  `make setup` com uma `BANCADA_ENCRYPTION_KEY` própria, e o próprio banco. Não presuma que o banco
+  `make setup` com uma `REPARIUM_ENCRYPTION_KEY` própria, e o próprio banco. Não presuma que o banco
   local tem algum dado: recrie com `make semear`, `make semear-movimento` e `make semear-plataforma`,
   que podem rodar de novo sem duplicar nada. Um campo criptografado gravado com a chave de outra
   máquina é lido como `None`. O trabalho chega ao GitHub de qualquer um deles, às vezes por PR: no
@@ -35,7 +48,7 @@ Backend, com os serviços no ar (`make up`):
 
 ```bash
 make test                                    # pytest
-docker compose exec api pytest bancada/financeiro/tests/test_caixa.py::test_nome
+docker compose exec api pytest reparium/financeiro/tests/test_caixa.py::test_nome
 docker compose exec api pytest -k lucro
 docker compose exec api pytest --create-db   # depois de mudar migrações: o addopts tem --reuse-db
 make lint                                    # ruff check, ruff format --check e mypy, como na CI
@@ -66,7 +79,7 @@ banco de produção, roda o Playwright contra elas e faz um backup com restaura�
 
 ### Next como BFF (ADR 0004 e 0007)
 
-O navegador só fala com o Next. O token do DRF fica no cookie httpOnly `bancada_token`
+O navegador só fala com o Next. O token do DRF fica no cookie httpOnly `reparium_token`
 (`src/lib/sessao.ts`), e os server components e as server actions (`acoes.ts`, com `"use server"`)
 chamam o Django por `chamarApi` e `enviarArquivo` (`src/lib/api.ts`), em `API_INTERNAL_URL`. Fotos,
 logos, o webhook do Asaas e a medição de visitas do Umami passam por route handlers do Next
@@ -81,10 +94,10 @@ depois de uma recusa. O `e2e/formularios.spec.ts` confere isso em cada formulár
 ### Isolamento entre assistências (ADR 0002 e 0009)
 
 As assistências (tenants) dividem o mesmo schema, e os modelos delas herdam `PertenceAoTenant`
-(`bancada/core/models.py`). Além do filtro na aplicação, as tabelas têm Row Level Security: a
-política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão `bancada.tenant_id`.
+(`reparium/core/models.py`). Além do filtro na aplicação, as tabelas têm Row Level Security: a
+política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão `reparium.tenant_id`.
 
-- `ViewDoTenant` e `ViewSetDoTenant` (`bancada/core/api.py`) definem a variável, local à transação,
+- `ViewDoTenant` e `ViewSetDoTenant` (`reparium/core/api.py`) definem a variável, local à transação,
   por isso `ATOMIC_REQUESTS = True`. O `ViewSetDoTenant` também filtra o queryset, grava o tenant na
   criação e aplica `AssinaturaPermiteEditar`, que deixa a assistência só para consulta quando a
   assinatura não está em dia.
@@ -95,31 +108,31 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
 - Tabela nova de tenant ganha uma migração `NNNN_<nome>_no_isolamento.py` com o mesmo SQL das que
   já existem (ex.: `financeiro/migrations/0004_caixa_no_isolamento.py`) e um caso no teste de
   isolamento do app (ex.: `financeiro/tests/test_isolamento.py`).
-- A aplicação e os testes usam o papel `bancada_app` (`infra/postgres/init.sql`), que não é
+- A aplicação e os testes usam o papel `reparium_app` (`infra/postgres/init.sql`), que não é
   superusuário, porque superusuário ignora o RLS. Assim o RLS vale também no pytest. A API se recusa
-  a subir com um papel que passe por cima do RLS (`bancada/core/papel_do_banco.py`).
+  a subir com um papel que passe por cima do RLS (`reparium/core/papel_do_banco.py`).
 
 ### Domínio
 
 - A ordem de serviço só muda de etapa pela máquina de estados (`TRANSICOES` em
-  `bancada/ordens/estados.py`). Cada transição grava um `EventoOS`; comentários e troca de cliente
+  `reparium/ordens/estados.py`). Cada transição grava um `EventoOS`; comentários e troca de cliente
   gravam um `RegistroOS`. Nenhum dos dois é editado nem apagado.
-- Papéis: dono, técnico e atendente, com as permissões em `bancada/tenants/permissoes.py`.
+- Papéis: dono, técnico e atendente, com as permissões em `reparium/tenants/permissoes.py`.
 - Os planos, os preços e o tamanho que cabe em cada um ficam em `PLANOS`
-  (`bancada/assinaturas/planos.py`), e o site recebe tudo da API (ADR 0040).
-- A senha de desbloqueio do aparelho é um `CampoCriptografado` (`bancada/core/fields.py`): só técnico
+  (`reparium/assinaturas/planos.py`), e o site recebe tudo da API (ADR 0040).
+- A senha de desbloqueio do aparelho é um `CampoCriptografado` (`reparium/core/fields.py`): só técnico
   e dono a veem, toda leitura vai para a auditoria e ela é apagada sozinha sete dias depois da
   entrega.
-- Auditoria: `registrar(...)` em `bancada/auditoria/registro.py`. Ação nova é um valor novo em
-  `Acao` (`bancada/auditoria/models.py`), com migração.
+- Auditoria: `registrar(...)` em `reparium/auditoria/registro.py`. Ação nova é um valor novo em
+  `Acao` (`reparium/auditoria/models.py`), com migração.
 - Cada assistência tem o seu fuso. A autenticação ativa o fuso dela (`ativar_o_fuso_da`), então
-  `timezone.localdate()` é o "hoje" da loja; a assinatura usa `hoje_no_bancada()`, no horário de
+  `timezone.localdate()` é o "hoje" da loja; a assinatura usa `hoje_no_reparium()`, no horário de
   Brasília. No site, as funções de `src/lib/datas.ts` recebem o fuso como argumento.
-- O aviso ao cliente sai de um sinal do `EventoOS` (`bancada/avisos/sinais.py`), que agenda a tarefa
+- O aviso ao cliente sai de um sinal do `EventoOS` (`reparium/avisos/sinais.py`), que agenda a tarefa
   com `transaction.on_commit`. As tarefas periódicas ficam em `CELERY_BEAT_SCHEDULE`
   (`config/settings.py`). No desenvolvimento, os e-mails aparecem no log do worker (`make logs`).
-- O painel é calculado na hora (ADR 0015), com um módulo por seção em `bancada/ordens/painel/`.
-- O movimento de exemplo do `semear_movimento` fica em `bancada/core/exemplo/`: cada acontecimento
+- O painel é calculado na hora (ADR 0015), com um módulo por seção em `reparium/ordens/painel/`.
+- O movimento de exemplo do `semear_movimento` fica em `reparium/core/exemplo/`: cada acontecimento
   roda na ordem do tempo, no horário das lojas, pelas mesmas funções que as telas usam, para o
   estoque, o custo médio, as contas e a gaveta baterem (ADR 0038).
 
@@ -147,7 +160,7 @@ política `isolamento_por_tenant` compara `tenant_id` com a variável de sessão
   teste em qualquer erro no console ou violação da CSP.
 - Cada teste cria a própria assistência pelo cadastro e não depende do `semear`. São dezoito
   cadastros por execução, por isso o `docker-compose.yml` sobe a API com `THROTTLE_CADASTRO=100/hour`.
-  Na CI, que liga o Umami e um Asaas falso (`bancada/assinaturas/asaas_falso.py`), também rodam o
+  Na CI, que liga o Umami e um Asaas falso (`reparium/assinaturas/asaas_falso.py`), também rodam o
   `e2e/estatisticas.spec.ts` e o teste que assina, e são vinte e dois.
 
 ## Convenções

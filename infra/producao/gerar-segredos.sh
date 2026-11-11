@@ -25,7 +25,7 @@ sed \
     -e "s|^POSTGRES_OWNER_PASSWORD=.*|POSTGRES_OWNER_PASSWORD=$(aleatorio 24)|" \
     -e "s|^POSTGRES_APP_PASSWORD=.*|POSTGRES_APP_PASSWORD=$(aleatorio 24)|" \
     -e "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$(aleatorio 48)|" \
-    -e "s|^BANCADA_ENCRYPTION_KEY=.*|BANCADA_ENCRYPTION_KEY=$(chave_de_criptografia)|" \
+    -e "s|^REPARIUM_ENCRYPTION_KEY=.*|REPARIUM_ENCRYPTION_KEY=$(chave_de_criptografia)|" \
     -e "s|^ASAAS_WEBHOOK_TOKEN=.*|ASAAS_WEBHOOK_TOKEN=$(aleatorio 36)|" \
     -e "s|^BACKUP_SENHA=.*|BACKUP_SENHA=$(aleatorio 24)|" \
     -e "s|^UMAMI_POSTGRES_PASSWORD=.*|UMAMI_POSTGRES_PASSWORD=$(aleatorio 24)|" \

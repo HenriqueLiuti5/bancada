@@ -6,7 +6,7 @@ Até aqui, a segunda loja só nascia pelo painel administrativo, e a página ini
 WhatsApp (ADR 0026). No lançamento self-service, o dono precisa fazer isso sozinho, e uma loja que
 fecha precisa sair da abertura de ordens sem levar junto as ordens que já tem.
 
-Todas as horas do Bancada eram as de Brasília, fixas no Django e no site. O Brasil tem quatro fusos,
+Todas as horas do Reparium eram as de Brasília, fixas no Django e no site. O Brasil tem quatro fusos,
 e uma assistência em Cuiabá ou em Manaus via as horas uma hora adiantadas no histórico, no
 comprovante e no recibo. O "hoje" também virava à meia-noite de Brasília, às 23h de lá: uma ordem
 prometida para o dia aparecia como atrasada antes da hora.
@@ -43,7 +43,7 @@ do cliente, junto com a ordem. A página inicial, a demonstração e o painel da
 pertencem a nenhuma assistência e continuam em Brasília.
 
 **Assinatura no horário de Brasília.** O teste grátis e a tolerância vencem à meia-noite de
-Brasília, em `hoje_no_bancada()`, porque a cobrança é entre o Bancada e a loja, e o Asaas trabalha com
+Brasília, em `hoje_no_reparium()`, porque a cobrança é entre o Reparium e a loja, e o Asaas trabalha com
 as datas de Brasília. No Acre, o teste grátis termina às 22h do último dia.
 
 **Lojas na tela Assistência.** Cada loja ativa tem o seu cartão, com o formulário de antes, e o botão
@@ -84,7 +84,7 @@ A página inicial passou a dizer "Você mesmo cadastra as outras lojas, na tela 
 A API ganhou 44 testes, em `core/tests/test_fuso_horario.py` e `tenants/tests/test_lojas.py`. Os de
 fuso param o relógio às 3h30 UTC do dia 20, meia-noite e meia em Brasília e 23h30 do dia 19 em
 Manaus. Cada peça foi removida de propósito para conferir que algum teste falha sem ela: a ativação
-no token, o middleware, os dois `timezone.override` e o `hoje_no_bancada`.
+no token, o middleware, os dois `timezone.override` e o `hoje_no_reparium`.
 
 No site, as funções de data novas dão a mesma hora com o processo em UTC e nos quatro fusos, e um
 teste de contrato confere que o site e a API oferecem os mesmos fusos. O teste de navegador novo

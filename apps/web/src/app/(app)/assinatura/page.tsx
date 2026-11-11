@@ -36,17 +36,17 @@ function explicacaoDaAssinatura(assinatura: DetalheDaAssinatura): string {
     case "ativa":
       return assinatura.em_teste
         ? `Assinatura feita. O teste grátis continua até ${fimDoTeste}, e a primeira ${cobranca} vence nesse dia.`
-        : "Tudo em dia. O Asaas, a empresa que faz a cobrança do Bancada, manda a fatura por e-mail antes de cada vencimento.";
+        : "Tudo em dia. O Asaas, a empresa que faz a cobrança do Reparium, manda a fatura por e-mail antes de cada vencimento.";
     case "inadimplente":
-      return `A ${cobranca} está atrasada. Pague até ${diaPorExtenso(assinatura.pagar_ate ?? assinatura.primeiro_vencimento)} para o Bancada não ficar só para consulta.`;
+      return `A ${cobranca} está atrasada. Pague até ${diaPorExtenso(assinatura.pagar_ate ?? assinatura.primeiro_vencimento)} para o Reparium não ficar só para consulta.`;
     case "suspensa":
       return assinatura.contratada
-        ? `A ${cobranca} está atrasada há mais de 7 dias, então o Bancada está só para consulta. Assim que o pagamento for confirmado, tudo volta ao normal.`
+        ? `A ${cobranca} está atrasada há mais de 7 dias, então o Reparium está só para consulta. Assim que o pagamento for confirmado, tudo volta ao normal.`
         : `O teste grátis terminou em ${fimDoTeste}. As ordens e os clientes continuam aqui, só para consulta. Assinando, você volta a editar na hora, e a primeira cobrança vence em ${primeiroVencimento}.`;
     case "cancelada":
       return assinatura.pode_editar && assinatura.acesso_ate
-        ? `A assinatura foi cancelada. Você usa normalmente até ${diaPorExtenso(assinatura.acesso_ate)}; depois, o Bancada fica só para consulta. Para continuar, é só assinar de novo.`
-        : "A assinatura foi cancelada, e o Bancada está só para consulta. Assinando de novo, você volta a editar na hora.";
+        ? `A assinatura foi cancelada. Você usa normalmente até ${diaPorExtenso(assinatura.acesso_ate)}; depois, o Reparium fica só para consulta. Para continuar, é só assinar de novo.`
+        : "A assinatura foi cancelada, e o Reparium está só para consulta. Assinando de novo, você volta a editar na hora.";
   }
 }
 
@@ -55,12 +55,12 @@ function avisoDoCancelamento(assinatura: DetalheDaAssinatura): string {
   if (!cancelamento) return "";
   const ate = diaPorExtenso(cancelamento.acesso_ate);
   const antes = cancelamento.devolve
-    ? `Cancelar a assinatura? Você pagou o ano há menos de 7 dias, então os ${emReais(cancelamento.devolve)} voltam para você, e o Bancada fica liberado até ${ate}.`
+    ? `Cancelar a assinatura? Você pagou o ano há menos de 7 dias, então os ${emReais(cancelamento.devolve)} voltam para você, e o Reparium fica liberado até ${ate}.`
     : `Cancelar a assinatura? Nada mais é cobrado. Você continua usando até ${ate}.`;
   const fundador = assinatura.fundador
     ? " Você paga o preço de fundador: se cancelar, ele se perde e não volta, mesmo que você assine de novo."
     : "";
-  return `${antes}${fundador} Depois disso, o Bancada fica só para consulta. ${AVISO_DA_EXCLUSAO}`;
+  return `${antes}${fundador} Depois disso, o Reparium fica só para consulta. ${AVISO_DA_EXCLUSAO}`;
 }
 
 function faturaAPagar(faturas: Fatura[]): Fatura | undefined {
@@ -134,10 +134,10 @@ function EscolhaDoPlano({
   return (
     <>
       <p className="text-[13px] text-texto-suave">
-        Todos os planos têm tudo o que o Bancada faz; muda só o tamanho da assistência, que hoje
+        Todos os planos têm tudo o que o Reparium faz; muda só o tamanho da assistência, que hoje
         tem {tamanhoDaAssistencia(assinatura.tamanho)}, contando os convites ainda não aceitos. A
         fatura chega por e-mail, todo mês ou uma vez por ano, e você paga por PIX, boleto ou cartão.
-        Quem manda a fatura é o Asaas, a empresa que faz a cobrança do Bancada. Dá para cancelar
+        Quem manda a fatura é o Asaas, a empresa que faz a cobrança do Reparium. Dá para cancelar
         quando quiser.
       </p>
       {!assinatura.plano_sugerido && (
@@ -180,7 +180,7 @@ export default async function PaginaDaAssinatura() {
     <>
       <CabecalhoDaPagina
         titulo="Assinatura"
-        descricao="O plano do Bancada, as faturas e o cancelamento."
+        descricao="O plano do Reparium, as faturas e o cancelamento."
         junto={<Selo status={assinatura.situacao} rotulo={assinatura.situacao_rotulo} />}
       />
 

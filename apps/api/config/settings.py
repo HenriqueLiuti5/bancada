@@ -42,22 +42,22 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
-    "bancada.core",
-    "bancada.tenants",
-    "bancada.clientes",
-    "bancada.ordens",
-    "bancada.estoque",
-    "bancada.financeiro",
-    "bancada.avisos",
-    "bancada.auditoria",
-    "bancada.orientacao",
-    "bancada.assinaturas",
-    "bancada.plataforma",
+    "reparium.core",
+    "reparium.tenants",
+    "reparium.clientes",
+    "reparium.ordens",
+    "reparium.estoque",
+    "reparium.financeiro",
+    "reparium.avisos",
+    "reparium.auditoria",
+    "reparium.orientacao",
+    "reparium.assinaturas",
+    "reparium.plataforma",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "bancada.core.fuso.FusoDoPedido",
+    "reparium.core.fuso.FusoDoPedido",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -88,10 +88,10 @@ TEMPLATES = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "bancada"),
-        "USER": os.environ.get("POSTGRES_APP_USER") or os.environ.get("POSTGRES_USER", "bancada"),
+        "NAME": os.environ.get("POSTGRES_DB", "reparium"),
+        "USER": os.environ.get("POSTGRES_APP_USER") or os.environ.get("POSTGRES_USER", "reparium"),
         "PASSWORD": os.environ.get("POSTGRES_APP_PASSWORD")
-        or os.environ.get("POSTGRES_PASSWORD", "bancada"),
+        or os.environ.get("POSTGRES_PASSWORD", "reparium"),
         "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
         "ATOMIC_REQUESTS": True,
@@ -113,7 +113,7 @@ CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TASK_TIME_LIMIT = 300
 CELERY_TASK_SOFT_TIME_LIMIT = 270
 CELERY_TIMEZONE = "America/Sao_Paulo"
-CELERY_BEAT_SCHEDULER = "bancada.core.agendador:AgendadorComTrava"
+CELERY_BEAT_SCHEDULER = "reparium.core.agendador:AgendadorComTrava"
 CELERY_BEAT_SCHEDULE = {
     "recuperar-avisos-perdidos": {
         "task": "avisos.recuperar_avisos_perdidos",
@@ -154,7 +154,7 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "1") == "1"
 EMAIL_TIMEOUT = 15
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Bancada <nao-responda@bancada.local>")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Reparium <nao-responda@reparium.local>")
 
 APP_PUBLIC_URL = os.environ.get("APP_PUBLIC_URL", "http://localhost:3000").rstrip("/")
 
@@ -173,7 +173,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "bancada.core.autenticacao.TokenQueRegistraAcesso",
+        "reparium.core.autenticacao.TokenQueRegistraAcesso",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "NUM_PROXIES": 1,
@@ -248,7 +248,7 @@ LOGGING = {
 
 AUTH_USER_MODEL = "tenants.Usuario"
 
-BANCADA_ENCRYPTION_KEY = os.environ.get("BANCADA_ENCRYPTION_KEY", "")
+REPARIUM_ENCRYPTION_KEY = os.environ.get("REPARIUM_ENCRYPTION_KEY", "")
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
 if SENTRY_DSN:

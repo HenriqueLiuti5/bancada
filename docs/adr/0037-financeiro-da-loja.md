@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O Bancada registrava o dinheiro que entra: os pagamentos das ordens na entrega e depois dela (ADR
+O Reparium registrava o dinheiro que entra: os pagamentos das ordens na entrega e depois dela (ADR
 0021) e as vendas no balcão (ADR 0036). Nada registrava o que sai. O dono não tinha onde lançar o
 aluguel, a luz, os salários e as compras de peças, nem como saber o que vence nesta semana.
 

@@ -1,0 +1,600 @@
+import secrets
+from collections.abc import Collection, Sequence
+from dataclasses import dataclass
+from datetime import date
+from decimal import Decimal
+from typing import Any
+from uuid import uuid4
+
+from django.conf import settings
+from django.core.files import File
+from django.db import models, transaction
+from django.utils import timezone
+
+from reparium.clientes.models import Aparelho, Cliente
+from reparium.core.formatos import em_reais
+from reparium.core.models import Carimbado, PertenceAoTenant
+from reparium.ordens.estados import (
+    ESTADOS_COM_ORCAMENTO_APROVADO,
+    ESTADOS_COM_ORCAMENTO_EDITAVEL,
+    ESTADOS_FINAIS,
+    TRANSICOES,
+    StatusOS,
+    TransicaoInvalida,
+    pode_ir_de,
+)
+from reparium.ordens.fotos import FOTOS_POR_ORDEM_NO_MAXIMO, FotoInvalida, MomentoDaFoto, normalizar
+from reparium.tenants.models import Loja, Tenant, Usuario
+
+
+def gerar_token_publico() -> str:
+    return secrets.token_urlsafe(9)
+
+
+class FormaDePagamento(models.TextChoices):
+    PIX = "pix", "PIX"
+    DINHEIRO = "dinheiro", "Dinheiro"
+    DEBITO = "debito", "Débito"
+    CREDITO = "credito", "Crédito"
+
+
+@dataclass(frozen=True)
+class Recebimento:
+    forma: str
+    valor: Decimal
+
+
+@dataclass(frozen=True)
+class Cobranca:
+    valor_cobrado: Decimal
+    recebimentos: Sequence[Recebimento] = ()
+    pagamento_combinado_para: date | None = None
+
+    @property
+    def pago(self) -> Decimal:
+        return sum((recebimento.valor for recebimento in self.recebimentos), Decimal("0.00"))
+
+    @property
+    def falta_receber(self) -> Decimal:
+        return self.valor_cobrado - self.pago
+
+
+NADA_A_RECEBER = "Esta ordem não tem nada a receber."
+
+
+class PagamentoAcimaDoSaldo(Exception):
+    def __init__(self, saldo: Decimal) -> None:
+        if saldo <= 0:
+            mensagem = NADA_A_RECEBER
+        else:
+            mensagem = f"O valor passa do que falta receber, que é {em_reais(saldo)}."
+        super().__init__(mensagem)
+        self.saldo = saldo
+
+
+class NadaAReceber(Exception):
+    def __init__(self) -> None:
+        super().__init__(NADA_A_RECEBER)
+
+
+def proximo_numero(tenant: Tenant) -> int:
+    Tenant.objects.select_for_update().get(pk=tenant.pk)
+    ultimo = OrdemServico.objects.filter(tenant=tenant).aggregate(models.Max("numero"))
+    return (ultimo["numero__max"] or 0) + 1
+
+
+class OrdemServico(PertenceAoTenant):
+    numero = models.PositiveIntegerField()
+    loja = models.ForeignKey(Loja, on_delete=models.PROTECT, related_name="ordens")
+    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, related_name="ordens")
+    aparelho = models.ForeignKey(Aparelho, on_delete=models.PROTECT, related_name="ordens")
+    tecnico = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="ordens",
+        null=True,
+        blank=True,
+    )
+
+    status = models.CharField(max_length=30, choices=StatusOS.choices, default=StatusOS.RECEBIDO)
+    problema_relatado = models.TextField()
+    diagnostico = models.TextField(blank=True)
+    laudo = models.TextField(blank=True)
+
+    token_publico = models.CharField(
+        max_length=24,
+        unique=True,
+        default=gerar_token_publico,
+        editable=False,
+    )
+
+    prometida_para = models.DateField(null=True, blank=True)
+    entregue_em = models.DateTimeField(null=True, blank=True)
+    garantia_ate = models.DateField(null=True, blank=True)
+    valor_cobrado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    pagamento_combinado_para = models.DateField(
+        "pagamento do que falta combinado para", null=True, blank=True
+    )
+
+    class Meta:
+        verbose_name = "ordem de serviço"
+        verbose_name_plural = "ordens de serviço"
+        ordering = ["-criado_em"]
+        constraints = [
+            models.UniqueConstraint(fields=["tenant", "numero"], name="numero_unico_por_tenant"),
+            models.CheckConstraint(
+                condition=models.Q(valor_cobrado__gte=0),
+                name="valor_cobrado_nao_negativo",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["tenant", "status"]),
+            models.Index(fields=["token_publico"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"OS #{self.numero} — {self.aparelho}"
+
+    @transaction.atomic
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        if self._state.adding and not self.numero:
+            self.numero = proximo_numero(self.tenant)
+        super().save(*args, **kwargs)
+
+    @classmethod
+    @transaction.atomic
+    def abrir(
+        cls,
+        *,
+        tenant: Tenant,
+        loja: Loja,
+        cliente: Cliente,
+        aparelho: Aparelho,
+        problema_relatado: str,
+        aberta_por: Usuario | None = None,
+        tecnico: Usuario | None = None,
+        prometida_para: date | None = None,
+    ) -> "OrdemServico":
+        ordem = cls.objects.create(
+            tenant=tenant,
+            loja=loja,
+            cliente=cliente,
+            aparelho=aparelho,
+            problema_relatado=problema_relatado,
+            tecnico=tecnico,
+            prometida_para=prometida_para,
+        )
+        EventoOS.objects.create(
+            ordem=ordem,
+            usuario=aberta_por,
+            de_status="",
+            para_status=ordem.status,
+            nota="Ordem aberta",
+        )
+        return ordem
+
+    @transaction.atomic
+    def transicionar(
+        self,
+        novo_status: str,
+        *,
+        usuario: Usuario | None = None,
+        nota: str = "",
+        itens_aprovados: Collection[int] | None = None,
+        cobranca: Cobranca | None = None,
+    ) -> "EventoOS":
+        # A trava faz quem chega depois esperar e ler a etapa nova, e uma ordem não é aprovada nem
+        # entregue duas vezes: o estoque e os pagamentos seguem cada mudança de etapa.
+        anterior = (
+            OrdemServico.objects.select_for_update()
+            .values_list("status", flat=True)
+            .get(pk=self.pk)
+        )
+        if not pode_ir_de(anterior, novo_status):
+            raise TransicaoInvalida(anterior, novo_status)
+
+        if novo_status == StatusOS.APROVADO:
+            self._registrar_aprovacao(itens_aprovados)
+
+        self.status = novo_status
+        campos = ["status", "atualizado_em"]
+
+        if novo_status == StatusOS.ENTREGUE:
+            self.entregue_em = timezone.now()
+            campos.append("entregue_em")
+            if cobranca is not None:
+                self.valor_cobrado = cobranca.valor_cobrado
+                self.pagamento_combinado_para = cobranca.pagamento_combinado_para
+                campos += ["valor_cobrado", "pagamento_combinado_para"]
+
+        self.save(update_fields=campos)
+
+        if novo_status == StatusOS.ENTREGUE and cobranca is not None:
+            self._registrar_recebimentos(cobranca.recebimentos, usuario)
+
+        evento = EventoOS.objects.create(
+            ordem=self,
+            usuario=usuario,
+            de_status=anterior,
+            para_status=novo_status,
+            nota=nota,
+        )
+        if cobranca is not None and cobranca.pagamento_combinado_para is not None:
+            self._registrar_combinado(
+                f"Falta receber {em_reais(cobranca.falta_receber)}, combinado para "
+                f"{cobranca.pagamento_combinado_para:%d/%m/%Y}.",
+                usuario,
+            )
+        return evento
+
+    def _registrar_aprovacao(self, itens_aprovados: Collection[int] | None) -> None:
+        if itens_aprovados is None:
+            self.itens.update(aprovado=True)
+            return
+        self.itens.filter(pk__in=itens_aprovados).update(aprovado=True)
+        self.itens.exclude(pk__in=itens_aprovados).update(aprovado=False)
+
+    def _registrar_recebimentos(
+        self, recebimentos: Sequence[Recebimento], usuario: Usuario | None
+    ) -> None:
+        Pagamento.objects.bulk_create(
+            Pagamento(
+                tenant_id=self.tenant_id,
+                ordem=self,
+                forma=recebimento.forma,
+                valor=recebimento.valor,
+                recebido_em=self.entregue_em or timezone.now(),
+                registrado_por=usuario,
+            )
+            for recebimento in recebimentos
+        )
+
+    @transaction.atomic
+    def trocar_cliente(
+        self,
+        cliente: Cliente,
+        aparelho: Aparelho | None = None,
+        *,
+        usuario: Usuario | None = None,
+    ) -> "RegistroOS":
+        anterior = self.cliente
+        aparelho_anterior = self.aparelho
+        if aparelho is None:
+            aparelho = aparelho_anterior
+            aparelho.cliente = cliente
+            aparelho.save(update_fields=["cliente", "atualizado_em"])
+
+        self.cliente = cliente
+        self.aparelho = aparelho
+        self.token_publico = gerar_token_publico()
+        self.save(update_fields=["cliente", "aparelho", "token_publico", "atualizado_em"])
+
+        texto = f"De {anterior.nome} para {cliente.nome}."
+        if aparelho.pk != aparelho_anterior.pk:
+            texto += f" Aparelho trocado de {aparelho_anterior} para {aparelho}."
+        return RegistroOS.objects.create(
+            tenant_id=self.tenant_id,
+            ordem=self,
+            tipo=TipoDeRegistro.TROCA_DE_CLIENTE,
+            texto=texto,
+            usuario=usuario,
+        )
+
+    @transaction.atomic
+    def receber(self, recebimento: Recebimento, *, usuario: Usuario | None = None) -> "Pagamento":
+        travada = OrdemServico.objects.select_for_update().get(pk=self.pk)
+        saldo = travada.saldo_a_receber
+        if recebimento.valor > saldo:
+            raise PagamentoAcimaDoSaldo(saldo)
+
+        return Pagamento.objects.create(
+            tenant_id=travada.tenant_id,
+            ordem=travada,
+            forma=recebimento.forma,
+            valor=recebimento.valor,
+            registrado_por=usuario,
+        )
+
+    # O cliente que pede mais prazo ganha outra data, e cada mudança fica no histórico. Pedir a
+    # data que já vale não registra nada.
+    @transaction.atomic
+    def combinar_pagamento(
+        self, data: date, *, usuario: Usuario | None = None
+    ) -> "RegistroOS | None":
+        travada = OrdemServico.objects.select_for_update().get(pk=self.pk)
+        if travada.saldo_a_receber <= 0:
+            raise NadaAReceber
+
+        anterior = travada.pagamento_combinado_para
+        if anterior == data:
+            return None
+
+        travada.pagamento_combinado_para = data
+        travada.save(update_fields=["pagamento_combinado_para", "atualizado_em"])
+        self.pagamento_combinado_para = data
+        if anterior is None:
+            texto = f"O pagamento do que falta ficou combinado para {data:%d/%m/%Y}."
+        else:
+            texto = f"O pagamento do que falta passou de {anterior:%d/%m/%Y} para {data:%d/%m/%Y}."
+        return self._registrar_combinado(texto, usuario)
+
+    def _registrar_combinado(self, texto: str, usuario: Usuario | None) -> "RegistroOS":
+        return RegistroOS.objects.create(
+            tenant_id=self.tenant_id,
+            ordem=self,
+            tipo=TipoDeRegistro.PAGAMENTO_COMBINADO,
+            texto=texto,
+            usuario=usuario,
+        )
+
+    @property
+    def transicoes_possiveis(self) -> list[str]:
+        return sorted(TRANSICOES.get(self.status, frozenset()))
+
+    @property
+    def encerrada(self) -> bool:
+        return self.status in ESTADOS_FINAIS
+
+    @property
+    def aparelho_em_outras_ordens(self) -> bool:
+        outras = OrdemServico.objects.filter(aparelho_id=self.aparelho_id).exclude(pk=self.pk)
+        return outras.exists()
+
+    @property
+    def orcamento_editavel(self) -> bool:
+        return self.status in ESTADOS_COM_ORCAMENTO_EDITAVEL
+
+    @property
+    def orcamento_aprovado(self) -> bool:
+        return self.status in ESTADOS_COM_ORCAMENTO_APROVADO
+
+    @property
+    def total_orcamento(self) -> Decimal:
+        total = self.itens.aggregate(models.Sum("valor"))["valor__sum"]
+        return total or Decimal("0.00")
+
+    @property
+    def loja_para_o_cliente(self) -> str:
+        return self.loja.nome if self.tenant.tem_varias_lojas else ""
+
+    @property
+    def total_aprovado(self) -> Decimal:
+        total = self.itens.filter(aprovado=True).aggregate(models.Sum("valor"))["valor__sum"]
+        return total or Decimal("0.00")
+
+    @property
+    def total_pago(self) -> Decimal:
+        return sum((pagamento.valor for pagamento in self.pagamentos.all()), Decimal("0.00"))
+
+    @property
+    def saldo_a_receber(self) -> Decimal:
+        if self.valor_cobrado is None:
+            return Decimal("0.00")
+        return self.valor_cobrado - self.total_pago
+
+    @property
+    def desconto(self) -> Decimal:
+        if self.valor_cobrado is None:
+            return Decimal("0.00")
+        return self.total_aprovado - self.valor_cobrado
+
+    def _itens_do_lucro(self) -> list["ItemOrcamento"]:
+        itens = list(self.itens.all())
+        if self.orcamento_aprovado:
+            return [item for item in itens if item.aprovado]
+        return itens
+
+    @property
+    def custo_dos_itens(self) -> Decimal:
+        custos = (item.custo_do_item for item in self._itens_do_lucro())
+        return sum((custo for custo in custos if custo is not None), Decimal("0.00"))
+
+    @property
+    def pecas_sem_custo(self) -> int:
+        return sum(
+            1
+            for item in self._itens_do_lucro()
+            if item.tipo == TipoItem.PECA and item.custo_do_item is None
+        )
+
+    @property
+    def lucro(self) -> Decimal:
+        if self.valor_cobrado is not None:
+            receita = self.valor_cobrado
+        else:
+            receita = sum((item.valor for item in self._itens_do_lucro()), Decimal("0.00"))
+        return receita - self.custo_dos_itens
+
+
+class TipoItem(models.TextChoices):
+    PECA = "peca", "Peça"
+    SERVICO = "servico", "Serviço"
+
+
+class ItemOrcamento(Carimbado):
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="itens")
+    tipo = models.CharField(max_length=10, choices=TipoItem.choices, default=TipoItem.PECA)
+    descricao = models.CharField(max_length=180)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    aprovado = models.BooleanField(default=False)
+    produto = models.ForeignKey(
+        "estoque.Produto",
+        on_delete=models.RESTRICT,
+        related_name="itens_de_orcamento",
+        null=True,
+        blank=True,
+    )
+    custo = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "item do orçamento"
+        verbose_name_plural = "itens do orçamento"
+        ordering = ["criado_em"]
+
+    def __str__(self) -> str:
+        return f"{self.descricao} — R$ {self.valor}"
+
+    # A peça do estoque usa o custo do produto até a entrega, quando ele fica guardado no item. Um
+    # item digitado à mão tem o custo que a equipe informou, se informou.
+    @property
+    def custo_do_item(self) -> Decimal | None:
+        if self.custo is not None:
+            return self.custo
+        if self.produto is not None:
+            return self.produto.custo
+        return None
+
+
+class Pagamento(PertenceAoTenant):
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="pagamentos")
+    forma = models.CharField(max_length=10, choices=FormaDePagamento.choices)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    recebido_em = models.DateTimeField(default=timezone.now)
+    registrado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="pagamentos_registrados",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "pagamento"
+        verbose_name_plural = "pagamentos"
+        ordering = ["recebido_em", "pk"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(valor__gt=0),
+                name="pagamento_com_valor_positivo",
+            ),
+        ]
+        indexes = [models.Index(fields=["tenant", "recebido_em"])]
+
+    def __str__(self) -> str:
+        return f"{self.get_forma_display()} {em_reais(self.valor)} na OS #{self.ordem.numero}"
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        if self.tenant_id is None:
+            self.tenant_id = self.ordem.tenant_id
+        super().save(*args, **kwargs)
+
+
+class EventoOS(models.Model):
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="eventos")
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="eventos",
+        null=True,
+        blank=True,
+    )
+    de_status = models.CharField(max_length=30, blank=True)
+    para_status = models.CharField(max_length=30)
+    nota = models.TextField(blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "evento da ordem"
+        verbose_name_plural = "eventos da ordem"
+        ordering = ["criado_em"]
+        indexes = [models.Index(fields=["ordem", "criado_em"])]
+
+    def __str__(self) -> str:
+        origem = self.de_status or "início"
+        return f"OS #{self.ordem.numero}: {origem} → {self.para_status}"
+
+
+class TipoDeRegistro(models.TextChoices):
+    COMENTARIO = "comentario", "Comentário"
+    TROCA_DE_CLIENTE = "troca_de_cliente", "Troca de cliente"
+    PAGAMENTO_COMBINADO = "pagamento_combinado", "Pagamento combinado"
+
+
+class RegistroOS(PertenceAoTenant):
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="registros")
+    tipo = models.CharField(
+        max_length=20,
+        choices=TipoDeRegistro.choices,
+        default=TipoDeRegistro.COMENTARIO,
+    )
+    texto = models.TextField()
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="registros_nas_ordens",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "registro no histórico"
+        verbose_name_plural = "registros no histórico"
+        ordering = ["criado_em", "pk"]
+        indexes = [models.Index(fields=["ordem", "criado_em"])]
+
+    def __str__(self) -> str:
+        return f"{self.get_tipo_display()} na OS #{self.ordem.numero}"
+
+
+def caminho_da_foto(instancia: "FotoOS", nome_enviado: str) -> str:
+    return f"fotos/{instancia.tenant_id}/{instancia.ordem_id}/{uuid4().hex}.jpg"
+
+
+class FotoOS(PertenceAoTenant):
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="fotos")
+    momento = models.CharField(
+        max_length=10,
+        choices=MomentoDaFoto.choices,
+        default=MomentoDaFoto.ENTRADA,
+    )
+    arquivo = models.ImageField(upload_to=caminho_da_foto)
+    legenda = models.CharField(max_length=140, blank=True)
+    largura = models.PositiveIntegerField()
+    altura = models.PositiveIntegerField()
+    visivel_ao_cliente = models.BooleanField(default=True)
+    enviada_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="fotos_enviadas",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "foto da ordem"
+        verbose_name_plural = "fotos da ordem"
+        ordering = ["criado_em"]
+        indexes = [models.Index(fields=["ordem", "momento"])]
+
+    def __str__(self) -> str:
+        return f"Foto {self.get_momento_display().lower()} da OS #{self.ordem.numero}"
+
+    @classmethod
+    @transaction.atomic
+    def registrar(
+        cls,
+        *,
+        ordem: OrdemServico,
+        enviado: File,
+        momento: str = MomentoDaFoto.ENTRADA,
+        legenda: str = "",
+        enviada_por: Usuario | None = None,
+    ) -> "FotoOS":
+        normalizada = normalizar(enviado)
+        OrdemServico.objects.select_for_update().get(pk=ordem.pk)
+        if cls.objects.filter(ordem=ordem).count() >= FOTOS_POR_ORDEM_NO_MAXIMO:
+            raise FotoInvalida(
+                f"Esta ordem já tem {FOTOS_POR_ORDEM_NO_MAXIMO} fotos. "
+                "Apague uma antes de enviar outra."
+            )
+        foto = cls(
+            tenant=ordem.tenant,
+            ordem=ordem,
+            momento=momento,
+            legenda=legenda,
+            largura=normalizada.largura,
+            altura=normalizada.altura,
+            enviada_por=enviada_por,
+        )
+        foto.arquivo.save(f"{uuid4().hex}.jpg", normalizada.conteudo, save=True)
+        return foto

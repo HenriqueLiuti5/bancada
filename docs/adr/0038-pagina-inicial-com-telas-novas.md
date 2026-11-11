@@ -83,7 +83,7 @@ mil de lucro nos meses comuns e prejuízo em todos os meses das ferramentas. A s
 **As ordens do `semear`.** As duas ordens que o `semear` cria entram no começo da história e seguem
 dali como as outras, para a lista de ordens não começar por elas.
 
-**Onde fica.** A história mora em `bancada/core/exemplo/`, com um módulo para cada parte da loja: a
+**Onde fica.** A história mora em `reparium/core/exemplo/`, com um módulo para cada parte da loja: a
 agenda e o horário, o catálogo, a oficina, o estoque e o balcão, as contas e a gaveta. O comando só
 confere o modo de desenvolvimento e se o movimento já existe e chama a simulação.
 
@@ -152,7 +152,7 @@ largura, e o texto, 5. No computador, a tela do notebook dos recursos passou de 
 496 px de largura, e o notebook ficou da altura do texto ao lado.
 
 **As capturas por um comando.** `make capturar-telas` refaz as cinco capturas e as grava em
-`app/(inicio)/telas/`. Ele apaga e cria o banco `bancada_capturas` no Postgres de desenvolvimento e
+`app/(inicio)/telas/`. Ele apaga e cria o banco `reparium_capturas` no Postgres de desenvolvimento e
 sobe, pelo perfil `capturas` do Compose, uma API sobre esse banco e o site na imagem de produção, em
 `localhost:3001`. A API roda o `semear`, o `semear_movimento` e o `preparar_capturas`, comando novo
 que deixa o dono de exemplo com os tours vistos e os primeiros passos escondidos. O Playwright roda
@@ -249,7 +249,7 @@ computadores tem o próprio banco, alguns com o movimento antigo, de dois meses,
 à mão é fácil de esquecer. O comando dá as mesmas telas em qualquer computador.
 
 **Outro projeto do Compose, com um Postgres só para as capturas.** Isolaria mais, mas duplicaria o
-banco, o Redis e as portas. Um banco a mais no mesmo Postgres basta, e o papel `bancada_app`, que não
+banco, o Redis e as portas. Um banco a mais no mesmo Postgres basta, e o papel `reparium_app`, que não
 passa por cima da trava do banco, continua sendo o da API.
 
 **O site de desenvolvimento.** Dispensaria montar a imagem, mas mostra o indicador do Next no canto

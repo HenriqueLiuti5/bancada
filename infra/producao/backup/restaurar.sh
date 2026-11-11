@@ -1,5 +1,5 @@
 #!/bin/sh
-# Restauração do backup do Bancada (ADR 0032). O passo a passo está em infra/producao/README.md.
+# Restauração do backup do Reparium (ADR 0032). O passo a passo está em infra/producao/README.md.
 #
 #   restaurar.sh listar          mostra as cópias do banco, no servidor e fora dele
 #   restaurar.sh banco ARQUIVO   restaura o banco a partir de uma cópia, como banco-2026-10-18.dump
@@ -11,7 +11,7 @@
 
 set -eu
 
-. /usr/local/lib/bancada/comum.sh
+. /usr/local/lib/reparium/comum.sh
 
 listar() {
     registrar "Cópias do banco neste servidor:"

@@ -14,7 +14,7 @@ export default async function Login({ searchParams }: Props) {
   return (
     <>
       <TelaDeAcesso
-        titulo="Entrar no Bancada"
+        titulo="Entrar no Reparium"
         descricao={
           expirou
             ? "Sua sessão terminou. Entre de novo para continuar."
@@ -22,7 +22,7 @@ export default async function Login({ searchParams }: Props) {
         }
         rodape={
           <>
-            Ainda não usa o Bancada?{" "}
+            Ainda não usa o Reparium?{" "}
             <Link href="/cadastro" className={link}>
               Criar conta grátis
             </Link>

@@ -23,13 +23,13 @@ afterEach(() => {
 function ligarOUmami(): void {
   vi.stubEnv("UMAMI_ID_DO_SITE", "4b1a4bde-4c4e-4a7c-9f1e-1f0c5d2a9e10");
   vi.stubEnv("UMAMI_URL_INTERNA", "http://umami:3000/");
-  vi.stubEnv("APP_PUBLIC_URL", "https://bancada.exemplo");
+  vi.stubEnv("APP_PUBLIC_URL", "https://reparium.exemplo");
 }
 
 function visitaVindaDe(referrer: string): string {
   return JSON.stringify({
     type: "event",
-    payload: { website: "site", hostname: "bancada.exemplo", url: "/", referrer },
+    payload: { website: "site", hostname: "reparium.exemplo", url: "/", referrer },
   });
 }
 
@@ -41,9 +41,9 @@ describe("estatísticas", () => {
   });
 
   it("contam só as páginas abertas a todos", () => {
-    expect(paginaContada("https://bancada.exemplo/?utm_source=whatsapp")).toBe(true);
+    expect(paginaContada("https://reparium.exemplo/?utm_source=whatsapp")).toBe(true);
     expect(paginaContada("/cadastro")).toBe(true);
-    expect(paginaContada("https://bancada.exemplo/ordens")).toBe(false);
+    expect(paginaContada("https://reparium.exemplo/ordens")).toBe(false);
     expect(paginaContada("/os/um-link-de-acompanhamento")).toBe(false);
     expect(paginaContada(undefined)).toBe(false);
   });
@@ -59,14 +59,14 @@ describe("estatísticas", () => {
       JSON.parse(visitaParaOUmami(visitaVindaDe(referrer)) ?? "").payload.referrer;
 
     expect(anterior("/os/um-link-de-acompanhamento")).toBeUndefined();
-    expect(anterior("https://bancada.exemplo/convite/um-codigo")).toBeUndefined();
+    expect(anterior("https://reparium.exemplo/convite/um-codigo")).toBeUndefined();
     expect(anterior("https://www.google.com/")).toBe("https://www.google.com/");
   });
 
   it("contam o cadastro como um evento da página de cadastro, sem dados de quem se cadastrou", () => {
-    expect(eventoDeCadastro("site", "https://bancada.exemplo")).toEqual({
+    expect(eventoDeCadastro("site", "https://reparium.exemplo")).toEqual({
       type: "event",
-      payload: { website: "site", hostname: "bancada.exemplo", url: "/cadastro", name: "cadastro" },
+      payload: { website: "site", hostname: "reparium.exemplo", url: "/cadastro", name: "cadastro" },
     });
   });
 

@@ -16,9 +16,9 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg17
         env:
-          POSTGRES_DB: bancada
-          POSTGRES_USER: bancada
-          POSTGRES_PASSWORD: bancada
+          POSTGRES_DB: reparium
+          POSTGRES_USER: reparium
+          POSTGRES_PASSWORD: reparium
         ports:
           - 5432:5432
         options: >-
@@ -37,17 +37,17 @@ jobs:
           --health-retries 10
 
     env:
-      POSTGRES_DB: bancada
-      POSTGRES_USER: bancada
-      POSTGRES_PASSWORD: bancada
+      POSTGRES_DB: reparium
+      POSTGRES_USER: reparium
+      POSTGRES_PASSWORD: reparium
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
-      POSTGRES_APP_USER: bancada_app
-      POSTGRES_APP_PASSWORD: bancada
+      POSTGRES_APP_USER: reparium_app
+      POSTGRES_APP_PASSWORD: reparium
       REDIS_URL: redis://localhost:6379/0
       DJANGO_SECRET_KEY: chave-de-teste-da-integracao-continua-com-mais-de-cinquenta-caracteres
       DJANGO_DEBUG: "0"
-      BANCADA_ENCRYPTION_KEY: "_yZVy9WCAy0D0a-lmL_rbF6v-Aq1aUQhNa-oR5d2JIo="
+      REPARIUM_ENCRYPTION_KEY: "_yZVy9WCAy0D0a-lmL_rbF6v-Aq1aUQhNa-oR5d2JIo="
 
     steps:
       - uses: actions/checkout@v7
@@ -60,8 +60,8 @@ jobs:
 
       - name: Criar o papel da aplicacao no banco
         env:
-          PGPASSWORD: bancada
-        run: psql -h localhost -U bancada -d bancada -f ../../infra/postgres/init.sql
+          PGPASSWORD: reparium
+        run: psql -h localhost -U reparium -d reparium -f ../../infra/postgres/init.sql
 
       - uses: astral-sh/setup-uv@v10.2.0
         with:
@@ -117,7 +117,7 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg17
         env:
-          POSTGRES_DB: bancada
+          POSTGRES_DB: reparium
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
@@ -138,23 +138,23 @@ jobs:
           --health-retries 10
 
     env:
-      POSTGRES_DB: bancada
+      POSTGRES_DB: reparium
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
       REDIS_URL: redis://localhost:6379/0
       DJANGO_SECRET_KEY: chave-de-teste-da-integracao-continua-com-mais-de-cinquenta-caracteres
       DJANGO_DEBUG: "0"
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
-      BANCADA_ENCRYPTION_KEY: "_yZVy9WCAy0D0a-lmL_rbF6v-Aq1aUQhNa-oR5d2JIo="
+      REPARIUM_ENCRYPTION_KEY: "_yZVy9WCAy0D0a-lmL_rbF6v-Aq1aUQhNa-oR5d2JIo="
 
     steps:
       - uses: actions/checkout@v7
 
       - name: Montar as imagens de produção
         run: |
-          docker build --target producao --build-arg VERSAO=${{ github.sha }} -t bancada-api apps/api
-          docker build --target producao --build-arg VERSAO=${{ github.sha }} -t bancada-web apps/web
-          docker build -t bancada-backup infra/producao/backup
+          docker build --target producao --build-arg VERSAO=${{ github.sha }} -t reparium-api apps/api
+          docker build --target producao --build-arg VERSAO=${{ github.sha }} -t reparium-web apps/web
+          docker build -t reparium-backup infra/producao/backup
 
       # O Umami da medição de visitas, num banco só dele, como em produção. Ele leva quase um minuto
       # para preparar o banco, então sobe antes de tudo.
@@ -162,7 +162,7 @@ jobs:
         env:
           PGPASSWORD: postgres
         run: |
-          psql -h localhost -U postgres -d bancada -c "CREATE DATABASE umami"
+          psql -h localhost -U postgres -d reparium -c "CREATE DATABASE umami"
           docker run -d --name umami --network host \
             -e DATABASE_URL=postgresql://postgres:postgres@localhost:5432/umami \
             -e APP_SECRET=segredo-do-umami-da-integracao-continua -e PORT=3001 \
@@ -175,32 +175,32 @@ jobs:
       - name: Subir o Asaas falso
         run: >-
           docker run -d --name asaas --network host
-          bancada-api python -m bancada.assinaturas.asaas_falso 8010
+          reparium-api python -m reparium.assinaturas.asaas_falso 8010
 
       - name: Criar os papéis do banco como em produção
         env:
           PGPASSWORD: postgres
         run: >-
-          psql -h localhost -U postgres -d bancada
-          -v banco=bancada -v dono=bancada_dono -v senha_do_dono=dono
-          -v aplicacao=bancada_app -v senha_da_aplicacao=aplicacao
+          psql -h localhost -U postgres -d reparium
+          -v banco=reparium -v dono=reparium_dono -v senha_do_dono=dono
+          -v aplicacao=reparium_app -v senha_da_aplicacao=aplicacao
           -f infra/producao/postgres/papeis.sql
 
       - name: Migrar com o dono das tabelas
         run: >-
           docker run --rm --network host
           -e POSTGRES_DB -e POSTGRES_HOST -e POSTGRES_PORT -e REDIS_URL
-          -e DJANGO_SECRET_KEY -e DJANGO_DEBUG -e DJANGO_ALLOWED_HOSTS -e BANCADA_ENCRYPTION_KEY
-          -e POSTGRES_APP_USER=bancada_dono -e POSTGRES_APP_PASSWORD=dono
-          bancada-api python manage.py migrate --noinput
+          -e DJANGO_SECRET_KEY -e DJANGO_DEBUG -e DJANGO_ALLOWED_HOSTS -e REPARIUM_ENCRYPTION_KEY
+          -e POSTGRES_APP_USER=reparium_dono -e POSTGRES_APP_PASSWORD=dono
+          reparium-api python manage.py migrate --noinput
 
       - name: Gravar dados de exemplo com o papel da aplicação
         run: >-
           docker run --rm --network host
           -e POSTGRES_DB -e POSTGRES_HOST -e POSTGRES_PORT -e REDIS_URL
-          -e DJANGO_SECRET_KEY -e DJANGO_ALLOWED_HOSTS -e BANCADA_ENCRYPTION_KEY
-          -e DJANGO_DEBUG=1 -e POSTGRES_APP_USER=bancada_app -e POSTGRES_APP_PASSWORD=aplicacao
-          bancada-api python manage.py semear
+          -e DJANGO_SECRET_KEY -e DJANGO_ALLOWED_HOSTS -e REPARIUM_ENCRYPTION_KEY
+          -e DJANGO_DEBUG=1 -e POSTGRES_APP_USER=reparium_app -e POSTGRES_APP_PASSWORD=aplicacao
+          reparium-api python manage.py semear
 
       # Os testes de navegador cadastram vinte e duas assistências por execução, com a medição de
       # visitas e o Asaas falso ligados, mais que o limite de uma hora. O limite maior deixa espaço
@@ -209,11 +209,11 @@ jobs:
         run: >-
           docker run -d --name api --network host
           -e POSTGRES_DB -e POSTGRES_HOST -e POSTGRES_PORT -e REDIS_URL
-          -e DJANGO_SECRET_KEY -e DJANGO_DEBUG -e DJANGO_ALLOWED_HOSTS -e BANCADA_ENCRYPTION_KEY
-          -e POSTGRES_APP_USER=bancada_app -e POSTGRES_APP_PASSWORD=aplicacao
+          -e DJANGO_SECRET_KEY -e DJANGO_DEBUG -e DJANGO_ALLOWED_HOSTS -e REPARIUM_ENCRYPTION_KEY
+          -e POSTGRES_APP_USER=reparium_app -e POSTGRES_APP_PASSWORD=aplicacao
           -e THROTTLE_CADASTRO=30/hour
           -e ASAAS_API_URL=http://localhost:8010 -e ASAAS_API_KEY=chave-do-asaas-falso
-          bancada-api
+          reparium-api
 
       # O site entra no Umami como em produção: pelo painel, que aqui é a API dele. Os testes de
       # navegador usam o token para ler na mesma API o que chegou.
@@ -226,7 +226,7 @@ jobs:
           token=$(curl -sf -X POST http://localhost:3001/api/auth/login \
             -H "Content-Type: application/json" -d '{"username":"admin","password":"umami"}' | jq -r .token)
           site=$(curl -sf -X POST http://localhost:3001/api/websites -H "Authorization: Bearer $token" \
-            -H "Content-Type: application/json" -d '{"name":"Bancada","domain":"localhost"}' | jq -r .id)
+            -H "Content-Type: application/json" -d '{"name":"Reparium","domain":"localhost"}' | jq -r .id)
           echo "UMAMI_ID_DO_SITE=$site" >> "$GITHUB_ENV"
           echo "TOKEN_DO_UMAMI=$token" >> "$GITHUB_ENV"
 
@@ -235,7 +235,7 @@ jobs:
           docker run -d --name web --network host
           -e API_INTERNAL_URL=http://localhost:8000 -e APP_PUBLIC_URL=http://localhost:3000
           -e UMAMI_URL_INTERNA=http://localhost:3001 -e UMAMI_ID_DO_SITE
-          bancada-web
+          reparium-web
 
       - name: Conferir que o site e a API respondem
         run: |
@@ -281,8 +281,8 @@ jobs:
       - name: Fazer um backup e restaurá-lo num banco de teste
         run: >-
           docker run --rm --network host
-          -e PGHOST=localhost -e PGUSER=postgres -e PGPASSWORD=postgres -e PGDATABASE=bancada
-          bancada-backup backup.sh agora
+          -e PGHOST=localhost -e PGUSER=postgres -e PGPASSWORD=postgres -e PGDATABASE=reparium
+          reparium-backup backup.sh agora
 
       - name: Mostrar os logs se algo falhou
         if: failure()

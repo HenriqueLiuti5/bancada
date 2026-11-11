@@ -36,7 +36,7 @@ test("a peça sai do estoque na aprovação, o acessório na venda e o painel mo
 
   await test.step("cria a conta e abre o estoque vazio", async () => {
     await criarConta(page, dono);
-    await pularTour(page, "Boas-vindas ao Bancada");
+    await pularTour(page, "Boas-vindas ao Reparium");
     await page.goto("/estoque");
     await pularTour(page, "Estoque e vendas");
     await expect(page.getByText("Nenhum produto cadastrado")).toBeVisible();

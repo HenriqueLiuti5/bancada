@@ -182,7 +182,7 @@ export function GavetaDoDia({
         {gaveta.deve_ter === null ? (
           <p className="text-[13px] text-texto-suave sm:text-xs">
             {eHoje
-              ? "Conte o dinheiro da gaveta e registre a primeira conferência. A partir dela, o Bancada acompanha quanto deve ter."
+              ? "Conte o dinheiro da gaveta e registre a primeira conferência. A partir dela, o Reparium acompanha quanto deve ter."
               : "Sem uma conferência antes deste dia, não há como saber quanto devia ter."}
           </p>
         ) : (

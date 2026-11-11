@@ -6,7 +6,7 @@ import { chamarApi, mensagemDaApi } from "@/lib/api";
 import { lerToken } from "@/lib/sessao";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Confirmar e-mail · Bancada" };
+export const metadata = { title: "Confirmar e-mail · Reparium" };
 
 type Props = { params: Promise<{ token: string }> };
 

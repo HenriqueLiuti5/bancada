@@ -9,7 +9,7 @@ aparelho na entrada, não existe registro para resolver a discussão.
 
 ## Produto
 
-O Bancada é um sistema onde a assistência registra cliente, aparelho e defeito, e acompanha a
+O Reparium é um sistema onde a assistência registra cliente, aparelho e defeito, e acompanha a
 ordem de serviço por uma sequência de estados até a entrega. Cada ordem gera um link público e
 não adivinhável que a assistência manda ao cliente. O cliente abre o link sem criar conta e vê
 a linha do tempo do reparo, o orçamento e as fotos do aparelho na entrada.
@@ -55,7 +55,7 @@ do aparelho. Três regras decorrem disso e valem desde a primeira linha de códi
    completo, CPF ou endereço.
 3. Fotos ficam em bucket privado, servidas por URL assinada com validade curta.
 
-Na relação de LGPD, a assistência é a controladora dos dados dos clientes finais e o Bancada é
+Na relação de LGPD, a assistência é a controladora dos dados dos clientes finais e o Reparium é
 o operador.
 
 ## Roadmap
@@ -109,11 +109,11 @@ dela.
 
 As da 4M à 4T saíram da revisão do que faltava, em 18 de outubro de 2026, e são feitas uma de cada
 vez, nessa ordem. Os testes vêm primeiro, porque protegem as telas que as fases seguintes mexem. O
-estoque e o financeiro entram antes do lançamento, para o Bancada chegar ao mercado com o que os
+estoque e o financeiro entram antes do lançamento, para o Reparium chegar ao mercado com o que os
 concorrentes já oferecem. A página inicial vem depois das mudanças nas telas, para mostrá-las
 prontas. Os planos ficam por último, decididos pelo Henrique com o sistema pronto.
 
-A Fase 5 termina quando dez assistências usarem o Bancada no dia a dia, e o que elas pedirem passa
+A Fase 5 termina quando dez assistências usarem o Reparium no dia a dia, e o que elas pedirem passa
 na frente do resto da fase. A Fase 6 vem logo depois, porque o aviso pelo WhatsApp é o que cumpre a
 promessa da página inicial. Depois da Fase 7, entra só o que as lojas pedirem (veja Depois do
 lançamento).
@@ -145,7 +145,7 @@ preços. O que ela encontrou:
   WhatsApp automático e NFS-e a partir de R$ 169,90. O ServosERP cobrava de R$ 49,90 a R$ 149,90,
   com WhatsApp automático a partir de R$ 119,90. Os dois tinham checklist de entrada; o InforOS,
   também etiquetas, comissão por usuário e depoimentos de clientes.
-- Com R$ 39,90 no Solo e R$ 29,90 para fundadores, o Bancada ficava abaixo do mais barato do
+- Com R$ 39,90 no Solo e R$ 29,90 para fundadores, o Reparium ficava abaixo do mais barato do
   mercado, e cada loja dá o mesmo trabalho de suporte, pague pouco ou muito.
 
 A partir da revisão, o Henrique decidiu:
@@ -174,12 +174,12 @@ A partir da revisão, o Henrique decidiu:
 
 A conta da revisão inclui todos os custos: Asaas, servidor, backup, e-mail, domínio, WhatsApp,
 contador, Simples e INSS do pró-labore, e a aquisição de clientes. Com 12 assinaturas novas por mês
-e 5% de cancelamento, o Bancada se paga a partir do nono mês e chega a cerca de 160 lojas e R$ 5 mil
+e 5% de cancelamento, o Reparium se paga a partir do nono mês e chega a cerca de 160 lojas e R$ 5 mil
 de lucro por mês em 24 meses. Com os preços de outubro, o mesmo cenário dava a metade.
 
 ## Revisão de 8 de novembro de 2026
 
-O Henrique pediu outra revisão de tudo, de novo com o objetivo de o Bancada dar dinheiro: produto,
+O Henrique pediu outra revisão de tudo, de novo com o objetivo de o Reparium dar dinheiro: produto,
 cobrança, segurança, design e como conseguir assistências. Ela está em `docs/REVISAO-2026-11-08.md`,
 feita sem mudar nada no sistema, com um código para cada item (R1, S1...), e cada item fica lá até
 ser resolvido. A revisão encontrou a de 3 de novembro ainda numa PR aberta, a #8, que discordava de
@@ -201,7 +201,7 @@ escolhas daquele dia:
 
 ### Como a assistência chega ao produto
 
-O Bancada é vendido à distância. A assistência recebe uma mensagem com o link, se cadastra, testa
+O Reparium é vendido à distância. A assistência recebe uma mensagem com o link, se cadastra, testa
 e assina sem que ninguém vá até a loja, e a conversa sobre o que melhorar acontece pelo WhatsApp.
 Tudo que um vendedor presente resolveria precisa, então, estar dentro do próprio produto: criar a
 conta, montar a equipe, recuperar a senha, aprender as telas, pagar e pedir ajuda.
@@ -246,7 +246,7 @@ conta, montar a equipe, recuperar a senha, aprender as telas, pagar e pedir ajud
 Na entrega, a tolerância ficou em 7 dias contados do vencimento; quem assina durante o teste paga a
 primeira mensalidade só no último dia do teste; e o dono pode cancelar pela tela, mantendo o acesso
 até o fim do período já pago. A forma de pagamento fica em aberto na assinatura e é escolhida a cada
-mês na página de pagamento do Asaas, sem tela no Bancada para isso (ADR 0022).
+mês na página de pagamento do Asaas, sem tela no Reparium para isso (ADR 0022).
 
 ### 4C — Tutorial guiado e contato
 
@@ -342,7 +342,8 @@ Na entrega:
   botões do tamanho do dedo e filtros da lista recolhidos.
 - Página do cliente com a barra de etapas com ícones, a previsão de entrega e o contato com a loja
   em destaque quando ele precisa responder ao orçamento ou retirar o aparelho.
-- Marca nova, um "B" branco num quadrado verde, no sistema, no ícone da aba e da tela inicial do
+- Marca nova, um "B" branco num quadrado verde (um "R" desde que o produto passou a se chamar
+  Reparium, em 11 de novembro de 2026), no sistema, no ícone da aba e da tela inicial do
   celular.
 - Logo da assistência, enviada pelo dono na tela Assistência. Ela aparece para o cliente na página
   de acompanhamento, na prévia do link no WhatsApp, no e-mail, que ganhou versão em HTML, e no
@@ -354,7 +355,7 @@ Os detalhes e as alternativas descartadas estão na ADR 0024; os da logo, na ADR
 ### 4H — Página inicial
 
 O endereço principal, para onde vão as mensagens enviadas às assistências, passa a explicar o que é
-o Bancada e a levar ao cadastro. A referência foram as técnicas da página da Inforos, não a
+o Reparium e a levar ao cadastro. A referência foram as técnicas da página da Inforos, não a
 aparência dela.
 
 Na entrega:
@@ -553,7 +554,7 @@ recibo da venda em PDF, o aviso de estoque baixo por e-mail e o fiado no balcão
 
 ### 4Q — Financeiro da loja
 
-O Bancada registrava o que entra, pelas ordens (4D) e pelo balcão (4P), e nada do que sai. Os
+O Reparium registrava o que entra, pelas ordens (4D) e pelo balcão (4P), e nada do que sai. Os
 concorrentes que cobram até R$ 60 por mês já tinham contas a pagar e a receber, contas fixas, caixa do
 dia e lucro com o custo das peças, e alguns, comissão e fiado; a nota fiscal costuma ser vendida à
 parte. No começo da fase, em 22 de outubro de 2026, o Henrique decidiu que qualquer pessoa da equipe
@@ -710,7 +711,7 @@ mais atraem, como o dinheiro em verde do painel. Na entrega da parte 3:
 - Os recursos ganharam Estoque e vendas no balcão, com a lista do estoque, e Financeiro, com as
   contas a pagar, no lugar de Dinheiro e painel. Nos blocos com imagem, ela ficou mais larga que o
   texto. O preço lista o estoque e o financeiro entre o que vem incluso.
-- `make capturar-telas` refaz as cinco capturas num banco à parte, o `bancada_capturas`, com o
+- `make capturar-telas` refaz as cinco capturas num banco à parte, o `reparium_capturas`, com o
   movimento da parte 1, a API de desenvolvimento e o site de produção, e apaga o banco no fim. O
   comando novo `preparar_capturas` tira o tour e os primeiros passos da frente das telas.
 - Teste da API do `preparar_capturas` e teste de navegador que confere, no computador e no celular,
@@ -730,7 +731,7 @@ No começo da fase, em 28 de outubro de 2026, o Henrique decidiu:
 
 - Os dois textos são escritos de novo, para o sistema de hoje, em vez de completar o rascunho da
   ADR 0032.
-- O e-mail de contato é henrique.liuti5@gmail.com até o domínio do Bancada ser registrado.
+- O e-mail de contato é henrique.liuti5@gmail.com até o domínio do Reparium ser registrado.
 - No cancelamento, não há devolução do valor proporcional do mês em andamento.
 - Os registros de acesso ficam guardados por 6 meses, como pede o Marco Civil da Internet.
 - Os textos não passam por advogado.
@@ -894,7 +895,7 @@ Na entrega da parte 1:
   não cabem na assistência ficam desligados, com o motivo, e o mais barato que cabe já vem marcado.
   Contam as pessoas ativas, os convites que ainda valem e as lojas ativas. Com mais de 3 lojas, a
   tela manda falar com o suporte.
-- Os planos e os preços ficam no código, em `bancada/assinaturas/planos.py`, e a variável
+- Os planos e os preços ficam no código, em `reparium/assinaturas/planos.py`, e a variável
   `VALOR_DA_ASSINATURA` saiu. A assinatura guarda o plano, o ciclo e o valor de cada cobrança, e as
   de antes viraram Equipe mensal.
 - O anual vai ao Asaas com o ciclo de um ano, e depois do cancelamento o acesso vai até o fim do
@@ -904,7 +905,7 @@ Na entrega da parte 1:
 - O aviso do topo e a tela chamam a cobrança do anual de anuidade, o e-mail do fim do teste diz a
   faixa de preços dos planos, e a receita recorrente do painel da plataforma conta o anual dividido
   pelos 12 meses.
-- Um Asaas falso, `bancada/assinaturas/asaas_falso.py`, sobe na CI das imagens de produção, e os
+- Um Asaas falso, `reparium/assinaturas/asaas_falso.py`, sobe na CI das imagens de produção, e os
   testes de navegador assinam por ele.
 - A página inicial continua com o preço do Equipe até a parte 3.
 - Testes da API dos planos, do tamanho da assistência, da assinatura mensal e anual, do plano que
@@ -959,7 +960,7 @@ O que não dependia de decisão ficou pronto na preparação do servidor de prod
 - Monitoramento de erros da API, das tarefas e do site, sem dados pessoais, e a rota `/saude` para
   um serviço de disponibilidade.
 - CSP de produção conferida no navegador, sem bloqueios.
-- Rascunho dos termos de uso e da política de privacidade, deixando claro que o Bancada é o operador
+- Rascunho dos termos de uso e da política de privacidade, deixando claro que o Reparium é o operador
   dos dados dos clientes finais.
 - Job da CI que monta as imagens de produção e as roda como em produção.
 
@@ -974,8 +975,11 @@ Falta, e depende de decisões ou de contratar serviços:
   CNPJ, então a empresa volta a ser decidida antes dela.
 - Verificação em duas etapas na conta da plataforma, feita na véspera do lançamento para não
   atrapalhar os testes até lá (ADR 0029).
-- Domínio e HTTPS: registrar o domínio e apontá-lo para o servidor, e trocar o e-mail de contato
-  dos termos e da privacidade por um do domínio, em `src/lib/textosLegais.ts`.
+- Domínio e HTTPS: o domínio, reparium.com.br, foi registrado em 11 de novembro (veja abaixo).
+  Falta apontá-lo para o servidor e trocar o e-mail de contato dos termos e da privacidade por um
+  do domínio, em `src/lib/textosLegais.ts`.
+- Marca: pedir o registro de Reparium no INPI, na classe 42 (software). Em 11 de novembro, a busca
+  do INPI não achou nenhum pedido com o nome.
 - Servidor, e-mail por provedor com domínio verificado (ADR 0011), destino do backup e, se for o
   caso, armazenamento das fotos e serviço de monitoramento, com os nomes deles na política de
   privacidade.
@@ -988,6 +992,18 @@ Falta, e depende de decisões ou de contratar serviços:
 
 Em 8 de novembro, o Henrique decidiu contratar o domínio, o servidor e o e-mail quando a 4T
 terminar, e escolher depois o destino do backup, o armazenamento das fotos e o monitoramento.
+
+Em 11 de novembro, o Henrique registrou reparium.com.br, e o produto deixou de se chamar Bancada
+para se chamar Reparium. Em 9 de novembro, bancada.com.br já tinha dono, o nome estava em vários
+sistemas lançados em 2026, um deles para assistências técnicas, e uma palavra comum é difícil de
+proteger como marca. Como ainda não havia servidor nem cliente, tudo mudou de uma vez: os textos, a
+marca, que virou um "R" (ADR 0024), a imagem de prévia do link, o pacote Python
+(`apps/api/reparium`), o banco e os papéis do Postgres, o projeto do Compose, a chave de
+criptografia (`REPARIUM_ENCRYPTION_KEY`), o cookie de sessão (`reparium_token`) e a variável do
+isolamento (`reparium.tenant_id`). Os termos e a privacidade ganharam a versão 2026-11-11, com o nome
+novo. O repositório no GitHub também mudou de nome, para HenriqueLiuti5/reparium; só o histórico
+do git guarda o nome antigo. "bancada" com artigo feminino segue nas telas como a mesa do técnico,
+como no indicador "Na bancada".
 
 A entrega contínua, que publicaria as imagens montadas pela CI num registro para o servidor
 buscá-las, saiu da fase em 3 de novembro: até haver motivo, o servidor é atualizado à mão.
@@ -1010,7 +1026,7 @@ O código da fase:
 - Aprovação do orçamento pelo link: o cliente aprova ou recusa na página de acompanhamento, item por
   item, como no balcão, e a resposta entra no histórico com a hora e o IP.
 - Senha em padrão, o desenho de 3 por 3 pontos do Android, ao lado da senha escrita.
-- Manifest para instalar o Bancada na tela inicial do celular.
+- Manifest para instalar o Reparium na tela inicial do celular.
 
 O que as dez lojas pedirem passa na frente dessa lista.
 
@@ -1022,7 +1038,7 @@ abrem.
 ## Fase 6: WhatsApp automático
 
 Os avisos que hoje saem por e-mail (ADR 0011) passam a sair também pelo WhatsApp, pela API oficial
-da Meta, nas mesmas etapas. Primeiro, por um número do Bancada que manda em nome da assistência,
+da Meta, nas mesmas etapas. Primeiro, por um número do Reparium que manda em nome da assistência,
 com um botão para falar com a loja; depois, pelo número da própria assistência, com a coexistência
 da Meta, em que a loja continua usando o WhatsApp Business no celular. API não oficial está fora:
 para a assistência, ter o número banido é o pior cenário possível.
@@ -1032,8 +1048,8 @@ para a assistência, ter o número banido é o pior cenário possível.
 - Pedido de avaliação no Google depois da entrega, com o link que a assistência cadastrar.
 - Quando a franquia acaba, o aviso volta a ser o botão de hoje, com a mensagem pronta.
 
-Depende de: conta do Meta Business verificada no CNPJ do Bancada, um número para os envios e os
-modelos de mensagem aprovados pela Meta. Em 8 de novembro, o Bancada ainda não tinha CNPJ (veja 4F).
+Depende de: conta do Meta Business verificada no CNPJ do Reparium, um número para os envios e os
+modelos de mensagem aprovados pela Meta. Em 8 de novembro, o Reparium ainda não tinha CNPJ (veja 4F).
 
 No começo da fase, o Henrique decide: o tamanho das franquias e o preço do pacote extra, quais
 etapas mandam mensagem e o texto dos modelos.
@@ -1057,8 +1073,8 @@ Entram só quando as lojas pedirem, na ordem em que pedirem:
 - Compra e venda de seminovos com IMEI, termo de procedência e consulta do IMEI.
 - NFS-e como adicional pago, por um emissor contratado, para as assistências que emitem nota.
 - Importação de clientes e aparelhos por planilha, para quem vem de outro sistema.
-- Cobrança por PIX pelo Bancada: o que o cliente ficou devendo vira um link de PIX, por subcontas
-  do Asaas, e o Bancada fica com uma parte de cada pagamento.
+- Cobrança por PIX pelo Reparium: o que o cliente ficou devendo vira um link de PIX, por subcontas
+  do Asaas, e o Reparium fica com uma parte de cada pagamento.
 - Relatórios além do painel, que estavam na Fase 6 junto com o WhatsApp.
 
 Fora do roadmap, desde 3 de novembro de 2026:
@@ -1072,7 +1088,6 @@ Fora do roadmap, desde 3 de novembro de 2026:
 
 Ficam para quando cada parte chegar:
 
-- Nome do domínio (veja o item O1 da revisão de 8 de novembro).
 - Provedores de servidor, e-mail, armazenamento e monitoramento.
 - Abertura da empresa, antes da Fase 6 (4F).
 - Atendimento no sábado de manhã (Fase 5).

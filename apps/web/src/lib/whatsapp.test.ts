@@ -14,10 +14,10 @@ describe("linkDoWhatsApp", () => {
   it("codifica a mensagem inteira, com acentos, símbolos e o link da ordem", () => {
     const link = linkDoWhatsApp(
       "43996156781",
-      "Olá, Ana! Acompanhe aqui: https://bancada.app/os/abc?x=1&y=2 #1042",
+      "Olá, Ana! Acompanhe aqui: https://reparium.com.br/os/abc?x=1&y=2 #1042",
     );
     expect(link).toBe(
-      "https://wa.me/5543996156781?text=Ol%C3%A1%2C%20Ana!%20Acompanhe%20aqui%3A%20https%3A%2F%2Fbancada.app%2Fos%2Fabc%3Fx%3D1%26y%3D2%20%231042",
+      "https://wa.me/5543996156781?text=Ol%C3%A1%2C%20Ana!%20Acompanhe%20aqui%3A%20https%3A%2F%2Freparium.com.br%2Fos%2Fabc%3Fx%3D1%26y%3D2%20%231042",
     );
     expect(decodeURIComponent(new URL(link!).searchParams.get("text")!)).toContain("x=1&y=2 #1042");
   });

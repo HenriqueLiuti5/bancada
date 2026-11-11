@@ -3,7 +3,7 @@ import { TelaDeAcesso } from "@/componentes/TelaDeAcesso";
 import { link } from "@/componentes/ui/estilos";
 import { FormularioEsqueciSenha } from "./formulario";
 
-export const metadata = { title: "Esqueci minha senha · Bancada" };
+export const metadata = { title: "Esqueci minha senha · Reparium" };
 
 export default function EsqueciSenha() {
   return (

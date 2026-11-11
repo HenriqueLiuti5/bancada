@@ -1,19 +1,19 @@
-name: bancada
+name: reparium
 
 services:
   db:
     image: pgvector/pgvector:pg17
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-bancada}
-      POSTGRES_USER: ${POSTGRES_USER:-bancada}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bancada}
+      POSTGRES_DB: ${POSTGRES_DB:-reparium}
+      POSTGRES_USER: ${POSTGRES_USER:-reparium}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-reparium}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bancada} -d ${POSTGRES_DB:-bancada}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-reparium} -d ${POSTGRES_DB:-reparium}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -37,6 +37,9 @@ services:
       # Cada execução dos testes de navegador cadastra doze assistências, acima do limite de 10
       # por hora da produção (ADR 0037).
       THROTTLE_CADASTRO: ${THROTTLE_CADASTRO:-100/hour}
+      # Sem a chave, nada sobe, nem o banco: um .env de antes da troca do nome (Bancada, até 11 de
+      # novembro de 2026) criaria o banco com os nomes antigos.
+      REPARIUM_ENCRYPTION_KEY: ${REPARIUM_ENCRYPTION_KEY:?falta no .env. Se ele ainda tem BANCADA_ENCRYPTION_KEY, veja Ambiente no CLAUDE.md}
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./apps/api:/app
@@ -104,7 +107,7 @@ services:
       target: desenvolvimento
     env_file: .env
     environment:
-      POSTGRES_DB: bancada_capturas
+      POSTGRES_DB: reparium_capturas
       REDIS_URL: redis://redis:6379/1
       DJANGO_ALLOWED_HOSTS: localhost,api-capturas
     command: >-

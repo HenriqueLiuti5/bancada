@@ -41,7 +41,7 @@ async function convidarAtendente(page: Page, browser: Browser, dono: Dono): Prom
   await atendente.getByLabel("Crie uma senha").fill(dono.senha);
   await atendente.getByRole("button", { name: "Entrar na equipe" }).click();
   await expect(atendente).toHaveURL(/\/ordens$/);
-  await pularTour(atendente, "Boas-vindas ao Bancada");
+  await pularTour(atendente, "Boas-vindas ao Reparium");
   return atendente;
 }
 
@@ -53,7 +53,7 @@ test("a gaveta parte da primeira conferência, a equipe conta às cegas e o dono
 
   await test.step("a primeira conferência é o ponto de partida", async () => {
     await criarConta(page, dono);
-    await pularTour(page, "Boas-vindas ao Bancada");
+    await pularTour(page, "Boas-vindas ao Reparium");
     await page.goto("/financeiro/caixa");
     await pularTour(page, "Caixa do dia");
     await expect(gaveta(page)).toContainText("registre a primeira conferência");

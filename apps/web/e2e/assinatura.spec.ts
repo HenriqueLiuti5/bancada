@@ -7,7 +7,7 @@ test("o plano que não cabe na assistência fica de fora, e o menor que cabe já
 }) => {
   const dono = donoNovo();
   await criarConta(page, dono);
-  await pularTour(page, "Boas-vindas ao Bancada");
+  await pularTour(page, "Boas-vindas ao Reparium");
 
   await page.goto("/equipe");
   await pularTour(page, "Quem usa o sistema");
@@ -44,7 +44,7 @@ test("o dono assina o plano anual e, cancelando ainda no teste grátis, não pag
   test.skip(!process.env.ENDERECO_DO_ASAAS, "assinar precisa do Asaas falso no ar");
 
   await criarConta(page, donoNovo());
-  await pularTour(page, "Boas-vindas ao Bancada");
+  await pularTour(page, "Boas-vindas ao Reparium");
   await page.goto("/assinatura");
 
   await expect(page.getByRole("radio", { name: /^Solo/ })).toBeChecked();

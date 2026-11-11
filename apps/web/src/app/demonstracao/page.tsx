@@ -15,7 +15,7 @@ import { buscarOferta } from "@/lib/oferta";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Demonstração · Bancada",
+  title: "Demonstração · Reparium",
   description:
     "Veja a página que o cliente da sua assistência abre para acompanhar o conserto pelo celular.",
   robots: { index: false, follow: true },
@@ -84,7 +84,7 @@ export default async function Demonstracao({ searchParams }: Props) {
               <ArrowRightIcon size={17} />
             </Link>
             <Link href="/" className={botao("fantasma", "sm")}>
-              Conhecer o Bancada
+              Conhecer o Reparium
             </Link>
           </div>
         </div>

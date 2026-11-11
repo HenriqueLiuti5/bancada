@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O Bancada é vendido à distância: a assistência recebe um link, se cadastra e testa sozinha. Até a
+O Reparium é vendido à distância: a assistência recebe um link, se cadastra e testa sozinha. Até a
 Fase 4A, quem entrava pela primeira vez caía numa lista de ordens vazia, sem nenhuma indicação do
 que fazer, e não tinha a quem perguntar. O que um vendedor ensinaria no balcão precisa estar dentro
 do próprio sistema.

@@ -7,7 +7,7 @@ const FASES = [
     icone: UserIcon,
     titulo: "Sozinho no balcão",
     texto:
-      "Você atende, conserta e entrega. O Bancada guarda cada ordem, avisa o cliente e mostra o que está atrasado.",
+      "Você atende, conserta e entrega. O Reparium guarda cada ordem, avisa o cliente e mostra o que está atrasado.",
   },
   {
     icone: UsersIcon,

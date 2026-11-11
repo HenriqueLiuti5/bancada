@@ -69,7 +69,7 @@ test("a assistência se cadastra, atende uma ordem do balcão à entrega e o cli
 
   await test.step("cria a conta pelo cadastro", async () => {
     await criarConta(page, dono);
-    await pularTour(page, "Boas-vindas ao Bancada");
+    await pularTour(page, "Boas-vindas ao Reparium");
     await expect(page.getByRole("heading", { name: "Ordens de serviço" })).toBeVisible();
   });
 
@@ -204,7 +204,7 @@ test("a equipe comenta na ordem e passa para a cliente certa a ordem aberta na c
 
   await test.step("cria a conta e abre uma ordem para a Mariana", async () => {
     await criarConta(page, dono);
-    await pularTour(page, "Boas-vindas ao Bancada");
+    await pularTour(page, "Boas-vindas ao Reparium");
 
     await irParaNovaOrdem(page);
     await pularTour(page, "Cliente");

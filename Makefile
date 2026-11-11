@@ -10,7 +10,7 @@ setup: ## Prepara o .env local com uma chave de criptografia e um token de webho
 		cp .env.example .env; \
 		CHAVE=$$(python3 -c "import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())" 2>/dev/null || openssl rand -base64 32 | tr '+/' '-_'); \
 		TOKEN=$$(python3 -c "import secrets; print(secrets.token_urlsafe(48))" 2>/dev/null || openssl rand -hex 32); \
-		sed -i.bak -e "s|^BANCADA_ENCRYPTION_KEY=.*|BANCADA_ENCRYPTION_KEY=$$CHAVE|" -e "s|^ASAAS_WEBHOOK_TOKEN=.*|ASAAS_WEBHOOK_TOKEN=$$TOKEN|" .env && rm -f .env.bak; \
+		sed -i.bak -e "s|^REPARIUM_ENCRYPTION_KEY=.*|REPARIUM_ENCRYPTION_KEY=$$CHAVE|" -e "s|^ASAAS_WEBHOOK_TOKEN=.*|ASAAS_WEBHOOK_TOKEN=$$TOKEN|" .env && rm -f .env.bak; \
 		echo ".env criado com uma chave de criptografia e um token de webhook proprios desta maquina."; \
 	fi
 
@@ -52,11 +52,11 @@ semear-plataforma: ## Cria assistencias ficticias em situacoes variadas para o p
 
 capturar-telas: ## Refaz as capturas de tela da pagina inicial, num banco a parte com o movimento de exemplo
 	docker compose --profile capturas rm -sf api-capturas web-capturas
-	docker compose exec -T db sh -c 'dropdb -U "$$POSTGRES_USER" --if-exists --force bancada_capturas && createdb -U "$$POSTGRES_USER" -O bancada_app bancada_capturas'
+	docker compose exec -T db sh -c 'dropdb -U "$$POSTGRES_USER" --if-exists --force reparium_capturas && createdb -U "$$POSTGRES_USER" -O reparium_app reparium_capturas'
 	docker compose --profile capturas up -d --build --wait --wait-timeout 900 web-capturas
 	(cd apps/web && npx playwright test --config capturas.config.ts); situacao=$$?; \
 		docker compose --profile capturas rm -sf api-capturas web-capturas; \
-		docker compose exec -T db sh -c 'dropdb -U "$$POSTGRES_USER" --force bancada_capturas'; \
+		docker compose exec -T db sh -c 'dropdb -U "$$POSTGRES_USER" --force reparium_capturas'; \
 		docker compose exec -T redis redis-cli -n 1 flushdb; \
 		exit $$situacao
 

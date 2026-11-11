@@ -1,0 +1,272 @@
+import logging
+from dataclasses import dataclass
+from datetime import date
+from decimal import Decimal
+
+from django.db import transaction
+from django.utils import timezone
+
+from reparium.assinaturas import fundadores, regras
+from reparium.assinaturas.models import (
+    Assinatura,
+    Ciclo,
+    Fatura,
+    FormaDeCobranca,
+    Plano,
+    SituacaoDaAssinatura,
+    SituacaoDaFatura,
+)
+from reparium.assinaturas.planos import PLANOS, descricao_da_assinatura, tamanho_da
+from reparium.assinaturas.provedor import (
+    Cobranca,
+    ErroNoProvedor,
+    EventoRecebido,
+    ProvedorDeCobranca,
+    provedor_configurado,
+)
+from reparium.core.rls import aplicar_tenant
+from reparium.tenants.models import Tenant
+
+registrador = logging.getLogger(__name__)
+
+PROCESSADO = "processado"
+IGNORADO = "ignorado"
+
+
+class AssinaturaIndisponivel(Exception):
+    pass
+
+
+class PlanoNaoCabe(Exception):
+    pass
+
+
+@dataclass(frozen=True)
+class Cancelamento:
+    assinatura: Assinatura
+    devolvida: Fatura | None
+
+
+@dataclass(frozen=True)
+class TrocaDePlano:
+    assinatura: Assinatura
+    plano_anterior: str
+    valor: Decimal
+
+
+def referencia_da_assistencia(tenant: Tenant) -> str:
+    return f"assistencia-{tenant.pk}"
+
+
+def resumo_do_preco(assinatura: Assinatura) -> str:
+    periodo = "ano" if assinatura.ciclo == Ciclo.ANUAL else "mês"
+    resumo = f"{assinatura.get_plano_display()}, R$ {assinatura.valor} por {periodo}"
+    return f"{resumo}, preço de fundador" if assinatura.fundador else resumo
+
+
+def abrir_teste(tenant: Tenant, hoje: date) -> Assinatura:
+    assinatura, _ = Assinatura.objects.get_or_create(
+        tenant=tenant, defaults={"teste_termina_em": regras.fim_do_teste(hoje)}
+    )
+    return assinatura
+
+
+def guardar_cobranca(assinatura: Assinatura, cobranca: Cobranca) -> Fatura:
+    fatura, _ = Fatura.objects.update_or_create(
+        id_no_provedor=cobranca.id,
+        defaults={
+            "tenant_id": assinatura.tenant_id,
+            "assinatura": assinatura,
+            "valor": cobranca.valor,
+            "valor_liquido": cobranca.valor_liquido,
+            "vencimento": cobranca.vencimento,
+            "situacao": cobranca.situacao,
+            "forma_de_pagamento": cobranca.forma,
+            "paga_em": cobranca.paga_em,
+            "link_de_pagamento": cobranca.link,
+        },
+    )
+    return fatura
+
+
+def recalcular(assinatura: Assinatura, hoje: date) -> Assinatura:
+    situacao = regras.retrato(assinatura, hoje).situacao
+    if assinatura.situacao != situacao:
+        assinatura.situacao = situacao
+        assinatura.save(update_fields=["situacao", "atualizado_em"])
+    return assinatura
+
+
+def sincronizar(assinatura: Assinatura, provedor: ProvedorDeCobranca, hoje: date) -> Assinatura:
+    for cobranca in provedor.cobrancas_da_assinatura(assinatura.assinatura_no_provedor):
+        guardar_cobranca(assinatura, cobranca)
+    return recalcular(assinatura, hoje)
+
+
+def _garantir_cliente(
+    assinatura: Assinatura, provedor: ProvedorDeCobranca, *, documento: str, email: str
+) -> None:
+    if assinatura.cliente_no_provedor and assinatura.documento_do_pagador == documento:
+        return
+
+    assinatura.cliente_no_provedor = provedor.criar_cliente(
+        nome=assinatura.tenant.nome,
+        documento=documento,
+        email=email,
+        referencia=referencia_da_assistencia(assinatura.tenant),
+    )
+    assinatura.documento_do_pagador = documento
+    assinatura.save(update_fields=["cliente_no_provedor", "documento_do_pagador", "atualizado_em"])
+
+
+def assinar(
+    tenant: Tenant,
+    *,
+    documento: str,
+    email: str,
+    plano: str,
+    ciclo: str,
+    hoje: date,
+    provedor: ProvedorDeCobranca | None = None,
+) -> Assinatura:
+    provedor = provedor or provedor_configurado()
+    assinatura = Assinatura.objects.select_for_update().select_related("tenant").get(tenant=tenant)
+    if assinatura.contratada:
+        raise AssinaturaIndisponivel("A assistência já tem uma assinatura ativa.")
+
+    condicoes = PLANOS[plano]
+    motivo = condicoes.por_que_nao_cabe(tamanho_da(tenant))
+    if motivo:
+        raise PlanoNaoCabe(motivo)
+
+    _garantir_cliente(assinatura, provedor, documento=documento, email=email)
+
+    # Se o Asaas recusar a assinatura, a vaga de fundador volta junto com este savepoint.
+    with transaction.atomic():
+        fundador = fundadores.ocupar_vaga(tenant)
+        valor = condicoes.preco(ciclo, fundador=fundador)
+        assinatura.assinatura_no_provedor = provedor.criar_assinatura(
+            cliente=assinatura.cliente_no_provedor,
+            valor=valor,
+            ciclo=ciclo,
+            primeiro_vencimento=regras.primeiro_vencimento(assinatura, hoje),
+            descricao=descricao_da_assinatura(plano, ciclo),
+            referencia=referencia_da_assistencia(tenant),
+        )
+    assinatura.plano = plano
+    assinatura.ciclo = ciclo
+    assinatura.valor = valor
+    assinatura.fundador = fundador
+    assinatura.assinada_em = timezone.now()
+    assinatura.cancelada_em = None
+    assinatura.acesso_ate = None
+    assinatura.situacao = SituacaoDaAssinatura.ATIVA
+    assinatura.save()
+
+    try:
+        return sincronizar(assinatura, provedor, hoje)
+    except ErroNoProvedor as erro:
+        registrador.warning("A primeira fatura da %s fica para depois: %s", tenant.nome, erro)
+        return assinatura
+
+
+def encerrar(assinatura: Assinatura, hoje: date) -> Assinatura:
+    assinatura.acesso_ate = regras.acesso_depois_do_cancelamento(assinatura, hoje)
+    assinatura.situacao = SituacaoDaAssinatura.CANCELADA
+    assinatura.cancelada_em = timezone.now()
+    assinatura.fundador = False
+    assinatura.save(
+        update_fields=["acesso_ate", "situacao", "cancelada_em", "fundador", "atualizado_em"]
+    )
+    assinatura.faturas.filter(
+        situacao__in=[SituacaoDaFatura.ABERTA, SituacaoDaFatura.VENCIDA]
+    ).update(situacao=SituacaoDaFatura.CANCELADA)
+    return assinatura
+
+
+def _devolver(fatura: Fatura, provedor: ProvedorDeCobranca) -> None:
+    fatura.link_da_devolucao = provedor.devolver_cobranca(
+        fatura.id_no_provedor, boleto=fatura.forma_de_pagamento == FormaDeCobranca.BOLETO
+    )
+    fatura.situacao = SituacaoDaFatura.ESTORNADA
+    fatura.save(update_fields=["link_da_devolucao", "situacao", "atualizado_em"])
+
+
+def cancelar(
+    tenant: Tenant, *, hoje: date, provedor: ProvedorDeCobranca | None = None
+) -> Cancelamento:
+    provedor = provedor or provedor_configurado()
+    assinatura = Assinatura.objects.select_for_update().get(tenant=tenant)
+    if not assinatura.contratada:
+        raise AssinaturaIndisponivel("Não há assinatura ativa para cancelar.")
+
+    # A devolução vem antes: se o Asaas recusar o cancelamento, a fatura já saiu como devolvida e
+    # a próxima tentativa não devolve de novo.
+    devolvida = regras.fatura_a_devolver(assinatura, hoje)
+    if devolvida is not None:
+        _devolver(devolvida, provedor)
+
+    provedor.cancelar_assinatura(assinatura.assinatura_no_provedor)
+    return Cancelamento(encerrar(assinatura, hoje), devolvida)
+
+
+def trocar_plano(
+    tenant: Tenant, plano: str, *, provedor: ProvedorDeCobranca | None = None
+) -> TrocaDePlano:
+    provedor = provedor or provedor_configurado()
+    assinatura = Assinatura.objects.select_for_update().get(tenant=tenant)
+    if not assinatura.contratada:
+        raise AssinaturaIndisponivel("A assistência não tem uma assinatura ativa.")
+    if assinatura.plano == plano:
+        raise AssinaturaIndisponivel(f"A assistência já está no plano {Plano(plano).label}.")
+
+    atual, novo = PLANOS[assinatura.plano], PLANOS[plano]
+    if novo.mensal < atual.mensal:
+        motivo = novo.por_que_nao_cabe(tamanho_da(tenant))
+        if motivo:
+            raise PlanoNaoCabe(motivo)
+
+    valor = novo.preco(assinatura.ciclo, fundador=assinatura.fundador)
+    provedor.atualizar_assinatura(
+        assinatura.assinatura_no_provedor,
+        valor=valor,
+        descricao=descricao_da_assinatura(plano, assinatura.ciclo),
+    )
+    anterior = assinatura.plano
+    assinatura.plano = plano
+    assinatura.valor = valor
+    assinatura.save(update_fields=["plano", "valor", "atualizado_em"])
+    return TrocaDePlano(assinatura, anterior, valor)
+
+
+def _assinatura_da_cobranca(cobranca: Cobranca) -> Assinatura | None:
+    if cobranca.assinatura:
+        assinatura = Assinatura.objects.filter(assinatura_no_provedor=cobranca.assinatura).first()
+        if assinatura is not None:
+            return assinatura
+
+    fatura = Fatura.objects.select_related("assinatura").filter(id_no_provedor=cobranca.id).first()
+    return fatura.assinatura if fatura else None
+
+
+def processar_evento(evento: EventoRecebido, hoje: date) -> str:
+    if evento.cobranca is not None:
+        assinatura = _assinatura_da_cobranca(evento.cobranca)
+        if assinatura is None:
+            return IGNORADO
+        aplicar_tenant(assinatura.tenant_id)
+        guardar_cobranca(assinatura, evento.cobranca)
+        recalcular(assinatura, hoje)
+        return PROCESSADO
+
+    if evento.assinatura_encerrada:
+        assinatura = Assinatura.objects.filter(
+            assinatura_no_provedor=evento.assinatura_encerrada
+        ).first()
+        if assinatura is None or not assinatura.contratada:
+            return IGNORADO
+        aplicar_tenant(assinatura.tenant_id)
+        encerrar(assinatura, hoje)
+        return PROCESSADO
+
+    return IGNORADO

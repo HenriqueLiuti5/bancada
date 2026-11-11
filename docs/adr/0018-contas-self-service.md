@@ -4,7 +4,7 @@
 
 Até a Fase 3, toda assistência e todo usuário nasciam à mão, pelo painel administrativo ou pelo
 comando de dados de exemplo. Isso acaba com o modelo de venda da Fase 4: a assistência recebe um
-link, se cadastra, monta a equipe e usa o sistema sem ninguém do Bancada por perto. Tudo que um
+link, se cadastra, monta a equipe e usa o sistema sem ninguém do Reparium por perto. Tudo que um
 vendedor presente resolveria precisa estar no próprio produto.
 
 O ADR 0016 já tinha deixado um aviso: o nome de usuário é único no sistema inteiro, e isso só
@@ -33,7 +33,7 @@ fluxo só vale o custo quando alguém precisar.
 ### Cadastro em um passo
 
 Um formulário só cria a assistência, a primeira loja e a conta do dono, numa transação. O WhatsApp
-informado vira o contato da assistência com o Bancada e o telefone inicial da loja, que é o que o
+informado vira o contato da assistência com o Reparium e o telefone inicial da loja, que é o que o
 cliente vê. O aceite dos termos é obrigatório e fica gravado na assistência com data e versão,
 além de ir para a auditoria com o endereço de origem. A resposta do cadastro já é uma sessão
 aberta: o dono cai direto no sistema.

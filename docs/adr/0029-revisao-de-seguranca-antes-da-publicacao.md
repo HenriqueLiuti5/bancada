@@ -90,11 +90,11 @@ Ficam para a 4F, porque dependem do servidor:
   uma CDN na frente do proxy, a regra precisa olhar um salto antes;
 - o painel administrativo do Django acessível só por túnel SSH, porque o `/admin/` não tem limite
   de tentativas nem segundo fator;
-- dois papéis no banco. Hoje o `bancada_app` é dono das tabelas, então poderia desligar o RLS, e
+- dois papéis no banco. Hoje o `reparium_app` é dono das tabelas, então poderia desligar o RLS, e
   pode criar bancos, coisa que só os testes usam. Em produção, um papel dono serve às migrações e
   outro, só com leitura e escrita, à aplicação;
 - imagens de produção que não rodem como root;
-- a `BANCADA_ENCRYPTION_KEY` guardada longe do backup do banco. Sem ela as senhas de desbloqueio do
+- a `REPARIUM_ENCRYPTION_KEY` guardada longe do backup do banco. Sem ela as senhas de desbloqueio do
   backup ficam ilegíveis, e guardada junto a criptografia não protege nada. Trocar a chave hoje
   exige regravar todas as senhas.
 

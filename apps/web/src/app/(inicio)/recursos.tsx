@@ -118,7 +118,7 @@ export function Recursos() {
         <CabecalhoDaSecao
           sobretitulo="Recursos"
           titulo="Tudo o que acontece no balcão, num lugar só"
-          descricao="Cada parte do Bancada resolve uma dor de quem conserta celular todo dia."
+          descricao="Cada parte do Reparium resolve uma dor de quem conserta celular todo dia."
         />
 
         <div className="mt-16 space-y-24 sm:mt-20 sm:space-y-28">
@@ -162,7 +162,7 @@ export function Recursos() {
               icone={PasswordIcon}
               sobretitulo="Senha de desbloqueio"
               titulo="A senha do cliente longe do papel"
-              texto="Anotar a senha num papel preso ao aparelho expõe o cliente. No Bancada, ela fica protegida do começo ao fim."
+              texto="Anotar a senha num papel preso ao aparelho expõe o cliente. No Reparium, ela fica protegida do começo ao fim."
               detalhes={SENHA}
             />
           </div>
@@ -181,7 +181,7 @@ export function Recursos() {
             imagem={
               <TelaDoComputador
                 imagem={telaDoEstoque}
-                descricao="Estoque do Bancada, com o aviso dos produtos para repor e, em cada peça, a quantidade em cada loja, o custo e o preço"
+                descricao="Estoque do Reparium, com o aviso dos produtos para repor e, em cada peça, a quantidade em cada loja, o custo e o preço"
                 tamanhos="(min-width: 1024px) 496px, 78vw"
               />
             }
@@ -200,7 +200,7 @@ export function Recursos() {
             imagem={
               <TelaDoComputador
                 imagem={telaDasContas}
-                descricao="Contas a pagar do Bancada, com o total vencido, o que vence nos próximos 7 dias, o que foi pago no mês e a lista das contas"
+                descricao="Contas a pagar do Reparium, com o total vencido, o que vence nos próximos 7 dias, o que foi pago no mês e a lista das contas"
                 tamanhos="(min-width: 1024px) 496px, 78vw"
               />
             }

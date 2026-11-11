@@ -42,7 +42,7 @@ test("o dono lança as contas, paga a vencida, a fixa se repete e o painel avisa
 
   await test.step("cria a conta e abre as contas a pagar vazias", async () => {
     await criarConta(page, dono);
-    await pularTour(page, "Boas-vindas ao Bancada");
+    await pularTour(page, "Boas-vindas ao Reparium");
     await page.goto("/financeiro");
     await pularTour(page, "Contas a pagar");
     await expect(page.getByText("Nada a pagar")).toBeVisible();

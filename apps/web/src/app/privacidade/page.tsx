@@ -1,43 +1,43 @@
 import { Contato, TextoLegal } from "@/componentes/TextoLegal";
 import {
   HORARIO_DO_SUPORTE,
-  RESPONSAVEL_PELO_BANCADA,
+  RESPONSAVEL_PELO_REPARIUM,
   VERSAO_DOS_TEXTOS_LEGAIS,
 } from "@/lib/textosLegais";
 
-export const metadata = { title: "Política de privacidade · Bancada" };
+export const metadata = { title: "Política de privacidade · Reparium" };
 
 export default function Privacidade() {
   return (
     <TextoLegal titulo="Política de privacidade" versao={VERSAO_DOS_TEXTOS_LEGAIS}>
       <p>
-        Esta política explica que dados pessoais o Bancada trata, para quê, com quem eles são
+        Esta política explica que dados pessoais o Reparium trata, para quê, com quem eles são
         compartilhados, por quanto tempo ficam guardados e como pedir o que a Lei Geral de Proteção
         de Dados (LGPD, Lei nº 13.709/2018) garante a você.
       </p>
 
       <h2>Quem responde pelos dados</h2>
       <p>
-        O Bancada é um sistema de ordens de serviço para assistências técnicas de celular, oferecido
-        por {RESPONSAVEL_PELO_BANCADA}, que responde pelo tratamento dos dados pessoais descrito
+        O Reparium é um sistema de ordens de serviço para assistências técnicas de celular, oferecido
+        por {RESPONSAVEL_PELO_REPARIUM}, que responde pelo tratamento dos dados pessoais descrito
         aqui. Para qualquer assunto sobre dados pessoais, o contato é <Contato />,{" "}
         {HORARIO_DO_SUPORTE}.
       </p>
 
-      <h2>Os dois papéis do Bancada</h2>
+      <h2>Os dois papéis do Reparium</h2>
       <p>
         A LGPD separa quem decide sobre os dados, o controlador, de quem os trata em nome dele, o
-        operador. No Bancada é assim:
+        operador. No Reparium é assim:
       </p>
       <ul>
         <li>
-          <strong>Dados de quem usa o sistema</strong>, o dono da assistência e a equipe: o Bancada é
+          <strong>Dados de quem usa o sistema</strong>, o dono da assistência e a equipe: o Reparium é
           o controlador.
         </li>
         <li>
           <strong>Dados dos clientes da assistência</strong>, as pessoas que deixam o aparelho para
           consertar, e tudo o mais que a assistência registra: a assistência é a controladora, e o
-          Bancada é o operador. Ele guarda e processa esses dados só para prestar o serviço a ela,
+          Reparium é o operador. Ele guarda e processa esses dados só para prestar o serviço a ela,
           seguindo esta política.
         </li>
       </ul>
@@ -46,7 +46,7 @@ export default function Privacidade() {
       <p>De quem usa o sistema:</p>
       <ul>
         <li>nome, e-mail e papel na equipe: dono, técnico ou atendente;</li>
-        <li>senha de acesso, guardada de um jeito que nem o Bancada consegue ler;</li>
+        <li>senha de acesso, guardada de um jeito que nem o Reparium consegue ler;</li>
         <li>
           dados da assistência e das lojas: nome, CNPJ, WhatsApp, telefone, endereço, fuso horário e
           logo;
@@ -62,7 +62,7 @@ export default function Privacidade() {
         </li>
         <li>quando a pessoa usou o sistema pela última vez e quais tutoriais já viu.</li>
       </ul>
-      <p>Dos clientes da assistência, que o Bancada trata como operador:</p>
+      <p>Dos clientes da assistência, que o Reparium trata como operador:</p>
       <ul>
         <li>nome, telefone e, se a assistência informar, e-mail e CPF;</li>
         <li>
@@ -90,7 +90,7 @@ export default function Privacidade() {
         <li>
           <strong>Cobrar a assinatura:</strong> o nome da assistência, o e-mail e o CPF ou CNPJ de
           quem paga vão ao Asaas, a instituição de pagamento que gera as cobranças. Os dados do cartão
-          são digitados na página do Asaas e não passam pelo Bancada. Base legal: execução do
+          são digitados na página do Asaas e não passam pelo Reparium. Base legal: execução do
           contrato e cumprimento de obrigações legais e fiscais (art. 7º, II e V).
         </li>
         <li>
@@ -101,19 +101,19 @@ export default function Privacidade() {
         </li>
         <li>
           <strong>Contar as visitas ao site:</strong> saber quantas pessoas abrem as páginas do
-          Bancada, de onde vieram e quantas criaram a conta, como explicado em Medição de visitas.
+          Reparium, de onde vieram e quantas criaram a conta, como explicado em Medição de visitas.
           Base legal: legítimo interesse (art. 7º, IX).
         </li>
         <li>
           <strong>Atender e acompanhar as assistências:</strong> responder pelo suporte e acompanhar,
-          num painel só do Bancada, o nome, o dono, o e-mail e o WhatsApp de cada assistência, a
+          num painel só do Reparium, o nome, o dono, o e-mail e o WhatsApp de cada assistência, a
           situação da assinatura, quantas ordens ela abriu e quando usou o sistema pela última vez.
           Esse painel não mostra os dados dos clientes das assistências. Base legal: legítimo
           interesse (art. 7º, IX).
         </li>
       </ul>
       <p>
-        O Bancada não vende nem aluga dados pessoais e não os usa para publicidade. Os dados dos
+        O Reparium não vende nem aluga dados pessoais e não os usa para publicidade. Os dados dos
         clientes da assistência servem só para registrar e acompanhar o atendimento.
       </p>
 
@@ -128,14 +128,14 @@ export default function Privacidade() {
           separa uma da outra;
         </li>
         <li>
-          o responsável pelo Bancada só abre os dados de uma assistência para dar o suporte que ela
+          o responsável pelo Reparium só abre os dados de uma assistência para dar o suporte que ela
           pediu, para manter o sistema funcionando ou quando a lei obrigar.
         </li>
       </ul>
 
       <h2>Com quem compartilhamos</h2>
       <p>
-        O Bancada usa empresas que prestam serviço a ele, e cada uma recebe só o necessário para a sua
+        O Reparium usa empresas que prestam serviço a ele, e cada uma recebe só o necessário para a sua
         parte:
       </p>
       <ul>
@@ -152,7 +152,7 @@ export default function Privacidade() {
         </li>
       </ul>
       <p>
-        O WhatsApp não recebe dados do Bancada: os botões de WhatsApp só abrem o aplicativo no
+        O WhatsApp não recebe dados do Reparium: os botões de WhatsApp só abrem o aplicativo no
         aparelho de quem clicou, com a mensagem pronta. Quando um desses serviços fica fora do Brasil,
         a transferência segue as regras da LGPD para transferência internacional (art. 33). Dados
         também podem ser entregues a autoridades quando a lei ou uma ordem judicial obrigar.
@@ -160,8 +160,8 @@ export default function Privacidade() {
 
       <h2>Medição de visitas</h2>
       <p>
-        Para contar as visitas, o Bancada usa o Umami, um programa de estatísticas instalado no
-        próprio servidor do Bancada, que não manda nada a outras empresas. Ele não usa cookies e não
+        Para contar as visitas, o Reparium usa o Umami, um programa de estatísticas instalado no
+        próprio servidor do Reparium, que não manda nada a outras empresas. Ele não usa cookies e não
         guarda o IP: com o IP e o navegador, calcula um código que muda todo mês, só para separar um
         visitante do outro, e estima o país, o estado e a cidade.
       </p>
@@ -237,7 +237,7 @@ export default function Privacidade() {
         </li>
         <li>
           se você é cliente de uma assistência, faça o pedido à assistência, que é a controladora dos
-          seus dados. O Bancada ajuda a assistência a responder, e um pedido que chegar a ele é
+          seus dados. O Reparium ajuda a assistência a responder, e um pedido que chegar a ele é
           encaminhado a ela.
         </li>
       </ul>
@@ -245,11 +245,11 @@ export default function Privacidade() {
 
       <h2>Cookies</h2>
       <p>
-        O Bancada usa três cookies, todos para o sistema funcionar ou para lembrar uma escolha sua:
+        O Reparium usa três cookies, todos para o sistema funcionar ou para lembrar uma escolha sua:
       </p>
       <ul>
         <li>
-          <strong>bancada_token</strong>, que mantém você conectado por até 30 dias e não pode ser
+          <strong>reparium_token</strong>, que mantém você conectado por até 30 dias e não pode ser
           lido pelos scripts da página;
         </li>
         <li>
@@ -261,13 +261,13 @@ export default function Privacidade() {
         </li>
       </ul>
       <p>
-        O Bancada não usa cookies de publicidade nem de rastreamento, e a medição de visitas funciona
+        O Reparium não usa cookies de publicidade nem de rastreamento, e a medição de visitas funciona
         sem cookies.
       </p>
 
       <h2>Incidentes de segurança</h2>
       <p>
-        Se um incidente de segurança puder causar risco ou dano relevante, o Bancada avisa as
+        Se um incidente de segurança puder causar risco ou dano relevante, o Reparium avisa as
         assistências afetadas e a ANPD, como a LGPD exige.
       </p>
 

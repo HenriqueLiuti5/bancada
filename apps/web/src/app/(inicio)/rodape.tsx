@@ -83,7 +83,7 @@ export function Rodape({ whatsapp }: { whatsapp: string | null }) {
         </div>
 
         <p className="mt-12 border-t border-borda pt-6 text-[13px] text-texto-apagado">
-          © {hojeEmIso().slice(0, 4)} Bancada
+          © {hojeEmIso().slice(0, 4)} Reparium
         </p>
       </div>
     </footer>

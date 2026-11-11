@@ -33,7 +33,7 @@ test("o dono cadastra outra loja, abre uma ordem nela, desativa a loja e muda o 
 
   await test.step("cria a conta, que começa com uma loja no horário de Brasília", async () => {
     await criarConta(page, dono);
-    await pularTour(page, "Boas-vindas ao Bancada");
+    await pularTour(page, "Boas-vindas ao Reparium");
 
     await page.goto("/assistencia");
     await expect(cartao(page, "Dados da assistência").getByRole("combobox", { name: "Fuso horário" })).toHaveValue(

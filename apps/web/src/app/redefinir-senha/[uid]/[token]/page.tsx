@@ -1,7 +1,7 @@
 import { TelaDeAcesso } from "@/componentes/TelaDeAcesso";
 import { FormularioDeNovaSenha } from "./formulario";
 
-export const metadata = { title: "Nova senha · Bancada" };
+export const metadata = { title: "Nova senha · Reparium" };
 
 type Props = { params: Promise<{ uid: string; token: string }> };
 

@@ -1,0 +1,134 @@
+from datetime import date
+from decimal import Decimal
+from typing import Any
+
+import pytest
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
+
+from reparium.assinaturas.models import (
+    VAGAS_DE_FUNDADOR,
+    FormaDeCobranca,
+    SituacaoDaFatura,
+    VagaDeFundador,
+)
+from reparium.assinaturas.provedor import Cobranca, ErroNoProvedor
+from reparium.tenants.models import Papel, Tenant, Usuario
+
+TOKEN_DO_WEBHOOK = "token-de-teste-do-webhook-com-mais-de-32-caracteres"
+
+
+class ProvedorFalso:
+    def __init__(self) -> None:
+        self.clientes: list[dict[str, Any]] = []
+        self.assinaturas: list[dict[str, Any]] = []
+        self.atualizadas: list[dict[str, Any]] = []
+        self.canceladas: list[str] = []
+        self.devolvidas: list[str] = []
+        self.cobrancas: dict[str, list[Cobranca]] = {}
+        self.falhar_em: str | None = None
+
+    def _talvez_falhar(self, operacao: str) -> None:
+        if self.falhar_em == operacao:
+            raise ErroNoProvedor("O Asaas está fora do ar.")
+
+    def criar_cliente(self, *, nome: str, documento: str, email: str, referencia: str) -> str:
+        self._talvez_falhar("criar_cliente")
+        self.clientes.append(
+            {"nome": nome, "documento": documento, "email": email, "referencia": referencia}
+        )
+        return f"cus_{len(self.clientes)}"
+
+    def criar_assinatura(
+        self,
+        *,
+        cliente: str,
+        valor: Decimal,
+        ciclo: str,
+        primeiro_vencimento: date,
+        descricao: str,
+        referencia: str,
+    ) -> str:
+        self._talvez_falhar("criar_assinatura")
+        identificador = f"sub_{len(self.assinaturas) + 1}"
+        self.assinaturas.append(
+            {
+                "id": identificador,
+                "cliente": cliente,
+                "valor": valor,
+                "ciclo": ciclo,
+                "primeiro_vencimento": primeiro_vencimento,
+                "descricao": descricao,
+                "referencia": referencia,
+            }
+        )
+        self.cobrancas[identificador] = [
+            Cobranca(
+                id=f"pay_{identificador}",
+                assinatura=identificador,
+                valor=valor,
+                vencimento=primeiro_vencimento,
+                situacao=SituacaoDaFatura.ABERTA,
+                forma=FormaDeCobranca.A_ESCOLHER,
+                paga_em=None,
+                link=f"https://sandbox.asaas.test/i/{identificador}",
+            )
+        ]
+        return identificador
+
+    def atualizar_assinatura(self, assinatura: str, *, valor: Decimal, descricao: str) -> None:
+        self._talvez_falhar("atualizar_assinatura")
+        self.atualizadas.append({"id": assinatura, "valor": valor, "descricao": descricao})
+
+    def cancelar_assinatura(self, assinatura: str) -> None:
+        self._talvez_falhar("cancelar_assinatura")
+        self.canceladas.append(assinatura)
+
+    def cobrancas_da_assinatura(self, assinatura: str) -> list[Cobranca]:
+        self._talvez_falhar("cobrancas_da_assinatura")
+        return list(self.cobrancas.get(assinatura, []))
+
+    def devolver_cobranca(self, cobranca: str, *, boleto: bool) -> str:
+        self._talvez_falhar("devolver_cobranca")
+        self.devolvidas.append(cobranca)
+        return f"https://sandbox.asaas.test/solicitar-estorno/{cobranca}" if boleto else ""
+
+
+@pytest.fixture
+def provedor(monkeypatch: pytest.MonkeyPatch) -> ProvedorFalso:
+    falso = ProvedorFalso()
+    monkeypatch.setattr("reparium.assinaturas.servicos.provedor_configurado", lambda: falso)
+    monkeypatch.setattr("reparium.assinaturas.tasks.provedor_configurado", lambda: falso)
+    return falso
+
+
+@pytest.fixture
+def vagas_esgotadas(db: None) -> None:
+    VagaDeFundador.objects.bulk_create(
+        VagaDeFundador(numero=numero) for numero in range(1, VAGAS_DE_FUNDADOR + 1)
+    )
+
+
+@pytest.fixture(autouse=True)
+def configuracao_da_cobranca(settings: Any) -> None:
+    settings.ASAAS_WEBHOOK_TOKEN = TOKEN_DO_WEBHOOK
+
+
+@pytest.fixture
+def dono(tenant: Tenant) -> Usuario:
+    return Usuario.objects.create_user(
+        username="marcos@central.test",
+        email="marcos@central.test",
+        first_name="Marcos Lima",
+        password="senha-de-teste",
+        tenant=tenant,
+        papel=Papel.DONO,
+    )
+
+
+@pytest.fixture
+def api_dono(dono: Usuario) -> APIClient:
+    cliente_api = APIClient()
+    token, _ = Token.objects.get_or_create(user=dono)
+    cliente_api.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+    return cliente_api

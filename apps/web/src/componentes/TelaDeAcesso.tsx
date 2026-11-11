@@ -61,7 +61,7 @@ async function PainelDaMarca() {
 }
 
 export function TelaDeAcesso({ titulo, descricao, rodape, larga = false, children }: Props) {
-  const suporte = linkDoSuporteParaVisitantes("Olá! Preciso de ajuda para entrar no Bancada.");
+  const suporte = linkDoSuporteParaVisitantes("Olá! Preciso de ajuda para entrar no Reparium.");
 
   return (
     <div className="min-h-screen bg-superficie lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">

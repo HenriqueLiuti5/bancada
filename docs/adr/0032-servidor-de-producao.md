@@ -16,7 +16,7 @@ parte que não depende de decisão.
 
 **Um servidor, um Compose.** `infra/producao/compose.yml` descreve o servidor inteiro: proxy, site,
 API, worker, agendador, banco, Redis e backup. É o arranjo mais barato e mais simples de operar no
-começo, e não prende o Bancada a nenhum provedor: qualquer servidor Linux com Docker serve. Os
+começo, e não prende o Reparium a nenhum provedor: qualquer servidor Linux com Docker serve. Os
 segredos ficam num `.env` na mesma pasta, criado por `gerar-segredos.sh`, e cada serviço recebe só
 as variáveis que usa. A aplicação nunca vê a senha do dono das tabelas nem a do superusuário.
 
@@ -32,9 +32,9 @@ coletados na montagem da imagem e servidos pelo WhiteNoise. O site roda no servi
 em modo `standalone`. As duas rodam sem root, e um `.dockerignore` deixa a pasta de fotos local fora
 da imagem da API.
 
-**Três papéis no banco.** O superusuário `postgres` só cria o banco e faz o backup. O `bancada_dono`
+**Três papéis no banco.** O superusuário `postgres` só cria o banco e faz o backup. O `reparium_dono`
 é dono das tabelas e roda as migrações, num serviço `migracoes` que termina antes de a API subir. O
-`bancada_app` só lê e grava: não cria nem altera tabelas, não desliga o RLS e não cria bancos. Como
+`reparium_app` só lê e grava: não cria nem altera tabelas, não desliga o RLS e não cria bancos. Como
 não é dono das tabelas, o RLS vale para ele mesmo sem o `FORCE`. Os papéis nascem na primeira subida
 do banco, por `infra/producao/postgres/papeis.sql`.
 
@@ -91,7 +91,7 @@ abertura de ordem, painel, equipe, assistência e assinatura sem nenhum bloqueio
 resposta com erro. O cookie de sessão sai `Secure`, e o HSTS chega pelo HTTPS.
 
 **Termos e privacidade.** As duas páginas ganharam um rascunho completo, em linguagem simples, que
-deixa claro que a assistência é a controladora dos dados dos clientes dela e o Bancada é o operador.
+deixa claro que a assistência é a controladora dos dados dos clientes dela e o Reparium é o operador.
 Os trechos que dependem de decisões ficam entre colchetes. A versão passou a `2026-10-rascunho`, nas
 páginas e no registro do cadastro.
 
@@ -119,7 +119,7 @@ Os textos jurídicos continuam rascunho até um advogado revisar e os colchetes 
 ## Alternativas consideradas
 
 **Banco gerenciado e plataforma de aplicação (PaaS).** Tirariam das mãos do Henrique o backup e a
-atualização do Postgres, mas custam várias vezes um servidor simples e prendem o Bancada ao
+atualização do Postgres, mas custam várias vezes um servidor simples e prendem o Reparium ao
 provedor. Se a escolha mudar, o `papeis.sql` também funciona num banco gerenciado, rodado à mão.
 
 **Nginx no lugar do Caddy.** Exigiria tirar e renovar o certificado à parte, com o Certbot. O Caddy

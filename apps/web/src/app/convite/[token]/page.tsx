@@ -6,7 +6,7 @@ import type { ConvitePublico } from "@/lib/tipos";
 import { FormularioDoConvite } from "./formulario";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Convite · Bancada" };
+export const metadata = { title: "Convite · Reparium" };
 
 type Props = { params: Promise<{ token: string }> };
 

@@ -12,7 +12,7 @@ import { Recursos } from "./recursos";
 import { Rodape } from "./rodape";
 import { WhatsAppFlutuante } from "./whatsAppFlutuante";
 
-const TITULO = "Bancada · Sistema de ordem de serviço para assistência técnica de celular";
+const TITULO = "Reparium · Sistema de ordem de serviço para assistência técnica de celular";
 
 function descricao(diasDeTeste: number): string {
   return `Organize as ordens de serviço da sua assistência e deixe o cliente acompanhar o conserto pelo celular, sem instalar nada. ${diasDeTeste} dias grátis, sem cartão de crédito.`;
@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: TITULO,
       description: descricao(dias_de_teste),
-      siteName: "Bancada",
+      siteName: "Reparium",
       locale: "pt_BR",
       type: "website",
       url: "/",
@@ -42,7 +42,7 @@ function dadosEstruturados(oferta: Oferta): string {
   const dados = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Bancada",
+    name: "Reparium",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description: descricao(oferta.dias_de_teste),

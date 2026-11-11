@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O Bancada só tinha o orçamento digitado à mão. Ele não sabia quantas peças a loja tinha, quanto elas
+O Reparium só tinha o orçamento digitado à mão. Ele não sabia quantas peças a loja tinha, quanto elas
 custavam nem quanto sobrava de cada conserto, e as capas, películas e carregadores vendidos no
 balcão ficavam fora do sistema.
 

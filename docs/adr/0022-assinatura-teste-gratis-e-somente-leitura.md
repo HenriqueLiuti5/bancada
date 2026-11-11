@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O Bancada é vendido à distância: a assistência se cadastra, testa e assina sem falar com ninguém.
+O Reparium é vendido à distância: a assistência se cadastra, testa e assina sem falar com ninguém.
 Até aqui ela se cadastrava e usava tudo de graça, sem prazo. O ADR 0006 já tinha escolhido o Asaas
 e fixado três cuidados: webhook idempotente, webhook verificado antes de qualquer processamento e
 uma máquina de estados explícita, `trial → ativa → inadimplente → suspensa → cancelada`. Esta fase
@@ -51,7 +51,7 @@ validação acontece antes de chamar o Asaas, com os dígitos verificadores, e j
 letras, que a Receita passou a emitir em julho de 2026.
 
 A assinatura é criada no Asaas com a forma de pagamento em aberto. A cada mês o dono escolhe PIX,
-boleto ou cartão na página de pagamento do próprio Asaas, e o Bancada não precisa de tela para isso.
+boleto ou cartão na página de pagamento do próprio Asaas, e o Reparium não precisa de tela para isso.
 Uma página da documentação do Asaas dizia que assinatura não aceita forma em aberto; o teste no
 Sandbox mostrou que aceita, e é o que vale.
 
@@ -64,7 +64,7 @@ reaproveitado na próxima tentativa, em vez de criar um cliente duplicado.
 
 ### Cancelar
 
-O dono cancela pela tela, depois de uma confirmação. O Bancada remove a assinatura no Asaas, cancela
+O dono cancela pela tela, depois de uma confirmação. O Reparium remove a assinatura no Asaas, cancela
 as faturas em aberto e mantém a edição liberada até o fim do período já pago — ou até o fim do teste,
 se ele cancelar durante o teste. Depois disso, a assistência fica só para consulta, com todos os
 dados guardados.
@@ -93,7 +93,7 @@ tiver token configurado.
 
 Cada evento tem um identificador, e ele é gravado numa tabela própria na mesma transação do
 processamento. Evento repetido é reconhecido e ignorado; se o processamento falhar, a transação
-inteira volta e o Asaas manda de novo. Cobrança de uma assinatura que não é do Bancada é ignorada.
+inteira volta e o Asaas manda de novo. Cobrança de uma assinatura que não é do Reparium é ignorada.
 Ao identificar a assistência, o processamento passa a valer só para ela no banco (ADR 0009).
 
 Webhook se perde: o servidor pode estar fora do ar, e o Asaas pausa a fila depois de 15 falhas
@@ -136,8 +136,8 @@ Pagamento com cartão não é cobrado sozinho todo mês, porque a forma fica em 
 fatura e paga, como faria com PIX. Se alguém pedir cobrança automática no cartão, é preciso uma tela
 de captura do cartão.
 
-Se o Asaas criar a assinatura e o Bancada falhar antes de gravá-la, a assinatura fica órfã no Asaas.
-É improvável, e aparece no painel do Asaas, mas nada no Bancada detecta isso hoje.
+Se o Asaas criar a assinatura e o Reparium falhar antes de gravá-la, a assinatura fica órfã no Asaas.
+É improvável, e aparece no painel do Asaas, mas nada no Reparium detecta isso hoje.
 
 ## Alternativas consideradas
 
@@ -145,7 +145,7 @@ Mudar a situação só pelos eventos do webhook seria mais simples de escrever e
 webhook perdido deixaria a assistência na situação errada, e o fim do teste, que não gera evento
 nenhum, precisaria de uma tarefa no horário exato.
 
-Fazer o dono escolher uma forma fixa de pagamento no Bancada permitiria cobrar o cartão
+Fazer o dono escolher uma forma fixa de pagamento no Reparium permitiria cobrar o cartão
 automaticamente, ao custo de uma tela de captura de cartão e de mais estados para tratar. Ficou para
 quando alguém pedir.
 
@@ -156,5 +156,5 @@ coisa que faz alguém nunca mais voltar.
 A trava de edição num middleware do Django pegaria todas as rotas de uma vez, mas a autenticação por
 token acontece dentro do DRF, depois do middleware: ali ainda não se sabe quem é o usuário.
 
-O link de pagamento avulso do Asaas, gerado todo mês pelo Bancada, evitaria a assinatura recorrente,
-mas colocaria no Bancada o trabalho de gerar, lembrar e conferir cada cobrança, que o Asaas já faz.
+O link de pagamento avulso do Asaas, gerado todo mês pelo Reparium, evitaria a assinatura recorrente,
+mas colocaria no Reparium o trabalho de gerar, lembrar e conferir cada cobrança, que o Asaas já faz.

@@ -8,4 +8,4 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" \
     -v senha_do_dono="$POSTGRES_OWNER_PASSWORD" \
     -v aplicacao="$POSTGRES_APP_USER" \
     -v senha_da_aplicacao="$POSTGRES_APP_PASSWORD" \
-    -f /bancada/papeis.sql
+    -f /reparium/papeis.sql

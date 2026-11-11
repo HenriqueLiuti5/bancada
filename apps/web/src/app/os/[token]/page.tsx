@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resultado = await buscarAcompanhamento(token);
 
   if (resultado.tipo !== "ok") {
-    return { title: "Acompanhamento · Bancada", robots: { index: false, follow: false } };
+    return { title: "Acompanhamento · Reparium", robots: { index: false, follow: false } };
   }
 
   const { dados } = resultado;

@@ -10,7 +10,7 @@ const CONTADOR = 'script[src="/estatisticas/contador"]';
 function paginaDaVisita(pedido: Request): string | null {
   if (!pedido.url().endsWith("/estatisticas/api/send")) return null;
   const endereco = pedido.postDataJSON()?.payload?.url;
-  return typeof endereco === "string" ? new URL(endereco, "http://bancada").pathname : null;
+  return typeof endereco === "string" ? new URL(endereco, "http://reparium").pathname : null;
 }
 
 function visitaA(page: Page, caminho: string) {

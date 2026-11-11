@@ -51,11 +51,11 @@ COPY . .
 RUN DJANGO_DEBUG=1 python manage.py collectstatic --noinput \
     && fc-cache -f \
     && rm -rf /tmp/cache \
-    && useradd --system --uid 10001 --no-create-home --home-dir /nonexistent bancada \
+    && useradd --system --uid 10001 --no-create-home --home-dir /nonexistent reparium \
     && mkdir -p /app/media \
-    && chown bancada /app/media
+    && chown reparium /app/media
 
-USER bancada
+USER reparium
 
 EXPOSE 8000
 

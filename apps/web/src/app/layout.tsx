@@ -8,7 +8,7 @@ const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakart
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_PUBLIC_URL ?? "http://localhost:3000"),
-  title: "Bancada",
+  title: "Reparium",
   description: "Ordens de serviço para assistências técnicas de celular",
 };
 

@@ -1,0 +1,139 @@
+import logging
+from datetime import timedelta
+
+from celery import shared_task
+from django.conf import settings
+from django.db import transaction
+
+from reparium.assinaturas import regras
+from reparium.assinaturas.models import Assinatura, SituacaoDaAssinatura
+from reparium.assinaturas.provedor import ErroNoProvedor
+from reparium.core.fuso import hoje_no_reparium
+from reparium.core.telefones import link_do_whatsapp
+from reparium.plataforma import exclusao
+from reparium.tenants.models import Papel, Tenant, Usuario
+from reparium.tenants.tasks import REPETIR_SE_O_ENVIO_FALHAR, enviar
+
+registrador = logging.getLogger(__name__)
+
+SEM_DESTINO = "sem destino"
+ENVIADO = "enviado"
+
+
+def mensagem_de_boas_vindas(dono: Usuario | None, conta: Usuario, assistencia: Tenant) -> str:
+    saudacao = f"Olá, {dono.nome_de_exibicao.split()[0]}!" if dono else "Olá!"
+    return (
+        f"{saudacao} Aqui é {conta.nome_de_exibicao.split()[0]}, do Reparium. "
+        f"Vi que a {assistencia.nome} se cadastrou. Posso ajudar em alguma coisa?"
+    )
+
+
+@shared_task(name="plataforma.avisar_cadastro", **REPETIR_SE_O_ENVIO_FALHAR)
+def avisar_cadastro(tenant_id: int) -> str:
+    assistencia = Tenant.objects.filter(pk=tenant_id).first()
+    contas = Usuario.objects.filter(da_plataforma=True, is_active=True).exclude(email="")
+    if assistencia is None or not contas:
+        return SEM_DESTINO
+
+    dono = assistencia.usuarios.filter(papel=Papel.DONO).order_by("date_joined").first()
+    assinatura = Assinatura.objects.filter(tenant=assistencia).first()
+
+    for conta in contas:
+        enviar(
+            conta.email,
+            f"Nova assistência no Reparium: {assistencia.nome}",
+            "plataforma/novo_cadastro.txt",
+            {
+                "assistencia": assistencia.nome,
+                "dono": dono.nome_de_exibicao if dono else "",
+                "email": dono.email if dono else "",
+                "whatsapp": assistencia.whatsapp,
+                "cadastro": assistencia.criado_em,
+                "teste_termina_em": assinatura.teste_termina_em if assinatura else None,
+                "link_do_whatsapp": link_do_whatsapp(
+                    assistencia.whatsapp, mensagem_de_boas_vindas(dono, conta, assistencia)
+                ),
+                "link_do_painel": f"{settings.APP_PUBLIC_URL}/plataforma",
+            },
+        )
+    return ENVIADO
+
+
+def avisar_a_plataforma_do_cadastro(assistencia: Tenant) -> None:
+    tenant_id = assistencia.pk
+    transaction.on_commit(lambda: avisar_cadastro.delay(tenant_id))
+
+
+def _motivo_e_saida(assinatura: Assinatura) -> tuple[str, str]:
+    if assinatura.situacao == SituacaoDaAssinatura.CANCELADA:
+        return "a assinatura foi cancelada", "assinar de novo"
+    if assinatura.contratada:
+        return "há uma mensalidade em atraso", "pagar a mensalidade atrasada"
+    return "o teste grátis terminou sem assinatura", "assinar"
+
+
+@shared_task(name="plataforma.avisar_exclusao", **REPETIR_SE_O_ENVIO_FALHAR)
+def avisar_exclusao(assinatura_id: int) -> str:
+    hoje = hoje_no_reparium()
+    assinatura = Assinatura.objects.select_related("tenant").filter(pk=assinatura_id).first()
+    desde = regras.so_para_consulta_desde(assinatura, hoje) if assinatura else None
+    dia = regras.dia_de_apagar(assinatura, hoje) if assinatura else None
+    if assinatura is None or desde is None or dia is None:
+        return SEM_DESTINO
+
+    donos = Usuario.objects.filter(
+        tenant=assinatura.tenant, papel=Papel.DONO, is_active=True
+    ).exclude(email="")
+    motivo, saida = _motivo_e_saida(assinatura)
+
+    for dono in donos:
+        enviar(
+            dono.email,
+            f"A conta da {assinatura.tenant.nome} no Reparium será apagada em {dia:%d/%m/%Y}",
+            "plataforma/aviso_de_exclusao.txt",
+            {
+                "primeiro_nome": dono.nome_de_exibicao.split()[0],
+                "assistencia": assinatura.tenant.nome,
+                "desde": desde,
+                "motivo": motivo,
+                "dia": dia,
+                "saida": saida,
+                "link": f"{settings.APP_PUBLIC_URL}/assinatura",
+            },
+        )
+    return ENVIADO if donos else SEM_DESTINO
+
+
+@shared_task(name="plataforma.apagar_contas_so_para_consulta")
+def apagar_contas_so_para_consulta() -> int:
+    hoje = hoje_no_reparium()
+    apagadas = 0
+
+    assinaturas = Assinatura.objects.select_related("tenant").filter(
+        tenant__apagada_em__isnull=True
+    )
+    for assinatura in assinaturas:
+        dia = regras.dia_de_apagar(assinatura, hoje)
+        if dia is None:
+            continue
+
+        if not regras.avisada_da_exclusao(assinatura, hoje):
+            if hoje >= dia - timedelta(days=regras.DIAS_DO_AVISO_ANTES_DE_APAGAR):
+                assinatura.aviso_de_exclusao_em = hoje
+                assinatura.save(update_fields=["aviso_de_exclusao_em", "atualizado_em"])
+                avisar_exclusao.delay(assinatura.pk)
+            continue
+
+        if hoje < dia:
+            continue
+        try:
+            exclusao.apagar_assistencia(assinatura.tenant, motivo=exclusao.SO_PARA_CONSULTA)
+        except ErroNoProvedor as erro:
+            registrador.warning("A %s fica para amanhã: %s", assinatura.tenant.nome, erro)
+            continue
+        apagadas += 1
+
+    if apagadas:
+        registrador.info("Assistências apagadas depois de 6 meses só para consulta: %s", apagadas)
+
+    return apagadas

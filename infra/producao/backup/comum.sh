@@ -36,7 +36,7 @@ configurar_destino() {
     export RCLONE_CONFIG_DESTINO_SECRET_ACCESS_KEY="${BACKUP_S3_SECRET_ACCESS_KEY:-}"
     export RCLONE_CONFIG_DESTINO_NO_CHECK_BUCKET=true
     export RCLONE_CONFIG_COFRE_TYPE=crypt
-    export RCLONE_CONFIG_COFRE_REMOTE="destino:$BACKUP_S3_BUCKET/bancada"
+    export RCLONE_CONFIG_COFRE_REMOTE="destino:$BACKUP_S3_BUCKET/reparium"
     RCLONE_CONFIG_COFRE_PASSWORD=$(printf '%s' "$BACKUP_SENHA" | rclone obscure -)
     export RCLONE_CONFIG_COFRE_PASSWORD
 }

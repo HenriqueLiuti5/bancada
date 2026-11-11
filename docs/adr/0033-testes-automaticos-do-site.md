@@ -95,7 +95,7 @@ Playwright roda em Node, abre contextos isolados, o que permitiu ver a página d
 cookies da assistência, e grava o rastro de cada passo sem serviço externo.
 
 **Testes de componentes, com a API simulada.** Testam cada peça da tela isolada. O que mais quebra no
-Bancada é a ligação entre a tela, a ação do servidor e a API, e só o navegador contra o sistema
+Reparium é a ligação entre a tela, a ação do servidor e a API, e só o navegador contra o sistema
 inteiro passa por ela.
 
 **Usar os dados de exemplo do `semear`.** Os testes dependeriam do que o comando cria e do estado em

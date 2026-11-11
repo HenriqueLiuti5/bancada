@@ -1,5 +1,5 @@
-CREATE ROLE bancada_app WITH LOGIN PASSWORD 'bancada' CREATEDB;
+CREATE ROLE reparium_app WITH LOGIN PASSWORD 'reparium' CREATEDB;
 
-ALTER SCHEMA public OWNER TO bancada_app;
+ALTER SCHEMA public OWNER TO reparium_app;
 
-GRANT ALL PRIVILEGES ON DATABASE bancada TO bancada_app;
+GRANT ALL PRIVILEGES ON DATABASE reparium TO reparium_app;

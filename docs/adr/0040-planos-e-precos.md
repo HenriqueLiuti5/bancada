@@ -2,7 +2,7 @@
 
 ## Contexto
 
-Até a fase 4T, o Bancada tinha um preço só, R$ 59,90 por mês com quantas pessoas a loja quisesse,
+Até a fase 4T, o Reparium tinha um preço só, R$ 59,90 por mês com quantas pessoas a loja quisesse,
 na variável `VALOR_DA_ASSINATURA`, que a ADR 0022 já chamava de provisória. Em outubro de 2026, os
 sistemas feitos para assistência técnica cobravam de R$ 49 a R$ 489,90 por mês, pelo número de
 pessoas e de lojas, e os mais baratos já tinham estoque e financeiro.
@@ -28,7 +28,7 @@ o uso e a troca de plano; o programa de fundadores; a página inicial e os texto
 Em 3 de novembro de 2026, depois da revisão do produto e dos concorrentes (PLANO, Revisão de 3 de
 novembro de 2026), o Henrique mudou essas decisões. Os preços passaram a R$ 49,90, R$ 89,90 e
 R$ 179,90 por mês, ou R$ 499, R$ 899 e R$ 1.799 por ano: com R$ 39,90, e R$ 29,90 para fundadores,
-o Bancada ficava abaixo do mais barato do mercado, e o InforOS só mandava WhatsApp automático a
+o Reparium ficava abaixo do mais barato do mercado, e o InforOS só mandava WhatsApp automático a
 partir de R$ 169,90. O desconto de fundador passou a 30%, o que deixa o preço de fundador perto do
 que tinha sido decidido para todos. Os limites durante o uso e a troca de plano saíram da fase e são
 feitos à mão enquanto forem poucos casos. A fase ficou com três partes: a escolha do plano ao
@@ -43,7 +43,7 @@ entram no código na parte 2; até lá, o código continua com os preços de out
 
 ### Parte 1: escolha do plano ao assinar
 
-**Catálogo no código.** Os planos ficam em `PLANOS`, em `bancada/assinaturas/planos.py`, com o
+**Catálogo no código.** Os planos ficam em `PLANOS`, em `reparium/assinaturas/planos.py`, com o
 limite de lojas e de pessoas e o preço mensal; o anual é dez mensalidades. A variável
 `VALOR_DA_ASSINATURA` saiu, e mudar um preço passa a ser mudar o código, com teste. A assinatura
 guarda o plano, o ciclo e o valor de cada cobrança, então quem já assinou continua no valor que
@@ -65,12 +65,12 @@ ele ainda corre. PIX e cartão voltam na hora. No boleto, o Asaas devolve um lin
 informa a conta, e a fatura mostra esse link. O estorno vem antes do cancelamento: se o Asaas
 recusar o cancelamento, a fatura já ficou como estornada, e a nova tentativa não devolve de novo.
 Antes de confirmar, a tela diz o que vai acontecer: o valor que volta, ou até que dia o sistema fica
-liberado. As taxas do Asaas não voltam ao Bancada.
+liberado. As taxas do Asaas não voltam ao Reparium.
 
 **O painel da plataforma.** A receita recorrente conta o anual dividido pelos 12 meses.
 
-**Um Asaas falso.** `bancada/assinaturas/asaas_falso.py` responde à parte da API do Asaas que o
-Bancada usa, guardando tudo na memória, e roda sem o Django. A CI das imagens de produção o sobe da
+**Um Asaas falso.** `reparium/assinaturas/asaas_falso.py` responde à parte da API do Asaas que o
+Reparium usa, guardando tudo na memória, e roda sem o Django. A CI das imagens de produção o sobe da
 própria imagem da API e aponta a API para ele, e os testes de navegador assinam e cancelam por ele.
 Um teste da API roda contra ele o cliente de verdade do Asaas.
 
@@ -112,7 +112,7 @@ O e-mail do fim do teste diz a faixa de preços dos planos e que o anual dá doi
 
 No desenvolvimento, a API continua falando com o sandbox do Asaas do `.env`, e o teste de navegador
 que assina pula. Para rodá-lo aqui, sobe-se o Asaas falso
-(`docker compose run -d --rm --no-deps --name asaas-falso api python -m bancada.assinaturas.asaas_falso 8010`),
+(`docker compose run -d --rm --no-deps --name asaas-falso api python -m reparium.assinaturas.asaas_falso 8010`),
 aponta-se a API para `http://asaas-falso:8010` e roda-se o Playwright com `ENDERECO_DO_ASAAS`.
 
 O `VALOR_DA_ASSINATURA` que sobrar no `.env` de cada máquina deixa de ser lido e pode ser apagado.

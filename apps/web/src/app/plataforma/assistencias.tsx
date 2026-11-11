@@ -16,15 +16,15 @@ function primeiroNome(nome: string): string {
 
 function mensagemPara(linha: LinhaDaAssistencia, quemFala: string): string {
   const saudacao = linha.dono ? `Olá, ${primeiroNome(linha.dono)}!` : "Olá!";
-  const apresentacao = `${saudacao} Aqui é ${quemFala}, do Bancada.`;
+  const apresentacao = `${saudacao} Aqui é ${quemFala}, do Reparium.`;
 
   if (linha.alerta === "sem_ordens") {
     return `${apresentacao} Vi que a ${linha.nome} se cadastrou e ainda não abriu nenhuma ordem de serviço. Posso ajudar com a primeira?`;
   }
   if (linha.alerta === "parou") {
-    return `${apresentacao} Faz alguns dias que a ${linha.nome} não abre ordem no Bancada. Aconteceu alguma coisa? Posso ajudar?`;
+    return `${apresentacao} Faz alguns dias que a ${linha.nome} não abre ordem no Reparium. Aconteceu alguma coisa? Posso ajudar?`;
   }
-  return `${apresentacao} Tudo certo com o Bancada por aí?`;
+  return `${apresentacao} Tudo certo com o Reparium por aí?`;
 }
 
 function textoDoAlerta(linha: LinhaDaAssistencia): string {

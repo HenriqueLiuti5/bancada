@@ -30,7 +30,7 @@ era o mesmo criado pela imagem do PostgreSQL a partir de `POSTGRES_USER`, e esse
 `FORCE ROW LEVEL SECURITY` ligado. As políticas existiam, estavam corretas e simplesmente não
 tinham efeito.
 
-Por isso existe agora um papel separado, `bancada_app`, sem poderes de superusuário, que é o
+Por isso existe agora um papel separado, `reparium_app`, sem poderes de superusuário, que é o
 papel que a aplicação usa para tudo: requisições, migrações e testes. Ele é dono das tabelas, e é
 para isso que serve o `FORCE`, já que sem ele o dono também passaria por cima da política.
 

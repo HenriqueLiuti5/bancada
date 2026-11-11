@@ -2,16 +2,16 @@ from django.db import transaction
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from bancada.assinaturas.views import (
+from reparium.assinaturas.views import (
     AssinarView,
     AssinaturaView,
     CancelarAssinaturaView,
     OfertaView,
     WebhookDoAsaasView,
 )
-from bancada.clientes.views import AparelhoViewSet, ClienteViewSet
-from bancada.estoque.views import ProdutoViewSet, VendaViewSet
-from bancada.financeiro.views import (
+from reparium.clientes.views import AparelhoViewSet, ClienteViewSet
+from reparium.estoque.views import ProdutoViewSet, VendaViewSet
+from reparium.financeiro.views import (
     CaixaDeHojeView,
     CaixaDoDiaView,
     ConferenciaDoCaixaViewSet,
@@ -19,28 +19,28 @@ from bancada.financeiro.views import (
     ContaAReceberViewSet,
     MovimentoDoCaixaViewSet,
 )
-from bancada.ordens.views import (
+from reparium.ordens.views import (
     FotoViewSet,
     ItemOrcamentoViewSet,
     OrdemServicoViewSet,
     PagamentoViewSet,
 )
-from bancada.ordens.views_fotos import ArquivoDaFotoView
-from bancada.ordens.views_publicas import AcompanhamentoPublicoView
-from bancada.orientacao.views import PrimeirosPassosView, TourVistoView
-from bancada.plataforma.views import (
+from reparium.ordens.views_fotos import ArquivoDaFotoView
+from reparium.ordens.views_publicas import AcompanhamentoPublicoView
+from reparium.orientacao.views import PrimeirosPassosView, TourVistoView
+from reparium.plataforma.views import (
     CustoDaPlataformaView,
     CustosDaPlataformaView,
     PainelDaPlataformaView,
 )
-from bancada.tenants.views import (
+from reparium.tenants.views import (
     AssistenciaView,
     EquipeView,
     LojasView,
     LojaView,
     UsuarioViewSet,
 )
-from bancada.tenants.views_contas import (
+from reparium.tenants.views_contas import (
     CadastroView,
     ConfirmarEmailView,
     EsqueciASenhaView,
@@ -50,12 +50,12 @@ from bancada.tenants.views_contas import (
     RedefinirASenhaView,
     ReenviarConfirmacaoView,
 )
-from bancada.tenants.views_convites import (
+from reparium.tenants.views_convites import (
     AceiteDeConviteView,
     ConvitePublicoView,
     ConviteViewSet,
 )
-from bancada.tenants.views_logo import ArquivoDaLogoView, LogoDaAssistenciaView
+from reparium.tenants.views_logo import ArquivoDaLogoView, LogoDaAssistenciaView
 
 router = DefaultRouter()
 router.register("clientes", ClienteViewSet, basename="cliente")

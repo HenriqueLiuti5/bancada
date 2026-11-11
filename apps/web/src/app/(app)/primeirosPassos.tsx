@@ -56,7 +56,7 @@ const TEXTOS: Record<string, Texto> = {
   },
   assinar: {
     icone: CreditCardIcon,
-    titulo: "Assinar o Bancada",
+    titulo: "Assinar o Reparium",
     dica: "Assinando durante o teste você não perde nenhum dia grátis: a primeira cobrança só vence quando o teste acabar.",
     acao: "Assinar",
     destino: () => "/assinatura",

@@ -46,7 +46,7 @@ function avisoDeSoConsulta(assinatura: ResumoDaAssinatura, eDono: boolean): Avis
   return {
     icone: LockSimpleIcon,
     tom: "perigo",
-    titulo: "O Bancada está só para consulta",
+    titulo: "O Reparium está só para consulta",
     texto: frases.filter(Boolean).join(" "),
     acao: eDono ? acaoDoDono(assinatura) : undefined,
   };
@@ -58,7 +58,7 @@ function avisoAoDono(assinatura: ResumoDaAssinatura): Aviso | null {
       icone: WarningCircleIcon,
       tom: "aviso",
       titulo: `A ${nomeDaCobranca(assinatura.ciclo)} venceu e ainda não foi paga`,
-      texto: `Pague até ${diaPorExtenso(assinatura.pagar_ate)} para o Bancada não ficar só para consulta.`,
+      texto: `Pague até ${diaPorExtenso(assinatura.pagar_ate)} para o Reparium não ficar só para consulta.`,
       acao: "Pagar a fatura",
     };
   }
@@ -81,7 +81,7 @@ function avisoAoDono(assinatura: ResumoDaAssinatura): Aviso | null {
       icone: ClockCountdownIcon,
       tom: "aviso",
       titulo: "A assinatura foi cancelada",
-      texto: `Você usa normalmente até ${diaPorExtenso(assinatura.acesso_ate)}; depois, o Bancada fica só para consulta.`,
+      texto: `Você usa normalmente até ${diaPorExtenso(assinatura.acesso_ate)}; depois, o Reparium fica só para consulta.`,
       acao: "Assinar de novo",
     };
   }

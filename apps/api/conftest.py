@@ -9,10 +9,10 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from PIL import Image
 
-from bancada.clientes.models import Aparelho, Cliente
-from bancada.ordens.models import OrdemServico
-from bancada.tenants import logo
-from bancada.tenants.models import Loja, Papel, Tenant, Usuario
+from reparium.clientes.models import Aparelho, Cliente
+from reparium.ordens.models import OrdemServico
+from reparium.tenants import logo
+from reparium.tenants.models import Loja, Papel, Tenant, Usuario
 
 if TYPE_CHECKING:
     from rest_framework.test import APIClient

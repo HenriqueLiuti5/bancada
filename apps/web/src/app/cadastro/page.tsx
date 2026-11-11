@@ -5,7 +5,7 @@ import { link } from "@/componentes/ui/estilos";
 import { buscarOfertaSeDisponivel, testeGratis } from "@/lib/oferta";
 import { FormularioDeCadastro } from "./formulario";
 
-export const metadata = { title: "Criar conta · Bancada" };
+export const metadata = { title: "Criar conta · Reparium" };
 
 export default async function Cadastro() {
   const oferta = await buscarOfertaSeDisponivel();

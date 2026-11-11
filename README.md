@@ -1,4 +1,4 @@
-# Bancada
+# Reparium
 
 Service order SaaS for phone repair shops. The shop registers the device and the fault; the end
 customer follows the repair through a public link, without creating an account.
@@ -21,7 +21,7 @@ request, the owner gets a copy of the shop's data as spreadsheets with the
 photos, and the account is deleted; an account left read-only for six months in a row is deleted
 on its own, with an email to the owner 30 days before. Payment records stay, without the shop's
 name, for the tax authorities. Visits to the public pages and sign-ups are counted with Umami, on
-Bancada's own server, without cookies and without storing IP addresses; nothing inside the system
+Reparium's own server, without cookies and without storing IP addresses; nothing inside the system
 or on the customers' tracking page is counted. Phase 4T, plans and prices, is done: three plans
 with every feature, priced by the size of the shop (Solo R$ 49.90, Equipe R$ 89.90 and Rede
 R$ 179.90 a month), paid monthly or yearly with two months free. The subscription screen suggests
@@ -29,8 +29,10 @@ the cheapest one that fits the shop's people and stores. The first 15 subscripti
 price, 30% lower, for as long as the subscription lasts, and the home page shows the three plans
 and the founder spots left. A yearly plan cancelled within 7 days of paying is refunded in full
 through Asaas. Limits while the shop is in use are handled by hand: the platform dashboard flags
-shops that outgrew their plan, and a command changes the plan in Bancada and in Asaas. Browser
-tests subscribe and cancel against a fake Asaas in CI. Next comes publishing (4F); after it come
+shops that outgrew their plan, and a command changes the plan in Reparium and in Asaas. Browser
+tests subscribe and cancel against a fake Asaas in CI. On November 11, 2026, the product was renamed
+from Bancada to Reparium, with the reparium.com.br domain, and the repository went with it.
+Next comes publishing (4F); after it come
 the first ten shops, with an intake checklist,
 thermal printing and quote approval through the tracking link (Phase 5), automatic WhatsApp
 notices (Phase 6) and referrals and partners (Phase 7); see the [project plan](docs/PLANO.md). The shop opens the order at the counter, looking up the customer by name or phone or registering
@@ -65,7 +67,7 @@ The list shows each order's deadline — today, tomorrow, the date or how many d
 can be searched by customer, device, IMEI, phone or order number; the filters live in the URL.
 
 Whoever opens the main address without being signed in lands on the landing page, which explains
-what Bancada does and leads to the free trial. It shows real screenshots of the system inside a
+what Reparium does and leads to the free trial. It shows real screenshots of the system inside a
 phone and a laptop drawn without any brand: up top, the dashboard with the money that came in and
 the profit, in green, next to the page the customer receives. It presents each feature as a problem
 the shop recognizes, stock with counter sales and the shop's finances among them, lists the three
@@ -92,10 +94,10 @@ their CPF or CNPJ (Brazilian individual or company tax ID): the monthly charge i
 and the first payment is due on the last day of the trial, so no free day is lost. Each month the
 owner pays by PIX, boleto or card on the Asaas payment page, and can cancel from the same screen.
 Shops that do not subscribe, are more than 7 days late on a payment or cancel can still sign in and
-see everything, but Bancada becomes read-only until the subscription is back in good standing. Data
+see everything, but Reparium becomes read-only until the subscription is back in good standing. Data
 is never deleted.
 
-Outside the shops there is the platform account, the one belonging to whoever runs Bancada. It
+Outside the shops there is the platform account, the one belonging to whoever runs Reparium. It
 signs in through the same login screen and lands on a dashboard of its own: the month's profit,
 with what subscriptions paid, the Asaas fees and costs entered by hand; recurring revenue, trial
 conversion, new subscriptions and cancellations; sign-ups per week and revenue month by month; and
@@ -234,8 +236,8 @@ the email the customer receives when collecting the device.
 Prerequisites: Docker with the Compose plugin, Git and `make`.
 
 ```bash
-git clone https://github.com/HenriqueLiuti5/bancada.git
-cd bancada
+git clone https://github.com/HenriqueLiuti5/reparium.git
+cd reparium
 make setup
 make up
 make semear
@@ -247,14 +249,14 @@ own** and it is never committed. Data written with one key cannot be read with a
 
 `make semear` creates a sample shop with customers, devices, two service orders and a demo photo
 on each. Running it again duplicates nothing and renews the sample shop's free trial. The demo
-users share the password `bancada123` and exist for local use only:
+users share the password `reparium123` and exist for local use only:
 
 | Sign-in email | Role |
 |---|---|
 | `marcos@central.test` | owner — sees everything, including the team and shop details |
 | `joana@central.test` | technician — sees the unlock code and deletes photos |
 | `carla@central.test` | front desk — opens orders, does not see the code or delete |
-| `plataforma@bancada.local` | platform account — sees the dashboard with numbers from every shop |
+| `plataforma@reparium.local` | platform account — sees the dashboard with numbers from every shop |
 | `admin` (username, not email) | superuser of the Django admin |
 
 To give the screens something to show, `make semear-movimento` creates six months of movement in
@@ -300,7 +302,7 @@ Then `make up`. Without the key, the rest of the system works normally; only the
 replies that billing is not configured.
 
 To test a payment, subscribe on the Assinatura (Subscription) screen, open the charge in the
-Sandbox dashboard and confirm it as received in cash. Bancada learns about the payment in two
+Sandbox dashboard and confirm it as received in cash. Reparium learns about the payment in two
 ways: through the notification Asaas sends (webhook), which only reaches a public address, and
 through an hourly check against Asaas. Locally, to avoid waiting for the top of the hour, run
 `make sincronizar-cobrancas`.
@@ -319,9 +321,9 @@ Available services:
 
 | Address | What it is |
 |---|---|
-| http://localhost:3000 | Landing page when signed out; web app after signing in (`marcos@central.test` / `bancada123`) |
+| http://localhost:3000 | Landing page when signed out; web app after signing in (`marcos@central.test` / `reparium123`) |
 | http://localhost:3000/demonstracao | Demo of the page the end customer sees |
-| http://localhost:3000/plataforma | Platform dashboard (sign in with `plataforma@bancada.local` / `bancada123`) |
+| http://localhost:3000/plataforma | Platform dashboard (sign in with `plataforma@reparium.local` / `reparium123`) |
 | http://localhost:8000/api/health/ | API health check |
 | http://localhost:8000/admin/ | Django admin |
 | http://localhost:3000/os/`token` | Public tracking page (the token appears on the order detail) |
@@ -336,7 +338,7 @@ network.
 
 ## Production
 
-`infra/producao/` puts Bancada on a single Linux server with Docker: Caddy in front, with automatic
+`infra/producao/` puts Reparium on a single Linux server with Docker: Caddy in front, with automatic
 HTTPS, then the Next server, the API on gunicorn, the Celery worker and scheduler, PostgreSQL, Redis
 and a backup service. Only ports 80 and 443 are open to the internet; the Django admin is reached
 through an SSH tunnel. The step-by-step guide, in Portuguese, is in

@@ -1,4 +1,4 @@
-# Produção do Bancada num servidor só. O passo a passo está em infra/producao/README.md.
+# Produção do Reparium num servidor só. O passo a passo está em infra/producao/README.md.
 #
 # Só o proxy recebe conexões da internet, nas portas 80 e 443. Site, API, bancos, Redis e Umami
 # ficam na rede interna, e as portas da API e do Umami respondem apenas no próprio servidor, para
@@ -7,19 +7,19 @@
 # Os segredos vêm do arquivo .env desta pasta, e cada serviço recebe só os que usa: a aplicação
 # nunca vê a senha do dono das tabelas nem a do superusuário do banco.
 
-name: bancada-producao
+name: reparium-producao
 
 x-ambiente-da-api: &ambiente-da-api
-  POSTGRES_DB: ${POSTGRES_DB:-bancada}
+  POSTGRES_DB: ${POSTGRES_DB:-reparium}
   POSTGRES_HOST: db
   POSTGRES_PORT: "5432"
-  POSTGRES_APP_USER: ${POSTGRES_APP_USER:-bancada_app}
+  POSTGRES_APP_USER: ${POSTGRES_APP_USER:-reparium_app}
   POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?Defina POSTGRES_APP_PASSWORD no .env}
   REDIS_URL: redis://redis:6379/0
   DJANGO_DEBUG: "0"
   DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Defina DJANGO_SECRET_KEY no .env}
   DJANGO_ALLOWED_HOSTS: api,localhost,127.0.0.1
-  BANCADA_ENCRYPTION_KEY: ${BANCADA_ENCRYPTION_KEY:?Defina BANCADA_ENCRYPTION_KEY no .env}
+  REPARIUM_ENCRYPTION_KEY: ${REPARIUM_ENCRYPTION_KEY:?Defina REPARIUM_ENCRYPTION_KEY no .env}
   APP_PUBLIC_URL: https://${DOMINIO:?Defina DOMINIO no .env}
   ASAAS_API_URL: ${ASAAS_API_URL:-https://api.asaas.com/v3}
   ASAAS_API_KEY: ${ASAAS_API_KEY:-}
@@ -41,7 +41,7 @@ x-ambiente-da-api: &ambiente-da-api
   SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-producao}
 
 x-api: &api
-  image: ${IMAGEM_DA_API:-bancada-api:producao}
+  image: ${IMAGEM_DA_API:-reparium-api:producao}
   build:
     context: ../../apps/api
     target: producao
@@ -77,7 +77,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ${IMAGEM_DO_WEB:-bancada-web:producao}
+    image: ${IMAGEM_DO_WEB:-reparium-web:producao}
     build:
       context: ../../apps/web
       target: producao
@@ -106,7 +106,7 @@ services:
     <<: *api
     environment:
       <<: *ambiente-da-api
-      POSTGRES_APP_USER: ${POSTGRES_OWNER_USER:-bancada_dono}
+      POSTGRES_APP_USER: ${POSTGRES_OWNER_USER:-reparium_dono}
       POSTGRES_APP_PASSWORD: ${POSTGRES_OWNER_PASSWORD:?Defina POSTGRES_OWNER_PASSWORD no .env}
     command: python manage.py migrate --noinput
     depends_on:
@@ -143,17 +143,17 @@ services:
   db:
     image: pgvector/pgvector:pg17
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-bancada}
+      POSTGRES_DB: ${POSTGRES_DB:-reparium}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
-      POSTGRES_OWNER_USER: ${POSTGRES_OWNER_USER:-bancada_dono}
+      POSTGRES_OWNER_USER: ${POSTGRES_OWNER_USER:-reparium_dono}
       POSTGRES_OWNER_PASSWORD: ${POSTGRES_OWNER_PASSWORD}
-      POSTGRES_APP_USER: ${POSTGRES_APP_USER:-bancada_app}
+      POSTGRES_APP_USER: ${POSTGRES_APP_USER:-reparium_app}
       POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD}
     volumes:
       - banco:/var/lib/postgresql/data
       - ./postgres/criar-papeis.sh:/docker-entrypoint-initdb.d/criar-papeis.sh:ro
-      - ./postgres/papeis.sql:/bancada/papeis.sql:ro
+      - ./postgres/papeis.sql:/reparium/papeis.sql:ro
     shm_size: 256mb
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
@@ -218,7 +218,7 @@ services:
     build: ./backup
     environment:
       PGHOST: db
-      PGDATABASE: ${POSTGRES_DB:-bancada}
+      PGDATABASE: ${POSTGRES_DB:-reparium}
       PGUSER: ${POSTGRES_USER:-postgres}
       PGPASSWORD: ${POSTGRES_PASSWORD}
       TZ: America/Sao_Paulo

@@ -1,8 +1,8 @@
 -- Papéis do banco em produção (ADR 0032). Roda uma vez, quando o banco é criado, pelo
 -- criar-papeis.sh. Num banco gerenciado, rode este arquivo com o psql, informando as variáveis:
 --
---   psql -v banco=bancada -v dono=bancada_dono -v senha_do_dono=... \
---        -v aplicacao=bancada_app -v senha_da_aplicacao=... -f papeis.sql
+--   psql -v banco=reparium -v dono=reparium_dono -v senha_do_dono=... \
+--        -v aplicacao=reparium_app -v senha_da_aplicacao=... -f papeis.sql
 --
 -- O dono é dono das tabelas e roda as migrações. A aplicação (API, worker e agendador) só lê e
 -- grava: não cria nem altera tabelas, não desliga o isolamento entre assistências (RLS) e não

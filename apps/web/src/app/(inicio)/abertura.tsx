@@ -49,7 +49,7 @@ export function Abertura({ diasDeTeste }: { diasDeTeste: number }) {
         <div className="relative mx-auto mt-14 max-w-5xl sm:mt-16 lg:mt-20">
           <TelaDoComputador
             imagem={telaDoPainel}
-            descricao="Painel do Bancada com o dinheiro recebido no período, as formas de pagamento, o lucro depois das peças e das contas e o lucro de cada mês"
+            descricao="Painel do Reparium com o dinheiro recebido no período, as formas de pagamento, o lucro depois das peças e das contas e o lucro de cada mês"
             tamanhos="(min-width: 1088px) 846px, 78vw"
             antecipar
             className="hidden md:block"

@@ -97,4 +97,4 @@ A logo vai embutida na mensagem, e não como link para o site, para aparecer mes
 bloqueiam imagens externas. Isso pede uma mensagem em partes aninhadas: o texto e o HTML como
 versões alternativas, e o HTML agrupado com a imagem que ele cita; quando o recibo vai anexado,
 tudo isso entra numa parte externa junto com o anexo. O Django não monta essa estrutura sozinho, e
-por isso ela sai de uma classe própria, `EmailComImagens`, em `bancada/avisos/mensagem.py`.
+por isso ela sai de uma classe própria, `EmailComImagens`, em `reparium/avisos/mensagem.py`.

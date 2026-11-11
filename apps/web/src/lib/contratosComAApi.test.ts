@@ -11,13 +11,13 @@ import type { Opcao } from "@/lib/tipos";
 // Valores que o site e a API repetem, cada um no seu código, e que precisam mudar juntos.
 
 function codigoDaApi(caminho: string): string {
-  const arquivo = new URL(`../../../api/bancada/${caminho}`, import.meta.url);
+  const arquivo = new URL(`../../../api/reparium/${caminho}`, import.meta.url);
   return readFileSync(arquivo, "utf-8").replaceAll("\r\n", "\n");
 }
 
 function dddsDaApi(): number[] {
   const bloco = /^DDDS_DO_BRASIL = frozenset\(\n([\s\S]+?)\n\)$/m.exec(codigoDaApi("core/telefones.py"))?.[1];
-  if (!bloco) throw new Error("DDDS_DO_BRASIL não aparece em apps/api/bancada/core/telefones.py");
+  if (!bloco) throw new Error("DDDS_DO_BRASIL não aparece em apps/api/reparium/core/telefones.py");
 
   const ddds: number[] = [];
   for (const [, de, ate] of bloco.matchAll(/range\((\d+), (\d+)\)/g)) {
@@ -39,7 +39,7 @@ function escolhasDaApi(caminho: string, classe: string): [string, string][] {
   const bloco = new RegExp(`^class ${classe}\\(models\\.TextChoices\\):\\n((?: {4}.+\\n)+)`, "m").exec(
     codigoDaApi(caminho),
   )?.[1];
-  if (!bloco) throw new Error(`${classe} não aparece em apps/api/bancada/${caminho}`);
+  if (!bloco) throw new Error(`${classe} não aparece em apps/api/reparium/${caminho}`);
 
   return [...bloco.matchAll(/^ {4}\w+ = "([^"]+)", "([^"]+)"$/gm)].map(([, valor, rotulo]) => [valor, rotulo]);
 }
@@ -56,13 +56,13 @@ function comoNaApi(opcoes: Opcao[]): [string, string][] {
 
 function toursDaApi(): string[] {
   const lista = /^TOURS = \[([^\]]+)\]$/m.exec(codigoDaApi("orientacao/serializers.py"))?.[1];
-  if (!lista) throw new Error("TOURS não aparece em apps/api/bancada/orientacao/serializers.py");
+  if (!lista) throw new Error("TOURS não aparece em apps/api/reparium/orientacao/serializers.py");
   return [...lista.matchAll(/"([^"]+)"/g)].map(([, nome]) => nome).sort();
 }
 
 function valorNaApi(caminho: string, padrao: RegExp): string {
   const encontrado = padrao.exec(codigoDaApi(caminho));
-  if (!encontrado) throw new Error(`${padrao} não aparece em apps/api/bancada/${caminho}`);
+  if (!encontrado) throw new Error(`${padrao} não aparece em apps/api/reparium/${caminho}`);
   return encontrado[1];
 }
 

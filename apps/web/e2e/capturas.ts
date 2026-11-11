@@ -9,7 +9,7 @@ const PASTA = path.join(__dirname, "..", "src", "app", "(inicio)", "telas");
 async function entrarComoDono(page: Page): Promise<void> {
   await page.goto("/login");
   await page.getByLabel("E-mail").fill("marcos@central.test");
-  await page.getByLabel("Senha").fill("bancada123");
+  await page.getByLabel("Senha").fill("reparium123");
   // Pelo Enter, e não pelo clique, para o ponteiro não ficar sobre a tela capturada.
   await page.getByLabel("Senha").press("Enter");
   await expect(page).toHaveURL(/\/ordens$/);

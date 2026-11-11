@@ -11,7 +11,7 @@ export const PAGINAS_CONTADAS = ["/", "/demonstracao", "/cadastro", "/login", "/
 export function paginaContada(endereco: unknown): boolean {
   if (typeof endereco !== "string") return false;
   try {
-    return PAGINAS_CONTADAS.includes(new URL(endereco, "http://bancada").pathname);
+    return PAGINAS_CONTADAS.includes(new URL(endereco, "http://reparium").pathname);
   } catch {
     return false;
   }

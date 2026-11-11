@@ -23,7 +23,7 @@ function perguntasFrequentes(diasDeTeste: number) {
     {
       pergunta: "O que acontece se eu não assinar?",
       resposta:
-        "O Bancada fica só para consulta: você entra e vê tudo, mas não abre nem altera ordens, e assinando você volta a usar normalmente. Se a conta passar 6 meses assim, ela é apagada, com um aviso por e-mail 30 dias antes.",
+        "O Reparium fica só para consulta: você entra e vê tudo, mas não abre nem altera ordens, e assinando você volta a usar normalmente. Se a conta passar 6 meses assim, ela é apagada, com um aviso por e-mail 30 dias antes.",
     },
     {
       pergunta: "Meu cliente precisa baixar aplicativo ou criar conta?",
@@ -33,7 +33,7 @@ function perguntasFrequentes(diasDeTeste: number) {
     {
       pergunta: "Preciso instalar alguma coisa?",
       resposta:
-        "Não. O Bancada funciona no navegador do computador, do tablet e do celular. No celular, o menu fica numa barra embaixo da tela, como num aplicativo.",
+        "Não. O Reparium funciona no navegador do computador, do tablet e do celular. No celular, o menu fica numa barra embaixo da tela, como num aplicativo.",
     },
     {
       pergunta: "Quantas pessoas podem usar?",
@@ -43,7 +43,7 @@ function perguntasFrequentes(diasDeTeste: number) {
     {
       pergunta: "Meus dados e os dos meus clientes ficam seguros?",
       resposta: [
-        "Sim. Cada assistência só vê as próprias ordens e os próprios clientes. As outras lojas que usam o Bancada não têm como ver os seus dados.",
+        "Sim. Cada assistência só vê as próprias ordens e os próprios clientes. As outras lojas que usam o Reparium não têm como ver os seus dados.",
         "A senha de desbloqueio do aparelho fica guardada embaralhada. Só o dono e os técnicos conseguem ver, o sistema anota quem viu e quando, e ela se apaga sozinha 7 dias depois da entrega.",
         "As fotos do aparelho não ficam soltas na internet. O link de cada foto só funciona por 15 minutos: se alguém repassar o link, depois disso ele não abre mais.",
       ],
@@ -52,7 +52,7 @@ function perguntasFrequentes(diasDeTeste: number) {
       pergunta: "Como eu pago e como cancelo?",
       resposta: [
         "No plano mensal chega uma fatura no seu e-mail todo mês, e no anual uma vez por ano, sempre com PIX, boleto ou cartão de crédito.",
-        "Quem manda a fatura é o Asaas, a empresa que cuida da cobrança do Bancada, do mesmo jeito que a maquininha cuida dos pagamentos no seu balcão.",
+        "Quem manda a fatura é o Asaas, a empresa que cuida da cobrança do Reparium, do mesmo jeito que a maquininha cuida dos pagamentos no seu balcão.",
         "Para cancelar, é só apertar um botão na tela Assinatura. Não tem multa nem fidelidade, e você continua usando até o fim do período que já pagou.",
       ],
     },
@@ -80,7 +80,7 @@ export function Perguntas({ diasDeTeste, whatsapp }: Props) {
             sobretitulo="Dúvidas"
             titulo="Perguntas frequentes"
             descricao={
-              whatsapp ? "Não achou o que procurava? Fale direto com quem faz o Bancada." : undefined
+              whatsapp ? "Não achou o que procurava? Fale direto com quem faz o Reparium." : undefined
             }
           />
           {whatsapp && (

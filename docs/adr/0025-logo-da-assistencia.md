@@ -5,7 +5,7 @@
 A ordem de serviço chega ao cliente final por quatro caminhos: o e-mail automático de cada etapa
 (ADR 0011), o link que a loja manda pelo WhatsApp, a página de acompanhamento que esse link abre
 (ADR 0008) e os papéis em PDF, o comprovante de entrada e o recibo de entrega (ADR 0012). Em todos
-eles a assistência aparecia só pelo nome, em texto. O Bancada não guardava nenhuma imagem dela.
+eles a assistência aparecia só pelo nome, em texto. O Reparium não guardava nenhuma imagem dela.
 
 O pedido foi que a assistência possa colocar a logo da empresa, para que a logo e o nome da loja
 apareçam quando a ordem chegar ao cliente. É o que faz o link parecer da loja onde ele deixou o
@@ -100,7 +100,7 @@ loja ao lado. Se alguma rede precisar de uma logo por filial, o campo passa do `
 `Loja`.
 
 **Logo também na barra lateral do sistema.** Não foi pedido, e a barra lateral é o lugar da marca do
-Bancada.
+Reparium.
 
 **Mostrar sempre o nome da loja.** Descartado pelo motivo acima: "Matriz" não acrescenta nada para
 quem tem uma loja só.

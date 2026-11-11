@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O dado mais perigoso que o Bancada guarda não é o CPF nem o IMEI: é a senha ou o padrão de
+O dado mais perigoso que o Reparium guarda não é o CPF nem o IMEI: é a senha ou o padrão de
 desbloqueio do aparelho. Com ela se abre a vida inteira de uma pessoa — banco, e-mail, fotos,
 conversas. O plano do projeto já exigia três coisas desde a primeira linha de código, e duas
 estavam feitas: o campo é criptografado em nível de campo (Fase 1A) e só usuários com papel

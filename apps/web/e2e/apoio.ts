@@ -35,7 +35,7 @@ export function donoNovo(): Dono {
     assistencia: `Assistência Teste ${codigo}`,
     nome: "Paula Teste",
     email: `paula-${codigo}@exemplo.test`,
-    senha: `Bancada-${codigo}!`,
+    senha: `Reparium-${codigo}!`,
   };
 }
 

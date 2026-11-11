@@ -4,7 +4,7 @@
 
 Os termos de uso e a política de privacidade eram o rascunho da ADR 0032, escrito antes do estoque,
 das vendas no balcão, do financeiro e das lojas. O que dependia de decisão estava entre colchetes:
-quem oferece o Bancada, o contato, o horário do suporte, a devolução no cancelamento, o limite da
+quem oferece o Reparium, o contato, o horário do suporte, a devolução no cancelamento, o limite da
 responsabilidade, o prazo para apagar as contas e a guarda dos registros de acesso. A ADR 0032
 previa que um advogado revisasse os textos.
 
@@ -15,7 +15,7 @@ havia medição de visitas.
 No começo da fase, em 28 de outubro de 2026, o Henrique decidiu:
 
 - Os dois textos são escritos de novo, para o sistema de hoje, em vez de completar o rascunho.
-- O e-mail de contato é o dele, henrique.liuti5@gmail.com, até o domínio do Bancada ser registrado.
+- O e-mail de contato é o dele, henrique.liuti5@gmail.com, até o domínio do Reparium ser registrado.
 - Não há devolução do valor proporcional do mês em andamento no cancelamento.
 - Os registros de acesso ficam guardados por 6 meses, como pede o Marco Civil da Internet.
 - Os textos não passam por advogado.
@@ -45,7 +45,7 @@ o operador guardar os dados depois do fim do serviço sem motivo (art. 15 e 16).
 continua nas cópias de segurança por até 30 dias (ADR 0029), e os registros das cobranças ficam,
 pela lei fiscal. A parte 2 põe esses prazos em prática.
 
-**Responsabilidade.** O Bancada não responde por prejuízos indiretos, e a indenização fica limitada
+**Responsabilidade.** O Reparium não responde por prejuízos indiretos, e a indenização fica limitada
 ao que a assistência pagou nos 12 meses anteriores ao problema, menos quando a lei não permite o
 limite.
 
@@ -68,7 +68,7 @@ a conta existir.
 
 ### Parte 2: cópia e exclusão das contas
 
-**Exclusão.** `apagar_assistencia`, em `bancada/plataforma/exclusao.py`, cancela no Asaas a
+**Exclusão.** `apagar_assistencia`, em `reparium/plataforma/exclusao.py`, cancela no Asaas a
 assinatura que ainda cobra, como o botão de cancelar, e apaga a assistência. As ordens e os
 movimentos do estoque saem antes, porque a ordem protege a loja, o cliente e o aparelho, e o
 estoque guarda de que ordem saiu cada peça. O resto vai na cascata da própria assistência, então
@@ -134,7 +134,7 @@ ser rastreado vale. A política de privacidade ganhou a seção Medição de vis
 
 ## Consequências
 
-O Bancada ainda não está no ar, então nenhuma assistência real aceitou os rascunhos. As assistências
+O Reparium ainda não está no ar, então nenhuma assistência real aceitou os rascunhos. As assistências
 dos bancos de desenvolvimento guardam `2026-10-rascunho`, sem efeito. Por isso a troca da versão não
 pede um novo aceite, como a ADR 0018 previa.
 
@@ -199,7 +199,7 @@ pedidos chegam pelo suporte de qualquer jeito.
 Mandar o Caddy direto ao Umami nos dois endereços do contador: o Umami ficaria na internet, e o
 teste de navegador, que roda sem o Caddy, não passaria por esse caminho.
 
-Pôr o Umami no banco do Bancada: mudaria os papéis do banco (ADR 0032) e misturaria as estatísticas
+Pôr o Umami no banco do Reparium: mudaria os papéis do banco (ADR 0032) e misturaria as estatísticas
 com as tabelas protegidas pelo isolamento entre assistências.
 
 Contar o cadastro no navegador: depois de criar a conta, a server action leva a pessoa para dentro

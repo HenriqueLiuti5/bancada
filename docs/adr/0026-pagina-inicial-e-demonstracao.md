@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O Bancada é vendido à distância (Fase 4): a assistência recebe uma mensagem com um link, entende o
+O Reparium é vendido à distância (Fase 4): a assistência recebe uma mensagem com um link, entende o
 que é o sistema, se cadastra e testa sozinha. Até aqui esse link não tinha para onde apontar. O
 endereço principal só redirecionava para a lista de ordens, e quem não tinha conta caía direto na
 tela de login, sem saber o que estava olhando.
@@ -10,7 +10,7 @@ tela de login, sem saber o que estava olhando.
 A lista da 4F previa uma "página inicial com o botão Testar grátis". Ela virou uma fase própria, a
 4H, que vem antes da publicação, como a 4G. A referência foi a página da Inforos, outro sistema de
 ordem de serviço: não a aparência, mas as técnicas que ela usa para convencer quem chega. A
-aparência segue a identidade do Bancada (ADR 0024).
+aparência segue a identidade do Reparium (ADR 0024).
 
 ## Decisão
 
@@ -40,7 +40,7 @@ de prévia do link. O grupo não aparece no endereço.
   (`WHATSAPP_DO_SUPORTE`). Sem o número configurado, os botões de WhatsApp não aparecem.
 
 **Prova social sem invenção.** A Inforos mostra números de clientes e depoimentos em vídeo. O
-Bancada ainda não tem clientes, e inventar números ou depoimentos seria propaganda enganosa, além
+Reparium ainda não tem clientes, e inventar números ou depoimentos seria propaganda enganosa, além
 de derrubar a confiança de quem percebesse. No lugar disso, a página mostra o próprio produto: telas
 reais do sistema e uma demonstração da página do cliente que o visitante abre no celular. A seção de
 depoimentos entra quando houver clientes reais e eles autorizarem.

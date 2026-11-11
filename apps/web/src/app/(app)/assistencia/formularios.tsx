@@ -109,7 +109,7 @@ export function FormularioDaAssistencia({ assistencia }: { assistencia: Assisten
           name="whatsapp"
           erro={erros.whatsapp}
           valorInicial={valores.whatsapp}
-          dica="É por ele que a equipe do Bancada fala com você."
+          dica="É por ele que a equipe do Reparium fala com você."
           obrigatorio
         />
         {/* O React limpa o formulário depois de cada envio e só lê o defaultValue de um select

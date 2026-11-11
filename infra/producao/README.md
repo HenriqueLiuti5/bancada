@@ -1,6 +1,6 @@
-# Bancada em produção
+# Reparium em produção
 
-Esta pasta põe o Bancada no ar num servidor Linux com Docker. Tudo roda num servidor só, descrito
+Esta pasta põe o Reparium no ar num servidor Linux com Docker. Tudo roda num servidor só, descrito
 em `compose.yml`:
 
 ```
@@ -12,14 +12,14 @@ internet ──► proxy (Caddy, portas 80 e 443, HTTPS automático)
 Só o proxy fica aberto para a internet. A API responde apenas dentro do próprio servidor, e o painel
 administrativo é aberto por um túnel SSH. As decisões estão na ADR 0032.
 
-Todos os comandos abaixo rodam **no servidor**, dentro desta pasta (`bancada/infra/producao`),
+Todos os comandos abaixo rodam **no servidor**, dentro desta pasta (`reparium/infra/producao`),
 depois de entrar nele por SSH.
 
 ## Antes de começar
 
 Precisa estar decidido e contratado:
 
-- **Domínio**, como `bancada.com.br`, com acesso ao painel de DNS.
+- **Domínio**, como `reparium.com.br`, com acesso ao painel de DNS.
 - **Servidor** Linux (Ubuntu 24.04 ou mais novo), com pelo menos 2 processadores, 4 GB de memória
   e 40 GB de disco.
 - **E-mail** por um provedor que envie por SMTP, com o domínio verificado nele.
@@ -34,8 +34,8 @@ Instale o Docker e baixe o projeto:
 
 ```bash
 curl -fsSL https://get.docker.com | sh
-git clone https://github.com/HenriqueLiuti5/bancada.git
-cd bancada/infra/producao
+git clone https://github.com/HenriqueLiuti5/reparium.git
+cd reparium/infra/producao
 ```
 
 No painel de DNS do domínio, crie um registro do tipo **A** apontando o domínio para o endereço IP
@@ -55,7 +55,7 @@ do Asaas, o e-mail, o destino do backup (`BACKUP_S3_*`) e o WhatsApp do suporte.
 Ctrl+O, Enter, Ctrl+X.
 
 **Guarde uma cópia do `.env` num gerenciador de senhas**, fora do servidor. Ela é a única forma de
-recuperar o sistema se o servidor for perdido: sem a `BANCADA_ENCRYPTION_KEY`, as senhas de
+recuperar o sistema se o servidor for perdido: sem a `REPARIUM_ENCRYPTION_KEY`, as senhas de
 desbloqueio do backup ficam ilegíveis, e sem a `BACKUP_SENHA`, o backup externo não abre.
 
 ## 3. Subir
@@ -105,8 +105,8 @@ O banco tem três papéis, criados na primeira subida por `postgres/papeis.sql`:
 | Papel | Para quê |
 |---|---|
 | `postgres` | superusuário: cria o banco e faz o backup |
-| `bancada_dono` | dono das tabelas: roda as migrações |
-| `bancada_app` | API, worker e agendador: só lê e grava |
+| `reparium_dono` | dono das tabelas: roda as migrações |
+| `reparium_app` | API, worker e agendador: só lê e grava |
 
 A API confere o papel antes de subir e não sobe se ele for dono das tabelas, superusuário ou puder
 criar bancos, porque com qualquer um deles o isolamento entre assistências deixaria de valer.
@@ -119,7 +119,7 @@ próprio servidor, num banco só dele, e o painel responde só no servidor. Na p
 1. crie um túnel SSH **no seu computador**: `ssh -L 3001:127.0.0.1:3001 usuario@endereco-do-servidor`;
 2. entre em http://localhost:3001 com o usuário `admin` e a senha `umami`, e **troque a senha na
    hora**, em Settings → Profile (o painel abre em inglês);
-3. em Settings → Websites, adicione o site, com o nome Bancada e o `DOMINIO` do `.env`;
+3. em Settings → Websites, adicione o site, com o nome Reparium e o `DOMINIO` do `.env`;
 4. copie o ID do site para o `UMAMI_ID_DO_SITE` do `.env` e rode `docker compose up -d web`.
 
 Sem o `UMAMI_ID_DO_SITE`, o site não conta nada. Para ver os números, abra o túnel e o painel do
@@ -211,7 +211,7 @@ cópia, apague antes o banco atual. **Isto apaga todos os dados que não estão 
 
 ```bash
 docker compose down
-docker volume rm bancada-producao_banco
+docker volume rm reparium-producao_banco
 ```
 
 ## Monitoramento

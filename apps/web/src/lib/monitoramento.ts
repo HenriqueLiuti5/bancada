@@ -93,7 +93,7 @@ export async function avisarDoErro(
       method: "POST",
       headers: {
         "Content-Type": "application/x-sentry-envelope",
-        "X-Sentry-Auth": `Sentry sentry_version=7, sentry_key=${destino.chave}, sentry_client=bancada-web/1.0`,
+        "X-Sentry-Auth": `Sentry sentry_version=7, sentry_key=${destino.chave}, sentry_client=reparium-web/1.0`,
       },
       body: montarEnvelope(erro, rota, etiquetas),
       signal: AbortSignal.timeout(CINCO_SEGUNDOS),

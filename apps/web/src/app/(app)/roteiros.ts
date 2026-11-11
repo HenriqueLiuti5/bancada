@@ -24,7 +24,7 @@ const DONO_E_TECNICO = ["dono", "tecnico"];
 export const ROTEIROS: Record<NomeDoTour, Parada[]> = {
   ordens: [
     {
-      titulo: "Boas-vindas ao Bancada",
+      titulo: "Boas-vindas ao Reparium",
       texto:
         "Esta é a lista de ordens de serviço, a tela principal do sistema. Em poucos passos mostramos o que cada parte faz. Para pular, feche no × ou aperte Esc.",
     },

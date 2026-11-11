@@ -1,11 +1,11 @@
 import { QUALIDADE_DAS_CAPTURAS } from "../src/lib/capturas";
-import { EMAIL_DE_CONTATO, RESPONSAVEL_PELO_BANCADA, VERSAO_DOS_TEXTOS_LEGAIS } from "../src/lib/textosLegais";
+import { EMAIL_DE_CONTATO, RESPONSAVEL_PELO_REPARIUM, VERSAO_DOS_TEXTOS_LEGAIS } from "../src/lib/textosLegais";
 import { expect, test } from "./apoio";
 
 const PAGINAS = [
   { caminho: "/", titulo: "Sua assistência organizada, do balcão à entrega" },
   { caminho: "/cadastro", titulo: "Crie a conta da sua assistência" },
-  { caminho: "/login", titulo: "Entrar no Bancada" },
+  { caminho: "/login", titulo: "Entrar no Reparium" },
   { caminho: "/termos", titulo: "Termos de uso" },
   { caminho: "/privacidade", titulo: "Política de privacidade" },
 ];
@@ -23,12 +23,12 @@ for (const { caminho, titulo } of PAGINAS) {
 }
 
 for (const caminho of ["/termos", "/privacidade"]) {
-  test(`${caminho} diz quem responde pelo Bancada e não tem trecho por decidir`, async ({ page }) => {
+  test(`${caminho} diz quem responde pelo Reparium e não tem trecho por decidir`, async ({ page }) => {
     await page.goto(caminho);
     const texto = page.getByRole("main");
 
     await expect(texto).toContainText(`Versão ${VERSAO_DOS_TEXTOS_LEGAIS}`);
-    await expect(texto).toContainText(RESPONSAVEL_PELO_BANCADA);
+    await expect(texto).toContainText(RESPONSAVEL_PELO_REPARIUM);
     await expect(texto.getByRole("link", { name: EMAIL_DE_CONTATO }).first()).toHaveAttribute(
       "href",
       `mailto:${EMAIL_DE_CONTATO}`,
@@ -64,14 +64,14 @@ test("a página inicial mostra as telas do sistema na qualidade das capturas", a
 test("a página inicial mostra o dinheiro do painel, o estoque e o financeiro", async ({ page, isMobile }) => {
   await page.goto("/");
   // No celular, a abertura mostra só a página do cliente.
-  await expect(page.getByRole("img", { name: /^Painel do Bancada com o dinheiro recebido/ })).toBeVisible({
+  await expect(page.getByRole("img", { name: /^Painel do Reparium com o dinheiro recebido/ })).toBeVisible({
     visible: !isMobile,
   });
 
   const recursos = page.locator("#recursos");
   for (const [titulo, tela] of [
-    ["Você sabe o que tem na prateleira e o que falta comprar", /^Estoque do Bancada/],
-    ["Você sabe quanto entrou, quanto saiu e quanto sobrou", /^Contas a pagar do Bancada/],
+    ["Você sabe o que tem na prateleira e o que falta comprar", /^Estoque do Reparium/],
+    ["Você sabe quanto entrou, quanto saiu e quanto sobrou", /^Contas a pagar do Reparium/],
   ] as const) {
     const cabecalho = recursos.getByRole("heading", { name: titulo });
     await cabecalho.scrollIntoViewIfNeeded();

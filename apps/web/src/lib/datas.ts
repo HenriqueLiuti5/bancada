@@ -1,4 +1,4 @@
-// Brasília é o fuso do Bancada e o de quem ainda não tem assistência: a página inicial, a
+// Brasília é o fuso do Reparium e o de quem ainda não tem assistência: a página inicial, a
 // demonstração e o painel da plataforma. As telas da assistência usam o fuso escolhido por ela.
 export const FUSO_HORARIO = "America/Sao_Paulo";
 

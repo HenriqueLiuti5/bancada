@@ -29,7 +29,7 @@ depois, seja possível entender o porquê de uma escolha sem depender da memóri
 | [0021](0021-pagamento-na-entrega-e-painel-por-periodo.md) | Pagamento na entrega e painel por período |
 | [0022](0022-assinatura-teste-gratis-e-somente-leitura.md) | Assinatura pelo Asaas, teste grátis e modo só de consulta |
 | [0023](0023-painel-da-plataforma.md) | Painel da plataforma |
-| [0024](0024-identidade-visual-do-bancada.md) | Identidade visual do Bancada |
+| [0024](0024-identidade-visual-do-reparium.md) | Identidade visual do Reparium |
 | [0025](0025-logo-da-assistencia.md) | Logo da assistência para o cliente |
 | [0026](0026-pagina-inicial-e-demonstracao.md) | Página inicial e demonstração |
 | [0027](0027-correcao-do-cliente-e-do-aparelho.md) | Correção do cliente e do aparelho |

@@ -64,7 +64,7 @@ e recuperar a senha ("Precisa de ajuda? Fale com o suporte no WhatsApp") e no me
 **Textos.** Saiu do FAQ a pergunta "Já uso papel, planilha ou outro sistema. Como começo?". As
 respostas sobre segurança e pagamento foram reescritas em frases curtas, um assunto por parágrafo,
 sem termos como "trava no banco de dados". O Asaas é apresentado como a empresa que cuida da
-cobrança do Bancada, comparado à maquininha do balcão, ali e na tela Assinatura. A tela Equipe
+cobrança do Reparium, comparado à maquininha do balcão, ali e na tela Assinatura. A tela Equipe
 explica melhor o que cada papel pode fazer.
 
 ## Consequências
@@ -84,7 +84,7 @@ suporte não aparecem.
 um dígito no meio. O campo formata quando a pessoa sai dele, e a linha "Confira" faz a conferência.
 
 **Consultar se o número tem WhatsApp.** Exigiria um serviço pago e mandar o número do cliente para
-fora do Bancada. A regra do DDD e do formato já pega os erros de digitação relatados.
+fora do Reparium. A regra do DDD e do formato já pega os erros de digitação relatados.
 
 **Uma tela por etapa, escondendo o resto.** O dono que quer ver as fotos ou o histórico teria de
 procurar onde eles foram parar. Com as seções recolhidas, tudo continua a um clique.

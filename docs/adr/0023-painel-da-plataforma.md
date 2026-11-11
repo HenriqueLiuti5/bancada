@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O Bancada é vendido à distância (Fase 4): a assistência se cadastra, testa e assina sem falar com
+O Reparium é vendido à distância (Fase 4): a assistência se cadastra, testa e assina sem falar com
 ninguém. Para isso funcionar, o Henrique precisa saber, sem abrir o banco de dados, quem se
 cadastrou, quem está usando, quem parou e quanto dinheiro entrou. Até aqui, nada disso existia fora
 do painel administrativo do Django, que mostra tabelas cruas e não faz contas.

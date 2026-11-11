@@ -1,5 +1,5 @@
 #!/bin/sh
-# Backup do Bancada: o banco, as fotos e as logos (ADR 0032).
+# Backup do Reparium: o banco, as fotos e as logos (ADR 0032).
 #
 #   backup.sh agendar   fica no ar e faz um backup por dia, a partir de HORA_DO_BACKUP
 #   backup.sh agora     faz um backup na hora
@@ -7,16 +7,16 @@
 # Cada cópia do banco é restaurada num banco de teste logo depois de feita, para provar que ela
 # volta. Com o destino externo configurado (BACKUP_S3_*), banco, fotos e logos vão também para
 # fora do servidor, criptografados com a BACKUP_SENHA. Sem ele, o backup fica só aqui, e o log
-# avisa todo dia. A chave BANCADA_ENCRYPTION_KEY nunca entra no backup (ADR 0029).
+# avisa todo dia. A chave REPARIUM_ENCRYPTION_KEY nunca entra no backup (ADR 0029).
 
 set -eu
 
-. /usr/local/lib/bancada/comum.sh
+. /usr/local/lib/reparium/comum.sh
 
 HORA_DO_BACKUP="${HORA_DO_BACKUP:-3}"
 DIAS_NO_SERVIDOR=7
 DIAS_FORA_DO_SERVIDOR=30
-BANCO_DE_TESTE=bancada_teste_de_restauracao
+BANCO_DE_TESTE=reparium_teste_de_restauracao
 
 conferir_restauracao() {
     dropdb --if-exists "$BANCO_DE_TESTE"

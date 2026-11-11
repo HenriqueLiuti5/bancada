@@ -36,7 +36,7 @@ test("cada formulário mostra o que foi salvo e, quando o envio é recusado, con
 
   await test.step("cria a conta", async () => {
     await criarConta(page, dono);
-    await pularTour(page, "Boas-vindas ao Bancada");
+    await pularTour(page, "Boas-vindas ao Reparium");
   });
 
   await test.step("o convite recusado continua com o papel escolhido", async () => {

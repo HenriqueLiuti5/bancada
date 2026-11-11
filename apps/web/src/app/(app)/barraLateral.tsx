@@ -249,7 +249,7 @@ export function BarraLateral({
         <div className="flex h-16 items-center gap-2 pr-3 pl-4">
           <Marca />
           <p className="ml-1 min-w-0 flex-1 truncate text-[15px] font-bold">
-            {assistencia || "Bancada"}
+            {assistencia || "Reparium"}
           </p>
           <Link
             href="/ordens/nova"

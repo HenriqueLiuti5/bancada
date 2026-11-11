@@ -30,7 +30,7 @@ test("a entrega com parte para depois vira conta a receber até o cliente pagar 
 
   await test.step("cria a conta e abre uma ordem pronta para entregar", async () => {
     await criarConta(page, dono);
-    await pularTour(page, "Boas-vindas ao Bancada");
+    await pularTour(page, "Boas-vindas ao Reparium");
     await page.goto("/ordens/nova");
     await pularTour(page, "Cliente");
     await page.getByRole("button", { name: "Cadastrar cliente novo" }).click();
