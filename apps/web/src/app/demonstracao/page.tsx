@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Acompanhamento } from "@/componentes/Acompanhamento";
 import { Estatisticas } from "@/componentes/Estatisticas";
 import { ArrowRightIcon } from "@/componentes/icones";
-import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
+import { NomeDaMarca } from "@/componentes/ui/Marca";
 import { botao, juntar } from "@/componentes/ui/estilos";
 import {
   ETAPAS_DA_DEMONSTRACAO,
@@ -32,8 +32,7 @@ export default async function Demonstracao({ searchParams }: Props) {
       <div className="border-b border-borda bg-superficie">
         <div className="mx-auto max-w-lg space-y-4 px-4 py-4">
           <div className="flex items-center justify-between gap-3">
-            <Link href="/" className="inline-flex items-center gap-2.5 rounded-full">
-              <Marca />
+            <Link href="/" className="inline-flex rounded-full">
               <NomeDaMarca />
             </Link>
             <Link href="/cadastro" className={botao("primario", "sm")}>

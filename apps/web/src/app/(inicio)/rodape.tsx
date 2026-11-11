@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { WhatsappLogoIcon } from "@/componentes/icones";
-import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
+import { NomeDaMarca } from "@/componentes/ui/Marca";
 import { juntar } from "@/componentes/ui/estilos";
 import { hojeEmIso } from "@/lib/datas";
 import { conteiner } from "./secao";
@@ -40,8 +40,7 @@ export function Rodape({ whatsapp }: { whatsapp: string | null }) {
       <div className={juntar(conteiner, "py-14")}>
         <div className="grid gap-10 sm:grid-cols-3 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
           <div className="space-y-4 sm:col-span-3 lg:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-2.5 rounded-full">
-              <Marca />
+            <Link href="/" className="inline-flex rounded-full">
               <NomeDaMarca />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-texto-apagado">

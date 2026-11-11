@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Estatisticas } from "@/componentes/Estatisticas";
 import { CaretLeftIcon } from "@/componentes/icones";
-import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
+import { NomeDaMarca } from "@/componentes/ui/Marca";
 import { linkDoSuporteParaVisitantes } from "@/lib/suporte";
 import { EMAIL_DE_CONTATO } from "@/lib/textosLegais";
 
@@ -11,8 +11,7 @@ export function TextoLegal({ titulo, versao, children }: Props) {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
       <header className="mb-8 space-y-6">
-        <Link href="/" className="inline-flex items-center gap-3 rounded-full">
-          <Marca />
+        <Link href="/" className="inline-flex rounded-full">
           <NomeDaMarca />
         </Link>
         <div className="space-y-1">

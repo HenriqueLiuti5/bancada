@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ClipboardTextIcon, DeviceMobileIcon, FileTextIcon } from "@/componentes/icones";
-import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
+import { NomeDaMarca } from "@/componentes/ui/Marca";
 import { link } from "@/componentes/ui/estilos";
 import { buscarOfertaSeDisponivel, testeGratis } from "@/lib/oferta";
 import { linkDoSuporteParaVisitantes } from "@/lib/suporte";
@@ -26,10 +26,9 @@ async function PainelDaMarca() {
     <aside className="hidden bg-lateral text-lateral-texto lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:justify-between lg:p-12 xl:p-16">
       <Link
         href="/"
-        className="flex w-fit items-center gap-3 rounded-full focus-visible:outline-lateral-anel"
+        className="flex w-fit rounded-full focus-visible:outline-lateral-anel"
       >
-        <Marca tamanho="md" />
-        <NomeDaMarca className="text-xl" />
+        <NomeDaMarca className="text-[28px]" />
       </Link>
 
       <div className="max-w-md space-y-10">
@@ -70,9 +69,8 @@ export function TelaDeAcesso({ titulo, descricao, rodape, larga = false, childre
       <main className="flex min-h-screen items-center justify-center px-5 py-12 sm:px-8">
         <div className={`w-full space-y-8 ${larga ? "max-w-md" : "max-w-sm"}`}>
           <header className="space-y-6">
-            <Link href="/" className="flex w-fit items-center gap-3 rounded-full lg:hidden">
-              <Marca tamanho="md" />
-              <NomeDaMarca className="text-xl" />
+            <Link href="/" className="flex w-fit rounded-full lg:hidden">
+              <NomeDaMarca className="text-[28px]" />
             </Link>
             <div className="space-y-2">
               <h1 className="text-[28px] leading-tight font-bold tracking-tight">{titulo}</h1>

@@ -188,7 +188,7 @@ continuam como opção no menu da conta. A escolha fica no cookie `tema`, com o 
 
 No computador, o botão ao lado da marca recolhe a barra lateral para 72px, só com os ícones. Ao
 passar o mouse, ou chegar pelo teclado, num ícone, aparece ao lado uma dica preta com o nome do item.
-Recolhida, a marca vira o botão de expandir: ao passar o mouse, o "R" dá lugar ao ícone de abrir o
+Recolhida, a marca vira o botão de expandir: ao passar o mouse, o "r" dá lugar ao ícone de abrir o
 painel. Os menus de ajuda e da conta passam a abrir para o lado.
 
 Os ícones ficam exatamente no mesmo lugar nos dois estados. Ao recolher, só a largura anima, em
@@ -234,8 +234,13 @@ resto da tela continua clicável; ver as regras do tour na ADR 0020.
   fundo branco.
 - Página do cliente com o nome da loja, a barra de etapas com ícones, a previsão de entrega e o
   contato com a loja em destaque quando ele precisa responder ao orçamento ou retirar o aparelho.
-- Marca: um "R" branco num quadrado verde arredondado, no sistema, no ícone da aba e no da tela
-  inicial do celular.
+- Marca: o nome em minúsculas, "reparium", em Plus Jakarta Sans extranegrito, seguido de um
+  quadradinho verde no lugar do ponto final. Onde só cabe um ícone (a barra lateral recolhida, a
+  barra do topo no celular, a aba do navegador e a tela inicial do celular), vai o "r" branco com o
+  quadradinho verde, num quadrado preto arredondado. O "r" do ícone é desenhado, e não escrito com
+  a fonte, porque a aba e a tela do celular não carregam a fonte do site. Até 11 de novembro de 2026
+  a marca era um "R" branco num quadrado verde; o nome escrito foi escolhido pelo Henrique entre
+  seis propostas.
 
 ## Consequências
 

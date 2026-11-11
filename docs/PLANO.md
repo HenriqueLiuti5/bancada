@@ -997,13 +997,15 @@ Em 11 de novembro, o Henrique registrou reparium.com.br, e o produto deixou de s
 para se chamar Reparium. Em 9 de novembro, bancada.com.br já tinha dono, o nome estava em vários
 sistemas lançados em 2026, um deles para assistências técnicas, e uma palavra comum é difícil de
 proteger como marca. Como ainda não havia servidor nem cliente, tudo mudou de uma vez: os textos, a
-marca, que virou um "R" (ADR 0024), a imagem de prévia do link, o pacote Python
+marca, a imagem de prévia do link, o pacote Python
 (`apps/api/reparium`), o banco e os papéis do Postgres, o projeto do Compose, a chave de
 criptografia (`REPARIUM_ENCRYPTION_KEY`), o cookie de sessão (`reparium_token`) e a variável do
 isolamento (`reparium.tenant_id`). Os termos e a privacidade ganharam a versão 2026-11-11, com o nome
 novo. O repositório no GitHub também mudou de nome, para HenriqueLiuti5/reparium; só o histórico
 do git guarda o nome antigo. "bancada" com artigo feminino segue nas telas como a mesa do técnico,
-como no indicador "Na bancada".
+como no indicador "Na bancada". A marca virou primeiro um "R" num quadrado verde e, no mesmo dia,
+entre seis propostas, o Henrique escolheu o nome escrito em minúsculas, "reparium", com um
+quadradinho verde no lugar do ponto; o ícone é o "r" com o quadradinho (ADR 0024).
 
 A entrega contínua, que publicaria as imagens montadas pela CI num registro para o servidor
 buscá-las, saiu da fase em 3 de novembro: até haver motivo, o servidor é atualizado à mão.

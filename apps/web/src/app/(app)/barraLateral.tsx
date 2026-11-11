@@ -155,9 +155,8 @@ export function BarraLateral({
             </button>
           ) : (
             <>
-              <Marca />
               <div className="min-w-0 flex-1 animate-aparecer">
-                <NomeDaMarca className="block text-base" />
+                <NomeDaMarca className="block text-[22px]" />
                 {assistencia && (
                   <p className="mt-1 truncate text-xs text-lateral-texto-suave">{assistencia}</p>
                 )}

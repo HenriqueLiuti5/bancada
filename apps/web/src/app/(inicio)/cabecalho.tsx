@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Marca, NomeDaMarca } from "@/componentes/ui/Marca";
+import { NomeDaMarca } from "@/componentes/ui/Marca";
 import { botao, juntar } from "@/componentes/ui/estilos";
 import { conteiner } from "./secao";
 
@@ -14,8 +14,7 @@ export function Cabecalho() {
   return (
     <header className="sticky top-0 z-30 border-b border-borda bg-superficie">
       <div className={juntar(conteiner, "flex h-16 items-center justify-between gap-4")}>
-        <Link href="/" className="flex items-center gap-2.5 rounded-full">
-          <Marca />
+        <Link href="/" className="flex rounded-full">
           <NomeDaMarca />
         </Link>
 
