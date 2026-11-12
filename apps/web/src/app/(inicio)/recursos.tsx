@@ -1,3 +1,4 @@
+import type { StaticImageData } from "next/image";
 import Link from "next/link";
 import {
   ArrowRightIcon,
@@ -17,10 +18,52 @@ import { botao, juntar } from "@/componentes/ui/estilos";
 import { TelaDoCelular, TelaDoComputador } from "./molduras";
 import { CabecalhoDaSecao, ListaDeConferencia, conteiner } from "./secao";
 import telaDoOrcamento from "./telas/acompanhamento-orcamento-enviado.png";
+import telaDasContasNoCelular from "./telas/contas-a-pagar-celular.png";
 import telaDasContas from "./telas/contas-a-pagar.png";
+import telaDoEstoqueNoCelular from "./telas/estoque-celular.png";
 import telaDoEstoque from "./telas/estoque.png";
 
 type Detalhe = { icone: Icon; texto: string };
+
+type Tela = { imagem: StaticImageData; descricao: string };
+
+// No computador, o notebook com a tela do sistema e, à frente dele, o celular com a mesma tela na
+// versão para celular. No celular de quem visita, o notebook ficaria pequeno demais para ler, e fica
+// só o celular.
+function NotebookECelular({
+  notebook,
+  celular,
+  celularAEsquerda = false,
+}: {
+  notebook: Tela;
+  celular: Tela;
+  celularAEsquerda?: boolean;
+}) {
+  return (
+    <div className="relative md:pb-10">
+      <TelaDoComputador
+        imagem={notebook.imagem}
+        descricao={notebook.descricao}
+        tamanhos="(min-width: 1152px) 540px, (min-width: 1024px) 46vw, 82vw"
+        className="hidden md:block"
+      />
+      <div
+        className={juntar(
+          "md:absolute md:bottom-0 md:w-[29%]",
+          celularAEsquerda ? "md:-left-4 lg:-left-8" : "md:-right-4 lg:-right-8",
+        )}
+      >
+        <TelaDoCelular
+          imagem={celular.imagem}
+          descricao={celular.descricao}
+          tamanhos="(min-width: 1152px) 180px, (min-width: 768px) 27vw, 260px"
+          barraEscura
+          className="mx-auto w-[17.5rem] md:w-full"
+        />
+      </div>
+    </div>
+  );
+}
 
 const FOTOS: Detalhe[] = [
   { icone: FileTextIcon, texto: "Comprovante de entrada em PDF, pronto para imprimir" },
@@ -56,7 +99,7 @@ function Destaque({
   return (
     <div
       className={juntar(
-        "revelar grid items-center gap-12 lg:gap-16",
+        "revelar-no-lugar grid items-center gap-12 lg:gap-16",
         invertido
           ? "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"
           : "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]",
@@ -142,9 +185,9 @@ export function Recursos() {
                 <TelaDoCelular
                   imagem={telaDoOrcamento}
                   descricao="Página do cliente com o orçamento enviado, os itens com os valores e o pedido de aprovação"
-                  tamanhos="240px"
+                  tamanhos="(min-width: 640px) 268px, 250px"
                   elevado={false}
-                  className="-mb-28 w-64 sm:-mb-24"
+                  className="-mb-32 w-[17rem] sm:-mb-28 sm:w-72"
                 />
               </div>
             }
@@ -179,10 +222,18 @@ export function Recursos() {
               "Busca pelo nome ou pelo código de barras",
             ]}
             imagem={
-              <TelaDoComputador
-                imagem={telaDoEstoque}
-                descricao="Estoque do Reparium, com o aviso dos produtos para repor e, em cada peça, a quantidade em cada loja, o custo e o preço"
-                tamanhos="(min-width: 1024px) 496px, 78vw"
+              <NotebookECelular
+                celularAEsquerda
+                notebook={{
+                  imagem: telaDoEstoque,
+                  descricao:
+                    "Estoque do Reparium no computador, com o aviso dos produtos para repor e, em cada peça, a quantidade em cada loja, o custo e o preço",
+                }}
+                celular={{
+                  imagem: telaDoEstoqueNoCelular,
+                  descricao:
+                    "Estoque do Reparium no celular, com o aviso dos produtos para repor e, em cada peça, o preço e a quantidade em cada loja",
+                }}
               />
             }
           />
@@ -198,10 +249,17 @@ export function Recursos() {
               "Painel com as ordens atrasadas, o ticket médio e quanto cada técnico entregou",
             ]}
             imagem={
-              <TelaDoComputador
-                imagem={telaDasContas}
-                descricao="Contas a pagar do Reparium, com o total vencido, o que vence nos próximos 7 dias, o que foi pago no mês e a lista das contas"
-                tamanhos="(min-width: 1024px) 496px, 78vw"
+              <NotebookECelular
+                notebook={{
+                  imagem: telaDasContas,
+                  descricao:
+                    "Contas a pagar do Reparium no computador, com o total vencido, o que vence nos próximos 7 dias, o que foi pago no mês e a lista das contas",
+                }}
+                celular={{
+                  imagem: telaDasContasNoCelular,
+                  descricao:
+                    "Contas a pagar do Reparium no celular, com o total vencido, o que vence nos próximos 7 dias e o que foi pago no mês",
+                }}
               />
             }
           />

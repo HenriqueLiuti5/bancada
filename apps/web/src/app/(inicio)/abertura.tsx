@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { ArrowRightIcon, CheckIcon, DeviceMobileIcon } from "@/componentes/icones";
 import { botao, juntar } from "@/componentes/ui/estilos";
-import { TelaDoCelular, TelaDoComputador } from "./molduras";
+import { CelularAoVivo } from "./celularAoVivo";
+import { TelaDoComputador } from "./molduras";
+import { Profundidade } from "./profundidade";
 import { conteiner } from "./secao";
-import telaDoCliente from "./telas/acompanhamento-em-reparo.png";
+import telaEmReparo from "./telas/acompanhamento-em-reparo.png";
+import telaPronta from "./telas/acompanhamento-pronto.png";
 import telaDoPainel from "./telas/painel-dinheiro.png";
 
 export function Abertura({ diasDeTeste }: { diasDeTeste: number }) {
@@ -46,22 +49,25 @@ export function Abertura({ diasDeTeste }: { diasDeTeste: number }) {
           </ul>
         </div>
 
-        <div className="relative mx-auto mt-14 max-w-5xl sm:mt-16 lg:mt-20">
+        <Profundidade className="relative mx-auto mt-14 sm:mt-16 lg:mt-20">
           <TelaDoComputador
             imagem={telaDoPainel}
             descricao="Painel do Reparium com o dinheiro recebido no período, as formas de pagamento, o lucro depois das peças e das contas e o lucro de cada mês"
-            tamanhos="(min-width: 1088px) 846px, 78vw"
+            tamanhos="(min-width: 1152px) 920px, 82vw"
             antecipar
             className="hidden md:block"
           />
-          <TelaDoCelular
-            imagem={telaDoCliente}
-            descricao="Página de acompanhamento no celular do cliente, com o aparelho em reparo, a previsão de entrega e o orçamento aprovado"
-            tamanhos="224px"
-            antecipar
-            className="mx-auto w-60 md:absolute md:-right-4 md:-bottom-14 md:w-52 lg:w-60 xl:-right-12"
-          />
-        </div>
+          <div data-profundidade className="md:absolute md:-right-3 md:-bottom-16 lg:-right-6 xl:-right-14">
+            <CelularAoVivo
+              antes={telaEmReparo}
+              depois={telaPronta}
+              aparelho="Samsung Galaxy A54"
+              descricao="Página de acompanhamento no celular do cliente, com o aparelho em reparo, a previsão de entrega e o orçamento aprovado"
+              tamanhos="(min-width: 1024px) 248px, (min-width: 768px) 210px, 262px"
+              className="mx-auto w-[17.5rem] md:w-56 lg:w-[16.5rem]"
+            />
+          </div>
+        </Profundidade>
       </div>
     </section>
   );

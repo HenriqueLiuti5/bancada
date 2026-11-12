@@ -71,10 +71,44 @@ test.describe("telas do sistema", () => {
   });
 });
 
-test.describe("página do cliente", () => {
-  test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+// No celular de quem visita a página, o notebook dos recursos fica pequeno demais para ler. Ali entra o
+// celular com o mesmo recurso, na versão do sistema para celular, em densidade 3x.
+test.describe("telas do sistema no celular", () => {
+  test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
 
-  for (const etapa of ["em_reparo", "orcamento_enviado"]) {
+  test.beforeEach(async ({ page }) => {
+    await entrarComoDono(page);
+  });
+
+  // As abas da tela ficam inteiras logo abaixo da barra do sistema, que acompanha a rolagem; o título
+  // e os botões do alto ficam de fora para caber mais do que interessa.
+  async function rolarAteAsAbas(page: Page, aba: Locator): Promise<void> {
+    const cabecalho = await page.locator("header").first().boundingBox();
+    const abas = aba.locator("xpath=..");
+    await rolarAte(page, abas, (cabecalho?.height ?? 0) + 12);
+  }
+
+  test("o estoque", async ({ page }) => {
+    await page.goto("/estoque");
+    await expect(page.getByText(/precisam? de reposição/)).toBeVisible();
+    await rolarAteAsAbas(page, page.getByText("Vendas no balcão", { exact: true }).first());
+    await capturar(page, "estoque-celular");
+  });
+
+  test("as contas a pagar", async ({ page }) => {
+    await page.goto("/financeiro");
+    await expect(page.getByText("Pagas neste mês")).toBeVisible();
+    await rolarAteAsAbas(page, page.getByText("Caixa do dia", { exact: true }).first());
+    await capturar(page, "contas-a-pagar-celular");
+  });
+});
+
+// Em 3x, como a tela dos celulares mais comuns: o celular da página inicial passa de 240 px de largura.
+// Pronto entra para a abertura, onde a página do cliente passa de Em reparo a Pronto com o aviso.
+test.describe("página do cliente", () => {
+  test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
+
+  for (const etapa of ["em_reparo", "orcamento_enviado", "pronto"]) {
     test(etapa, async ({ page }) => {
       await page.goto(`/demonstracao?etapa=${etapa}`);
       // A captura começa na página que o cliente recebe, abaixo do topo da demonstração.

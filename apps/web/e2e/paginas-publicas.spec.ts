@@ -97,20 +97,22 @@ test("a página inicial mostra as telas do sistema na qualidade das capturas", a
 
 test("a página inicial mostra o dinheiro do painel, o estoque e o financeiro", async ({ page, isMobile }) => {
   await page.goto("/");
-  // No celular, a abertura mostra só a página do cliente.
+  // No celular, o notebook ficaria pequeno demais para ler: a abertura mostra só a página do cliente,
+  // e os recursos, só o celular com a tela do sistema para celular.
   await expect(page.getByRole("img", { name: /^Painel do Reparium com o dinheiro recebido/ })).toBeVisible({
     visible: !isMobile,
   });
 
   const recursos = page.locator("#recursos");
   for (const [titulo, tela] of [
-    ["Você sabe o que tem na prateleira e o que falta comprar", /^Estoque do Reparium/],
-    ["Você sabe quanto entrou, quanto saiu e quanto sobrou", /^Contas a pagar do Reparium/],
+    ["Você sabe o que tem na prateleira e o que falta comprar", "Estoque do Reparium"],
+    ["Você sabe quanto entrou, quanto saiu e quanto sobrou", "Contas a pagar do Reparium"],
   ] as const) {
     const cabecalho = recursos.getByRole("heading", { name: titulo });
     await cabecalho.scrollIntoViewIfNeeded();
     await expect(cabecalho).toBeVisible();
-    await expect(recursos.getByRole("img", { name: tela })).toBeVisible();
+    await expect(recursos.getByRole("img", { name: `${tela} no celular` })).toBeVisible();
+    await expect(recursos.getByRole("img", { name: `${tela} no computador` })).toBeVisible({ visible: !isMobile });
   }
 });
 

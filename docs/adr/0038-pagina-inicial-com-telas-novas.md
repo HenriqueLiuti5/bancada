@@ -258,3 +258,79 @@ da tela e compila cada página na primeira visita.
 **Pular o tour pela tela.** O tour abre sozinho na primeira visita a cada tela. Pular cada um pela
 tela só funcionaria num banco recém-criado e faria a captura esperar o tour aparecer; o
 `preparar_capturas` deixa o dono pronto antes.
+
+## Atualização: aparelhos mais reais e o aviso chegando no celular
+
+Em 12 de novembro de 2026, o Henrique pediu capturas bem melhores na página inicial e um notebook e
+um celular que surpreendessem quem visita.
+
+**O desenho.** Os aparelhos continuam em CSS, sem imagem e sem marca, mas o desenho saiu das classes
+do Tailwind em `molduras.tsx` para as classes `.notebook-*` e `.celular-*` do `globals.css`: os
+degradês e as sombras em camadas não cabiam legíveis numa linha de classes. O notebook ganhou a
+tampa e a base em metal, com um degradê do claro ao escuro, e uma sombra embaixo. O celular ganhou
+a borda em metal, o vidro preto em volta da tela e uma barra de status com a hora, o sinal, o Wi-Fi
+e a bateria, com a câmera num furo no meio dela, como na maioria dos Android. A barra continua a cor
+do alto da captura: clara na página do cliente e preta nas telas do sistema. As duas telas ganharam
+um reflexo de vidro. As cores da base, da frente da base e do encaixe deram lugar a
+`--aparelho-metal-claro`, `--aparelho-metal`, `--aparelho-metal-escuro`, `--aparelho-brilho`,
+`--aparelho-reflexo` e `--aparelho-sombra`, que clareiam no modo escuro. O que se desenha por cima
+das capturas, como a barra de status e o aviso da cena, usa os tokens `--tela-*`, iguais nos dois
+temas, porque as capturas são do tema claro.
+
+**O celular à frente do notebook nos recursos.** No computador, os blocos do estoque e do financeiro
+mostram o notebook com a tela do sistema e, à frente dele, o celular com a mesma tela na versão para
+celular. No celular de quem visita, o notebook ficaria pequeno demais para ler, e fica só o celular.
+A tampa e a base do notebook usam `z-index` para ficar sobre a sombra dele, e o notebook tem
+`isolation: isolate` para esse `z-index` não passar também por cima do celular.
+
+**A cena da abertura.** O celular da abertura começa com a página do cliente em Em reparo. Quando
+pelo menos 60% dele aparece na tela, a cena começa: depois de 1,4 segundo, desce do alto da tela o
+aviso por e-mail que o Reparium manda ao cliente quando a ordem fica pronta, com o mesmo assunto do
+e-mail de verdade, e o celular vibra. Aos 2,3 segundos, a página passa para Pronto, e aos 7 segundos
+o aviso sobe e a página fica em Pronto. A cena volta ao começo quando o celular sai da tela e roda de
+novo quando ele volta. Ela mostra em poucos segundos o que o texto da abertura promete: o cliente
+fica sabendo que o aparelho ficou pronto sem ligar para a loja.
+
+**O mouse.** Num computador com mouse, o celular da abertura anda até 14 px para o lado do ponteiro
+e até 8 px para cima ou para baixo, como se estivesse mais perto de quem olha que o notebook, que
+fica parado. O deslocamento é só em 2D e em pixels inteiros da tela, e vai direto no estilo do
+elemento, sem render do React. Quando o ponteiro sai da abertura, o celular volta ao lugar. No
+toque, nada se mexe.
+
+**A rolagem.** Onde o navegador tem `animation-timeline: view()`, a tela do notebook acende enquanto
+ele entra na tela, só com a opacidade de uma camada preta por cima. Sem esse recurso, a tela aparece
+acesa.
+
+**A nitidez.** Nenhuma transformação pode ficar sobre as capturas enquanto alguém olha para elas,
+medido em recortes da tela de 1440 × 900 na densidade 2x. A primeira versão desta atualização abria
+a tampa do notebook com `perspective` e `rotateX` presos à rolagem e girava os aparelhos da abertura
+em 3D com o mouse, e o Chrome desenha com menos resolução o que tem transformação 3D: com a página
+parada no topo, a tampa ficava no meio da animação, e a tela do notebook saía borrada. O celular dos
+recursos subia com a rolagem por frações de pixel, e o `revelar`, que faz os blocos da página subirem
+28 px ao aparecer, deixava as telas dos recursos borradas mesmo depois de terminar. Ficaram só a
+opacidade e deslocamentos em pixels inteiros, e os blocos dos recursos com capturas passaram a usar
+o `revelar-no-lugar`, que aparece só com a opacidade; o resto da página continua com o `revelar`.
+
+**Menos movimento.** Para quem pede menos movimento (`prefers-reduced-motion: reduce`), nada disso
+roda: o celular fica em Em reparo, não acompanha o mouse, e a tela do notebook já aparece acesa.
+
+**As capturas.** São oito agora. Entram as telas do estoque e das contas a pagar na versão para
+celular, com 390 × 844, roladas até as abas, que ficam inteiras logo abaixo da barra do sistema, e a
+página do cliente em Pronto, para a cena. As telas no celular saem na densidade 3x, a dos celulares
+mais comuns, e a página do cliente passou de 2x para 3x, porque o celular da página inicial passou
+de 240 px de largura. O `make capturar-telas` refaz as oito numa rodada só, e é assim que elas
+devem ser refeitas: o movimento de exemplo termina na hora em que o comando roda, e duas capturas
+refeitas sozinhas, horas depois das outras, mostraram 3 produtos para repor no celular e 2 no
+notebook ao lado.
+
+**Teste.** O teste de navegador das páginas públicas confere que, no computador, o estoque e o
+financeiro mostram o notebook e o celular, e que no celular de quem visita fica só o celular.
+
+**Consequências.** No computador, o celular da abertura começa abaixo da dobra, e a cena começa
+quando quem visita rola a página. A tela Pronto da cena é baixada junto com a página: por estar
+perto do alto, o navegador já a buscaria ao abrir a página, e sem isso o Next avisa no console, no
+desenvolvimento, quando ela vira a maior imagem à vista.
+
+As imagens das telas somam 459 KB no computador com 1440 px de largura e densidade 2x, em oito
+imagens, e 415 KB no Pixel 7, em seis: o celular de quem visita não baixa os notebooks dos recursos,
+mas continua baixando o painel da abertura sem mostrá-lo. As capturas em PNG somam 1,6 MB.

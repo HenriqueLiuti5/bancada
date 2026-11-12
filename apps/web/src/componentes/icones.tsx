@@ -6,6 +6,7 @@ import {
   ArrowsClockwiseIcon as ArrowsClockwise,
   ArrowsLeftRightIcon as ArrowsLeftRight,
   ArrowUUpLeftIcon as ArrowUUpLeft,
+  BatteryFullIcon as BatteryFull,
   BugIcon as Bug,
   CalendarCheckIcon as CalendarCheck,
   CalendarDotsIcon as CalendarDots,
@@ -16,6 +17,7 @@ import {
   CaretRightIcon as CaretRight,
   CaretUpDownIcon as CaretUpDown,
   CashRegisterIcon as CashRegister,
+  CellSignalFullIcon as CellSignalFull,
   ChartBarIcon as ChartBar,
   ChartPieSliceIcon as ChartPieSlice,
   ChatCircleTextIcon as ChatCircleText,
@@ -105,6 +107,7 @@ import {
   WarningCircleIcon as WarningCircle,
   WarningIcon as Warning,
   WhatsappLogoIcon as WhatsappLogo,
+  WifiHighIcon as WifiHigh,
   WrenchIcon as Wrench,
   XCircleIcon as XCircle,
   XIcon as X,
@@ -125,6 +128,7 @@ export const ArrowSquareOutIcon = decorativo(ArrowSquareOut);
 export const ArrowsClockwiseIcon = decorativo(ArrowsClockwise);
 export const ArrowsLeftRightIcon = decorativo(ArrowsLeftRight);
 export const ArrowUUpLeftIcon = decorativo(ArrowUUpLeft);
+export const BatteryFullIcon = decorativo(BatteryFull);
 export const BugIcon = decorativo(Bug);
 export const CalendarCheckIcon = decorativo(CalendarCheck);
 export const CalendarDotsIcon = decorativo(CalendarDots);
@@ -135,6 +139,7 @@ export const CaretLeftIcon = decorativo(CaretLeft);
 export const CaretRightIcon = decorativo(CaretRight);
 export const CaretUpDownIcon = decorativo(CaretUpDown);
 export const CashRegisterIcon = decorativo(CashRegister);
+export const CellSignalFullIcon = decorativo(CellSignalFull);
 export const ChartBarIcon = decorativo(ChartBar);
 export const ChartPieSliceIcon = decorativo(ChartPieSlice);
 export const ChatCircleTextIcon = decorativo(ChatCircleText);
@@ -224,6 +229,7 @@ export const WalletIcon = decorativo(Wallet);
 export const WarningCircleIcon = decorativo(WarningCircle);
 export const WarningIcon = decorativo(Warning);
 export const WhatsappLogoIcon = decorativo(WhatsappLogo);
+export const WifiHighIcon = decorativo(WifiHigh);
 export const WrenchIcon = decorativo(Wrench);
 export const XCircleIcon = decorativo(XCircle);
 export const XIcon = decorativo(X);
