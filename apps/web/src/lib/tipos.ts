@@ -578,6 +578,8 @@ export type LinhaDaAssistencia = {
   ciclo: Ciclo | null;
   fundador: boolean;
   passou_do_plano: string | null;
+  teste_termina_em: string | null;
+  dias_para_o_fim_do_teste: number | null;
 };
 
 export type MesesDoPainel = { escolhido: string; anterior: string | null; seguinte: string | null };

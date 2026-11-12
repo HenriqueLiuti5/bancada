@@ -1,9 +1,15 @@
-import { StorefrontIcon, WarningIcon, WhatsappLogoIcon } from "@/componentes/icones";
+import {
+  ClockCountdownIcon,
+  StorefrontIcon,
+  WarningIcon,
+  WhatsappLogoIcon,
+} from "@/componentes/icones";
 import { Cartao } from "@/componentes/ui/Cartao";
 import { EstadoVazio } from "@/componentes/ui/EstadoVazio";
 import { Secao } from "@/componentes/ui/Secao";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao } from "@/componentes/ui/estilos";
+import { prazoDoTeste, testePertoDoFim } from "@/lib/assinatura";
 import { dataCurta } from "@/lib/datas";
 import { contagem, haDias } from "@/lib/formatos";
 import { formatarTelefone } from "@/lib/telefone";
@@ -36,6 +42,23 @@ function textoDoPlano(linha: LinhaDaAssistencia): string | null {
   if (!linha.plano) return null;
   const ciclo = linha.ciclo ? `, ${linha.ciclo}` : "";
   return `Plano ${linha.plano_rotulo}${ciclo}${linha.fundador ? ", fundador" : ""}`;
+}
+
+function PrazoDoTeste({ linha }: { linha: LinhaDaAssistencia }) {
+  const { teste_termina_em: terminaEm, dias_para_o_fim_do_teste: dias } = linha;
+  if (terminaEm === null || dias === null) return null;
+
+  if (!testePertoDoFim(dias)) {
+    return (
+      <p className="text-[13px] font-semibold text-texto-suave">{prazoDoTeste(dias, terminaEm)}</p>
+    );
+  }
+  return (
+    <p className="flex items-start gap-1.5 text-[13px] font-semibold text-aviso">
+      <ClockCountdownIcon size={15} className="mt-px shrink-0" />
+      {prazoDoTeste(dias, terminaEm)}
+    </p>
+  );
 }
 
 function movimento(linha: LinhaDaAssistencia, nomeDoMes: string): string {
@@ -77,6 +100,7 @@ function Linha({
         {textoDoPlano(linha) && (
           <p className="text-[13px] font-semibold text-texto-suave">{textoDoPlano(linha)}</p>
         )}
+        <PrazoDoTeste linha={linha} />
         {linha.passou_do_plano && (
           <p className="flex items-start gap-1.5 text-[13px] font-semibold text-aviso">
             <WarningIcon size={15} className="mt-px shrink-0" />

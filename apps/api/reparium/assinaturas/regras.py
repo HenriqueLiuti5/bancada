@@ -151,11 +151,22 @@ def dia_de_apagar(assinatura: Assinatura, hoje: date) -> date | None:
     return max(prazo, (aviso or hoje) + timedelta(days=DIAS_DO_AVISO_ANTES_DE_APAGAR))
 
 
+def ainda_nao_assinou(assinatura: Assinatura) -> bool:
+    return (
+        not assinatura.assinatura_no_provedor
+        and assinatura.situacao != SituacaoDaAssinatura.CANCELADA
+    )
+
+
+def dias_para_o_fim_do_teste(assinatura: Assinatura, hoje: date) -> int:
+    return (assinatura.teste_termina_em - hoje).days
+
+
 def avisos_de_fim_do_teste_pendentes(assinatura: Assinatura, hoje: date) -> list[int]:
-    if assinatura.assinatura_no_provedor or assinatura.situacao == SituacaoDaAssinatura.CANCELADA:
+    if not ainda_nao_assinou(assinatura):
         return []
 
-    restantes = (assinatura.teste_termina_em - hoje).days
+    restantes = dias_para_o_fim_do_teste(assinatura, hoje)
     if restantes < 0:
         return []
 

@@ -14,6 +14,7 @@ from reparium.assinaturas.models import (
     SituacaoDaFatura,
     VagaDeFundador,
 )
+from reparium.core.fuso import hoje_no_reparium
 from reparium.plataforma.meses import Mes
 from reparium.plataforma.models import Custo
 from reparium.plataforma.numeros import PAROU, SEM_ORDENS, alerta
@@ -294,6 +295,32 @@ def test_linha_da_assistencia_traz_o_plano_e_avisa_quem_passou_do_tamanho_dele(
         "Em teste": [None, "", None, False, None],
     }
     assert dados["fundadores"] == {"vagas": 15, "restantes": 14, "desconto": 30}
+
+
+@pytest.mark.django_db
+def test_linha_da_assistencia_traz_quantos_dias_faltam_para_o_fim_do_teste(
+    api_plataforma: APIClient,
+) -> None:
+    hoje = hoje_no_reparium()
+    for nome, dias in [("Testando", 5), ("Último dia", 0), ("Teste acabou", -4)]:
+        Assinatura.objects.filter(tenant=nova_assistencia(nome)).update(
+            teste_termina_em=hoje + timedelta(days=dias)
+        )
+    contratar(nova_assistencia("Assinou no teste"))
+    contratar(nova_assistencia("Cancelou"), situacao=SituacaoDaAssinatura.CANCELADA)
+
+    linhas = painel(api_plataforma)["assistencias"]
+
+    assert {
+        linha["nome"]: (linha["teste_termina_em"], linha["dias_para_o_fim_do_teste"])
+        for linha in linhas
+    } == {
+        "Testando": ((hoje + timedelta(days=5)).isoformat(), 5),
+        "Último dia": (hoje.isoformat(), 0),
+        "Teste acabou": ((hoje - timedelta(days=4)).isoformat(), -4),
+        "Assinou no teste": (None, None),
+        "Cancelou": (None, None),
+    }
 
 
 @pytest.mark.django_db

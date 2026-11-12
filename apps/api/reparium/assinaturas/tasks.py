@@ -38,7 +38,7 @@ def avisar_fim_do_teste(assinatura_id: int) -> str:
     donos = Usuario.objects.filter(
         tenant=assinatura.tenant, papel=Papel.DONO, is_active=True
     ).exclude(email="")
-    quando = quando_termina((assinatura.teste_termina_em - hoje_no_reparium()).days)
+    quando = quando_termina(regras.dias_para_o_fim_do_teste(assinatura, hoje_no_reparium()))
     vagas_de_fundador = (
         fundadores.situacao_dos_fundadores()
         if fundadores.ganha_preco_de_fundador(assinatura.tenant)

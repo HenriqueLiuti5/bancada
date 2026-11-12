@@ -5,9 +5,11 @@ import {
   mensalNoAnual,
   nomeDaCobranca,
   porPeriodo,
+  prazoDoTeste,
   precoDoPlano,
   tamanhoDaAssistencia,
   tamanhoDoPlano,
+  testePertoDoFim,
   vagasDeFundador,
 } from "@/lib/assinatura";
 import type { PlanoDaAssinatura } from "@/lib/tipos";
@@ -33,6 +35,38 @@ describe("avisoDaExclusao", () => {
 
   it("não diz nada enquanto a assistência pode editar", () => {
     expect(avisoDaExclusao(null)).toBeNull();
+  });
+});
+
+describe("prazo do teste no painel da plataforma", () => {
+  it("conta os dias que faltam até o fim do teste", () => {
+    expect(prazoDoTeste(8, "2026-11-20")).toBe("Teste grátis até 20/11/2026, faltam 8 dias");
+  });
+
+  it("avisa na véspera e no último dia", () => {
+    expect(prazoDoTeste(1, "2026-11-13")).toBe("Teste grátis até 13/11/2026, termina amanhã");
+    expect(prazoDoTeste(0, "2026-11-12")).toBe("Teste grátis até 12/11/2026, termina hoje");
+  });
+
+  it("diz há quanto tempo o teste terminou", () => {
+    expect(prazoDoTeste(-1, "2026-11-11")).toBe("Teste grátis terminou ontem, em 11/11/2026");
+    expect(prazoDoTeste(-5, "2026-11-07")).toBe(
+      "Teste grátis terminou há 5 dias, em 07/11/2026",
+    );
+  });
+
+  it("mostra só a data num teste estendido à mão por mais de um ano", () => {
+    expect(prazoDoTeste(26_712, "2099-12-31")).toBe("Teste grátis até 31/12/2099");
+  });
+
+  it("destaca os três últimos dias do teste, e não o teste que já terminou", () => {
+    expect([4, 3, 1, 0, -1].map((dias) => testePertoDoFim(dias))).toEqual([
+      false,
+      true,
+      true,
+      true,
+      false,
+    ]);
   });
 });
 

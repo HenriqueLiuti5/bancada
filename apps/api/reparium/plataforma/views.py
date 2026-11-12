@@ -1,6 +1,5 @@
 from typing import Any
 
-from django.utils import timezone
 from rest_framework import permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
@@ -12,6 +11,7 @@ from rest_framework.views import APIView
 from reparium.auditoria.models import Acao
 from reparium.auditoria.registro import origem_do_pedido, registrar
 from reparium.core.formatos import em_reais
+from reparium.core.fuso import hoje_no_reparium
 from reparium.core.rls import ver_todas_as_assistencias
 from reparium.plataforma import numeros
 from reparium.plataforma.meses import Mes
@@ -72,7 +72,7 @@ class PainelDaPlataformaView(ViewDaPlataforma):
     def get(self, request: Request) -> Response:
         filtro = FiltroDoPainelSerializer(data=request.query_params)
         filtro.is_valid(raise_exception=True)
-        hoje = timezone.localdate()
+        hoje = hoje_no_reparium()
         mes = filtro.validated_data.get("mes") or Mes.de(hoje)
 
         self.registrar(

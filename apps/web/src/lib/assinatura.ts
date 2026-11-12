@@ -1,5 +1,25 @@
-import { diaPorExtenso } from "@/lib/datas";
+import { dataCurta, diaPorExtenso } from "@/lib/datas";
+import { haDias } from "@/lib/formatos";
 import type { Ciclo, Fundadores, PlanoDaAssinatura, TamanhoDaAssistencia } from "@/lib/tipos";
+
+// Um teste de mais de um ano só existe estendido à mão, como o da conta de testes: aí a contagem de
+// dias não diz nada, e a data basta.
+const DIAS_DE_TESTE_SEM_CONTAGEM = 365;
+// Nos últimos dias do teste, quem ainda não assinou merece uma conversa.
+const DIAS_DO_FIM_DO_TESTE_EM_DESTAQUE = 3;
+
+export function prazoDoTeste(dias: number, terminaEm: string): string {
+  const data = dataCurta(terminaEm);
+  if (dias > DIAS_DE_TESTE_SEM_CONTAGEM) return `Teste grátis até ${data}`;
+  if (dias > 1) return `Teste grátis até ${data}, faltam ${dias} dias`;
+  if (dias === 1) return `Teste grátis até ${data}, termina amanhã`;
+  if (dias === 0) return `Teste grátis até ${data}, termina hoje`;
+  return `Teste grátis terminou ${haDias(-dias)}, em ${data}`;
+}
+
+export function testePertoDoFim(dias: number): boolean {
+  return dias >= 0 && dias <= DIAS_DO_FIM_DO_TESTE_EM_DESTAQUE;
+}
 
 export function avisoDaExclusao(apagaEm: string | null): string | null {
   if (!apagaEm) return null;

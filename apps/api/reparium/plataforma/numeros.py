@@ -17,7 +17,11 @@ from reparium.assinaturas.models import (
     SituacaoDaFatura,
 )
 from reparium.assinaturas.planos import PLANOS, Tamanho, tamanho_das_assistencias
-from reparium.assinaturas.regras import MESES_DO_CICLO
+from reparium.assinaturas.regras import (
+    MESES_DO_CICLO,
+    ainda_nao_assinou,
+    dias_para_o_fim_do_teste,
+)
 from reparium.ordens.models import OrdemServico
 from reparium.ordens.painel.periodo import inicio_do_dia
 from reparium.plataforma.meses import Mes
@@ -211,6 +215,16 @@ def _plano_da(assinatura: Assinatura | None, tamanho: Tamanho) -> dict[str, Any]
     }
 
 
+def _teste_da(assinatura: Assinatura | None, hoje: date) -> dict[str, Any]:
+    # Depois de assinar, o fim do teste é só a data da primeira cobrança: não pede contato.
+    if assinatura is None or not ainda_nao_assinou(assinatura):
+        return {"teste_termina_em": None, "dias_para_o_fim_do_teste": None}
+    return {
+        "teste_termina_em": assinatura.teste_termina_em.isoformat(),
+        "dias_para_o_fim_do_teste": dias_para_o_fim_do_teste(assinatura, hoje),
+    }
+
+
 def assistencias(mes: Mes, hoje: date) -> list[dict[str, Any]]:
     movimentos = _movimento_das_assistencias(mes)
     acessos = dict(
@@ -242,6 +256,7 @@ def assistencias(mes: Mes, hoje: date) -> list[dict[str, Any]]:
                 "situacao": assinatura.situacao if assinatura else None,
                 "situacao_rotulo": assinatura.get_situacao_display() if assinatura else "",
                 **_plano_da(assinatura, tamanhos.get(tenant.pk, Tamanho(lojas=0, pessoas=0))),
+                **_teste_da(assinatura, hoje),
                 "ordens_no_mes": movimento.no_mes,
                 "ordens_no_total": movimento.total,
                 "dias_sem_ordem": dias_sem_ordem,
