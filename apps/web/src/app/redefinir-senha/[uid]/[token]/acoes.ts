@@ -2,18 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { abrirSessaoPor } from "@/lib/acesso";
-import { estadoDeErro, texto, type EstadoDoFormulario } from "@/lib/formularios";
+import { estadoDeErro, senhaConfirmada, texto, type EstadoDoFormulario } from "@/lib/formularios";
 
 export async function redefinirSenha(
   _anterior: EstadoDoFormulario,
   dados: FormData,
 ): Promise<EstadoDoFormulario> {
-  const senha = String(dados.get("senha") ?? "");
-  const confirmacao = String(dados.get("confirmacao") ?? "");
-
-  if (senha !== confirmacao) {
-    return { erros: { confirmacao: "As duas senhas não são iguais." } };
-  }
+  const { senha, erros } = senhaConfirmada(dados);
+  if (erros) return { erros };
 
   try {
     await abrirSessaoPor("/api/auth/senha/redefinir/", {

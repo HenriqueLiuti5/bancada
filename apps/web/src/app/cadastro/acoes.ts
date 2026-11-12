@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { abrirSessaoPor } from "@/lib/acesso";
 import { cabecalhosDoVisitante, contarCadastro } from "@/lib/estatisticas";
-import { estadoDeErro, texto, type EstadoDoFormulario } from "@/lib/formularios";
+import { estadoDeErro, senhaConfirmada, texto, type EstadoDoFormulario } from "@/lib/formularios";
 
 export async function cadastrar(
   _anterior: EstadoDoFormulario,
@@ -16,16 +16,16 @@ export async function cadastrar(
     email: texto(dados, "email"),
     whatsapp: texto(dados, "whatsapp"),
   };
-  const senha = String(dados.get("senha") ?? "");
   const aceite_dos_termos = dados.get("aceite_dos_termos") === "sim";
+  const doFormulario = { ...valores, aceite_dos_termos: aceite_dos_termos ? "sim" : "" };
+
+  const { senha, erros } = senhaConfirmada(dados);
+  if (erros) return { erros, valores: doFormulario };
 
   try {
     await abrirSessaoPor("/api/auth/cadastro/", { ...valores, senha, aceite_dos_termos });
   } catch (erro) {
-    return estadoDeErro(erro, "Não foi possível criar a conta.", {
-      ...valores,
-      aceite_dos_termos: aceite_dos_termos ? "sim" : "",
-    });
+    return estadoDeErro(erro, "Não foi possível criar a conta.", doFormulario);
   }
 
   const visitante = await cabecalhosDoVisitante();

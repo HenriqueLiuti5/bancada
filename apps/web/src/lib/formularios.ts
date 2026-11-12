@@ -13,6 +13,13 @@ export function texto(dados: FormData, campo: string): string {
   return String(dados.get(campo) ?? "").trim();
 }
 
+// A senha não passa pelo trim() de texto(): um espaço nas pontas também faz parte dela.
+export function senhaConfirmada(dados: FormData): { senha: string; erros?: Record<string, string> } {
+  const senha = String(dados.get("senha") ?? "");
+  if (senha === String(dados.get("confirmacao") ?? "")) return { senha };
+  return { senha, erros: { confirmacao: "As duas senhas não são iguais." } };
+}
+
 function mensagemDoCampo(valor: unknown): string | null {
   if (typeof valor === "string") return valor;
   if (Array.isArray(valor) && typeof valor[0] === "string") return valor[0];

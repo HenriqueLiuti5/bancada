@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { CampoDeSenha } from "@/componentes/ui/CampoDeSenha";
 import { CampoDeTelefone } from "@/componentes/ui/CampoDeTelefone";
 import {
   AvisoDeObrigatorios,
@@ -88,14 +89,16 @@ export function FormularioDeCadastro() {
         dica="Pelo menos 8 caracteres, sem ser só números nem parecida com o seu e-mail."
         obrigatorio
       >
-        <input
-          id="senha"
-          name="senha"
-          type="password"
-          required
-          autoComplete="new-password"
-          className={campo}
-        />
+        <CampoDeSenha id="senha" name="senha" required autoComplete="new-password" />
+      </CampoRotulado>
+
+      <CampoRotulado
+        rotulo="Repita a senha"
+        htmlFor="confirmacao"
+        erro={erros.confirmacao}
+        obrigatorio
+      >
+        <CampoDeSenha id="confirmacao" name="confirmacao" required autoComplete="new-password" />
       </CampoRotulado>
 
       <div className="space-y-1.5">

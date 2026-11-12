@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { CampoDeSenha } from "@/componentes/ui/CampoDeSenha";
 import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
-import { botao, campo, juntar, link } from "@/componentes/ui/estilos";
+import { botao, juntar, link } from "@/componentes/ui/estilos";
 import type { EstadoDoFormulario } from "@/lib/formularios";
 import { redefinirSenha } from "./acoes";
 
@@ -26,15 +27,7 @@ export function FormularioDeNovaSenha({ uid, token }: { uid: string; token: stri
         dica="Pelo menos 8 caracteres, sem ser só números nem parecida com o seu e-mail."
         obrigatorio
       >
-        <input
-          id="senha"
-          name="senha"
-          type="password"
-          required
-          autoFocus
-          autoComplete="new-password"
-          className={campo}
-        />
+        <CampoDeSenha id="senha" name="senha" required autoFocus autoComplete="new-password" />
       </CampoRotulado>
 
       <CampoRotulado
@@ -43,14 +36,7 @@ export function FormularioDeNovaSenha({ uid, token }: { uid: string; token: stri
         erro={estado.erros?.confirmacao}
         obrigatorio
       >
-        <input
-          id="confirmacao"
-          name="confirmacao"
-          type="password"
-          required
-          autoComplete="new-password"
-          className={campo}
-        />
+        <CampoDeSenha id="confirmacao" name="confirmacao" required autoComplete="new-password" />
       </CampoRotulado>
 
       {estado.erro && (

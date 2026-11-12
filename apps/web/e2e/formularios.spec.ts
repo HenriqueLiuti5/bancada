@@ -1,12 +1,13 @@
 import type { Page } from "@playwright/test";
 import {
   abrirComOProblema,
+  campoDaSenha,
   cartao,
-  criarConta,
   diaDaquiA,
   donoNovo,
   expect,
   fotoDoAparelho,
+  preencherOCadastro,
   pularTour,
   test,
 } from "./apoio";
@@ -34,8 +35,22 @@ test("cada formulário mostra o que foi salvo e, quando o envio é recusado, con
   const dono = donoNovo();
   const emailDaPessoa = dono.email.replace("paula-", "rafael-");
 
-  await test.step("cria a conta", async () => {
-    await criarConta(page, dono);
+  await test.step("o cadastro com as senhas diferentes continua com o resto e, corrigido, cria a conta", async () => {
+    await preencherOCadastro(page, dono);
+    const repetida = page.getByLabel("Repita a senha");
+    await repetida.fill(`${dono.senha}?`);
+    await page.getByRole("button", { name: "Criar conta grátis" }).click();
+    await expect(page.getByText("As duas senhas não são iguais.")).toBeVisible();
+    await expect(page.getByLabel("Nome da assistência")).toHaveValue(dono.assistencia);
+    await expect(page.getByLabel("Seu nome")).toHaveValue(dono.nome);
+    await expect(page.getByLabel("E-mail")).toHaveValue(dono.email);
+    await expect(page.getByLabel("WhatsApp da assistência")).toHaveValue("(43) 99615-6781");
+    await expect(page.getByRole("checkbox", { name: /Li e aceito os termos de uso/ })).toBeChecked();
+
+    await campoDaSenha(page).fill(dono.senha);
+    await repetida.fill(dono.senha);
+    await page.getByRole("button", { name: "Criar conta grátis" }).click();
+    await expect(page).toHaveURL(/\/ordens$/);
     await pularTour(page, "Boas-vindas ao Reparium");
   });
 
@@ -60,13 +75,26 @@ test("cada formulário mostra o que foi salvo e, quando o envio é recusado, con
     await expect(convite.getByText(`Convite criado para ${PESSOA}.`)).toBeVisible();
   });
 
-  await test.step("a pessoa convidada entra na equipe pelo link", async () => {
+  await test.step("a pessoa convidada erra a senha repetida e depois entra na equipe pelo link", async () => {
     const link = await cartao(page, "Convidar pessoa").getByText(/\/convite\//).textContent();
     const contexto = await browser.newContext();
     const convidada = await contexto.newPage();
     await convidada.goto(new URL(new URL(link!).pathname, page.url()).href);
-    await expect(convidada.getByRole("textbox", { name: "Seu e-mail" })).toHaveValue(emailDaPessoa);
-    await convidada.getByLabel("Crie uma senha").fill(dono.senha);
+    const nome = convidada.getByRole("textbox", { name: "Seu nome" });
+    const email = convidada.getByRole("textbox", { name: "Seu e-mail" });
+    const senha = convidada.getByLabel("Crie uma senha");
+    const repetida = convidada.getByLabel("Repita a senha");
+    await expect(email).toHaveValue(emailDaPessoa);
+
+    await senha.fill(dono.senha);
+    await repetida.fill(`${dono.senha}?`);
+    await convidada.getByRole("button", { name: "Entrar na equipe" }).click();
+    await expect(convidada.getByText("As duas senhas não são iguais.")).toBeVisible();
+    await expect(nome).toHaveValue(PESSOA);
+    await expect(email).toHaveValue(emailDaPessoa);
+
+    await senha.fill(dono.senha);
+    await repetida.fill(dono.senha);
     await convidada.getByRole("button", { name: "Entrar na equipe" }).click();
     await expect(convidada).toHaveURL(/\/ordens$/);
     await contexto.close();

@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { KeyIcon, UserCheckIcon, UserMinusIcon } from "@/componentes/icones";
 import { Avatar } from "@/componentes/ui/Avatar";
+import { CampoDeSenha } from "@/componentes/ui/CampoDeSenha";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { Selo } from "@/componentes/ui/Selo";
 import { botao, botaoDeIcone, campo, juntar, seletor } from "@/componentes/ui/estilos";
@@ -96,14 +97,14 @@ export function Membro({ membro, souEu }: { membro: MembroDaEquipe; souEu: boole
       {mostrarSenha && (
         <form action={trocarSenha} className="flex flex-wrap items-center gap-2 pl-12">
           <input type="hidden" name="id" value={membro.id} />
-          <input
+          <CampoDeSenha
             name="senha"
-            type="password"
             required
             aria-label={`Nova senha de ${nome}`}
             placeholder="Nova senha *"
             autoComplete="new-password"
-            className={juntar(campo, "max-w-60 sm:h-9 sm:text-[13px]")}
+            classeDoContorno="w-full max-w-60"
+            className={juntar(campo, "sm:h-9 sm:text-[13px]")}
           />
           <button type="submit" disabled={trocando} className={botao("secundario", "sm")}>
             {trocando ? "Salvando..." : "Salvar senha"}

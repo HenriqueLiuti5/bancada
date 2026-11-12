@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ErroDaApi, mensagemDaApi } from "@/lib/api";
-import { estadoDeErro, texto } from "@/lib/formularios";
+import { estadoDeErro, senhaConfirmada, texto } from "@/lib/formularios";
 
 describe("texto", () => {
   it("lê o campo do formulário sem os espaços das pontas", () => {
@@ -8,6 +8,30 @@ describe("texto", () => {
     dados.set("nome", "  Maria Silva ");
     expect(texto(dados, "nome")).toBe("Maria Silva");
     expect(texto(dados, "ausente")).toBe("");
+  });
+});
+
+describe("senhaConfirmada", () => {
+  function senhas(senha: string, confirmacao?: string): FormData {
+    const dados = new FormData();
+    dados.set("senha", senha);
+    if (confirmacao !== undefined) dados.set("confirmacao", confirmacao);
+    return dados;
+  }
+
+  it("devolve a senha quando as duas são iguais", () => {
+    expect(senhaConfirmada(senhas("Reparium-123!", "Reparium-123!"))).toEqual({ senha: "Reparium-123!" });
+  });
+
+  it("põe o erro na confirmação quando as duas são diferentes ou ela não veio", () => {
+    const recusa = { senha: "Reparium-123!", erros: { confirmacao: "As duas senhas não são iguais." } };
+    expect(senhaConfirmada(senhas("Reparium-123!", "reparium-123!"))).toEqual(recusa);
+    expect(senhaConfirmada(senhas("Reparium-123!"))).toEqual(recusa);
+  });
+
+  it("não tira os espaços das pontas, que também fazem parte da senha", () => {
+    expect(senhaConfirmada(senhas(" Reparium-123!", " Reparium-123!")).senha).toBe(" Reparium-123!");
+    expect(senhaConfirmada(senhas(" Reparium-123!", "Reparium-123!")).erros).toBeDefined();
   });
 });
 

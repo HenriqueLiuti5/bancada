@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { CampoDeSenha } from "@/componentes/ui/CampoDeSenha";
 import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, juntar } from "@/componentes/ui/estilos";
@@ -57,14 +58,16 @@ export function FormularioDoConvite({ token, convite }: { token: string; convite
         dica="Pelo menos 8 caracteres, sem ser só números nem parecida com o seu e-mail."
         obrigatorio
       >
-        <input
-          id="senha"
-          name="senha"
-          type="password"
-          required
-          autoComplete="new-password"
-          className={campo}
-        />
+        <CampoDeSenha id="senha" name="senha" required autoComplete="new-password" />
+      </CampoRotulado>
+
+      <CampoRotulado
+        rotulo="Repita a senha"
+        htmlFor="confirmacao"
+        erro={erros.confirmacao}
+        obrigatorio
+      >
+        <CampoDeSenha id="confirmacao" name="confirmacao" required autoComplete="new-password" />
       </CampoRotulado>
 
       {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}

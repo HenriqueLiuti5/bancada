@@ -39,6 +39,7 @@ async function convidarAtendente(page: Page, browser: Browser, dono: Dono): Prom
   const atendente = await contexto.newPage();
   await atendente.goto(new URL(new URL(link!).pathname, page.url()).href);
   await atendente.getByLabel("Crie uma senha").fill(dono.senha);
+  await atendente.getByLabel("Repita a senha").fill(dono.senha);
   await atendente.getByRole("button", { name: "Entrar na equipe" }).click();
   await expect(atendente).toHaveURL(/\/ordens$/);
   await pularTour(atendente, "Boas-vindas ao Reparium");

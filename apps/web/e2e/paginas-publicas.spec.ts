@@ -38,6 +38,40 @@ for (const caminho of ["/termos", "/privacidade"]) {
   });
 }
 
+// Para o getByLabel, o texto do rótulo inclui o asterisco de campo obrigatório.
+for (const caminho of ["/login", "/cadastro"]) {
+  test(`${caminho} mostra e esconde a senha digitada`, async ({ page }) => {
+    await page.goto(caminho);
+    await page.waitForLoadState("networkidle");
+    const senha = page.getByLabel(/^Senha\*?$/);
+    const campo = senha.locator("..");
+    await senha.fill("segredo de teste");
+    await expect(senha).toHaveAttribute("type", "password");
+
+    await campo.getByRole("button", { name: "Mostrar senha" }).click();
+    await expect(senha).toHaveAttribute("type", "text");
+    await expect(senha).toHaveValue("segredo de teste");
+    // O foco fica no campo, para seguir digitando sem o teclado do celular fechar.
+    await expect(senha).toBeFocused();
+
+    await campo.getByRole("button", { name: "Ocultar senha" }).click();
+    await expect(senha).toHaveAttribute("type", "password");
+  });
+}
+
+test("cada campo de senha mostra só a própria senha", async ({ page }) => {
+  await page.goto("/redefinir-senha/teste/teste");
+  await page.waitForLoadState("networkidle");
+  const nova = page.getByLabel(/^Nova senha/);
+  const repetida = page.getByLabel(/^Repita a nova senha/);
+  await nova.fill("segredo de teste");
+  await repetida.fill("segredo de teste");
+
+  await nova.locator("..").getByRole("button", { name: "Mostrar senha" }).click();
+  await expect(nova).toHaveAttribute("type", "text");
+  await expect(repetida).toHaveAttribute("type", "password");
+});
+
 test("a página inicial diz até quando guarda a conta de quem não assina", async ({ page }) => {
   await page.goto("/");
 

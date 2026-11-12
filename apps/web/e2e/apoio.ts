@@ -39,14 +39,25 @@ export function donoNovo(): Dono {
   };
 }
 
-export async function criarConta(page: Page, dono: Dono): Promise<void> {
+// No cadastro, "Senha" sem âncora também acharia o "Repita a senha", e o exact não serve: o texto
+// do rótulo leva o asterisco de obrigatório.
+export function campoDaSenha(page: Page): Locator {
+  return page.getByLabel(/^Senha/);
+}
+
+export async function preencherOCadastro(page: Page, dono: Dono): Promise<void> {
   await page.goto("/cadastro");
   await page.getByLabel("Nome da assistência").fill(dono.assistencia);
   await page.getByLabel("Seu nome").fill(dono.nome);
   await page.getByLabel("E-mail").fill(dono.email);
   await page.getByLabel("WhatsApp da assistência").fill("43996156781");
-  await page.getByLabel("Senha").fill(dono.senha);
+  await campoDaSenha(page).fill(dono.senha);
+  await page.getByLabel("Repita a senha").fill(dono.senha);
   await page.getByRole("checkbox", { name: /Li e aceito os termos de uso/ }).check();
+}
+
+export async function criarConta(page: Page, dono: Dono): Promise<void> {
+  await preencherOCadastro(page, dono);
   await page.getByRole("button", { name: "Criar conta grátis" }).click();
   await expect(page).toHaveURL(/\/ordens$/);
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { CampoDeSenha } from "@/componentes/ui/CampoDeSenha";
 import { AvisoDeObrigatorios, CampoRotulado } from "@/componentes/ui/CampoRotulado";
 import { Mensagem } from "@/componentes/ui/Mensagem";
 import { botao, campo, juntar, link } from "@/componentes/ui/estilos";
@@ -40,14 +41,7 @@ export function FormularioLogin() {
           </Link>
         }
       >
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          autoComplete="current-password"
-          className={campo}
-        />
+        <CampoDeSenha id="password" name="password" required autoComplete="current-password" />
       </CampoRotulado>
 
       {estado.erro && <Mensagem tipo="erro">{estado.erro}</Mensagem>}
