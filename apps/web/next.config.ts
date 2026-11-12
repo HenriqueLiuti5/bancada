@@ -21,8 +21,14 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   devIndicators: { position: "bottom-left" },
+  // Em desenvolvimento, o Next só liga os botões das telas abertas por localhost. Aberto por
+  // 127.0.0.1, que é a mesma máquina, o site aparecia, mas nada que dependa do navegador funcionava.
+  allowedDevOrigins: ["127.0.0.1"],
   images: { qualities: [75, QUALIDADE_DAS_CAPTURAS] },
   experimental: {
+    // O cache em disco do Turbopack ficava velho quando o Docker desligava, e as telas de
+    // desenvolvimento passavam a se recarregar sozinhas sem parar ("HMR hash mismatch").
+    turbopackFileSystemCacheForDev: false,
     serverActions: { bodySizeLimit: TAMANHO_MAXIMO_DO_ENVIO_DE_FOTO_EM_BYTES },
     proxyClientMaxBodySize: TAMANHO_MAXIMO_DO_ENVIO_DE_FOTO_EM_BYTES,
     optimizePackageImports: ["@phosphor-icons/react/ssr"],
